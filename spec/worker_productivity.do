@@ -35,9 +35,8 @@ foreach outcome of local outcomes {
     quietly summarize `outcome' if covid == 0
     local precovid_mean = r(mean)
 
-    outreg2 using "`ols_file'", tex ///
+    outreg2 using "`ols_file'", tex(frag) ///
         `=cond(`first_ols', "replace", "append")' ///
-        ctitle("OLS `outcome'") ///
         addstat("Pre-COVID Y-Mean", `precovid_mean')
     local first_ols 0
 
@@ -52,9 +51,8 @@ foreach outcome of local outcomes {
     local precovid_mean = r(mean)
     local rkf           = e(rkf)
 
-    outreg2 using "`iv_file'", tex ///
+    outreg2 using "`iv_file'", tex(frag) ///
         `=cond(`first_iv', "replace", "append")' ///
-        ctitle("IV `outcome'") ///
         addstat("Pre-COVID Y-Mean", `precovid_mean', ///
                 "KP rk Wald F",      `rkf')
     local first_iv 0
@@ -72,12 +70,12 @@ foreach outcome of local outcomes {
 
 		* ---- var3 first stage ----
 		estimates restore _ivreg2_var3
-		outreg2 using "`fs_file'", tex replace ///
+		outreg2 using "`fs_file'", tex(frag) replace ///
 			addstat("Partial F", `partialF_3', "KP rk Wald F", `rkf')
 
 		* ---- var5 first stage ----
 		estimates restore _ivreg2_var5
-		outreg2 using "`fs_file'", tex append  ///  <-- append, not replace
+		outreg2 using "`fs_file'", tex(frag) append  ///  
 			addstat("Partial F", `partialF_5', "KP rk Wald F", `rkf')
 
 		local fs_done 1

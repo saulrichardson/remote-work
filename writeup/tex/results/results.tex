@@ -1,0 +1,31 @@
+% Master document collecting regression tables from results
+\documentclass{article}
+\usepackage{booktabs}
+% Base directory for saved results (relative to writeup/)
+\newcommand{\resultsdir}{../results}
+
+\begin{document}
+
+\section{Firm Scaling}
+
+\subsection{OLS}
+\input{\resultsdir/firm_scaling/ols.tex}
+
+\subsection{IV}
+\input{\resultsdir/firm_scaling/iv.tex}
+
+\subsection{First Stage}
+\input{\resultsdir/firm_scaling/first_stage.tex}
+
+\section{Worker Productivity}
+
+\subsection{OLS}
+\input{\resultsdir/worker_productivity/ols_results.tex}
+
+\subsection{IV}
+\input{\resultsdir/worker_productivity/iv_results.tex}
+
+\subsection{First Stage}
+\input{\resultsdir/worker_productivity/first_stage.tex}
+
+\end{document}

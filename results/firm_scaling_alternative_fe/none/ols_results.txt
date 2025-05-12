@@ -1,0 +1,17 @@
+	(1)	(2)	(3)
+VARIABLES	OLS growth_rate_we (FE: none)	OLS join_rate_we (FE: none)	OLS leave_rate_we (FE: none)
+			
+var3	-0.0480***	-0.0616***	0.185***
+	(0.00364)	(0.00414)	(0.00204)
+var5	0.0779***	0.0972***	-0.170***
+	(0.0181)	(0.0192)	(0.00860)
+var4	0.0272*	0.0479***	0.198***
+	(0.0155)	(0.0164)	(0.00742)
+Constant	0.0977***	0.222***	0.165***
+	(0.00231)	(0.00272)	(0.00121)
+			
+Observations	41,980	41,980	41,980
+R-squared	0.013	0.022	0.083
+Pre-COVID Y-Mean	0.114	0.245	0.141
+Robust standard errors in parentheses			
+*** p<0.01, ** p<0.05, * p<0.1			

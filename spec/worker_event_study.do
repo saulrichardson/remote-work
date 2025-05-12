@@ -1,10 +1,3 @@
-********************************************************************************
-* IV EVENT STUDY FOR PRODUCTIVITY OUTCOMES AT WORKER LEVEL (YEAR-HALF LEVEL)
-********************************************************************************
-
-cd "/Users/saul/Dropbox/Remote Work Startups/New/Code/scripts/project_skeleton/spec"
-
-* Global macros
 do "../src/globals.do"
 
 local specname   "worker_event_study"

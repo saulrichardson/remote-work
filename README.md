@@ -1,4 +1,3 @@
-# Project Skeleton
 
 - `data/`           : raw and processed data
 - `src/`            : build and configuration scripts

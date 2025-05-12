@@ -78,12 +78,12 @@ foreach outcome of local outcome_vars {
 
 		* ---- var3 first stage ----
 		estimates restore _ivreg2_var3
-		outreg2 using "`fs_file'", tex replace ///
+		outreg2 using "`fs_file'", tex(frag) replace ///
 			addstat("Partial F", `partialF_3', "KP rk Wald F", `rkf')
 
 		* ---- var5 first stage ----
 		estimates restore _ivreg2_var5
-		outreg2 using "`fs_file'", tex append  
+		outreg2 using "`fs_file'", tex(frag) append  ///
 			addstat("Partial F", `partialF_5', "KP rk Wald F", `rkf')
 
 		local fs_done 1

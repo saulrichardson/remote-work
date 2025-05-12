@@ -1,0 +1,16 @@
+	(1)	(2)
+VARIABLES	IV total_contributions_q100 (FE: firm)	IV restricted_contributions_q100 (FE: firm)
+		
+var3	0.186	0.301
+	(0.466)	(0.460)
+var5	19.34**	21.28**
+	(9.439)	(9.122)
+var4	-20.94**	-22.85***
+	(8.215)	(7.935)
+		
+Observations	52,995	52,995
+R-squared	0.000	0.000
+Pre-COVID Y-Mean	50.30	49.79
+KP rk Wald F	34.22	34.22
+Robust standard errors in parentheses		
+*** p<0.01, ** p<0.05, * p<0.1		

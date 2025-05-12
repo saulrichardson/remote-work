@@ -1,0 +1,16 @@
+	(1)	(2)	(3)
+VARIABLES	IV growth_rate_we (FE: time)	IV join_rate_we (FE: time)	IV leave_rate_we (FE: time)
+			
+var3	0.114***	0.168***	0.0816***
+	(0.00907)	(0.0114)	(0.00654)
+var5	0.0321	-0.0137	-0.0213
+	(0.0822)	(0.0948)	(0.0423)
+var4	0.0507	0.118	0.0562
+	(0.0699)	(0.0804)	(0.0357)
+			
+Observations	41,980	41,980	41,980
+R-squared	0.018	0.031	0.020
+Pre-COVID Y-Mean	0.114	0.245	0.141
+KP rk Wald F	16.51	16.51	16.51
+Robust standard errors in parentheses			
+*** p<0.01, ** p<0.05, * p<0.1			

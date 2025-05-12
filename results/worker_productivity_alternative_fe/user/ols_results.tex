@@ -1,0 +1,23 @@
+\documentclass[]{article}
+\setlength{\pdfpagewidth}{8.5in} \setlength{\pdfpageheight}{11in}
+\begin{document}
+\begin{tabular}{lcc} \hline
+ & (1) & (2) \\
+VARIABLES & OLS total\_contributions\_q100 (FE: user) & OLS restricted\_contributions\_q100 (FE: user) \\ \hline
+ &  &  \\
+remote $	imes$ covid & 0.0608 & 0.296 \\
+ & (0.413) & (0.417) \\
+remote $	imes$ covid $	imes$ startup & 1.395 & 0.108 \\
+ & (2.824) & (2.876) \\
+covid $	imes$ startup & -2.258 & -1.181 \\
+ & (2.528) & (2.592) \\
+Constant & 50.35*** & 49.79*** \\
+ & (0.119) & (0.120) \\
+ &  &  \\
+Observations & 53,020 & 53,020 \\
+R-squared & 0.668 & 0.667 \\
+ Pre-COVID Y-Mean & 50.30 & 49.79 \\ \hline
+\multicolumn{3}{c}{ Robust standard errors in parentheses} \\
+\multicolumn{3}{c}{ *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+\end{tabular}
+\end{document}

@@ -1,0 +1,22 @@
+\documentclass[]{article}
+\setlength{\pdfpagewidth}{8.5in} \setlength{\pdfpageheight}{11in}
+\begin{document}
+\begin{tabular}{lcc} \hline
+ & (1) & (2) \\
+VARIABLES & IV total\_contributions\_q100 (FE: firm) & IV restricted\_contributions\_q100 (FE: firm) \\ \hline
+ &  &  \\
+remote $	imes$ covid & 0.186 & 0.301 \\
+ & (0.466) & (0.460) \\
+remote $	imes$ covid $	imes$ startup & 19.34** & 21.28** \\
+ & (9.439) & (9.122) \\
+covid $	imes$ startup & -20.94** & -22.85*** \\
+ & (8.215) & (7.935) \\
+ &  &  \\
+Observations & 52,995 & 52,995 \\
+R-squared & 0.000 & 0.000 \\
+Pre-COVID Y-Mean & 50.30 & 49.79 \\
+ KP rk Wald F & 34.22 & 34.22 \\ \hline
+\multicolumn{3}{c}{ Robust standard errors in parentheses} \\
+\multicolumn{3}{c}{ *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+\end{tabular}
+\end{document}

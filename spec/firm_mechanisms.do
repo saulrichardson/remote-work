@@ -27,11 +27,6 @@ gen var14 = covid * seniority_4
 gen var15 = covid * seniority_4 * remote     
 gen var16 = teleworkable * covid * seniority_4 
 
-* Define Seniority-based Interactions 
-gen var14 = covid * seniority_4              
-gen var15 = covid * seniority_4 * remote     
-gen var16 = teleworkable * covid * seniority_4 
-
 
 
 * Column 1: Baseline only
