@@ -17,7 +17,7 @@ local fs_file   "`result_path'/first_stage.tex"
 
 local first_ols 1
 local first_iv  1
-local fs_done   0          // 0 = not yet written
+local fs_done   0          
 
 *----------------------------------------------------------
 * 3)  LOOP over outcomes
@@ -37,7 +37,9 @@ foreach outcome of local outcomes {
 
     outreg2 using "`ols_file'", tex(frag) ///
         `=cond(`first_ols', "replace", "append")' ///
-        addstat("Pre-COVID Y-Mean", `precovid_mean')
+        addstat("Pre-COVID Y-Mean", `precovid_mean') ///
+							nor2 ///
+					nocons
     local first_ols 0
 
 
@@ -54,7 +56,9 @@ foreach outcome of local outcomes {
     outreg2 using "`iv_file'", tex(frag) ///
         `=cond(`first_iv', "replace", "append")' ///
         addstat("Pre-COVID Y-Mean", `precovid_mean', ///
-                "KP rk Wald F",      `rkf')
+                "KP rk Wald F",      `rkf') ///
+									nor2 ///
+					nocons
     local first_iv 0
 
 
@@ -71,12 +75,16 @@ foreach outcome of local outcomes {
 		* ---- var3 first stage ----
 		estimates restore _ivreg2_var3
 		outreg2 using "`fs_file'", tex(frag) replace ///
-			addstat("Partial F", `partialF_3', "KP rk Wald F", `rkf')
+			addstat("Partial F", `partialF_3', "KP rk Wald F", `rkf') ///
+								nor2 ///
+								nocons
 
 		* ---- var5 first stage ----
 		estimates restore _ivreg2_var5
 		outreg2 using "`fs_file'", tex(frag) append  ///  
-			addstat("Partial F", `partialF_5', "KP rk Wald F", `rkf')
+			addstat("Partial F", `partialF_5', "KP rk Wald F", `rkf') ///
+								nor2 ///
+								nocons
 
 		local fs_done 1
 	}

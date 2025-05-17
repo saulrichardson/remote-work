@@ -1,8 +1,7 @@
 SHELL := /usr/bin/env bash
 SRC        := tex
 SCRIPTS   := $(SRC)/scripts
-RESULTS_SRC := $(SRC)/results/results.tex
-SLIDES_SRC := $(SRC)/slides/slides.tex
+RESULTS_SRC := $(SRC)/results/raw-results.tex
 BUILD  := build
 FINAL  := final
  .PHONY: all report slides final final-results final-slides clean
@@ -18,20 +17,10 @@ report:
 	@pdflatex -halt-on-error -interaction=nonstopmode \
 	  -output-directory=$(BUILD) $(RESULTS_SRC)
 
-slides:
-	mkdir -p $(BUILD)
-	pdflatex -halt-on-error -interaction=nonstopmode \
-	  -output-directory=$(BUILD) $(SLIDES_SRC)
 
-final: final-results final-slides
-
-final-results: report
+final-raw: report
 	@mkdir -p $(FINAL)
-	@cp $(BUILD)/results.pdf  $(FINAL)/
-
-final-slides: slides
-	@mkdir -p $(FINAL)
-	@cp $(BUILD)/slides.pdf   $(FINAL)/
+	@cp $(BUILD)/raw-results.pdf  $(FINAL)/
 
 clean:
 	rm -rf $(BUILD) $(FINAL)

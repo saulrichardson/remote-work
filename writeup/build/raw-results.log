@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.7.7)  16 MAY 2025 16:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.7.7)  16 MAY 2025 17:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**tex/results/results.tex
-(./tex/results/results.tex
+**tex/results/raw-results.tex
+(./tex/results/raw-results.tex
 LaTeX2e <2022-11-01> patch level 1
 L3 programming layer <2023-02-22>
 (/usr/local/texlive/2023/texmf-dist/tex/latex/base/article.cls
@@ -48,8 +48,8 @@ File: l3backend-pdftex.def 2023-01-16 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count197
 \l__pdf_internal_box=\box51
 )
-(build/results.aux)
-\openout1 = `results.aux'.
+(build/raw-results.aux)
+\openout1 = `raw-results.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 7.
 LaTeX Font Info:    ... okay on input line 7.
@@ -115,21 +115,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 1--30
 
  []
 
-[3] (build/results.aux) ) 
+[3] (build/raw-results.aux) ) 
 Here is how much of TeX's memory you used:
  545 strings out of 476025
- 10917 string characters out of 5790018
- 1864388 words of memory out of 5000000
+ 10961 string characters out of 5790018
+ 1863388 words of memory out of 5000000
  21052 multiletter control sequences out of 15000+600000
  513497 words of font info for 36 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 34i,7n,38p,183b,123s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2023/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmmi10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmr10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmsy10.pfb>
-Output written on build/results.pdf (3 pages, 55411 bytes).
+ 34i,7n,38p,187b,123s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2023/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmr10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmsy10.pfb>
+Output written on build/raw-results.pdf (3 pages, 55240 bytes).
 PDF statistics:
  34 PDF objects out of 1000 (max. 8388607)
  20 compressed objects within 1 object stream

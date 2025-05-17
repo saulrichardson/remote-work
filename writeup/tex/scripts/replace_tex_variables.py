@@ -70,7 +70,7 @@ def main():
         print(f"  {var} -> {worker_map[var]}")
 
     # Replace in all .tex under results
-    results_dir = project_root / 'results'
+    results_dir = project_root / 'results' / 'raw'
     for sub in results_dir.iterdir():
         if not sub.is_dir():
             continue
