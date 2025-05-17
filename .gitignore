@@ -1,2 +1,17 @@
-# Ignore data directory
+# Data and generated results
 data/
+results/
+
+# Build artifacts
+writeup/build/
+*.log
+
+# System files
+.DS_Store
+
+# Python bytecode
+__pycache__/
+
+# Local folders for old scripts
+**/bin/
+.DS_Store

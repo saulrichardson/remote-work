@@ -29,7 +29,7 @@ save `user_yh', replace
 *----------------------------------------------------------
 
 * Recent contributions data
-import delimited "/Users/saul/Dropbox/Remote Work Startups/New/Data/Contributions/MonthlyContributions.csv", clear
+import delimited "$raw_data/Contributions/MonthlyContributions.csv", clear
 
 tostring monthyear, replace format(%06.0f)
 gen year  = substr(monthyear, 1, 4)
