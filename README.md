@@ -1,29 +1,26 @@
+## Repository Overview
 
 - `data/`           : raw and processed data
 - `src/`            : build and configuration scripts
- - `spec/`           : individual empirical specifications
- - `py/`             : Python scripts for generating tables of means and graphs
+- `spec/`           : individual empirical specifications
+- `py/`             : Python utilities for figures and table post-processing
 
-Each script in `spec/` is self-contained: it loads the configuration, builds the data if needed, reads the master panel, runs its analysis, and writes outputs.
+Each specification under `spec/` loads the configuration, builds data if necessary, runs its analysis, and writes outputs.
 
-## Directory Structure
+### Directory Structure
 
-project_root/                     
-├── data/                        
-│   ├── raw/        (git-ignored)  Place original raw data files (CSV, DTA, etc.) here.
-│   └── processed/    Outputs of the data build script:
-│       ├ master_firm.dta     Cleaned firm-level panel
-│       ├ master_worker.dta   Cleaned worker-level panel
-│
-├── src/                         
-│   ├── globals2.do            Defines global macros (`$rawdata`, `$data`, `$results`).
-│   ├── build_firm_data.do     Builds firm-level data into `data/processed/master_firm.dta`.
-│   └── build_worker_data.do   Builds worker-level data into `data/processed/master_worker.dta`.
-│
-├── spec/                        
-│   ├── company_scaling.do      Stub for the company scaling spec.
-│   ├── worker_productivity.do  Stub for worker productivity spec.
-│   └── scaling_event.do        Stub for the scaling event-study spec.
-│
-├── py/                          
-└── results/            
+```
+project_root/
+├── data/
+│   ├── raw/          (git-ignored) original data files
+│   └── processed/    outputs from the build scripts
+│       ├── master_firm.dta
+│       └── master_worker.dta
+├── src/
+│   ├── globals.do            defines global paths (`$raw_data`, `$processed_data`, `$results`)
+│   ├── firm_panel.do         build firm-level data
+│   └── worker_panel.do       build worker-level data
+├── spec/                     Stata analysis scripts
+├── py/                       helper Python code
+└── results/                  intermediate outputs
+```
