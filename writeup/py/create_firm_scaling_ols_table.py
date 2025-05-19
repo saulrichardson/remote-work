@@ -59,9 +59,9 @@ def stars(p: float) -> str:
     return ""
 
 
+
 def cell(coef: float, se: float, p: float) -> str:
-    """Return LaTeX makecell with coef and SE."""
-    return rf"\makecell[c]{{{coef:.3f}{stars(p)}\\({se:.3f})}}"
+    return rf"\makecell[c]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
 
 
@@ -111,7 +111,7 @@ def build_obs_row(df: pd.DataFrame, keys: list[str], *,
                   filter_expr: str) -> str:
     """
     """
-    cells = ["Observations"]
+    cells = ["N"]
     for k in keys:
         sub = df.query(filter_expr.format(k=k))
         n    = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
@@ -152,7 +152,7 @@ def build_panel_a(df: pd.DataFrame) -> str:
         filter_expr="model_type=='OLS' and outcome=='{k}'"
     )
 
-    col_fmt = r"@{}lccc"   
+    col_fmt = r"@{}l@{\extracolsep{\fill}}ccc@{}"
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {TOP}
@@ -216,7 +216,7 @@ def build_panel_b(df: pd.DataFrame) -> str:
         indicator_row("Firm FE",  FIRM_FE_INCLUDED)
     ])
 
-    col_fmt = r"@{}l" + "c"*len(TAG_ORDER)         
+    col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c"*len(TAG_ORDER) + r"@{}"  
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {panel_row}
@@ -226,9 +226,9 @@ def build_panel_b(df: pd.DataFrame) -> str:
     {MID}
     {coef_block}
     {MID}
-    {obs_row}
-    {MID}
     {ind_rows}
+    {MID}
+    {obs_row}
     {BOTTOM}
     \end{{tabular*}}""")
 

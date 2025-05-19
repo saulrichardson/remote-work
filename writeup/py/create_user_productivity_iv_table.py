@@ -75,7 +75,7 @@ def stars(p: float) -> str:
 
 
 def cell(coef: float, se: float, p: float) -> str:
-    return rf"\makecell[l]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
+    return rf"\makecell[c]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
 
 def indicator_row(label: str, mapping: dict[str, bool]) -> str:
@@ -98,12 +98,28 @@ TABLE_WIDTH = r"\dimexpr\textwidth + 2cm\relax"
 # -----------------------------------------------------------------
 def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
     """Return a LaTeX row of observation counts."""
-    cells = ["Observations"]
+    cells = ["N"]
     for k in keys:
         sub = df.query(filter_expr.format(k=k)).head(1)
         n   = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
         cells.append(f"{n:,}")
-    return " & ".join(cells) + r" \\"
+    return " & ".join(cells) + r" \\" 
+
+# -----------------------------------------------------------------
+#  Kleibergen–Paap rk Wald F helper
+# -----------------------------------------------------------------
+
+def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
+    """Return a LaTeX-formatted row reporting the KP rk Wald F statistic."""
+
+    import pandas as pd
+
+    cells = ["KP rk Wald F"]
+    for k in keys:
+        sub = df.query(filter_expr.format(k=k)).head(1)
+        val = sub.iloc[0]["rkf"] if not sub.empty else float("nan")
+        cells.append(f"{val:.2f}" if pd.notna(val) else "")
+    return " & ".join(cells) + r" \\" 
 
 
 def column_format(n_numeric: int) -> str:
@@ -142,6 +158,12 @@ def build_panel_a(df: pd.DataFrame) -> str:
         filter_expr="model_type=='IV' and outcome=='{k}'"
     )
 
+    kp_row = build_kp_row(
+        df,
+        list(OUTCOME_LABEL),
+        filter_expr="model_type=='IV' and outcome=='{k}'"
+    )
+
     col_fmt = column_format(len(OUTCOME_LABEL))  # in build_panel_a
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
@@ -154,6 +176,7 @@ def build_panel_a(df: pd.DataFrame) -> str:
     {coef_block}
     {MID}
     {obs_row}
+    {kp_row}
     {PANEL_SEP}
     \end{{{TABLE_ENV}}}""")
 
@@ -164,7 +187,7 @@ def build_panel_b(df: pd.DataFrame) -> str:
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: FE Variants}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
-    dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Total}} \\"  # one outcome
+    dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Total Contributions}} \\"  # one outcome
     cmid    = rf"\cmidrule(lr){{2-{ncols}}}"
     header  = " & ".join([""] + COL_LABELS) + r" \\"  # (1)…(5)
 
@@ -181,6 +204,13 @@ def build_panel_b(df: pd.DataFrame) -> str:
 
     # Observations – by FE tag (none, firm, …)
     obs_row = build_obs_row(
+        df,
+        TAG_ORDER,
+        filter_expr=("model_type=='IV' and outcome=='total_contributions_q100' "
+                     "and fe_tag=='{k}'")
+    )
+
+    kp_row = build_kp_row(
         df,
         TAG_ORDER,
         filter_expr=("model_type=='IV' and outcome=='total_contributions_q100' "
@@ -204,9 +234,10 @@ def build_panel_b(df: pd.DataFrame) -> str:
     {MID}
     {coef_block}
     {MID}
-    {obs_row}
-    {MID}
     {ind_rows}
+    {MID}
+    {obs_row}
+    {kp_row}
     {BOTTOM}
     \end{{{TABLE_ENV}}}""")
 

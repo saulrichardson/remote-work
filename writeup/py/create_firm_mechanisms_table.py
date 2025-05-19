@@ -46,10 +46,10 @@ df = pd.read_csv(INPUT_CSV)
 
 # Format coefficient & SE strings
 df["coef_str"] = df.apply(
-    lambda r: f"{r.coef:.3f}{starify(r.pval)}" if r.param in ["var3","var5"] else f"{r.coef:.0f}",
+    lambda r: f"{r.coef:.2f}{starify(r.pval)}" if r.param in ["var3","var5"] else f"{r.coef:.0f}",
     axis=1
 )
-df["se_str"] = df.se.map(lambda s: f"({s:.3f})")
+df["se_str"] = df.se.map(lambda s: f"({s:.2f})")
 
 # Split into IV vs OLS
 df_iv  = df[df.model_type == "IV"]
@@ -134,7 +134,7 @@ for panel_id, model in [("A", "OLS"), ("B", "IV")]:
         for spec in specs
     ]
     lines.append(r"\addlinespace")
-    lines.append(r"Observations & " + " & ".join(nobs_vals) + r" \\")
+    lines.append(r"N & " + " & ".join(nobs_vals) + r" \\")
 
     if model == "IV":                # first-stage F for IV only
         f_vals = [f"{rkf_iv[spec]:.2f}" for spec in specs]

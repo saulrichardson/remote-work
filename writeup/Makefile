@@ -3,9 +3,10 @@ SRC        := tex
 REPORT_SRC := $(SRC)/results/consolidated-report.tex
 BUILD  := build
 FINAL  := final
-.PHONY: all report clean
+.PHONY: all report clean deploy
 
-all: report
+
+all: clean report deploy
 
 clean:
 	@rm -rf $(BUILD) $(FINAL)
@@ -20,10 +21,36 @@ report:
 	@echo "Generating firm scaling tables..."
 	@python py/create_firm_scaling_ols_table.py
 	@python py/create_firm_scaling_iv_table.py
+	@python py/create_firm_scaling_first_stage_table.py
 	@python py/create_user_productivity_ols_table.py
 	@python py/create_user_productivity_iv_table.py
+	@python py/create_user_productivity_first_stage_table.py
 	@echo "Compiling consolidated report..."
 	@pdflatex -halt-on-error -interaction=nonstopmode \
 	  -output-directory=$(BUILD) $(REPORT_SRC)
 	@mkdir -p $(FINAL)
 	@cp $(BUILD)/consolidated-report.pdf $(FINAL)/
+
+# -------------------------------------------------------------------------
+#  Deploy: copy artefacts to Overleaf-synced Dropbox folder
+# -------------------------------------------------------------------------
+
+# Absolute destinations (contains spaces → wrap in quotes)
+DEST_PAPER  := "/Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current/Paper"
+DEST_TABLES := "/Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current/Tables"
+
+# Source directory for cleaned LaTeX tables (relative to *this* Makefile)
+TABLE_SRC   := ../results/cleaned
+
+# Ensure report is up-to-date, then copy files.
+deploy:
+	@echo "Syncing artefacts to Overleaf Dropbox folder…"
+	# Clear existing artefacts so the destination always mirrors the latest build
+	@mkdir -p $(DEST_PAPER)
+	@mkdir -p $(DEST_TABLES)
+	@rm -rf $(DEST_PAPER)/*
+	@rm -rf $(DEST_TABLES)/*
+	@cp $(FINAL)/consolidated-report.pdf $(DEST_PAPER)/
+	@cp $(TABLE_SRC)/* $(DEST_TABLES)/
+	@echo "→ PDF copied to $(DEST_PAPER)"
+	@echo "→ Tables copied to $(DEST_TABLES)"

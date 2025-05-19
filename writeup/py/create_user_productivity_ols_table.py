@@ -84,8 +84,15 @@ def stars(p: float) -> str:
 
 
 def cell(coef: float, se: float, p: float) -> str:
-    return rf"\makecell[l]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
+    return rf"\makecell[c]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
+def cell(coef: float, se: float, p: float) -> str:
+    # vertical top (t) + horizontal center (c)
+    return rf"\makecell[tc]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
+
+def cell(coef: float, se: float, p: float) -> str:
+    # now the two-line block is top-aligned with the row baseline
+    return rf"\makecell[t]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
 def indicator_row(label: str, mapping: dict[str, bool]) -> str:
     checks = [r"$\checkmark$" if mapping.get(tag, False) else "" for tag in TAG_ORDER]
@@ -103,8 +110,23 @@ TABLE_WIDTH = r"\dimexpr\textwidth + 1cm\relax"
 
 TABLE_ENV = "tabularx"
 
+#def column_format(n_numeric: int) -> str:
+#    return r"@{}l" + " ".join([r">{\centering\arraybackslash}X" for _ in range(n_numeric)]) + r"@{}"
+
+#def column_format(n_numeric):
+#    # first column is left-aligned stub, then n_numeric centred X’s
+#    return "@{}l " + " ".join(["C" for _ in range(n_numeric)]) + " @{}"
+
 def column_format(n_numeric: int) -> str:
-    return r"@{}l" + " ".join([r">{\centering\arraybackslash}X" for _ in range(n_numeric)]) + r"@{}"
+    # first column is left‐aligned stub, then each numeric col is an X that centres its contents
+    return "@{}l " + \
+           " ".join([r">{\centering\arraybackslash}X" for _ in range(n_numeric)]) + \
+           " @{}"
+           
+def column_format(n_numeric: int) -> str:
+    # first column stays left-aligned (the stub), all the rest are centered X's
+    return "@{}l " + " ".join(["C"]*n_numeric) + " @{}"
+
 # ---------------------------------------------------------------------------
 # 3) Panel builders
 # ---------------------------------------------------------------------------
@@ -114,7 +136,7 @@ def column_format(n_numeric: int) -> str:
 # ---------------------------------------------------------------------------
 def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
     """Return a LaTeX row like 'Observations & 12,345 & 12,345 & … \\\\'."""
-    cells = ["Observations"]
+    cells = ["N"]
     for k in keys:
         sub = df.query(filter_expr.format(k=k)).head(1)
         n   = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
@@ -173,7 +195,7 @@ def build_panel_b(df: pd.DataFrame) -> str:
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: FE Variants}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
-    dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Total}} \\"  # Only one outcome
+    dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Total Contributions}} \\"  # Only one outcome
     cmid = rf"\cmidrule{{2-{ncols}}}"
     header = " & ".join([""] + COL_LABELS) + r" \\"  # (1)…(5)
 
@@ -216,9 +238,9 @@ def build_panel_b(df: pd.DataFrame) -> str:
     {MID}
     {coef_block}
     {MID}
-    {obs_row}
-    {MID}
     {ind_rows}
+    {MID}
+    {obs_row}
     {BOTTOM}
     \end{{{TABLE_ENV}}}""")
 

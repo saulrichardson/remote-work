@@ -7,6 +7,22 @@
 
 Each specification under `spec/` loads the configuration, builds data if necessary, runs its analysis, and writes outputs.
 
+### Building the paper
+
+All LaTeX compilation and table-generation logic lives in a single `Makefile`
+inside the `writeup/` directory.  To build the consolidated report and the
+associated cleaned tables, invoke:
+
+```bash
+# From the repository root
+make -C writeup report
+
+# …or, equivalently, change into the directory first
+cd writeup && make report
+```
+
+Additional helper targets are documented at the top of `writeup/Makefile`.
+
 ### Directory Structure
 
 ```
