@@ -1,19 +1,20 @@
 *============================================================*
-*  do/worker_productivity_regressions.do
+*  do/firm_scaling_regressions.do
 *  — Automated export of OLS, IV, and first‐stage partial F's
-*    for worker productivity outcomes
 *============================================================*
 
 // 0) Setup environment
 do "../src/globals.do"
 
-// 1) Load worker‐level panel
-use "$processed_data/user_panel.dta", clear
+// 1) Load master panel
+use "$processed_data/firm_panel.dta", clear
 
-// 2) Prepare output dir & reset any old postfile
-local specname    "worker_productivity"
-local result_dir  "$results/`specname'"
+// 2) Prepare output dir & tempfile
+local specname   "firm_scaling"
+local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
+
+
 
 capture postclose handle
 tempfile out
@@ -38,39 +39,38 @@ postfile handle_fs ///
     double coef se pval       ///
     double partialF rkf nobs  ///
     using `out_fs', replace
-	
+
 // 3) Loop over outcomes
-local outcomes total_contributions_q100 restricted_contributions_q100
-local fs_done 0
+local outcome_vars growth_rate_we join_rate_we leave_rate_we
 
-foreach y of local outcomes {
-    di as text "→ Processing outcome: `y'"
+local fs_done = 0
 
-    // ----- OLS -----
-    reghdfe `y' var3 var5 var4, absorb(user_id firm_id yh) ///
-        vce(cluster user_id)
-		
-	local N = e(N) 
+foreach y of local outcome_vars {
+    di as text "→ Processing `y'"
+
+    // --- OLS ---
+     reghdfe `y' var3 var5 var4, absorb(firm_id yh) vce(cluster firm_id)
 	
+	local N = e(N) 
+
     foreach p in var3 var5 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-		*--- inside the OLS loop ------------------------------------------------------
 		post handle ("OLS") ("`y'") ("`p'") ///
 					(`b') (`se') (`pval') ///
 					(.) (`N')                 // dot for rkf, then nobs
     }
 
-    // ----- IV (2nd‐stage) -----
-    ivreghdfe ///
+    // --- IV (2nd stage) ---
+     ivreghdfe ///
         `y' (var3 var5 = var6 var7) var4, ///
-        absorb(user_id firm_id yh) vce(cluster user_id) savefirst
-		
-    local rkf = e(rkf)
+        absorb(firm_id yh) vce(cluster firm_id) savefirst
+
+    local rkf   = e(rkf)
 	local N = e(N) 
-	
+
     foreach p in var3 var5 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
@@ -82,6 +82,7 @@ foreach y of local outcomes {
 					(`rkf') (`N')            // rkf, then nobs
     }
 
+    // --- FIRST STAGE: only once on first loop pass ---
 	if !`fs_done' {
 		
 		matrix FS = e(first)
@@ -118,7 +119,9 @@ foreach y of local outcomes {
 
 		local fs_done 1
 	}
+
 }
+
 
 // 4) Close & export to CSV
 postclose handle

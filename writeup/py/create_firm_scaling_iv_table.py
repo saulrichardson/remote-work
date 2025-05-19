@@ -13,7 +13,7 @@ Formatting tweaks (May 18 2025):
 """
 from pathlib import Path
 import pandas as pd
-import textwrap          #  add once, near the top of the file
+import textwrap
 
 
 # -----------------------------------------------------------------------------
@@ -104,15 +104,29 @@ PANEL_SEP = r"\specialrule{\lightrulewidth}{0pt}{0pt}"
 # -------------------------------------------------------------------------
 TABLE_WIDTH = r"\textwidth"                       # unchanged
 
+# -----------------------------------------------------------------
+# Shared helper
+# -----------------------------------------------------------------
+def build_obs_row(df: pd.DataFrame, keys: list[str], *,
+                  filter_expr: str) -> str:
+    """
+    """
+    cells = ["Observations"]
+    for k in keys:
+        sub = df.query(filter_expr.format(k=k))
+        n    = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
+        cells.append(f"{n:,}")
+    return " & ".join(cells) + r" \\"
+
 # ------------------------------------------------------------------
 # 1)  Panel A  – all scaling outcomes (IV)
 # ------------------------------------------------------------------
 def build_panel_a(df: pd.DataFrame) -> str:
     ncIV = 1 + len(OUTCOME_LABEL)
 
-    # bold + underline panel caption
     panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
-                rf"\textbf{{\uline{{Panel A: All Outcomes}}}}}}\\"
+                      rf"\textbf{{\uline{{Panel A: All Outcomes}}}}}}\\"
+    panel_row += "\n\\addlinespace"
 
     # header: three outcomes grouped under one centred “Outcome” title
     dep_hdr = r" & \multicolumn{3}{c}{Outcome} \\"
@@ -132,7 +146,14 @@ def build_panel_a(df: pd.DataFrame) -> str:
         rows.append(" & ".join(cells) + r" \\")
     coef_block = "\n".join(rows)
 
-    col_fmt = r"@{\extracolsep{\fill}}lccc"                    # 1 stub + 3 cols
+    obs_row = build_obs_row(
+        df,
+        list(OUTCOME_LABEL),
+        filter_expr="model_type=='IV' and outcome=='{k}'"
+    )
+
+
+    col_fmt = r"@{}lccc" 
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {TOP}
@@ -142,6 +163,8 @@ def build_panel_a(df: pd.DataFrame) -> str:
     {sub_hdr}
     {MID}
     {coef_block}
+    {MID}
+    {obs_row}
     {PANEL_SEP}   
     \end{{tabular*}}""")
 
@@ -155,8 +178,11 @@ def build_panel_b(df: pd.DataFrame) -> str:
     ncIV = 1 + len(TAG_ORDER)           # 1 stub + 4 spec columns
 
     # bold-underline caption
+    # bold-underline caption, no leading space
     panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
                 rf"\textbf{{\uline{{Panel B: FE Variants}}}}}}\\"
+    panel_row += "\n\\addlinespace"
+            
 
     # --- NEW lines ----------------------------------------------------
     dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Growth}} \\"
@@ -180,13 +206,22 @@ def build_panel_b(df: pd.DataFrame) -> str:
         rows.append(" & ".join(cells) + r" \\")
     coef_block = "\n".join(rows)
 
+    obs_row = build_obs_row(
+        df, TAG_ORDER,
+        filter_expr=("model_type=='IV' and outcome=='growth_rate_we' "
+                     "and fe_tag=='{k}'")
+    )
+    
     # ✓ indicator block (no trailing \\)
     ind_rows = "\n".join([
         indicator_row("Time FE",  TIME_FE_INCLUDED),
         indicator_row("Firm FE",  FIRM_FE_INCLUDED)
     ])
 
-    col_fmt = r"@{\extracolsep{\fill}}l" + "c"*len(TAG_ORDER)
+    # one stub + four c‐columns, no left \tabcolsep
+    col_fmt = r"@{}lcccc"
+    #—or, if you still want stretchy space between columns:
+    #col_fmt = r"@{}l@{\extracolsep{\fill}}cccc"
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {panel_row}
@@ -195,6 +230,8 @@ def build_panel_b(df: pd.DataFrame) -> str:
     {header}
     {MID}
     {coef_block}
+    {MID}
+    {obs_row}
     {MID}
     {ind_rows}
     {BOTTOM}
@@ -233,18 +270,18 @@ def main() -> None:
     
     # ----------------- NEW LINES -----------------
     tex_lines.append(r"\caption{Firm Scaling IV}")
-    tex_lines.append(r"\label{tab:firm_scaling}")   # optional for \ref{}
+    tex_lines.append(r"\label{tab:firm_scaling_iv}")   # optional for \ref{}
     tex_lines.append(r"\centering")
 
     # Panel A and Panel B (helpers already return strings with trailing \n)
     # The helper builders still embed *escaped* new-line sequences ("\\n").
     # Convert those to real new-lines so LaTeX does not see the two-character
     # token "\\n" (which triggers an \undefined control sequence error).
-    panel_a = build_panel_a(df_base).replace("\\n", "\n").rstrip()
-    tex_lines.append(r"\nointerlineskip")  
-    panel_b = build_panel_b(df_alt).replace("\\n", "\n").rstrip()
+    panel_a = build_panel_a(df_base).rstrip()
+    panel_b = build_panel_b(df_alt).rstrip()
 
     tex_lines.append(panel_a)
+    tex_lines.append(r"\vspace{0.1\baselineskip}")    # <<< extra gap
     tex_lines.append(panel_b)
 
     #tex_lines.append(r"\vspace{0.5em}")

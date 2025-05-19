@@ -21,7 +21,7 @@ tempfile out
 postfile handle ///
     str20   model_type          ///  
     str20   fe_tag              ///
-    str40  outcome             ///
+    str20  outcome             ///
     str40  param               ///
     double coef se pval        ///
     double rkf nobs            ///  
@@ -33,7 +33,7 @@ tempfile out_fs
 capture postclose handle_fs
 postfile handle_fs ///
     str20   fe_tag              ///  "fyh", "time", "firm", "none"
-    str40  outcome             ///
+    str20  outcome             ///
     str20   endovar             ///  "var3" / "var5"
     str40  param               ///  var6 / var7 / var4
     double coef se pval        ///
