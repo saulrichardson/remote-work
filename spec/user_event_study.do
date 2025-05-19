@@ -1,8 +1,8 @@
 do "../src/globals.do"
 
 local specname   "worker_event_study"
-local result_path "$results/`specname'"
-capture mkdir "`result_path'"
+local result_path "$clean_results"
+// capture mkdir "`result_path'"
 
 use "$processed_data/worker_panel.dta", clear
 
