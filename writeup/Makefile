@@ -1,9 +1,20 @@
 SHELL := /usr/bin/env bash
 SRC        := tex
 REPORT_SRC := $(SRC)/results/consolidated-report.tex
+README_SRC := $(SRC)/README.tex
+
 BUILD  := build
 FINAL  := final
 .PHONY: all report clean deploy
+README_PDF := $(basename $(README_SRC)).pdf
+
+.PHONY: readme
+
+# Build the README PDF in-place so that GitHub and Overleaf can pick it up.
+readme:
+	@echo "Compiling README.pdf…"
+	@pdflatex -shell-escape -halt-on-error -interaction=nonstopmode $(README_SRC)
+	@echo "→ PDF available at $(README_PDF)"
 
 
 all: clean report deploy
