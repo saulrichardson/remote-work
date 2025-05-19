@@ -6,21 +6,29 @@ README_SRC := $(SRC)/README.tex
 BUILD  := build
 FINAL  := final
 .PHONY: all report clean deploy
-README_PDF := $(basename $(README_SRC)).pdf
+README_PDF := README.pdf          # final artefact at project root
 
 .PHONY: readme
 
-# Build the README PDF in-place so that GitHub and Overleaf can pick it up.
+
+all: clean report deploy          # report target already rebuilds README
+
+# ---------------------------------------------------------------------
+# README document
+#   – compile LaTeX into writeup/build
+#   – copy resulting PDF to repository root
+# ---------------------------------------------------------------------
 readme:
+	@mkdir -p $(BUILD)
 	@echo "Compiling README.pdf…"
-	@pdflatex -shell-escape -halt-on-error -interaction=nonstopmode $(README_SRC)
-	@echo "→ PDF available at $(README_PDF)"
+	@(cd $(BUILD) && pdflatex -shell-escape -halt-on-error -interaction=nonstopmode \
+	  ../$(SRC)/README.tex)
+	@cp $(BUILD)/README.pdf ../$(README_PDF)
+	@echo "→ PDF copied to project root ($(README_PDF))"
 
-
-all: clean report deploy
 
 clean:
-	@rm -rf $(BUILD) $(FINAL)
+	@rm -rf $(BUILD) $(FINAL) ../README.pdf $(SRC)/_minted-README $(BUILD)/_minted-README
 
 # Report document
 report:
@@ -41,6 +49,9 @@ report:
 	  -output-directory=$(BUILD) $(REPORT_SRC)
 	@mkdir -p $(FINAL)
 	@cp $(BUILD)/consolidated-report.pdf $(FINAL)/
+
+# Also regenerate README so that both PDFs are up-to-date with one command
+	@$(MAKE) readme
 
 # -------------------------------------------------------------------------
 #  Deploy: copy artefacts to Overleaf-synced Dropbox folder
