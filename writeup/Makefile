@@ -70,7 +70,6 @@ deploy:
 	# Clear existing artefacts so the destination always mirrors the latest build
 	@mkdir -p $(DEST_PAPER)
 	@mkdir -p $(DEST_TABLES)
-	@rm -rf $(DEST_PAPER)/*
 	@rm -rf $(DEST_TABLES)/*
 	@cp $(FINAL)/consolidated-report.pdf $(DEST_PAPER)/
 	@cp $(TABLE_SRC)/* $(DEST_TABLES)/
