@@ -1,0 +1,36 @@
+\begin{table}[H]
+\centering
+\caption{Firm Scaling Mechanisms}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Growth} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Baseline & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+Rent &  & \checkmark &  & \checkmark &  & \checkmark &  & \checkmark \\
+HHI &  &  & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\
+Seniority &  &  &  &  & \checkmark & \checkmark & \checkmark & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & 0.00 & 0.01 & -0.02*** & -0.02 & 0.03 & 0.03 & -0.02 & -0.02 \\
+ & (0.00) & (0.01) & (0.01) & (0.01) & (0.02) & (0.02) & (0.03) & (0.03) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.07*** & 0.07*** & 0.06** & 0.06** & 0.07*** & 0.07*** & 0.06*** & 0.06** \\
+ & (0.02) & (0.03) & (0.02) & (0.03) & (0.02) & (0.02) & (0.02) & (0.02) \\
+\addlinespace
+N & 41,980 & 38,760 & 38,760 & 38,760 & 38,760 & 38,760 & 38,760 & 38,760 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & 0.01 & -0.13*** & -0.05* & -0.17*** & -0.01 & -0.14* & -0.15** & -0.27*** \\
+ & (0.01) & (0.05) & (0.03) & (0.05) & (0.07) & (0.08) & (0.07) & (0.08) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.21** & 0.20* & 0.08 & 0.07 & 0.17 & 0.16 & 0.09 & 0.09 \\
+ & (0.10) & (0.11) & (0.11) & (0.11) & (0.10) & (0.10) & (0.11) & (0.11) \\
+\addlinespace
+N & 41,980 & 38,760 & 38,760 & 38,760 & 38,760 & 38,760 & 38,760 & 38,760 \\
+KP\,rk Wald F & 16.53 & 10.68 & 10.28 & 8.00 & 9.25 & 8.00 & 7.75 & 6.33 \\
+\bottomrule
+\end{tabular}
+\label{tab:firm_mechanisms}
+\end{table}

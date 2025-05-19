@@ -1,0 +1,44 @@
+% Auto-generated IV table – User Productivity
+
+\begin{table}[H]
+\centering
+\caption{User Productivity -- IV}
+\label{tab:user_productivity_iv}
+\centering
+
+    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
+    \toprule
+    \multicolumn{3}{@{}l}{\textbf{\uline{Panel A: All Outcomes}}}\\
+\addlinespace
+     & \multicolumn{2}{c}{Outcome} \\
+    \cmidrule(lr){2-3}
+     & Total & Restricted \\
+    \midrule
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-17.36**\\(8.72)} & \makecell[c]{-19.25**\\(8.88)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{31.85***\\(12.28)} & \makecell[c]{34.94***\\(12.13)} \\
+    \midrule
+    N & 52,995 & 52,995 \\
+    KP rk Wald F & 26.05 & 26.05 \\
+    \specialrule{\lightrulewidth}{0pt}{0pt}
+    \end{tabularx}
+
+    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
+    \multicolumn{7}{@{}l}{\textbf{\uline{Panel B: FE Variants}}}\\
+\addlinespace
+     & \multicolumn{6}{c}{Total Contributions} \\
+    \cmidrule(lr){2-7}
+     & (1) & (2) & (3) & (4) & (5) & (6) \\
+    \midrule
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-306.40\\(246.93)} & \makecell[c]{-18.75**\\(9.01)} & \makecell[c]{-306.96\\(247.32)} & \makecell[c]{-18.76**\\(9.01)} & \makecell[c]{-17.36**\\(8.72)} & \makecell[c]{-19.30**\\(8.79)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{2265.39\\(4881.21)} & \makecell[c]{38.28***\\(13.01)} & \makecell[c]{2264.90\\(4882.69)} & \makecell[c]{38.30***\\(13.02)} & \makecell[c]{31.85***\\(12.28)} & \makecell[c]{33.67***\\(12.32)} \\
+    \midrule
+    Time FE &  &  & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Firm FE &  & $\checkmark$ &  & $\checkmark$ & $\checkmark$ &  \\
+User FE &  &  &  &  & $\checkmark$ &  \\
+Firm $\times$ User FE &  &  &  &  &  & $\checkmark$ \\
+    \midrule
+    N & 49,287 & 52,995 & 49,287 & 52,995 & 52,995 & 52,718 \\
+    KP rk Wald F & 0.04 & 27.41 & 0.04 & 27.41 & 26.05 & 25.60 \\
+    \bottomrule
+    \end{tabularx}
+\end{table}

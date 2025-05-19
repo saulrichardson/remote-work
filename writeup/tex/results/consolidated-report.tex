@@ -1,0 +1,222 @@
+% Document collecting the table of means and mechanisms tables
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{makecell}
+\usepackage{threeparttable}
+\usepackage[normalem]{ulem}
+\usepackage{float}
+\usepackage{amsfonts}  % Minimal
+\usepackage{amssymb}   % Includes amsfonts and more
+\usepackage{amsmath}
+% Additional packages for landscape pages
+\usepackage{dsfont}
+\usepackage{pdflscape}
+\usepackage{tabularx}
+
+\usepackage{tabularx,array}
+\usepackage{graphicx}
+% define a “centering” version of X
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+%\setlength{\tabcolsep}{8pt}
+
+% Base directory for cleaned results
+\newcommand{\cleanedresultsdir}{../results/cleaned}
+% Base directory for figures
+\newcommand{\figdir}{../results/figures}
+
+\begin{document}
+
+% -------------------------------------------------------------------------
+%  Figures – key descriptive plots
+% -------------------------------------------------------------------------
+\section{Figures}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\figdir/firm_teleworkable_remote.png}
+  \caption{Remote v. Teleworkabe Scores}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\figdir/firm_age_lt100_remote.png}
+  \caption{Remote v. Firm Age (\textless{} 100 employees)}
+\end{figure}
+
+\clearpage
+
+\section{Table of Means}
+\input{\cleanedresultsdir/table_of_means.tex}
+
+\section{Mechanisms}
+
+We begin with the “base” specification:
+\[
+\begin{aligned}
+y_{it} &= \alpha 
+  + \beta_1\,(remote_i \times covid_t)
+  + \beta_2\,(remote_i \times covid_t \times startup_i) \\
+       &\quad
+  + \delta\,(covid_t \times startup_i)
+  + \mathrm{FE}_{it}
+  + \varepsilon_{it},
+\end{aligned}
+\]
+which captures how the outcome responds to remote work during COVID and
+whether that effect differs in young firms.
+
+In the \textbf{rent} “mirror” model we add two additional channels:
+\[
+\begin{aligned}
+y_{it} &= \alpha 
+  + \beta_1\,(remote_i \times covid_t)
+  + \beta_2\,(remote_i \times covid_t \times startup_i) \\
+       &\quad
+  + \delta\,(covid_t \times startup_i)
+  + \gamma_1\,(covid_t \times rent_i)
+  + \gamma_2\,(remote_i \times covid_t \times rent_i) \\
+       &\quad
+  + \mathrm{FE}_{it}
+  + \varepsilon_{it},
+\end{aligned}
+\]
+so that \(\gamma_1\) and \(\gamma_2\) capture how both the baseline COVID
+effect and the remote‐work premium vary with local office rents.
+
+Likewise, the \textbf{centrality} (HHI) model adds:
+\[
+\begin{aligned}
+y_{it} &= \alpha 
+  + \beta_1\,(remote_i \times covid_t)
+  + \beta_2\,(remote_i \times covid_t \times startup_i) \\
+       &\quad
+  + \delta\,(covid_t \times startup_i)
+  + \gamma_1\,(covid_t \times hhi_i)
+  + \gamma_2\,(remote_i \times covid_t \times hhi_i) \\
+       &\quad
+  + \mathrm{FE}_{it}
+  + \varepsilon_{it}.
+\end{aligned}
+\]
+By turning on each check‐mark (rent, centrality, seniority) one at a time—and
+then in combination—we “mirror” the base COVID×Remote specification through
+different mechanisms.
+
+
+
+	\clearpage
+	\begin{landscape}
+	\subsection{User Productivity Mechanisms}
+	\input{\cleanedresultsdir/user_mechanisms.tex}
+	\end{landscape}
+
+\clearpage
+\begin{landscape}
+\subsection{Firm Mechanisms}
+\input{\cleanedresultsdir/firm_mechanisms.tex}
+  \end{landscape}
+
+%-----------------------------------------------------------------
+%=====================================================================
+% Firm Scaling
+%=====================================================================
+
+\clearpage
+\section{Firm Scaling}
+\label{sec:firm_scaling}
+
+\subsection{OLS}
+\input{\cleanedresultsdir/firm_scaling_ols.tex}
+
+\subsection{Instrumental Variables}
+\input{\cleanedresultsdir/firm_scaling_iv.tex}
+
+\subsection{First Stage}
+\input{\cleanedresultsdir/firm_scaling_first_stage.tex}
+
+%-----------------------------------------------------------------
+%=====================================================================
+% User Productivity
+%=====================================================================
+
+\clearpage
+\section{User Productivity}
+\label{sec:user_productivity}
+
+\subsection{OLS}
+\input{\cleanedresultsdir/user_productivity_ols.tex}
+
+\subsection{Instrumental Variables}
+\input{\cleanedresultsdir/user_productivity_iv.tex}
+
+\subsection{First Stage}
+\input{\cleanedresultsdir/user_productivity_first_stage.tex}
+
+%-----------------------------------------------------------------
+%=====================================================================
+% Dynamic Event‐Study Results
+%=====================================================================
+
+\clearpage
+\section{Dynamic Event‐Study Evidence}
+
+% ------------------------------------------------------------------
+%  User-level outcomes (pairwise figures; max two per page)
+% ------------------------------------------------------------------
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/ols_total_contributions_q100.png}\\[2pt]
+  \caption*{OLS – Total Contributions}
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/iv_total_contributions_q100.png}\\[2pt]
+  \caption*{IV – Total Contributions}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/ols_restricted_contributions_q100.png}\\[2pt]
+  \caption*{OLS – Restricted Contributions}
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/iv_restricted_contributions_q100.png}\\[2pt]
+  \caption*{IV – Restricted Contributions}
+\end{figure}
+
+\clearpage
+
+% ------------------------------------------------------------------
+%  Firm-level outcomes
+% ------------------------------------------------------------------
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/ols_growth_rate_we.png}\\[2pt]
+  \caption*{OLS – Employment Growth}
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/iv_growth_rate_we.png}\\[2pt]
+  \caption*{IV – Employment Growth}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/ols_join_rate_we.png}\\[2pt]
+  \caption*{OLS – Join Rate}
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/iv_join_rate_we.png}\\[2pt]
+  \caption*{IV – Join Rate}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/ols_leave_rate_we.png}\\[2pt]
+  \caption*{OLS – Leave Rate}
+  \includegraphics[width=0.9\textwidth]{\cleanedresultsdir/iv_leave_rate_we.png}\\[2pt]
+  \caption*{IV – Leave Rate}
+\end{figure}
+
+
+\end{document}

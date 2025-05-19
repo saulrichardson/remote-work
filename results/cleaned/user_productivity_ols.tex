@@ -1,0 +1,42 @@
+% Auto-generated OLS table – User Productivity
+
+\begin{table}[H]
+\centering
+\caption{User Productivity -- OLS}
+\label{tab:user_productivity_ols}
+\centering
+
+    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l C C @{}}
+    \toprule
+    \multicolumn{3}{@{}l}{\textbf{\uline{Panel A: All Outcomes}}}\\
+\addlinespace
+     & \multicolumn{2}{c}{Outcome} \\
+    \cmidrule{2-3}
+     & Total & Restricted \\
+    \midrule
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[t]{-2.66***\\(0.99)} & \makecell[t]{-1.96**\\(0.99)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[t]{9.18***\\(2.69)} & \makecell[t]{8.30***\\(2.62)} \\
+    \midrule
+    N & 52,995 & 52,995 \\
+    \specialrule{\lightrulewidth}{0pt}{0pt}
+    \end{tabularx}
+
+    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l C C C C C C @{}}
+    \multicolumn{7}{@{}l}{\textbf{\uline{Panel B: FE Variants}}}\\
+\addlinespace
+     & \multicolumn{6}{c}{Total Contributions} \\
+    \cmidrule{2-7}
+     & (1) & (2) & (3) & (4) & (5) & (6) \\
+    \midrule
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[t]{-1.29\\(1.05)} & \makecell[t]{-2.38**\\(1.01)} & \makecell[t]{-1.29\\(1.05)} & \makecell[t]{-2.38**\\(1.01)} & \makecell[t]{-2.66***\\(0.99)} & \makecell[t]{-2.79***\\(0.99)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[t]{2.74\\(2.92)} & \makecell[t]{6.19**\\(2.82)} & \makecell[t]{2.75\\(2.92)} & \makecell[t]{6.20**\\(2.82)} & \makecell[t]{9.18***\\(2.69)} & \makecell[t]{9.77***\\(2.68)} \\
+    \midrule
+    Time FE &  &  & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Firm FE &  & $\checkmark$ &  & $\checkmark$ & $\checkmark$ &  \\
+User FE &  &  &  &  & $\checkmark$ &  \\
+Firm $\times$ User FE &  &  &  &  &  & $\checkmark$ \\
+    \midrule
+    N & 53,020 & 52,995 & 53,020 & 52,995 & 52,995 & 52,718 \\
+    \bottomrule
+    \end{tabularx}
+\end{table}
