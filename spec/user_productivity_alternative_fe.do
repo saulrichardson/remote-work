@@ -4,7 +4,7 @@
 *    across four explicit FE specifications
 *============================================================*
 capture log close
-local specname  "firm_scaling_alternative_fe"
+local specname  "user_productivity_alternative_fe"
 log using "log/`specname'.log", replace text
 
 // 0) Setup environment
@@ -14,14 +14,14 @@ do "../src/globals.do"
 local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
 
-local outcomes    growth_rate_we join_rate_we leave_rate_we
+local outcomes total_contributions_q100 restricted_contributions_q100
 
 *--- main results -------------------------------------------------------------
 tempfile out  
 postfile handle ///
-    str40   model_type          ///  
-    str40   fe_tag              ///
-    str40  outcome             ///
+    str20   model_type          ///  
+    str20   fe_tag              ///
+    str20  outcome             ///
     str40  param               ///
     double coef se pval        ///
     double rkf nobs            ///  
@@ -32,28 +32,30 @@ postfile handle ///
 tempfile out_fs
 capture postclose handle_fs
 postfile handle_fs ///
-    str8   fe_tag              ///  "fyh", "time", "firm", "none"
+    str20   fe_tag              ///  "fyh", "time", "firm", "none"
     str20  outcome             ///
-    str8   endovar             ///  "var3" / "var5"
+    str20   endovar             ///  "var3" / "var5"
     str40  param               ///  var6 / var7 / var4
     double coef se pval        ///
     double partialF rkf nobs   ///
     using `out_fs', replace
 
+	
 //-------------------------------------------------------------
-//  Firm × year FE ("fyh")
+// Firm + user + year FE ("fyh")
 //-------------------------------------------------------------
-local feopt "absorb(firm_id yh)"
-local tag   "fyh"
+local feopt "absorb(firm_id user_id yh)"
+local tag   "fyhu"
+
 
 foreach y of local outcomes {
-    use "$processed_data/firm_panel.dta", clear
-    display as text ">> FE spec: firm×year  (tag=`tag')"
+    use "$processed_data/user_panel.dta", clear
+    display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 
     // OLS
      reghdfe `y' var3 var5 var4, ///
-        `feopt' vce(cluster firm_id)
+        `feopt' vce(cluster user_id)
 		
 	local N = e(N)  
 	
@@ -71,7 +73,179 @@ foreach y of local outcomes {
     // IV (2nd stage)
      ivreghdfe ///
         `y' (var3 var5 = var6 var7) var4, ///
-        `feopt' vce(cluster firm_id) savefirst
+        `feopt' vce(cluster user_id) savefirst
+    
+	local rkf = e(rkf)
+	local N = e(N)  
+	
+    foreach p in var3 var5 var4 {
+        local b    = _b[`p']
+        local se   = _se[`p']
+        local t    = `b'/`se'
+        local pval = 2*ttail(e(df_r), abs(`t'))
+		post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+					(`b') (`se') (`pval') ///
+					(`rkf') (`N')
+    }
+	
+	*--- pull partial F's from the stacked matrix
+	matrix FS = e(first)
+	local F3 = FS[4,1]
+	local F5 = FS[4,2]
+
+	*========= var3 first stage ===================================================
+	estimates restore _ivreg2_var3
+	local N_fs = e(N)
+
+	foreach p in var6 var7 var4 {
+		local b    = _b[`p']
+		local se   = _se[`p']
+		local t    = `b'/`se'
+		local pval = 2*ttail(e(df_r), abs(`t'))
+
+		post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+						(`b') (`se') (`pval') ///
+						(`F3') (`rkf') (`N_fs')
+	}
+
+	*========= var5 first stage ===================================================
+	estimates restore _ivreg2_var5
+	local N_fs = e(N)
+
+	foreach p in var6 var7 var4 {
+		local b    = _b[`p']
+		local se   = _se[`p']
+		local t    = `b'/`se'
+		local pval = 2*ttail(e(df_r), abs(`t'))
+
+		post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+						(`b') (`se') (`pval') ///
+						(`F5') (`rkf') (`N_fs')
+	}
+
+}
+
+
+
+//-------------------------------------------------------------
+// firm x user + yh
+//-------------------------------------------------------------
+local feopt "absorb(firm_id#user_id yh)"
+local tag   "firmbyuseryh"
+
+
+foreach y of local outcomes {
+    use "$processed_data/user_panel.dta", clear
+    display as text ">> FE spec: (tag=`tag')"
+    display as text "   – outcome: `y'"
+
+    // OLS
+     reghdfe `y' var3 var5 var4, ///
+        `feopt' vce(cluster user_id)
+		
+	local N = e(N)  
+	
+    foreach p in var3 var5 var4 {
+        local b    = _b[`p']
+        local se   = _se[`p']
+        local t    = `b'/`se'
+        local pval = 2*ttail(e(df_r), abs(`t'))
+
+		post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+					(`b') (`se') (`pval') ///
+					(.) (`N')
+    }
+
+    // IV (2nd stage)
+     ivreghdfe ///
+        `y' (var3 var5 = var6 var7) var4, ///
+        `feopt' vce(cluster user_id) savefirst
+    
+	local rkf = e(rkf)
+	local N = e(N)  
+	
+    foreach p in var3 var5 var4 {
+        local b    = _b[`p']
+        local se   = _se[`p']
+        local t    = `b'/`se'
+        local pval = 2*ttail(e(df_r), abs(`t'))
+		post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+					(`b') (`se') (`pval') ///
+					(`rkf') (`N')
+    }
+	
+	*--- pull partial F's from the stacked matrix
+	matrix FS = e(first)
+	local F3 = FS[4,1]
+	local F5 = FS[4,2]
+
+	*========= var3 first stage ===================================================
+	estimates restore _ivreg2_var3
+	local N_fs = e(N)
+
+	foreach p in var6 var7 var4 {
+		local b    = _b[`p']
+		local se   = _se[`p']
+		local t    = `b'/`se'
+		local pval = 2*ttail(e(df_r), abs(`t'))
+
+		post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+						(`b') (`se') (`pval') ///
+						(`F3') (`rkf') (`N_fs')
+	}
+
+	*========= var5 first stage ===================================================
+	estimates restore _ivreg2_var5
+	local N_fs = e(N)
+
+	foreach p in var6 var7 var4 {
+		local b    = _b[`p']
+		local se   = _se[`p']
+		local t    = `b'/`se'
+		local pval = 2*ttail(e(df_r), abs(`t'))
+
+		post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+						(`b') (`se') (`pval') ///
+						(`F5') (`rkf') (`N_fs')
+	}
+
+}
+
+
+
+
+//-------------------------------------------------------------
+//  Firm + year FE ("fyh")
+//-------------------------------------------------------------
+local feopt "absorb(firm_id yh)"
+local tag   "fyh"
+
+foreach y of local outcomes {
+    use "$processed_data/user_panel.dta", clear
+    display as text ">> FE spec: (tag=`tag')"
+    display as text "   – outcome: `y'"
+
+    // OLS
+     reghdfe `y' var3 var5 var4, ///
+        `feopt' vce(cluster user_id)
+		
+	local N = e(N)  
+	
+    foreach p in var3 var5 var4 {
+        local b    = _b[`p']
+        local se   = _se[`p']
+        local t    = `b'/`se'
+        local pval = 2*ttail(e(df_r), abs(`t'))
+
+		post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+					(`b') (`se') (`pval') ///
+					(.) (`N')
+    }
+
+    // IV (2nd stage)
+     ivreghdfe ///
+        `y' (var3 var5 = var6 var7) var4, ///
+        `feopt' vce(cluster user_id) savefirst
     
 	local rkf = e(rkf)
 	local N = e(N)  
@@ -130,7 +304,7 @@ local feopt "absorb(yh)"
 local tag   "time"
 
 foreach y of local outcomes {
-    use "$processed_data/firm_panel.dta", clear
+    use "$processed_data/user_panel.dta", clear
 	
 	gen var8 = remote * startup
 	gen var9 = teleworkable*startup
@@ -140,7 +314,7 @@ foreach y of local outcomes {
 
     // OLS
     reghdfe `y' var3 var5 var4 remote startup var8 covid, ///
-        `feopt' vce(cluster firm_id)
+        `feopt' vce(cluster user_id)
 	local N   = e(N)
 	
     foreach p in var3 var5 var4 {
@@ -157,7 +331,7 @@ foreach y of local outcomes {
     // IV (2nd stage)
      ivreghdfe ///
         `y' (var3 var5 var8 remote = var6 var7 var9 teleworkable) var4 startup covid, ///
-        `feopt' vce(cluster firm_id) savefirst
+        `feopt' vce(cluster user_id) savefirst
 		
     local rkf = e(rkf)
 	local N   = e(N)
@@ -216,14 +390,14 @@ local feopt "absorb(firm_id)"
 local tag   "firm"
 
 foreach y of local outcomes {
-    use "$processed_data/firm_panel.dta", clear
+    use "$processed_data/user_panel.dta", clear
 	
     display as text ">> FE spec: firm  (tag=`tag')"
     display as text "   – outcome: `y'"
 
     // OLS
      reghdfe `y' var3 var5 var4 covid, ///
-        `feopt' vce(cluster firm_id)
+        `feopt' vce(cluster user_id)
 	
 	local N   = e(N)
 	
@@ -241,7 +415,7 @@ foreach y of local outcomes {
     // IV (2nd stage)
      ivreghdfe ///
         `y' (var3 var5 = var6 var7) var4 covid, ///
-        `feopt' vce(cluster firm_id) savefirst
+        `feopt' vce(cluster user_id) savefirst
 		
     local rkf = e(rkf)
 	local N   = e(N)
@@ -300,7 +474,7 @@ local feopt ""
 local tag   "none"
 
 foreach y of local outcomes {
-    use "$processed_data/firm_panel.dta", clear
+    use "$processed_data/user_panel.dta", clear
 	
 	gen var8 = remote * startup
 	gen var9 = teleworkable*startup
@@ -310,7 +484,7 @@ foreach y of local outcomes {
 
     // OLS
     reghdfe `y' var3 var5 var4 remote startup var8 covid, ///
-        absorb() vce(cluster firm_id)
+        absorb() vce(cluster user_id)
 		
 	local N   = e(N)
 	
@@ -328,7 +502,7 @@ foreach y of local outcomes {
     // IV (2nd stage)
     ivreghdfe ///
         `y' (var3 var5 var8 remote = var6 var7 var9 teleworkable) var4 startup covid, ///
-        absorb() vce(cluster firm_id) savefirst
+        absorb() vce(cluster user_id) savefirst
     local rkf = e(rkf)
 	local N   = e(N)
 	

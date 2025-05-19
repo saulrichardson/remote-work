@@ -20,6 +20,7 @@ collapse (sum) totalcontribution (sum) restrictedcontributionscount ///
 label var totalcontribution             "Total Contributions"
 label var restrictedcontributionscount  "Pvt Contributions"
 
+drop if yh > yh(2022, 1)
 
 tempfile user_yh
 save `user_yh', replace
@@ -29,7 +30,7 @@ save `user_yh', replace
 *----------------------------------------------------------
 
 * Recent contributions data
-import delimited "$raw_data/Contributions/MonthlyContributions.csv", clear
+import delimited "$raw_data/MonthlyContributions.csv", clear
 
 tostring monthyear, replace format(%06.0f)
 gen year  = substr(monthyear, 1, 4)
@@ -236,5 +237,5 @@ keep if common_sample == 1
 drop miss_ct common_sample                              
 
 
-save "$processed_data/worker_panel.dta", replace
-export delimited "../data/samples/worker_panel.csv", replace
+save "$processed_data/user_panel.dta", replace
+export delimited "../data/samples/user_panel.csv", replace

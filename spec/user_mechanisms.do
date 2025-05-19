@@ -1,11 +1,11 @@
 *============================================================*
-* do/firm_mechanisms_regressions.do
+* do/user_mechanisms_regressions.do
 *  — Automated export of OLS, IV & first-stage F's
 *    across 8 specification columns
 *============================================================*
 
 capture log close
-local specname   "firm_mechanisms"
+local specname   "user_mechanisms"
 log using "log/`specname'.log", replace text
 
 
@@ -15,8 +15,9 @@ local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
 
 // 1) Load & prepare once
-use "$processed_data/firm_panel.dta", clear
+use "$processed_data/user_panel.dta", clear
 gen seniority_4 = !inrange(seniority_levels,1,3)
+// drop if missing(hhi_1000, seniority_4, rent)
 
 // interactions
 gen var8  = covid*rent
@@ -29,7 +30,7 @@ gen var14 = covid*seniority_4
 gen var15 = covid*seniority_4*remote
 gen var16 = teleworkable*covid*seniority_4
 
-// 2) postfile definition
+
 capture postclose handle
 tempfile out
 postfile handle ///
@@ -87,12 +88,13 @@ local spec_endo7  var3 var5 var12 var15
 local spec_endo8  var3 var5 var9 var12 var15
 
 
-* ─── SPEC 1: Baseline on the full sample ────────────────────────
+
+// 3) SPEC 1: Baseline on the full sample
 display as text "→ Spec 1: baseline (full sample)"
 
-// 1a) OLS
-reghdfe growth_rate_we var3 var5 var4, ///
-    absorb(firm_id yh) vce(cluster firm_id)
+// 3a) OLS
+reghdfe total_contributions_q100 var3 var5 var4, ///
+    absorb(firm_id user_id yh) vce(cluster user_id)
 local N = e(N)
 foreach p in var3 var5 {
     local b    = _b[`p']
@@ -104,9 +106,9 @@ foreach p in var3 var5 {
                 (.) (`N')
 }
 
-// 1b) IV
-ivreghdfe growth_rate_we (var3 var5 = var6 var7) var4, ///
-    absorb(firm_id yh) vce(cluster firm_id) savefirst
+// 3b) IV
+ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, ///
+    absorb(firm_id user_id yh) vce(cluster user_id) savefirst
 local rkf = e(rkf)
 local N   = e(N)
 foreach p in var3 var5 {
@@ -119,7 +121,7 @@ foreach p in var3 var5 {
                 (`rkf') (`N')
 }
 
-// 2) Restrict for mechanism specs
+// 4) Now restrict to observations with mechanism vars
 drop if missing(rent, hhi_1000, seniority_4)
 
 
@@ -139,10 +141,10 @@ forvalues i = 2/8 {
     display as text "→ Spec `i': `spec'"
 
     // 4a) OLS
-    reghdfe growth_rate_we var3 var5 `ols_exog', ///
-        absorb(firm_id yh) vce(cluster firm_id)
+    reghdfe total_contributions_q100 var3 var5 `ols_exog', ///
+        absorb(firm_id user_id yh) vce(cluster user_id)
 	
-	local N = e(N)  
+	local N = e(N) 
 	
     foreach p in var3 var5 {
         local b    = _b[`p']
@@ -151,15 +153,14 @@ forvalues i = 2/8 {
         local pval = 2*ttail(e(df_r), abs(`t'))
         post handle ("OLS") ("`spec'") ("`p'") ///
                     (`b') (`se') (`pval') ///
-                    (.) (`N') 
+                    (.) (`N')
     }
 
     // 4b) IV
-    ivreghdfe  growth_rate_we (`endo' = `instr') `iv_exog', ///
-        absorb(firm_id yh) vce(cluster firm_id) savefirst
-		
+    ivreghdfe total_contributions_q100 (`endo' = `instr') `iv_exog', ///
+        absorb(firm_id user_id yh) vce(cluster user_id) savefirst
     local rkf = e(rkf)
-	local N = e(N)  
+	local N   = e(N)
 	
     foreach p in var3 var5 {
         local b    = _b[`p']
@@ -168,7 +169,7 @@ forvalues i = 2/8 {
         local pval = 2*ttail(e(df_r), abs(`t'))
         post handle ("IV") ("`spec'") ("`p'") ///
                     (`b') (`se') (`pval') ///
-                    (`rkf') (`N') 
+                    (`rkf') (`N')
     }
 
 }

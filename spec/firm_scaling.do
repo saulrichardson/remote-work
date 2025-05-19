@@ -1,105 +1,139 @@
-* 0) Setup environment
+*============================================================*
+*  do/firm_scaling_regressions.do
+*  — Automated export of OLS, IV, and first‐stage partial F's
+*============================================================*
+
+// 0) Setup environment
 do "../src/globals.do"
 
-* 1) Load firm-level master data
+// 1) Load master panel
 use "$processed_data/firm_panel.dta", clear
 
-* 2) Set up output directories
-local specname "firm_scaling"
-local result_path "$results/`specname'"
-capture mkdir "`result_path'"
-
-// Lock in file names (panel_suffix is "min"):
-local ols_file  "`result_path'/ols.tex"
-local iv_file   "`result_path'/iv.tex"
-local fs_file   "`result_path'/first_stage.tex"
-
-// Initialize counters for file writing:
-local first_ols   1
-local first_iv    1
-local fs_done   0        
+// 2) Prepare output dir & tempfile
+local specname   "firm_scaling"
+local result_dir "$results/`specname'"
+capture mkdir "`result_dir'"
 
 
-// Define outcome variables
+
+capture postclose handle
+tempfile out
+*--- postfile header (main results) -------------------------------------------
+postfile handle ///
+    str8   model_type ///
+    str40  outcome     ///  
+    str40  param       ///
+    double coef se pval ///
+    double rkf nobs     ///
+    using `out', replace
+
+
+*------------------------------------------------------------------
+*  First-stage results → first_stage_fstats.csv
+*------------------------------------------------------------------
+tempfile out_fs
+capture postclose handle_fs
+postfile handle_fs ///
+    str8   endovar            ///  var3 / var5
+    str40  param              ///  var6 / var7 / var4
+    double coef se pval       ///
+    double partialF rkf nobs  ///
+    using `out_fs', replace
+
+// 3) Loop over outcomes
 local outcome_vars growth_rate_we join_rate_we leave_rate_we
 
-// Loop over each outcome variable:
-foreach outcome of local outcome_vars {
-    
-    di as text "Processing outcome: `outcome'"
-    
-    //----- OLS Regression -----
-    reghdfe `outcome' var3 var5 var4, absorb(firm_id yh) vce(cluster firm_id) 
-    
-    // Compute pre-COVID mean (using only observations where covid == 0)
-    quietly summarize `outcome' if e(sample) & covid == 0
-    local precovid_mean = r(mean)
-    
-    // Write OLS results (replace on first iteration, then append)
-    if `first_ols' == 1 {
-        outreg2 using "`ols_file'", tex(frag) replace ///
-            addstat("Pre-COVID Y-Mean", `precovid_mean') ///
-					nor2 ///
-					nocons
-        local first_ols = 0
+local fs_done = 0
+
+foreach y of local outcome_vars {
+    di as text "→ Processing `y'"
+
+    // --- OLS ---
+     reghdfe `y' var3 var5 var4, absorb(firm_id yh) vce(cluster firm_id)
+	
+	local N = e(N) 
+
+    foreach p in var3 var5 var4 {
+        local b    = _b[`p']
+        local se   = _se[`p']
+        local t    = `b'/`se'
+        local pval = 2*ttail(e(df_r), abs(`t'))
+		post handle ("OLS") ("`y'") ("`p'") ///
+					(`b') (`se') (`pval') ///
+					(.) (`N')                 // dot for rkf, then nobs
     }
-    else {
-        outreg2 using "`ols_file'", tex(frag) append ///
-            addstat("Pre-COVID Y-Mean", `precovid_mean') ///
-					nor2 ///
-					nocons
+
+    // --- IV (2nd stage) ---
+     ivreghdfe ///
+        `y' (var3 var5 = var6 var7) var4, ///
+        absorb(firm_id yh) vce(cluster firm_id) savefirst
+
+    local rkf   = e(rkf)
+	local N = e(N) 
+
+    foreach p in var3 var5 var4 {
+        local b    = _b[`p']
+        local se   = _se[`p']
+        local t    = `b'/`se'
+        local pval = 2*ttail(e(df_r), abs(`t'))
+		*--- inside the IV loop -------------------------------------------------------
+		post handle ("IV") ("`y'") ("`p'") ///
+					(`b') (`se') (`pval') ///
+					(`rkf') (`N')            // rkf, then nobs
     }
-    
-    
-    //----- IV Regression -----
-    ivreghdfe `outcome' (var3 var5 = var6 var7) var4, ///
-        absorb(firm_id yh) vce(cluster firm_id)  savefirst
-    
-    // Compute pre-COVID mean for IV sample:
-    quietly summarize `outcome' if e(sample) & covid == 0
-    local precovid_mean = r(mean)
-	local rkf = e(rkf)
-    
-    // Write IV results, reporting only the RFK F statistic along with the pre-COVID mean:
-    if `first_iv' == 1 {
-        outreg2 using "`iv_file'", tex(frag) replace ///
-            addstat("Pre-COVID Y-Mean", `precovid_mean', ///
-                    "K-P rk Wald F", `rkf') ///
-					nor2 ///
-					nocons
- 
-        local first_iv = 0
-    }
-    else {
-        outreg2 using "`iv_file'", tex(frag) append ///
-            addstat("Pre-COVID Y-Mean", `precovid_mean', ///
-                    "K-P rk Wald F", `rkf') ///
-					nor2 ///
-					nocons
-    }
-    
+
+    // --- FIRST STAGE: only once on first loop pass ---
 	if !`fs_done' {
-
-		* grab stacked F-stats before restoring
+		
 		matrix FS = e(first)
-		local partialF_3 = FS[4,1]
-		local partialF_5 = FS[4,2]
+        local F3 = FS[4,1]
+        local F5 = FS[4,2]
 
-		* ---- var3 first stage ----
+		/* -------- var3 first stage -------------------------------- */
 		estimates restore _ivreg2_var3
-		outreg2 using "`fs_file'", tex(frag) replace ///
-			addstat("Partial F", `partialF_3', "KP rk Wald F", `rkf') ///
-								nor2 ///
-								nocons
+		local N_fs = e(N)
+		foreach p in var6 var7 var4 {
+			local b    = _b[`p']
+			local se   = _se[`p']
+			local t    = `b'/`se'
+			local pval = 2*ttail(e(df_r), abs(`t'))
 
-		* ---- var5 first stage ----
+			post handle_fs ("var3") ("`p'") ///
+							(`b') (`se') (`pval') ///
+							(`F3') (`rkf') (`N_fs')
+		}
+
+		/* -------- var5 first stage -------------------------------- */
 		estimates restore _ivreg2_var5
-		outreg2 using "`fs_file'", tex(frag) append  ///
-			addstat("Partial F", `partialF_5', "KP rk Wald F", `rkf') ///
-								nor2 ///
-								nocons
+		local N_fs = e(N)
+		foreach p in var6 var7 var4 {
+			local b    = _b[`p']
+			local se   = _se[`p']
+			local t    = `b'/`se'
+			local pval = 2*ttail(e(df_r), abs(`t'))
+
+			post handle_fs ("var5") ("`p'") ///
+							(`b') (`se') (`pval') ///
+							(`F5') (`rkf') (`N_fs')
+		}
 
 		local fs_done 1
 	}
-	
+
 }
+
+
+// 4) Close & export to CSV
+postclose handle
+use `out', clear
+export delimited using "`result_dir'/consolidated_results.csv", ///
+    replace delimiter(",") quote
+
+* --- write first-stage CSV -----------------------------------------
+postclose handle_fs
+use `out_fs', clear
+export delimited using "`result_dir'/first_stage.csv", ///
+        replace delimiter(",") quote
+
+di as result "→ second-stage CSV : `result_dir'/consolidated_results.csv"
+di as result "→ first-stage  CSV : `result_dir'/first_stage.csv"

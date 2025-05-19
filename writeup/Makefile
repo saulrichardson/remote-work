@@ -1,26 +1,27 @@
 SHELL := /usr/bin/env bash
 SRC        := tex
-SCRIPTS   := $(SRC)/scripts
-RESULTS_SRC := $(SRC)/results/raw-results.tex
+REPORT_SRC := $(SRC)/results/consolidated-report.tex
 BUILD  := build
 FINAL  := final
- .PHONY: all report slides final final-results final-slides clean
+.PHONY: all report clean
 
-all: report slides
-   
-
-report:
-	@mkdir -p $(BUILD)
-	@echo "Replacing variable names in TeX tables..."
-	@python $(SCRIPTS)/replace_tex_variables.py
-	@echo "Compiling results document..."
-	@pdflatex -halt-on-error -interaction=nonstopmode \
-	  -output-directory=$(BUILD) $(RESULTS_SRC)
-
-
-final-raw: report
-	@mkdir -p $(FINAL)
-	@cp $(BUILD)/raw-results.pdf  $(FINAL)/
+all: report
 
 clean:
-	rm -rf $(BUILD) $(FINAL)
+	@rm -rf $(BUILD) $(FINAL)
+
+# Report document
+report:
+	@mkdir -p $(BUILD)
+	@echo "Generating consolidated report tables..."
+	@python ../py/build_table_of_means.py
+	@python py/create_user_mechanisms_table.py
+	@python py/create_firm_mechanisms_table.py
+	@echo "Generating firm scaling tables..."
+	@python py/create_firm_scaling_table.py
+	@python py/create_firm_scaling_iv_table.py
+	@echo "Compiling consolidated report..."
+	@pdflatex -halt-on-error -interaction=nonstopmode \
+	  -output-directory=$(BUILD) $(REPORT_SRC)
+	@mkdir -p $(FINAL)
+	@cp $(BUILD)/consolidated-report.pdf $(FINAL)/

@@ -140,7 +140,7 @@ foreach outcome of local outcome_vars {
 		bgcolor(white) graphregion(color(white)) label ytitle("`ylab'")
 	
 
-	graph export "`result_path'/is_`outcome'.png", replace
+	graph export "`result_path'/iv_`outcome'.png", replace
 	
 }
 

@@ -51,6 +51,8 @@ gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
 gen join_rate = join / L.total_employees if _n > 1
 gen leave_rate = leave / L.total_employees if _n > 1
 
+xtset, clear
+
 winsor2 growth_rate join_rate leave_rate, cuts(1 99) suffix(_we)
 label variable growth_rate_we "Winsorized growth rate [1,99]"
 label variable join_rate_we "Winsorized join rate [1,99]"
