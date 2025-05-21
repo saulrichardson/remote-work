@@ -19,12 +19,12 @@ local outcomes    growth_rate_we join_rate_we leave_rate_we
 *--- main results -------------------------------------------------------------
 tempfile out  
 postfile handle ///
-    str40   model_type          ///  
+    str40   model_type          ///
     str40   fe_tag              ///
     str40  outcome             ///
     str40  param               ///
-    double coef se pval        ///
-    double rkf nobs            ///  
+    double coef se pval pre_mean ///
+    double rkf nobs            ///
     using `out', replace
 
 
@@ -51,6 +51,9 @@ foreach y of local outcomes {
     display as text ">> FE spec: firm×year  (tag=`tag')"
     display as text "   – outcome: `y'"
 
+    summarize `y' if covid == 0, meanonly
+    local pre_mean = r(mean)
+
     // OLS
      reghdfe `y' var3 var5 var4, ///
         `feopt' vce(cluster firm_id)
@@ -63,9 +66,9 @@ foreach y of local outcomes {
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
 
-		post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(.) (`N')
+                post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (.) (`N')
     }
 
     // IV (2nd stage)
@@ -81,9 +84,9 @@ foreach y of local outcomes {
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-		post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(`rkf') (`N')
+                post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (`rkf') (`N')
     }
 	
 	*--- pull partial F's from the stacked matrix
@@ -131,9 +134,15 @@ local tag   "time"
 
 foreach y of local outcomes {
     use "$processed_data/firm_panel.dta", clear
-	
-	gen var8 = remote * startup
-	gen var9 = teleworkable*startup
+
+        gen var8 = remote * startup
+        gen var9 = teleworkable*startup
+
+    summarize `y' if covid == 0, meanonly
+    local pre_mean = r(mean)
+
+    summarize `y' if covid == 0, meanonly
+    local pre_mean = r(mean)
 	
     display as text ">> FE spec: time  (tag=`tag')"
     display as text "   – outcome: `y'"
@@ -149,9 +158,9 @@ foreach y of local outcomes {
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
 
-		post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(.) (`N')
+                post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (.) (`N')
     }
 
     // IV (2nd stage)
@@ -167,9 +176,9 @@ foreach y of local outcomes {
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-		post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(`rkf') (`N')
+                post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (`rkf') (`N')
     }
 
 	*--- pull partial F's from the stacked matrix
@@ -217,7 +226,10 @@ local tag   "firm"
 
 foreach y of local outcomes {
     use "$processed_data/firm_panel.dta", clear
-	
+
+    summarize `y' if covid == 0, meanonly
+    local pre_mean = r(mean)
+
     display as text ">> FE spec: firm  (tag=`tag')"
     display as text "   – outcome: `y'"
 
@@ -233,9 +245,9 @@ foreach y of local outcomes {
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
 
-		post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(.) (`N')
+                post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (.) (`N')
     }
 
     // IV (2nd stage)
@@ -251,9 +263,9 @@ foreach y of local outcomes {
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-		post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(`rkf') (`N')
+                post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (`rkf') (`N')
     }
 
 	*--- pull partial F's from the stacked matrix
@@ -320,9 +332,9 @@ foreach y of local outcomes {
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
 
-		post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(.) (`N')
+                post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (.) (`N')
     }
 
     // IV (2nd stage)
@@ -337,9 +349,9 @@ foreach y of local outcomes {
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-		post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(`rkf') (`N')
+                post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (`rkf') (`N')
     }
 
 	*--- pull partial F's from the stacked matrix
