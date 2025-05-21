@@ -20,9 +20,9 @@ tempfile out
 *--- postfile header (main results) -------------------------------------------
 postfile handle ///
     str8   model_type ///
-    str40  outcome     ///  
+    str40  outcome     ///
     str40  param       ///
-    double coef se pval ///
+    double coef se pval pre_mean ///
     double rkf nobs     ///
     using `out', replace
 
@@ -46,6 +46,9 @@ local fs_done 0
 foreach y of local outcomes {
     di as text "→ Processing outcome: `y'"
 
+    summarize `y' if covid == 0, meanonly
+    local pre_mean = r(mean)
+
     // ----- OLS -----
     reghdfe `y' var3 var5 var4, absorb(user_id firm_id yh) ///
         vce(cluster user_id)
@@ -58,9 +61,9 @@ foreach y of local outcomes {
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
 		*--- inside the OLS loop ------------------------------------------------------
-		post handle ("OLS") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(.) (`N')                 // dot for rkf, then nobs
+        post handle ("OLS") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (.) (`N')                 // dot for rkf, then nobs
     }
 
     // ----- IV (2nd‐stage) -----
@@ -77,9 +80,9 @@ foreach y of local outcomes {
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
 		*--- inside the IV loop -------------------------------------------------------
-		post handle ("IV") ("`y'") ("`p'") ///
-					(`b') (`se') (`pval') ///
-					(`rkf') (`N')            // rkf, then nobs
+        post handle ("IV") ("`y'") ("`p'") ///
+                                        (`b') (`se') (`pval') (`pre_mean') ///
+                                        (`rkf') (`N')            // rkf, then nobs
     }
 
 	if !`fs_done' {

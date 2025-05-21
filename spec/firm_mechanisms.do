@@ -36,7 +36,7 @@ postfile handle ///
     str8   model_type  /// "OLS", "IV"
     str244 spec        ///
     str40  param       ///
-    double coef se pval rkf nobs /// <-- exactly five numeric columns
+    double coef se pval pre_mean rkf nobs /// <-- exactly five numeric columns
     using `out', replace
 
 
@@ -90,6 +90,9 @@ local spec_endo8  var3 var5 var9 var12 var15
 * ─── SPEC 1: Baseline on the full sample ────────────────────────
 display as text "→ Spec 1: baseline (full sample)"
 
+summarize growth_rate_we if covid == 0, meanonly
+local pre_mean = r(mean)
+
 // 1a) OLS
 reghdfe growth_rate_we var3 var5 var4, ///
     absorb(firm_id yh) vce(cluster firm_id)
@@ -100,7 +103,7 @@ foreach p in var3 var5 {
     local t    = `b'/`se'
     local pval = 2*ttail(e(df_r), abs(`t'))
     post handle ("OLS") ("baseline") ("`p'") ///
-                (`b') (`se') (`pval') ///
+                (`b') (`se') (`pval') (`pre_mean') ///
                 (.) (`N')
 }
 
@@ -115,7 +118,7 @@ foreach p in var3 var5 {
     local t    = `b'/`se'
     local pval = 2*ttail(e(df_r), abs(`t'))
     post handle ("IV") ("baseline") ("`p'") ///
-                (`b') (`se') (`pval') ///
+                (`b') (`se') (`pval') (`pre_mean') ///
                 (`rkf') (`N')
 }
 
@@ -138,6 +141,9 @@ forvalues i = 2/8 {
 
     display as text "→ Spec `i': `spec'"
 
+    summarize growth_rate_we if covid == 0, meanonly
+    local pre_mean = r(mean)
+
     // 4a) OLS
     reghdfe growth_rate_we var3 var5 `ols_exog', ///
         absorb(firm_id yh) vce(cluster firm_id)
@@ -149,9 +155,9 @@ forvalues i = 2/8 {
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-        post handle ("OLS") ("`spec'") ("`p'") ///
-                    (`b') (`se') (`pval') ///
-                    (.) (`N') 
+       post handle ("OLS") ("`spec'") ("`p'") ///
+                    (`b') (`se') (`pval') (`pre_mean') ///
+                    (.) (`N')
     }
 
     // 4b) IV
@@ -166,9 +172,9 @@ forvalues i = 2/8 {
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-        post handle ("IV") ("`spec'") ("`p'") ///
-                    (`b') (`se') (`pval') ///
-                    (`rkf') (`N') 
+       post handle ("IV") ("`spec'") ("`p'") ///
+                    (`b') (`se') (`pval') (`pre_mean') ///
+                    (`rkf') (`N')
     }
 
 }
