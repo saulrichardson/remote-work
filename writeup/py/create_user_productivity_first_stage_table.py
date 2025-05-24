@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a LaTeX table summarising the **first-stage** regressions for the
+r"""Generate a LaTeX table summarising the **first-stage** regressions for the
 base *User-Productivity* IV specification (i.e. *not* the alternative FE
 variant).
 
@@ -43,7 +43,7 @@ def stars(p: float) -> str:
 
 
 def cell(coef: float, se: float, p: float) -> str:
-    """Return a centred ``\makecell`` holding *coef* and *(se)* with stars."""
+    r"""Return a centred ``\makecell`` holding *coef* and *(se)* with stars."""
     return rf"\makecell[c]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
 
