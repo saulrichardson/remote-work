@@ -84,7 +84,8 @@ def _plot_bins_reg(
                 ax.axhline(
                     level,
                     color="gray",
-                    linewidth=1.0,
+                    linewidth=0.8,
+                    alpha=0.4,
                     zorder=0,
                 )
 
@@ -113,8 +114,9 @@ def _plot_bins_reg(
         )
         plt.plot(x_vals, y_vals, linewidth=2, color=colour, label=label_ols)
 
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    ax.tick_params(axis="both", labelsize=12)
+    plt.xlabel(xlabel, fontsize=14)
+    plt.ylabel(ylabel, fontsize=14)
     #plt.legend()
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / f"{file_stem}.png", dpi=500)
