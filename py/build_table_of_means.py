@@ -89,8 +89,8 @@ PERCENT_VARS_A: set[str] = {}
 # 3  PANEL-B SETTINGS  (Worker-level contributions)
 # ----------------------------------------------------------------------
 VAR_MAP_B = {
-    "total_contrib_q100":      "total_contributions_q100",
-    "restricted_contrib_q100": "restricted_contributions_q100",
+    "total_contrib_q100":      "total_contributions",
+    "restricted_contrib_q100": "restricted_contributions",
 }
 
 DECIMALS_B = {
@@ -108,8 +108,8 @@ SD_DECIMALS_A = {
     
 
 NICE_B = {
-    "total_contrib_q100":      r"Total Contributions (percentile rank 1–100)",
-    "restricted_contrib_q100": r"Restricted Contributions (percentile rank 1–100)",
+    "total_contrib_q100":      r"Total Contributions",
+    "restricted_contrib_q100": r"Restricted Contributions",
 }
 
 # ----------------------------------------------------------------------
@@ -160,6 +160,7 @@ def build_panel(df: pd.DataFrame,
                 pct_vars:      set[str] | None = None,
                 startup_flag:  str = "startup"):
     r"""Return panel rows (mean \n sd) via a single aggregation pass."""
+    print(df.columns.to_list())
     missing = [c for c in list(var_map.values()) + [startup_flag] if c not in df.columns]
     if missing:
         raise ValueError(f"Missing columns {missing} in input data")
@@ -204,7 +205,7 @@ def build_panel(df: pd.DataFrame,
     rows.append({
         "variable": "N",
         "Startup":     int(is_startup.eq(1).sum()),
-        "Non-Startup": int(is_startup.eq(0).sum()),
+        "Incumbent": int(is_startup.eq(0).sum()),
         "All Firms":   int(df.shape[0]),
     })
     return pd.DataFrame(rows)
@@ -374,7 +375,7 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
         sd_decimals  =SD_DECIMALS_A,
         pct_vars     = PERCENT_VARS_A
     )
-    #panel_b = build_panel(pd.read_csv(worker_path), VAR_MAP_B, NICE_B, DECIMALS_B, None)
+
     panel_b = build_panel(
         pd.read_csv(worker_path),
         VAR_MAP_B,
