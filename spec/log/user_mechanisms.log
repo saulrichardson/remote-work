@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_mechanisms.log
   log type:  text
- opened on:  18 May 2025, 22:07:50
+ opened on:  21 May 2025, 14:46:21
 
 . 
 . 
@@ -14,6 +14,8 @@
 . global processed_data  "../data/processed"
 
 . global results "../results/raw"
+
+. global clean_results "../results/cleaned"
 
 . 
 . 
@@ -68,9 +70,9 @@ end of do-file
 >     str8   model_type  /// "OLS", "IV"
 >     str244 spec        ///
 >     str40  param       ///
->     double coef se pval rkf nobs /// <-- exactly five numeric columns
+>     double coef se pval pre_mean rkf nobs /// <-- exactly five numeric columns
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_16952.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_76094.000001 not found)
 
 . 
 . 
@@ -160,6 +162,11 @@ end of do-file
 → Spec 1: baseline (full sample)
 
 . 
+. summarize total_contributions_q100 if covid == 0, meanonly
+
+. local pre_mean = r(mean)
+
+. 
 . // 3a) OLS
 . reghdfe total_contributions_q100 var3 var5 var4, ///
 >     absorb(firm_id user_id yh) vce(cluster user_id)
@@ -203,7 +210,7 @@ Absorbed degrees of freedom:
   4.     local t    = `b'/`se'
   5.     local pval = 2*ttail(e(df_r), abs(`t'))
   6.     post handle ("OLS") ("baseline") ("`p'") ///
->                 (`b') (`se') (`pval') ///
+>                 (`b') (`se') (`pval') (`pre_mean') ///
 >                 (.) (`N')
   7. }
 
@@ -289,7 +296,7 @@ Absorbed degrees of freedom:
   4.     local t    = `b'/`se'
   5.     local pval = 2*ttail(e(df_r), abs(`t'))
   6.     post handle ("IV") ("baseline") ("`p'") ///
->                 (`b') (`se') (`pval') ///
+>                 (`b') (`se') (`pval') (`pre_mean') ///
 >                 (`rkf') (`N')
   7. }
 
@@ -315,38 +322,41 @@ Absorbed degrees of freedom:
 . 
 .     display as text "→ Spec `i': `spec'"
   8. 
+.     summarize total_contributions_q100 if covid == 0, meanonly
+  9.     local pre_mean = r(mean)
+ 10. 
 .     // 4a) OLS
 .     reghdfe total_contributions_q100 var3 var5 `ols_exog', ///
 >         absorb(firm_id user_id yh) vce(cluster user_id)
-  9.         
+ 11.         
 .         local N = e(N) 
- 10.         
+ 12.         
 .     foreach p in var3 var5 {
- 11.         local b    = _b[`p']
- 12.         local se   = _se[`p']
- 13.         local t    = `b'/`se'
- 14.         local pval = 2*ttail(e(df_r), abs(`t'))
- 15.         post handle ("OLS") ("`spec'") ("`p'") ///
->                     (`b') (`se') (`pval') ///
+ 13.         local b    = _b[`p']
+ 14.         local se   = _se[`p']
+ 15.         local t    = `b'/`se'
+ 16.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 17.        post handle ("OLS") ("`spec'") ("`p'") ///
+>                     (`b') (`se') (`pval') (`pre_mean') ///
 >                     (.) (`N')
- 16.     }
- 17. 
+ 18.     }
+ 19. 
 .     // 4b) IV
 .     ivreghdfe total_contributions_q100 (`endo' = `instr') `iv_exog', ///
 >         absorb(firm_id user_id yh) vce(cluster user_id) savefirst
- 18.     local rkf = e(rkf)
- 19.         local N   = e(N)
- 20.         
+ 20.     local rkf = e(rkf)
+ 21.         local N   = e(N)
+ 22.         
 .     foreach p in var3 var5 {
- 21.         local b    = _b[`p']
- 22.         local se   = _se[`p']
- 23.         local t    = `b'/`se'
- 24.         local pval = 2*ttail(e(df_r), abs(`t'))
- 25.         post handle ("IV") ("`spec'") ("`p'") ///
->                     (`b') (`se') (`pval') ///
+ 23.         local b    = _b[`p']
+ 24.         local se   = _se[`p']
+ 25.         local t    = `b'/`se'
+ 26.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 27.        post handle ("IV") ("`spec'") ("`p'") ///
+>                     (`b') (`se') (`pval') (`pre_mean') ///
 >                     (`rkf') (`N')
- 26.     }
- 27. 
+ 28.     }
+ 29. 
 . }
 → Spec 2: rent
 (dropped 26 singleton observations)
