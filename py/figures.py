@@ -45,7 +45,7 @@ FIRM_FILE   = DATA_DIR / "firm_panel.csv"
 # CONSTANTS
 ###############################################################################
 REMOTE_THRESHOLD = 0.5          # firm considered remote if remote_score > 0.5
-FIRM_N_BINS      = 10           # quantile bins in all firm‑level charts
+FIRM_N_BINS      = 20           # quantile bins in all firm‑level charts
 COLOURS          = {True: "blue", False: "orange"}
 
 ###############################################################################
@@ -69,7 +69,6 @@ def _plot_bins_reg(
     q: int,
     xlabel: str,
     ylabel: str,
-    title: str,
     file_stem: str,
     split_col: str | None = None,
 ):
@@ -90,7 +89,7 @@ def _plot_bins_reg(
             f"{'Remote' if key else 'Non‑remote'} (Binscatter)"
             if split_col else "Binscatter"
         )
-        plt.plot(xs, ys, "o-", linewidth=2, color=colour, label=label_bs)
+        plt.plot(xs, ys, "o", linewidth=2, color=colour, label=label_bs)
 
         model  = smf.ols(f"{y} ~ {x}", data=grp_valid).fit()
         x_vals = np.linspace(grp_valid[x].min(), grp_valid[x].max(), 100)
@@ -103,7 +102,6 @@ def _plot_bins_reg(
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.title(title)
     plt.legend()
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / f"{file_stem}.png", dpi=500)
@@ -140,21 +138,21 @@ def main():
         firms,
         x="age", y="remote", q=FIRM_N_BINS,
         xlabel="Firm age (years since founding)", ylabel="Remoteness score",
-        title="Firm age vs Remoteness", file_stem="firm_age_remote_full",
+        file_stem="firm_age_remote_full",
     )
     # apply age < 100 cutoff for age-based plots
     _plot_bins_reg(
         firms[firms["age"] < 100],
         x="age", y="remote", q=FIRM_N_BINS,
         xlabel="Firm age (<100 years)", ylabel="Remoteness score",
-        title="Firm age < 100 vs Remoteness", file_stem="firm_age_lt100_remote",
+        file_stem="firm_age_lt100_remote",
     )
 
     _plot_bins_reg(
         firms[firms["age"] < 50],
         x="age", y="remote", q=FIRM_N_BINS,
         xlabel="Firm age (<50 years)", ylabel="Remoteness score",
-        title="Firm age < 50 vs Remoteness", file_stem="firm_age_lt50_remote",
+        file_stem="firm_age_lt50_remote",
     )
 
     # log-age plot: drop non-positive and extreme ages before logging
@@ -164,7 +162,7 @@ def main():
         firms_log,
         x="log_age", y="remote", q=FIRM_N_BINS,
         xlabel="log(Firm age)", ylabel="Remoteness score",
-        title="log(Firm age) vs Remoteness", file_stem="firm_logage_remote",
+        file_stem="firm_logage_remote",
     )
 
     # ───────── 2) Teleworkable → Remoteness (single view, no raw scatter) ─────────
@@ -172,7 +170,7 @@ def main():
         firms,
         x="teleworkable", y="remote", q=FIRM_N_BINS,
         xlabel="Teleworkable index", ylabel="Remoteness score",
-        title="Teleworkable vs Remoteness", file_stem="firm_teleworkable_remote",
+        file_stem="firm_teleworkable_remote",
     )
 
 """
@@ -182,19 +180,19 @@ def main():
     _plot_bins_reg(
         post, x="age", y="growth_rate_we", split_col="is_remote", q=FIRM_N_BINS,
         xlabel="Firm age (years since founding)", ylabel="Growth rate (WE)",
-        title="Firm age vs Growth Rate (Post-COVID)", file_stem="firm_age_growth_full",
+        file_stem="firm_age_growth_full",
     )
     # apply age < 100 cutoff to post-COVID age-based growth plots
     _plot_bins_reg(
         post[post["age"] < 100], x="age", y="growth_rate_we", split_col="is_remote", q=FIRM_N_BINS,
         xlabel="Firm age (<100 years)", ylabel="Growth rate (WE)",
-        title="Firm age < 100 vs Growth Rate (Post-COVID)", file_stem="firm_age_lt100_growth",
+        file_stem="firm_age_lt100_growth",
     )
 
     _plot_bins_reg(
         post[post["age"] < 50], x="age", y="growth_rate_we", split_col="is_remote", q=FIRM_N_BINS,
         xlabel="Firm age (<50 years)", ylabel="Growth rate (WE)",
-        title="Firm age < 50 vs Growth Rate (Post‑COVID)", file_stem="firm_age_lt50_growth",
+        file_stem="firm_age_lt50_growth",
     )
 
     # log-age plot for growth: drop non-positive ages before logging
@@ -203,7 +201,7 @@ def main():
     _plot_bins_reg(
         post_log, x="log_age", y="growth_rate_we", split_col="is_remote", q=FIRM_N_BINS,
         xlabel="log(Firm age)", ylabel="Growth rate (WE)",
-        title="log(Firm age) vs Growth Rate (Post-COVID)", file_stem="firm_logage_growth",
+        file_stem="firm_logage_growth",
     )
 
     # ───────── 4) Firm age → Productivity (mean Q100, post‑COVID, split) ─────────
@@ -212,19 +210,19 @@ def main():
     _plot_bins_reg(
         prod_df, x="age", y="q100", split_col="is_remote", q=FIRM_N_BINS,
         xlabel="Firm age (years since founding)", ylabel="Mean worker Q100 (post-COVID)",
-        title="Firm age vs Productivity (Post-COVID)", file_stem="firm_age_q100_full",
+        file_stem="firm_age_q100_full",
     )
     # apply age < 100 cutoff to productivity age-based plots
     _plot_bins_reg(
         prod_df[prod_df["age"] < 100], x="age", y="q100", split_col="is_remote", q=FIRM_N_BINS,
         xlabel="Firm age (<100 years)", ylabel="Mean worker Q100 (post-COVID)",
-        title="Firm age < 100 vs Productivity (Post-COVID)", file_stem="firm_age_lt100_q100",
+        file_stem="firm_age_lt100_q100",
     )
 
     _plot_bins_reg(
         prod_df[prod_df["age"] < 50], x="age", y="q100", split_col="is_remote", q=FIRM_N_BINS,
         xlabel="Firm age (<50 years)", ylabel="Mean worker Q100 (post‑COVID)",
-        title="Firm age < 50 vs Productivity (Post‑COVID)", file_stem="firm_age_lt50_q100",
+        file_stem="firm_age_lt50_q100",
     )
 
     # log-age plot for productivity: drop non-positive ages before logging
@@ -233,7 +231,7 @@ def main():
     _plot_bins_reg(
         prod_log, x="log_age", y="q100", split_col="is_remote", q=FIRM_N_BINS,
         xlabel="log(Firm age)", ylabel="Mean worker Q100 (post-COVID)",
-        title="log(Firm age) vs Productivity (Post-COVID)", file_stem="firm_logage_q100",
+        file_stem="firm_logage_q100",
     )
 
 """
