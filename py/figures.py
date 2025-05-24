@@ -81,7 +81,12 @@ def _plot_bins_reg(
         if not y_vals.empty:
             y_min, y_max = y_vals.min(), y_vals.max()
             for level in np.linspace(y_min, y_max, 5):
-                ax.axhline(level, color="lightgrey", linewidth=0.5, zorder=0)
+                ax.axhline(
+                    level,
+                    color="gray",
+                    linewidth=1.0,
+                    zorder=0,
+                )
 
     groups = data.groupby(split_col) if split_col else [("All", data)]
     for key, grp in groups:
