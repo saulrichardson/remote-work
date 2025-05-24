@@ -11,7 +11,7 @@ def partial_binscatter(
     x: str,
     y: str,
     fe_cols: list[str],
-    q: int = 10,
+    q: int = 20,
     xlabel: str | None = None,
     ylabel: str | None = None,
     title: str | None = None,
@@ -30,7 +30,7 @@ def partial_binscatter(
     mids    = [interval.mid for interval in mean_ry.index.categories]
 
     plt.figure(figsize=(8, 6))
-    plt.plot(mids, mean_ry.values, "o-", lw=2, label="Binscatter")
+    plt.plot(mids, mean_ry.values, "o", lw=2, label="Binscatter")
 
     coef, intercept = np.polyfit(tmp["_rx"], tmp["_ry"], 1)
     xs = np.linspace(tmp["_rx"].min(), tmp["_rx"].max(), 100)
@@ -38,7 +38,7 @@ def partial_binscatter(
 
     plt.xlabel(xlabel or f"{x} (net of FEs)")
     plt.ylabel(ylabel or f"{y} (net of FEs)")
-    plt.title(title or f"Partial Binscatter: {y} vs {x}")
+    # omit title for cleaner output
     plt.legend()
     plt.tight_layout()
     plt.show()
@@ -53,10 +53,9 @@ if __name__ == "__main__":
         x="var3",                         # your regressor
         y="total_contributions_q100",     # your outcome
         fe_cols=["user_id", "firm_id", "yh"],  # same absorbs() in Stata
-        q=10,
+        q=20,
         xlabel="Var3 (residualized)",
         ylabel="Productivity (residualized)",
-        title="FWL Binscatter of Var3 → Worker Productivity"
     )
 
     print(f"Net OLS slope on var3 (matches reghdfe): {slope:.4f}")
