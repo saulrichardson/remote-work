@@ -102,7 +102,7 @@ def _plot_bins_reg(
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.legend()
+    #plt.legend()
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / f"{file_stem}.png", dpi=500)
     plt.close()
@@ -144,7 +144,7 @@ def main():
     _plot_bins_reg(
         firms[firms["age"] < 100],
         x="age", y="remote", q=FIRM_N_BINS,
-        xlabel="Firm age (<100 years)", ylabel="Remoteness score",
+        xlabel="Firm age", ylabel="Remoteness score",
         file_stem="firm_age_lt100_remote",
     )
 

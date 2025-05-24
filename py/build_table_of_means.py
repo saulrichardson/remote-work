@@ -185,7 +185,7 @@ def build_panel(df: pd.DataFrame,
                                 sd_decimals,
                                 pct_vars
                             ),
-            "Non-Startup": _mean_sd_cell(
+            "Incumbent": _mean_sd_cell(
                                 code,
                                 m_non,
                                 sd_non,

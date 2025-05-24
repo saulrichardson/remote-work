@@ -3,11 +3,11 @@
 *         Half-Year Periods, and Generate Half-Year Time Variable (yh)
 ********************************************************************************
 
-do "../globals.do"
+do "globals.do"
 *---------------------------------------------------------*
 * 1) Load the LinkedIn Positions Data & Standardize SOC Codes
 *---------------------------------------------------------*
-use "$data/Scoop_workers_positions_filtered.dta", clear
+use "$processed_data/Scoop_workers_positions_filtered.dta", clear
 
 * (For testing, you have a filter below; remove it for full data)
 keep if user_id == 1001643
