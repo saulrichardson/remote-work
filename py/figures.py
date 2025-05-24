@@ -127,6 +127,9 @@ def _plot_bins_reg(
 def main():
     # ────────────────────────── READ DATA ────────────────────────────
     firms   = pd.read_csv(FIRM_FILE)
+    # keep a single observation per firm (sorted by yh) for remoteness plots
+    firms_unique = firms.sort_values("yh").drop_duplicates("firm_id")
+    # later growth/productivity figures use the full `firms` DataFrame
     workers = pd.read_csv(WORKER_FILE)
 
     # ────────────────── BUILD FIRM‑LEVEL PRODUCTIVITY ────────────────
@@ -145,31 +148,31 @@ def main():
         firms["remote"] > REMOTE_THRESHOLD
     )
 
-    # ───────── 1) Firm age → Remoteness (3 variants) ─────────
+    # ───────── 1) Firm age → Remoteness (3 variants, unique firms) ─────────
     # full sample age-based plot (all ages)
     _plot_bins_reg(
-        firms,
+        firms_unique,
         x="age", y="remote", q=FIRM_N_BINS,
         xlabel="Firm age (years since founding)", ylabel="Remoteness score",
         file_stem="firm_age_remote_full",
     )
     # apply age < 100 cutoff for age-based plots
     _plot_bins_reg(
-        firms[firms["age"] < 100],
+        firms_unique[firms_unique["age"] < 100],
         x="age", y="remote", q=FIRM_N_BINS,
         xlabel="Firm age", ylabel="Remoteness score",
         file_stem="firm_age_lt100_remote",
     )
 
     _plot_bins_reg(
-        firms[firms["age"] < 50],
+        firms_unique[firms_unique["age"] < 50],
         x="age", y="remote", q=FIRM_N_BINS,
         xlabel="Firm age (<50 years)", ylabel="Remoteness score",
         file_stem="firm_age_lt50_remote",
     )
 
     # log-age plot: drop non-positive and extreme ages before logging
-    firms_log = firms[(firms["age"] > 0) & (firms["age"] < 100)].copy()
+    firms_log = firms_unique[(firms_unique["age"] > 0) & (firms_unique["age"] < 100)].copy()
     firms_log["log_age"] = np.log(firms_log["age"])
     _plot_bins_reg(
         firms_log,
@@ -178,9 +181,10 @@ def main():
         file_stem="firm_logage_remote",
     )
 
-    # ───────── 2) Teleworkable → Remoteness (single view, no raw scatter) ─────────
+    # ───────── 2) Teleworkable → Remoteness (single view, no raw scatter)
+    #           (using the deduplicated firm set) ─────────
     _plot_bins_reg(
-        firms,
+        firms_unique,
         x="teleworkable", y="remote", q=FIRM_N_BINS,
         xlabel="Teleworkable index", ylabel="Remoteness score",
         file_stem="firm_teleworkable_remote",
