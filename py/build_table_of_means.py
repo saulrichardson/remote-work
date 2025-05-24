@@ -122,9 +122,13 @@ def build_panel(
     pct_vars: set[str] | None = None,
     *,
     startup_flag: str = "startup",
+    id_col: str | None = None,
+    dedup_vars: set[str] | None = None,
 ) -> pd.DataFrame:
     """Return formatted panel rows."""
     required = list(var_map.values()) + [startup_flag]
+    if id_col:
+        required.append(id_col)
     missing = [c for c in required if c not in df.columns]
     if missing:
         raise ValueError(f"Missing columns {missing} in input data")
@@ -133,13 +137,29 @@ def build_panel(
     stats_by_flag = df.groupby(startup_flag)[cols].agg(["mean", "std"])
     overall_stats = df[cols].agg(["mean", "std"]).T
 
+    # ------------------------------------------------------------------
+    # Optional deduplication for static variables
+    # ------------------------------------------------------------------
+    if id_col and dedup_vars:
+        dcols = list(dedup_vars)
+        dedup = df.drop_duplicates(id_col)
+        dedup_stats_by_flag = dedup.groupby(startup_flag)[dcols].agg(["mean", "std"])
+        dedup_overall_stats = dedup[dcols].agg(["mean", "std"]).T
+    else:
+        dedup_stats_by_flag = None
+        dedup_overall_stats = None
+
     rows: list[dict[str, object]] = []
     for code, col in var_map.items():
-        m_start = stats_by_flag.loc[1, (col, "mean")] if 1 in stats_by_flag.index else float("nan")
-        sd_start = stats_by_flag.loc[1, (col, "std")] if 1 in stats_by_flag.index else float("nan")
-        m_non = stats_by_flag.loc[0, (col, "mean")] if 0 in stats_by_flag.index else float("nan")
-        sd_non = stats_by_flag.loc[0, (col, "std")] if 0 in stats_by_flag.index else float("nan")
-        m_all, sd_all = overall_stats.loc[col]
+        use_dedup = dedup_stats_by_flag is not None and col in (dedup_vars or set())
+        flag_stats = dedup_stats_by_flag if use_dedup else stats_by_flag
+        overall = dedup_overall_stats if use_dedup else overall_stats
+
+        m_start = flag_stats.loc[1, (col, "mean")] if 1 in flag_stats.index else float("nan")
+        sd_start = flag_stats.loc[1, (col, "std")] if 1 in flag_stats.index else float("nan")
+        m_non = flag_stats.loc[0, (col, "mean")] if 0 in flag_stats.index else float("nan")
+        sd_non = flag_stats.loc[0, (col, "std")] if 0 in flag_stats.index else float("nan")
+        m_all, sd_all = overall.loc[col]
         rows.append({
             "variable": nice[code],
             "Startup":    _mean_sd_cell(code, m_start, sd_start, mean_dec, sd_dec, pct_vars),
@@ -212,6 +232,15 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
         mean_dec=DECIMALS_A,
         sd_dec=SD_DECIMALS_A,
         pct_vars=PERCENT_VARS_A,
+        id_col="firm_id",
+        dedup_vars={
+            "teleworkable",
+            "remote",
+            "age",
+            "rent",
+            "hhi_1000",
+            "seniority_levels",
+        },
     )
 
     panel_b = build_panel(
