@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate LaTeX tables of descriptive statistics.
+r"""Generate LaTeX tables of descriptive statistics.
 
 The script outputs firm-level (Panel A) and user-level (Panel B) summary
 statistics in a single table. Means and standard deviations are stacked using
@@ -102,7 +102,7 @@ def _fmt(code: str, value: float | int | pd.Series, decimals: dict[str, int],
 def _mean_sd_cell(code: str, mean_val, sd_val,
                   mean_dec: dict[str, int], sd_dec: dict[str, int],
                   pct_vars: set[str] | None = None) -> str:
-    """Return a ``\makecell`` string with mean and SD."""
+    r"""Return a ``\makecell`` string with mean and SD."""
     if pd.isna(mean_val) or pd.isna(sd_val):
         return ""
     if pct_vars and code in pct_vars:
@@ -171,7 +171,7 @@ def _with_gutter(colspec: str) -> str:
 
 
 def _insert_midrule_before_N(tex: str) -> str:
-    """Insert ``\addlinespace`` and ``\midrule`` before the N row."""
+    r"""Insert ``\addlinespace`` and ``\midrule`` before the N row."""
     return tex.replace("\nN &", "\n\\addlinespace\n\\midrule\nN &", 1)
 
 

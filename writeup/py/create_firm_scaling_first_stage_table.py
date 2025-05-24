@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a LaTeX table of the *first-stage* regressions for the **Firm-Scaling**
+r"""Generate a LaTeX table of the *first-stage* regressions for the **Firm-Scaling**
 specification (base results, not the alternative-FE spec).
 
 The source CSV lives under ``results/raw/firm_scaling/first_stage.csv`` and
@@ -44,7 +44,7 @@ def stars(p: float) -> str:
 
 
 def cell(coef: float, se: float, p: float) -> str:
-    """Return a centred ``\makecell`` with coefficient and (se)."""
+    r"""Return a centred ``\makecell`` with coefficient and (se)."""
     return rf"\makecell[c]{{{coef:.3f}{stars(p)}\\({se:.3f})}}"
 
 

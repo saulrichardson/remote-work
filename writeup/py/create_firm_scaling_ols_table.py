@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+r"""
 Build a **two‑panel** LaTeX table of OLS results for the Firm‑Scaling project.
 
 * **Panel A** – Base specification: Growth, Join, Leave (OLS).
