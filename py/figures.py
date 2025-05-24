@@ -74,6 +74,14 @@ def _plot_bins_reg(
 ):
     """Quantile‑binscatter with optional remote split and OLS overlay."""
     plt.figure(figsize=(10, 6))
+    ax = plt.gca()
+
+    if y in {"remote", "teleworkable"}:
+        y_vals = data[y].dropna()
+        if not y_vals.empty:
+            y_min, y_max = y_vals.min(), y_vals.max()
+            for level in np.linspace(y_min, y_max, 5):
+                ax.axhline(level, color="lightgrey", linewidth=0.5, zorder=0)
 
     groups = data.groupby(split_col) if split_col else [("All", data)]
     for key, grp in groups:
@@ -98,7 +106,7 @@ def _plot_bins_reg(
             f"{'Remote' if key else 'Non‑remote'} (OLS)"
             if split_col else "OLS"
         )
-        plt.plot(x_vals, y_vals, "--", linewidth=2, color=colour, label=label_ols)
+        plt.plot(x_vals, y_vals, linewidth=2, color=colour, label=label_ols)
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
