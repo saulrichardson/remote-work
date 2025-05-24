@@ -35,6 +35,7 @@ report:
 	@mkdir -p $(BUILD)
 	@echo "Generating consolidated report tables..."
 	@python ../py/build_table_of_means.py
+	@python ../py/figures.py
 	@python py/create_user_mechanisms_table.py
 	@python py/create_firm_mechanisms_table.py
 	@echo "Generating firm scaling tables..."

@@ -10,6 +10,8 @@ writeup/build/
 # Python bytecode
 __pycache__/
 
+*.swp
+
 # Local folders for old scripts
 **/bin/
 .DS_Store

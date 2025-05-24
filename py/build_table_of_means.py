@@ -160,7 +160,6 @@ def build_panel(df: pd.DataFrame,
                 pct_vars:      set[str] | None = None,
                 startup_flag:  str = "startup"):
     r"""Return panel rows (mean \n sd) via a single aggregation pass."""
-    print(df.columns.to_list())
     missing = [c for c in list(var_map.values()) + [startup_flag] if c not in df.columns]
     if missing:
         raise ValueError(f"Missing columns {missing} in input data")
