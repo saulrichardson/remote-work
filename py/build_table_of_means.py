@@ -247,9 +247,18 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
     # drop the auto-generated "N" row
     panel_a = panel_a[panel_a.variable != "N"]
 
-    # compute explicit counts of firms and employees
+    # compute explicit counts of firms
     firm_counts = df_firms.groupby("startup")["firm_id"].nunique()
-    emp_sums    = df_firms.groupby("startup")["total_employees"].sum()
+
+    # compute per-firm average headcount, then sum across firms
+    avg_per_firm = (
+        df_firms
+        .groupby(["firm_id", "startup"])["employeecount"]
+        .mean()
+        .reset_index()
+    )
+    emp_sums = avg_per_firm.groupby("startup")["employeecount"].sum()
+    emp_sums_all = avg_per_firm["employeecount"].sum()
 
     extra_a = pd.DataFrame([
         {
@@ -260,13 +269,12 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
         },
         {
             "variable":  "N employees",
-            "Startup":   int(emp_sums.get(1, 0)),
-            "Incumbent": int(emp_sums.get(0, 0)),
-            "All Firms": int(emp_sums.sum()),
+            "Startup":   float(emp_sums.get(1, 0)),
+            "Incumbent": float(emp_sums.get(0, 0)),
+            "All Firms": float(emp_sums_all),
         },
     ])
 
-    # append them to Panel A
     panel_a = pd.concat([panel_a, extra_a], ignore_index=True)
 
     df_users = pd.read_csv(worker_path)

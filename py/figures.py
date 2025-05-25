@@ -120,7 +120,13 @@ def _plot_bins_reg(
             slope = model.params[x]
             se    = model.bse[x]
             r2    = model.rsquared
-            anno_text = f"$\beta = {slope:.2f}$ ({se:.2f})\n$R^2 = {r2:.2f}$"
+            # Keep each line fully inside its own $…$ block; this avoids
+            # mathtext errors in newer Matplotlib versions.
+            anno_text = (
+                rf"$\beta = {slope:.2f}\;({se:.2f})$"  # first line
+                "\n"
+                rf"$R^2 = {r2:.2f}$"                        # second line
+            )
 
             if split_col is None:
                 # pick corner with fewest nearby points
