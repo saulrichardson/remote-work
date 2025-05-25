@@ -119,7 +119,7 @@ def _plot_bins_reg(
         if x == "teleworkable" and y == "remote":
             slope = model.params[x]
             r2    = model.rsquared
-            anno_text = rf"$\beta = {slope:.2f}$\n$R^2 = {r2:.2f}$"
+            anno_text = f"$\beta = {slope:.2f}$\n$R^2 = {r2:.2f}$"
 
             if split_col is None:
                 # pick corner with fewest nearby points
