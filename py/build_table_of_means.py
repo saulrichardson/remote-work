@@ -253,12 +253,12 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
     # compute per-firm average headcount, then sum across firms
     avg_per_firm = (
         df_firms
-        .groupby(["firm_id", "startup"])["employeecount"]
+        .groupby(["firm_id", "startup"])["total_employees"]
         .mean()
         .reset_index()
     )
-    emp_sums = avg_per_firm.groupby("startup")["employeecount"].sum()
-    emp_sums_all = avg_per_firm["employeecount"].sum()
+    emp_sums = avg_per_firm.groupby("startup")["total_employees"].sum()
+    emp_sums_all = avg_per_firm["total_employees"].sum()
 
     extra_a = pd.DataFrame([
         {
