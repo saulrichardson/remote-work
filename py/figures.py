@@ -114,6 +114,51 @@ def _plot_bins_reg(
         )
         plt.plot(x_vals, y_vals, linewidth=2, color=colour, label=label_ols)
 
+        if x == "teleworkable" and y == "remote":
+            slope = model.params[x]
+            r2    = model.rsquared
+            anno_text = rf"$\beta = {slope:.2f}$\n$R^2 = {r2:.2f}$"
+
+            if split_col is None:
+                # pick corner with fewest nearby points
+                x_mid, y_mid = grp_valid[x].median(), grp_valid[y].median()
+                counts = {
+                    "tl": ((grp_valid[x] < x_mid) & (grp_valid[y] > y_mid)).sum(),
+                    "tr": ((grp_valid[x] > x_mid) & (grp_valid[y] > y_mid)).sum(),
+                    "bl": ((grp_valid[x] < x_mid) & (grp_valid[y] < y_mid)).sum(),
+                    "br": ((grp_valid[x] > x_mid) & (grp_valid[y] < y_mid)).sum(),
+                }
+                corner = min(counts, key=counts.get)
+                corners = {
+                    "tl": (0.05, 0.95, "left", "top"),
+                    "tr": (0.95, 0.95, "right", "top"),
+                    "bl": (0.05, 0.05, "left", "bottom"),
+                    "br": (0.95, 0.05, "right", "bottom"),
+                }
+                base_x, base_y, ha, va = corners[corner]
+            else:
+                base_x, base_y = 0.05, 0.90
+                if key:
+                    base_y -= 0.10
+                ha, va = "left", "top"
+
+            ax.text(
+                base_x,
+                base_y,
+                anno_text,
+                transform=ax.transAxes,
+                fontsize=11,
+                horizontalalignment=ha,
+                verticalalignment=va,
+                color=colour,
+                bbox=dict(
+                    boxstyle="round,pad=0.3",
+                    facecolor="white",
+                    alpha=0.6,
+                    edgecolor=colour,
+                ),
+            )
+
     ax.tick_params(axis="both", labelsize=12)
     plt.xlabel(xlabel, fontsize=14)
     plt.ylabel(ylabel, fontsize=14)
