@@ -15,3 +15,10 @@ make -C writeup readme
 
 from the repository root (the command requires a standard \TeX\ Live
 installation plus \texttt{pygmentize} for syntax highlighting).
+
+## Data Samples
+
+Scripts in `py/` expect CSV files under `data/samples/`:
+
+* `firm_panel.csv`
+* `user_panel.csv`  (formerly `worker_panel.csv`)

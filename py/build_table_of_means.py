@@ -15,7 +15,8 @@ import textwrap
 # Default file locations
 # ----------------------------------------------------------------------
 DEF_FIRM   = Path("../data/samples/firm_panel.csv")
-DEF_WORKER = Path("../data/samples/worker_panel.csv")
+# worker-level sample (expected file name: ``user_panel.csv``)
+DEF_WORKER = Path("../data/samples/user_panel.csv")
 DEF_OUT    = Path("../results/cleaned/table_of_means.tex")
 
 # ----------------------------------------------------------------------
