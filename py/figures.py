@@ -106,6 +106,8 @@ def _plot_bins_reg(
         plt.plot(xs, ys, "o", linewidth=2, color=colour, label=label_bs)
 
         model  = smf.ols(f"{y} ~ {x}", data=grp_valid).fit()
+        slope = model.params[x]
+        r2    = model.rsquared
         x_vals = np.linspace(grp_valid[x].min(), grp_valid[x].max(), 100)
         y_vals = model.predict(pd.DataFrame({x: x_vals}))
         label_ols = (
@@ -158,6 +160,7 @@ def _plot_bins_reg(
                     edgecolor=colour,
                 ),
             )
+
 
     ax.tick_params(axis="both", labelsize=12)
     plt.xlabel(xlabel, fontsize=14)
