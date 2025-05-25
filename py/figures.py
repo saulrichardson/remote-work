@@ -17,7 +17,7 @@ Inputs (CSV expected under `data/samples/`)
 * `firm_panel.csv`   – must contain  
   `firm_id`, `age` (years since founding), `remote`, `teleworkable`,
   `growth_rate_we`, `covid`.
-* `worker_panel.csv` – must contain  
+* `user_panel.csv` – must contain
   `firm_id`, `covid`, `total_contributions_q100`.
 """
 
@@ -38,7 +38,7 @@ OUTPUT_DIR = PROJECT_ROOT / "results" / "figures"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)   # ensure path exists
 
 # 3) File paths
-WORKER_FILE = DATA_DIR / "worker_panel.csv"
+WORKER_FILE = DATA_DIR / "user_panel.csv"   # worker-level sample
 FIRM_FILE   = DATA_DIR / "firm_panel.csv"
 
 ###############################################################################
