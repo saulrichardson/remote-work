@@ -106,6 +106,8 @@ def _plot_bins_reg(
         plt.plot(xs, ys, "o", linewidth=2, color=colour, label=label_bs)
 
         model  = smf.ols(f"{y} ~ {x}", data=grp_valid).fit()
+        slope = model.params[x]
+        r2    = model.rsquared
         x_vals = np.linspace(grp_valid[x].min(), grp_valid[x].max(), 100)
         y_vals = model.predict(pd.DataFrame({x: x_vals}))
         label_ols = (
@@ -113,6 +115,28 @@ def _plot_bins_reg(
             if split_col else "OLS"
         )
         plt.plot(x_vals, y_vals, linewidth=2, color=colour, label=label_ols)
+
+        anno_text = (
+            rf"$\beta_{{{x}}} = {slope:.2f}$" "\n" rf"$R^2 = {r2:.2f}$"
+        )
+        base_x, base_y = 0.05, 0.90
+        if split_col is not None and key:
+            base_y -= 0.10
+        ax.text(
+            base_x,
+            base_y,
+            anno_text,
+            transform=ax.transAxes,
+            fontsize=11,
+            verticalalignment="top",
+            color=colour,
+            bbox=dict(
+                boxstyle="round,pad=0.3",
+                facecolor="white",
+                alpha=0.6,
+                edgecolor=colour,
+            ),
+        )
 
     ax.tick_params(axis="both", labelsize=12)
     plt.xlabel(xlabel, fontsize=14)
