@@ -169,7 +169,7 @@ def build_panel(
         })
 
     rows.append({
-        "variable": "N",
+        "variable": "\\addlinespace\n\\midrule\nN",
         "Startup":    int((df[startup_flag] == 1).sum()),
         "Incumbent":  int((df[startup_flag] == 0).sum()),
         "All Firms":  int(df.shape[0]),
@@ -190,10 +190,6 @@ def _with_gutter(colspec: str) -> str:
     """Insert a small horizontal gutter before the last column."""
     return colspec[:-1] + "@{\\hspace{6pt}}" + colspec[-1]
 
-
-def _insert_midrule_before_N(tex: str) -> str:
-    r"""Insert ``\addlinespace`` and ``\midrule`` before the N row."""
-    return tex.replace("\nN &", "\n\\addlinespace\n\\midrule\nN &", 1)
 
 
 def _notes_block(
@@ -303,31 +299,50 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
     # append it to Panel B
     panel_b = pd.concat([panel_b, extra_b], ignore_index=True)
 
-    with out_path.open("w") as fh:
-        fh.write("\\begin{table}[H]\n")
-        fh.write("\\centering\n")
-        fh.write("\\begin{threeparttable}\n")
-        fh.write("\\caption{Table of Means}\n")
-        fh.write("\\label{tab:means}\n")
-        fh.write(f"\\begin{{tabular}}{{{_with_gutter('lccc')}}}\n")
-        fh.write("\\toprule\n")
-        fh.write(" & Startup & Incumbent & All Firms \\\\\n")
-        fh.write("\\midrule\n")
-        fh.write("\\addlinespace\n")
+    a_tex = _strip_tabular(
+        panel_a.to_latex(
+            index=False,
+            header=False,
+            escape=False,
+            column_format=_with_gutter("lccc"),
+        )
+    )
+    b_tex = _strip_tabular(
+        panel_b.to_latex(
+            index=False,
+            header=False,
+            escape=False,
+            column_format=_with_gutter("lccc"),
+        )
+    )
 
-        fh.write("\\multicolumn{4}{l}{\\textbf{\\uline{Panel A: Firm-level}}}\\\\[0.3em]\n")
-        a_tex = panel_a.to_latex(index=False, header=False, escape=False, column_format=_with_gutter("lccc"))
-        fh.write(_insert_midrule_before_N(_strip_tabular(a_tex)))
-        fh.write("\n\\midrule\n\\addlinespace\n")
+    table_tex = textwrap.dedent(
+        rf"""
+        \begin{{table}}[H]
+        \centering
+        \begin{{threeparttable}}
+        \caption{{Table of Means}}
+        \label{{tab:means}}
+        \begin{{tabular}}{{{_with_gutter('lccc')}}}
+        \toprule
+         & Startup & Incumbent & All Firms \\
+        \midrule
+        \addlinespace
+        \multicolumn{{4}}{{l}}{{\textbf{{\uline{{Panel A: Firm-level}}}}}}\\[0.3em]
+        {a_tex}
+        \midrule
+        \addlinespace
+        \multicolumn{{4}}{{l}}{{\textbf{{\uline{{Panel B: User-level}}}}}}\\[0.3em]
+        {b_tex}
+        \bottomrule
+        \end{{tabular}}
+        {_notes_block()}
+        \end{{threeparttable}}
+        \end{{table}}
+        """
+    ).strip()
 
-        fh.write("\\multicolumn{4}{l}{\\textbf{\\uline{Panel B: User-level}}}\\\\[0.3em]\n")
-        b_tex = panel_b.to_latex(index=False, header=False, escape=False, column_format=_with_gutter("lccc"))
-        fh.write(_insert_midrule_before_N(_strip_tabular(b_tex)))
-        fh.write("\n\\bottomrule\n")
-        fh.write("\\end{tabular}\n")
-        fh.write(_notes_block())
-        fh.write("\\end{threeparttable}\n")
-        fh.write("\\end{table}\n")
+    out_path.write_text(table_tex + "\n")
 
     print(f"LaTeX table written to {out_path.resolve()}")
 
