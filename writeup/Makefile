@@ -1,6 +1,6 @@
 SHELL := /usr/bin/env bash
 SRC        := tex
-REPORT_SRC := $(SRC)/results/consolidated-report.tex
+REPORT_SRC := $(SRC)/consolidated-report.tex
 README_SRC := $(SRC)/README.tex
 
 BUILD  := build

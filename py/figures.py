@@ -45,7 +45,7 @@ FIRM_FILE   = DATA_DIR / "firm_panel.csv"
 # CONSTANTS
 ###############################################################################
 REMOTE_THRESHOLD = 0.5          # firm considered remote if remote_score > 0.5
-FIRM_N_BINS      = 20           # quantile bins in all firm‑level charts
+FIRM_N_BINS      = 60           # quantile bins in all firm‑level charts
 COLOURS          = {True: "blue", False: "orange"}
 
 ###############################################################################

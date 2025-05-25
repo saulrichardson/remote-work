@@ -225,8 +225,9 @@ def _notes_block(
 def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path: Path = DEF_OUT) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
+    df_firms = pd.read_csv(firm_path)
     panel_a = build_panel(
-        pd.read_csv(firm_path),
+        df_firms.copy(),
         VAR_MAP_A,
         NICE_A,
         mean_dec=DECIMALS_A,
@@ -243,14 +244,55 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
         },
     )
 
+    # drop the auto-generated "N" row
+    panel_a = panel_a[panel_a.variable != "N"]
+
+    # compute explicit counts of firms and employees
+    firm_counts = df_firms.groupby("startup")["firm_id"].nunique()
+    emp_sums    = df_firms.groupby("startup")["total_employees"].sum()
+
+    extra_a = pd.DataFrame([
+        {
+            "variable":  "N firms",
+            "Startup":   int(firm_counts.get(1, 0)),
+            "Incumbent": int(firm_counts.get(0, 0)),
+            "All Firms": int(df_firms["firm_id"].nunique()),
+        },
+        {
+            "variable":  "N employees",
+            "Startup":   int(emp_sums.get(1, 0)),
+            "Incumbent": int(emp_sums.get(0, 0)),
+            "All Firms": int(emp_sums.sum()),
+        },
+    ])
+
+    # append them to Panel A
+    panel_a = pd.concat([panel_a, extra_a], ignore_index=True)
+
+    df_users = pd.read_csv(worker_path)
     panel_b = build_panel(
-        pd.read_csv(worker_path),
+        df_users.copy(),
         VAR_MAP_B,
         NICE_B,
         mean_dec=DECIMALS_B,
         sd_dec=DECIMALS_B,
         pct_vars=None,
     )
+
+    # compute distinct-company counts for the user sample
+    company_counts = df_users.groupby("startup")["firm_id"].nunique()
+
+    extra_b = pd.DataFrame([
+        {
+            "variable":  "N companies",
+            "Startup":   int(company_counts.get(1, 0)),
+            "Incumbent": int(company_counts.get(0, 0)),
+            "All Firms": int(df_users["firm_id"].nunique()),
+        },
+    ])
+
+    # append it to Panel B
+    panel_b = pd.concat([panel_b, extra_b], ignore_index=True)
 
     with out_path.open("w") as fh:
         fh.write("\\begin{table}[H]\n")
