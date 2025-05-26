@@ -152,8 +152,8 @@ def build_panel_base(df: pd.DataFrame) -> str:
     )
 
     col_fmt = r"@{}l@{\extracolsep{\fill}}ccc@{}"
-    top = TOP if top_rule else ""
-    bottom = BOTTOM if bottom_rule else PANEL_SEP
+    top = ""
+    bottom = BOTTOM
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {top}
@@ -219,8 +219,8 @@ def build_panel_fe(df: pd.DataFrame) -> str:
         indicator_row("Firm FE",  FIRM_FE_INCLUDED)
     ])
 
-    top = TOP if top_rule else ""
-    bottom = BOTTOM if bottom_rule else PANEL_SEP
+    top = TOP
+    bottom = PANEL_SEP
     col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c"*len(TAG_ORDER) + r"@{}"
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}

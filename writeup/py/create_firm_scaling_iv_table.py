@@ -174,11 +174,8 @@ def build_panel_base(df: pd.DataFrame) -> str:
 
     col_fmt = r"@{}l@{\extracolsep{\fill}}ccc@{}"
 
-    top = TOP if top_rule else ""
-    if bottom_rule:
-        bottom = BOT
-    else:
-        bottom = MID + "\n" + PANEL_GAP
+    top = ""
+    bottom = BOT
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {top}
@@ -254,11 +251,8 @@ def build_panel_fe(df: pd.DataFrame) -> str:
     col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c"*len(TAG_ORDER) + r"@{}"
     #—or, if you still want stretchy space between columns:
     #col_fmt = r"@{}l@{\extracolsep{\fill}}cccc"
-    top = TOP if top_rule else ""
-    if bottom_rule:
-        bottom = BOT
-    else:
-        bottom = MID + "\n" + PANEL_GAP
+    top = TOP
+    bottom = MID + "\n" + PANEL_GAP
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {top}

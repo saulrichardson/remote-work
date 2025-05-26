@@ -6,22 +6,8 @@
 \label{tab:user_productivity_ols}
 \centering
 
-    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l C C @{}}
-    \toprule
-    \multicolumn{3}{@{}l}{\textbf{\uline{Panel B: All Outcomes}}}\\
-\addlinespace
-     & \multicolumn{2}{c}{Outcome} \\
-    \cmidrule{2-3}
-     & Total & Restricted \\
-    \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[t]{-2.66***\\(0.99)} & \makecell[t]{-1.96**\\(0.99)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[t]{9.18***\\(2.69)} & \makecell[t]{8.30***\\(2.62)} \\
-    \midrule
-    N & 52,995 & 52,995 \\
-    \specialrule{\lightrulewidth}{0pt}{0pt}
-    \end{tabularx}
-
     \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l C C C C C C @{}}
+    \toprule
     \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: FE Variants}}}\\
 \addlinespace
      & \multicolumn{6}{c}{Total Contributions} \\
@@ -37,6 +23,21 @@ User FE &  &  &  &  & $\checkmark$ &  \\
 Firm $\times$ User FE &  &  &  &  &  & $\checkmark$ \\
     \midrule
     N & 53,020 & 52,995 & 53,020 & 52,995 & 52,995 & 52,718 \\
+    \specialrule{\lightrulewidth}{0pt}{0pt}
+    \end{tabularx}
+
+    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l C C @{}}
+
+    \multicolumn{3}{@{}l}{\textbf{\uline{Panel B: Base Specification}}}\\
+\addlinespace
+     & \multicolumn{2}{c}{Outcome} \\
+    \cmidrule{2-3}
+     & Total & Restricted \\
+    \midrule
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[t]{-2.66***\\(0.99)} & \makecell[t]{-1.96**\\(0.99)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[t]{9.18***\\(2.69)} & \makecell[t]{8.30***\\(2.62)} \\
+    \midrule
+    N & 52,995 & 52,995 \\
     \bottomrule
     \end{tabularx}
 \end{table}

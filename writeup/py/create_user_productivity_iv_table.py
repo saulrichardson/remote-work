@@ -168,6 +168,8 @@ def build_panel_base(df: pd.DataFrame) -> str:
 
 
     col_fmt = column_format(len(OUTCOME_LABEL))  # in build_panel_fease
+    top = ""
+    bottom = BOTTOM
 
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
@@ -232,6 +234,8 @@ def build_panel_fe(df: pd.DataFrame) -> str:
 
 
     col_fmt = column_format(len(TAG_ORDER))      # in build_panel_fe
+    top = TOP
+    bottom = PANEL_SEP
 
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}

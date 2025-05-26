@@ -6,23 +6,8 @@
 \label{tab:user_productivity_iv}
 \centering
 
-    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
-    \toprule
-    \multicolumn{3}{@{}l}{\textbf{\uline{Panel B: All Outcomes}}}\\
-\addlinespace
-     & \multicolumn{2}{c}{Outcome} \\
-    \cmidrule(lr){2-3}
-     & Total & Restricted \\
-    \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-17.36**\\(8.72)} & \makecell[c]{-19.25**\\(8.88)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{31.85***\\(12.28)} & \makecell[c]{34.94***\\(12.13)} \\
-    \midrule
-    N & 52,995 & 52,995 \\
-    KP rk Wald F & 26.05 & 26.05 \\
-    \specialrule{\lightrulewidth}{0pt}{0pt}
-    \end{tabularx}
-
     \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
+    \toprule
     \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: FE Variants}}}\\
 \addlinespace
      & \multicolumn{6}{c}{Total Contributions} \\
@@ -39,6 +24,22 @@ Firm $\times$ User FE &  &  &  &  &  & $\checkmark$ \\
     \midrule
     N & 49,287 & 52,995 & 49,287 & 52,995 & 52,995 & 52,718 \\
     KP rk Wald F & 0.04 & 27.41 & 0.04 & 27.41 & 26.05 & 25.60 \\
+    \specialrule{\lightrulewidth}{0pt}{0pt}
+    \end{tabularx}
+
+    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
+
+    \multicolumn{3}{@{}l}{\textbf{\uline{Panel B: Base Specification}}}\\
+\addlinespace
+     & \multicolumn{2}{c}{Outcome} \\
+    \cmidrule(lr){2-3}
+     & Total & Restricted \\
+    \midrule
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-17.36**\\(8.72)} & \makecell[c]{-19.25**\\(8.88)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{31.85***\\(12.28)} & \makecell[c]{34.94***\\(12.13)} \\
+    \midrule
+    N & 52,995 & 52,995 \\
+    KP rk Wald F & 26.05 & 26.05 \\
     \bottomrule
     \end{tabularx}
 \end{table}
