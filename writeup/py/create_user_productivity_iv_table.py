@@ -87,7 +87,6 @@ TOP = r"\toprule"
 MID = r"\midrule"
 BOTTOM = r"\bottomrule"
 PANEL_SEP = r"\specialrule{\lightrulewidth}{0pt}{0pt}"
-TABLE_WIDTH = r"\textwidth"
 TABLE_WIDTH = r"\dimexpr\textwidth + 2cm\relax"
 
 

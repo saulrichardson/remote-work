@@ -84,14 +84,6 @@ def stars(p: float) -> str:
 def cell(coef: float, se: float, p: float) -> str:
     return rf"\makecell[c]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
-def cell(coef: float, se: float, p: float) -> str:
-    # vertical top (t) + horizontal center (c)
-    return rf"\makecell[tc]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
-
-def cell(coef: float, se: float, p: float) -> str:
-    # now the two-line block is top-aligned with the row baseline
-    return rf"\makecell[t]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
-
 def indicator_row(label: str, mapping: dict[str, bool]) -> str:
     checks = [r"$\checkmark$" if mapping.get(tag, False) else "" for tag in TAG_ORDER]
     return " & ".join([label] + checks) + r" \\"  # trailing \\
@@ -102,7 +94,6 @@ MID = r"\midrule"
 BOTTOM = r"\bottomrule"
 PANEL_SEP = r"\specialrule{\lightrulewidth}{0pt}{0pt}"
 
-TABLE_WIDTH = r"\textwidth"
 TABLE_WIDTH = r"\dimexpr\textwidth + 1cm\relax"
 
 
@@ -121,9 +112,6 @@ def column_format(n_numeric: int) -> str:
            " ".join([r">{\centering\arraybackslash}X" for _ in range(n_numeric)]) + \
            " @{}"
            
-def column_format(n_numeric: int) -> str:
-    # first column stays left-aligned (the stub), all the rest are centered X's
-    return "@{}l " + " ".join(["C"]*n_numeric) + " @{}"
 
 # ---------------------------------------------------------------------------
 # 3) Panel builders
