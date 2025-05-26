@@ -285,6 +285,7 @@ def main() -> None:
 
     # Panel B should appear before Panel A in the final table
     tex_lines.append(panel_b)
+    tex_lines.append(panel_a)
     #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "
     #                 r"Significance: *** $p<0.01$, ** $p<0.05$, * $p<0.10$.")
     tex_lines.append(r"\end{table}")
