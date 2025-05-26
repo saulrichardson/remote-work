@@ -309,9 +309,9 @@ def main() -> None:
     # Convert those to real new-lines so LaTeX does not see the two-character
     # token "\\n" (which triggers an \undefined control sequence error).
     # build both panels into one big tabular*
-    combined = build_panel_a(df_base).rstrip() \
+    combined = build_panel_b(df_alt).rstrip() \
               + "\n" + r"\vspace{0.75em}" + "\n" \
-              + build_panel_b(df_alt).lstrip()
+              + build_panel_a(df_base).lstrip()
     tex_lines.append(combined)
     #tex_lines.append(r"\vspace{0.5em}")
     #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "
