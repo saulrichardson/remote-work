@@ -270,8 +270,9 @@ def main() -> None:
         r"\centering",
     ]
 
-    tex_lines.append(build_panel_a(df_base).rstrip())
+    # Output Panel B first so the FE variants precede the base results
     tex_lines.append(build_panel_b(df_alt).rstrip())
+    tex_lines.append(build_panel_a(df_base).rstrip())
 
     tex_lines.append(r"\end{table}")
 

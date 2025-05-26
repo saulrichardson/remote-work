@@ -275,9 +275,10 @@ def main() -> None:
     panel_a = build_panel_a(df_base).rstrip()
     panel_b = build_panel_b(df_alt).rstrip()
 
-    tex_lines.append(panel_a)
-    tex_lines.append(r"\vspace{0.1\baselineskip}")    # <<< extra gap
+    # Panel B should appear before Panel A in the final table
     tex_lines.append(panel_b)
+    tex_lines.append(r"\vspace{0.1\baselineskip}")    # <<< extra gap
+    tex_lines.append(panel_a)
 
     #tex_lines.append(r"\vspace{0.5em}")
     #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "
