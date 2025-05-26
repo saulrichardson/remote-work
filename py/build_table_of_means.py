@@ -350,8 +350,9 @@ def main(
     n_row_b = panel_b.loc[n_mask_b].squeeze()
     panel_b = panel_b.loc[~n_mask_b]
 
-    # compute distinct-company counts for the user sample
+    # compute counts for the user sample
     company_counts = df_users.groupby("startup")["firm_id"].nunique()
+    user_counts = df_users.groupby("startup")["user_id"].nunique()
 
     extra_b = pd.DataFrame(
         [
@@ -360,6 +361,12 @@ def main(
                 "Startup": int(company_counts.get(1, 0)),
                 "Incumbent": int(company_counts.get(0, 0)),
                 "All Firms": int(df_users["firm_id"].nunique()),
+            },
+            {
+                "variable": "N users",
+                "Startup": int(user_counts.get(1, 0)),
+                "Incumbent": int(user_counts.get(0, 0)),
+                "All Firms": int(df_users["user_id"].nunique()),
             },
         ]
     )
