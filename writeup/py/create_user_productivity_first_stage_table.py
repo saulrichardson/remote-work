@@ -91,10 +91,8 @@ lines.append(r"\label{tab:user_productivity_first_stage}")
 col_spec = "l" + "c" * len(ENDOVARS)
 lines.append(rf"\begin{{tabular}}{{{col_spec}}}")
 lines.append(r"\toprule")
-lines.append(r" & \multicolumn{2}{c}{Dependent variable}\\")
-lines.append(r"\cmidrule(lr){2-3}")
-# Header with descriptive column labels
-header_cells = ["Instrument"] + [COL_LABEL.get(c, c) for c in ENDOVARS]
+# Header row with descriptive column labels; stub column is blank
+header_cells = ["" ] + [COL_LABEL.get(c, c) for c in ENDOVARS]
 lines.append(" & ".join(header_cells) + r"\\")
 lines.append(r"\midrule")
 
