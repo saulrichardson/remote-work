@@ -13,6 +13,7 @@ import argparse
 from pathlib import Path
 import pandas as pd
 import textwrap
+import re
 
 # ---------------------------------------------------------------------------
 # Paths and constants
@@ -201,22 +202,21 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {bottom}
     \end{{tabular*}}""")
 
-import re
-
-import re
-
-import re
 
 def strip_tabular_star(tex: str) -> str:
     r"""Remove the \begin{tabular*}…\end{tabular*} wrapper AND its top/bottom rules."""
+    # trim whitespace so that anchors in the regex match reliably when
+    # tabular blocks are indented. Use MULTILINE mode for substitutions
+    # because patterns start or end at line boundaries.
+    tex = tex.strip()
     # 1) drop the \begin{tabular*}{…}{…} line
-    tex = re.sub(r"^\\begin\{tabular\*\}\{.*?\}.*\n", "", tex)
+    tex = re.sub(r"^\s*\\begin\{tabular\*\}\{.*?\}.*\n", "", tex, flags=re.MULTILINE)
     # 2) drop the \end{tabular*} line
-    tex = re.sub(r"\n\\end\{tabular\*\}$", "", tex)
+    tex = re.sub(r"\n\s*\\end\{tabular\*\}$", "", tex, flags=re.MULTILINE)
     # 3) drop a leading \toprule or \addlinespace if present
-    tex = re.sub(r"^(?:\\toprule|\\addlinespace).*?\n", "", tex)
+    tex = re.sub(r"^\s*(?:\\toprule|\\addlinespace).*?\n", "", tex, flags=re.MULTILINE)
     # 4) drop a trailing \specialrule, \midrule, \addlinespace or \bottomrule
-    tex = re.sub(r"\n(?:\\specialrule.*|\\midrule|\\addlinespace|\\bottomrule)\s*$", "", tex)
+    tex = re.sub(r"\n\s*(?:\\specialrule.*|\\midrule|\\addlinespace|\\bottomrule)\s*$", "", tex, flags=re.MULTILINE)
     return tex
 
 
