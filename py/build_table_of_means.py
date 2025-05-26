@@ -241,8 +241,10 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
         },
     )
 
-    # drop the auto-generated "N" row
-    panel_a = panel_a[panel_a.variable != "N"]
+    # extract and drop the auto-generated ``N`` row so we can place it last
+    n_mask_a = panel_a.variable.str.contains("\\nN$")
+    n_row_a = panel_a.loc[n_mask_a].squeeze()
+    panel_a = panel_a.loc[~n_mask_a]
 
     # compute explicit counts of firms
     firm_counts = df_firms.groupby("startup")["firm_id"].nunique()
@@ -266,13 +268,20 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
         },
         {
             "variable":  "N employees",
-            "Startup":   float(emp_sums.get(1, 0)),
-            "Incumbent": float(emp_sums.get(0, 0)),
-            "All Firms": float(emp_sums_all),
+            "Startup":   int(round(emp_sums.get(1, 0))),
+            "Incumbent": int(round(emp_sums.get(0, 0))),
+            "All Firms": int(round(emp_sums_all)),
         },
     ])
 
-    panel_a = pd.concat([panel_a, extra_a], ignore_index=True)
+    # append extra counts and place the ``N`` row last
+    panel_a = pd.concat(
+        [panel_a, extra_a, pd.DataFrame([{"variable": "\\addlinespace\n\\midrule\nN",
+                                         "Startup": int(n_row_a.Startup),
+                                         "Incumbent": int(n_row_a.Incumbent),
+                                         "All Firms": int(n_row_a["All Firms"])}])],
+        ignore_index=True,
+    )
 
     df_users = pd.read_csv(worker_path)
     panel_b = build_panel(
@@ -283,6 +292,11 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
         sd_dec=DECIMALS_B,
         pct_vars=None,
     )
+
+    # extract and drop the auto-generated ``N`` row
+    n_mask_b = panel_b.variable.str.contains("\\nN$")
+    n_row_b = panel_b.loc[n_mask_b].squeeze()
+    panel_b = panel_b.loc[~n_mask_b]
 
     # compute distinct-company counts for the user sample
     company_counts = df_users.groupby("startup")["firm_id"].nunique()
@@ -296,8 +310,14 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
         },
     ])
 
-    # append it to Panel B
-    panel_b = pd.concat([panel_b, extra_b], ignore_index=True)
+    # append it to Panel B and place the ``N`` row last
+    panel_b = pd.concat(
+        [panel_b, extra_b, pd.DataFrame([{"variable": "\\addlinespace\n\\midrule\nN",
+                                         "Startup": int(n_row_b.Startup),
+                                         "Incumbent": int(n_row_b.Incumbent),
+                                         "All Firms": int(n_row_b["All Firms"])}])],
+        ignore_index=True,
+    )
 
     a_tex = _strip_tabular(
         panel_a.to_latex(
