@@ -97,12 +97,8 @@ col_spec = "l" + "c" * len(ENDOVARS)
 lines.append(rf"\begin{{tabular}}{{{col_spec}}}")
 lines.append(r"\toprule")
 
-# Title row spanning the two dependent-variable columns
-lines.append(r" & \multicolumn{2}{c}{Dependent variable}\\")
-lines.append(r"\cmidrule(lr){2-3}")
-
-# Stub plus pretty-printed column names
-header_cells = ["Instrument"] + [COL_LABEL.get(c, c) for c in ENDOVARS]
+# Header row with descriptive column labels; stub column is blank
+header_cells = ["" ] + [COL_LABEL.get(c, c) for c in ENDOVARS]
 lines.append(" & ".join(header_cells) + r"\\")
 lines.append(r"\midrule")
 
