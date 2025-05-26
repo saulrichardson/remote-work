@@ -392,7 +392,7 @@ def main(
         )
     )
     a_tex = a_tex.replace(r"\midrule\n", "", 1)
-    b_tex = a_tex.replace(r"\midrule\n", "", 1)
+    b_tex = b_tex.replace(r"\midrule\n", "", 1)
 
     table_tex = textwrap.dedent(
         rf"""
