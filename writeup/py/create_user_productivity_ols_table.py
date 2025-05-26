@@ -279,6 +279,7 @@ def main() -> None:
     tex_lines.append(build_panel_b(df_alt, top_rule=True, bottom_rule=False).rstrip())
     tex_lines.append(build_panel_a(df_base, top_rule=False, bottom_rule=True).rstrip())
 
+
     tex_lines.append(r"\end{table}")
 
     OUTPUT_TEX.parent.mkdir(parents=True, exist_ok=True)
