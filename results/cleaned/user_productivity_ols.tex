@@ -6,7 +6,7 @@
 \label{tab:user_productivity_ols}
 \centering
 
-    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l C C C C C C @{}}
+    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X @{}}
     \toprule
     \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: FE Variants}}}\\
 \addlinespace
@@ -14,8 +14,8 @@
     \cmidrule{2-7}
      & (1) & (2) & (3) & (4) & (5) & (6) \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[t]{-1.29\\(1.05)} & \makecell[t]{-2.38**\\(1.01)} & \makecell[t]{-1.29\\(1.05)} & \makecell[t]{-2.38**\\(1.01)} & \makecell[t]{-2.66***\\(0.99)} & \makecell[t]{-2.79***\\(0.99)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[t]{2.74\\(2.92)} & \makecell[t]{6.19**\\(2.82)} & \makecell[t]{2.75\\(2.92)} & \makecell[t]{6.20**\\(2.82)} & \makecell[t]{9.18***\\(2.69)} & \makecell[t]{9.77***\\(2.68)} \\
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-1.29\\(1.05)} & \makecell[c]{-2.38**\\(1.01)} & \makecell[c]{-1.29\\(1.05)} & \makecell[c]{-2.38**\\(1.01)} & \makecell[c]{-2.66***\\(0.99)} & \makecell[c]{-2.79***\\(0.99)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{2.74\\(2.92)} & \makecell[c]{6.19**\\(2.82)} & \makecell[c]{2.75\\(2.92)} & \makecell[c]{6.20**\\(2.82)} & \makecell[c]{9.18***\\(2.69)} & \makecell[c]{9.77***\\(2.68)} \\
     \midrule
     Time FE &  &  & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 Firm FE &  & $\checkmark$ &  & $\checkmark$ & $\checkmark$ &  \\
@@ -26,7 +26,7 @@ Firm $\times$ User FE &  &  &  &  &  & $\checkmark$ \\
     \specialrule{\lightrulewidth}{0pt}{0pt}
     \end{tabularx}
 
-    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l C C @{}}
+    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l >{\centering\arraybackslash}X >{\centering\arraybackslash}X @{}}
 
     \multicolumn{3}{@{}l}{\textbf{\uline{Panel B: Base Specification}}}\\
 \addlinespace
@@ -34,8 +34,8 @@ Firm $\times$ User FE &  &  &  &  &  & $\checkmark$ \\
     \cmidrule{2-3}
      & Total & Restricted \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[t]{-2.66***\\(0.99)} & \makecell[t]{-1.96**\\(0.99)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[t]{9.18***\\(2.69)} & \makecell[t]{8.30***\\(2.62)} \\
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-2.66***\\(0.99)} & \makecell[c]{-1.96**\\(0.99)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{9.18***\\(2.69)} & \makecell[c]{8.30***\\(2.62)} \\
     \midrule
     N & 52,995 & 52,995 \\
     \bottomrule

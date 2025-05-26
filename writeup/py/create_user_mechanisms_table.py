@@ -139,8 +139,6 @@ for panel_id, model in [("A", "OLS"), ("B", "IV")]:
         f_vals = [f"{rkf_iv[spec]:.2f}" for spec in specs]
         lines.append(r"KP\,rk Wald F & " + " & ".join(f_vals) + r" \\")
 
-    if panel_id == "A":              # one rule between the panels
-        lines.append(r"\midrule")
 
 lines.append(r"\bottomrule")
 lines.append(r"\end{tabular}")

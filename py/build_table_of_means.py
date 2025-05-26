@@ -211,7 +211,6 @@ def _strip_tabular(latex: str) -> str:
         "\\begin{tabular",
         "\\end{tabular",
         "\\toprule",
-        "\\midrule",
         "\\bottomrule",
     )
     return "\n".join(
@@ -247,7 +246,7 @@ def _notes_block(
     notes = rf"""
         \begin{{tablenotes}}[flushleft]
         \footnotesize
-        \item \emph{{Notes}}: Panel A is on firm--period observations.  The top rows (``Number of firms'' and ``Observations'') define the sample.  Below are mean (SD) for each variable across firm--periods.  Panel B uses worker--period observations. {scale_sentence} \textit{{Teleworkable}} and \textit{{Remote}} scores are index values between 0 and 1. The sample period spans {firm_span} at the firm level and {user_span} at the user level.
+        \item \emph{{Notes}}: Panel A is on firm--period observations.  Its bottom rows (``Number of firms'' and ``Observations'') define the sample; above are mean (SD) across firm--periods.  Panel B is based on worker--period observations and ends with three rows: ``Number of firms'', ``Number of users'', and ``N'' (worker--period observations). {scale_sentence} \textit{{Teleworkable}} and \textit{{Remote}} scores are index values between 0 and 1. The sample period spans {firm_span} at the firm level and {user_span} at the user level.
         \end{{tablenotes}}
     """
     return textwrap.dedent(notes).strip()
@@ -312,22 +311,11 @@ def main(
     n_row_a = panel_means.loc[n_mask_a].squeeze()
     panel_means = panel_means.loc[~n_mask_a]
 
-    # prepend sample-size rows and place the ``N`` row last
+    # The automatically generated ``N`` row duplicates the ``Observations``
+    # counts for firm–period data, so we exclude it from Panel A to keep the
+    # table concise (requested by the manuscript team).
     panel_a = pd.concat(
-        [
-            extra_a,
-            panel_means,
-            pd.DataFrame(
-                [
-                    {
-                        "variable": "\\midrule\nN",
-                        "Startup": int(n_row_a.Startup),
-                        "Incumbent": int(n_row_a.Incumbent),
-                        "All Firms": int(n_row_a["All Firms"]),
-                    }
-                ]
-            ),
-        ],
+        [panel_means, extra_a],
         ignore_index=True,
     )
 
@@ -353,13 +341,14 @@ def main(
     extra_b = pd.DataFrame(
         [
             {
-                "variable": "\\addlinespace\n\\midrule\nN companies",
+                "variable": "\\addlinespace\n\\midrule\nNumber of firms",
                 "Startup": int(company_counts.get(1, 0)),
                 "Incumbent": int(company_counts.get(0, 0)),
                 "All Firms": int(df_users["firm_id"].nunique()),
             },
             {
-                "variable": "N users",
+                # distinct from the subsequent ``N`` (user–period observations)
+                "variable": "Number of users",
                 "Startup": int(user_counts.get(1, 0)),
                 "Incumbent": int(user_counts.get(0, 0)),
                 "All Firms": int(df_users["user_id"].nunique()),
@@ -375,7 +364,7 @@ def main(
             pd.DataFrame(
                 [
                     {
-                        "variable": "\\midrule\nN",
+                        "variable": "Observations",
                         "Startup": int(n_row_b.Startup),
                         "Incumbent": int(n_row_b.Incumbent),
                         "All Firms": int(n_row_b["All Firms"]),
@@ -417,7 +406,6 @@ def main(
         \addlinespace
         \multicolumn{{4}}{{l}}{{\textbf{{\uline{{Panel A: Firm-level}}}}}}\\[0.3em]
         {a_tex}
-        \midrule
         \addlinespace
         \multicolumn{{4}}{{l}}{{\textbf{{\uline{{Panel B: User-level}}}}}}\\[0.3em]
         {b_tex}

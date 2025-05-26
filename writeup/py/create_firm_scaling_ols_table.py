@@ -280,12 +280,11 @@ def main() -> None:
     # token "\\n" (which triggers an \undefined control sequence error).
 
     panel_a = build_panel_fe(df_alt).rstrip()
-    panel_b = build_panel_base(df_base).rstrip()
+    panel_b = build_panel_base(df_base).lstrip()
 
-
-    # Panel B should appear before Panel A in the final table
-    tex_lines.append(panel_b)
-    tex_lines.append(panel_a)
+    # Combine Panel A (FE Variants) and Panel B (Base Specification) with spacing
+    combined = panel_a + "\n" + r"\vspace{0.75em}" + "\n" + panel_b
+    tex_lines.append(combined)
     #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "
     #                 r"Significance: *** $p<0.01$, ** $p<0.05$, * $p<0.10$.")
     tex_lines.append(r"\end{table}")
