@@ -1,8 +1,22 @@
 #!/usr/bin/env python3
-"""Generate a two-panel IV table for the Firm-Scaling specification."""
+r"""
+Build a **two‑panel** LaTeX table of IV results for the Firm‑Scaling project.
+
+* **Panel A** – Growth only, four FE specifications.
+* **Panel B** – Base specification: Growth, Join, Leave (IV).
+* Drop `var4` rows.
+* Custom math labels for `var3` and `var5`.
+* Use `\makecell{}` (requires the *makecell* package) so each coefficient and
+  its standard error render in the **same cell** (no line‑breaking issues).
+"""
 from pathlib import Path
 import pandas as pd
+import textwrap
 
+
+# -----------------------------------------------------------------------------
+# 1) Paths & constants
+# -----------------------------------------------------------------------------
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
 
@@ -24,20 +38,17 @@ OUTCOME_LABEL = {
     "leave_rate_we": "Leave",
 }
 
-TAG_ORDER = ["none", "firm", "time", "fyh"]
+TAG_ORDER = ["none", "firm", "time", "fyh"] 
 COL_LABELS = ["(1)", "(2)", "(3)", "(4)"]
-N_COLS = max(len(TAG_ORDER), len(OUTCOME_LABEL))
 
 FIRM_FE_INCLUDED = {"fyh": True, "time": False, "firm": True, "none": False}
 TIME_FE_INCLUDED = {"fyh": True, "time": True, "firm": False, "none": False}
 
 STAR_RULES = [(0.01, "***"), (0.05, "**"), (0.10, "*")]
 
-TOP = r"\toprule"
-MID = r"\midrule"
-BOTTOM = r"\bottomrule"
-TABLE_WIDTH = r"\textwidth"
-
+# -----------------------------------------------------------------------------
+# 2) Helper functions
+# -----------------------------------------------------------------------------
 
 def stars(p: float) -> str:
     for cut, sym in STAR_RULES:
@@ -46,114 +57,278 @@ def stars(p: float) -> str:
     return ""
 
 
+
 def cell(coef: float, se: float, p: float) -> str:
     return rf"\makecell[c]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
 
-def row(cells: list[str]) -> str:
-    padded = cells + ["" for _ in range((1 + N_COLS) - len(cells))]
-    return " & ".join(padded) + r" \\"
 
 
-def indicator_row(label: str, mapping: dict[str, bool]) -> str:
-    checks = [r"$\checkmark$" if mapping.get(tag, False) else "" for tag in TAG_ORDER]
-    return row([label] + checks)
+def indicator_row(label: str,
+                  mapping: dict[str, bool],
+                  tag_order: list[str] = TAG_ORDER) -> str:
+    """
+    Build one LaTeX row that shows ✓ under the columns whose tag
+    is True in *mapping*.
+
+    Parameters
+    ----------
+    label : str
+        Left-hand text that describes the row (e.g. "Time FE").
+    mapping : dict[str, bool]
+        Keys are tag names, values are booleans (True → put a ✓).
+    tag_order : list[str], optional
+        The column order.  Defaults to the global TAG_ORDER.
+
+    Returns
+    -------
+    str
+        A LaTeX string like
+        "Time FE &   & \\checkmark &   & \\checkmark \\\\"
+    """
+    checks = [r"$\checkmark$" if mapping.get(tag, False) else ""
+              for tag in tag_order]
+    return " & ".join([label] + checks) + r" \\"
 
 
-def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
+TOP      = r"\toprule"
+MID      = r"\midrule"
+BOT      = r"\bottomrule"
+PANEL_GAP = r"\addlinespace[0.75em]"
+
+# -------------------------------------------------------------------------
+#  Panel builders – cleaner booktabs look
+# -------------------------------------------------------------------------
+TABLE_WIDTH = r"\textwidth"                       # unchanged
+
+# -----------------------------------------------------------------
+# Shared helper
+# -----------------------------------------------------------------
+def build_obs_row(df: pd.DataFrame, keys: list[str], *,
+                  filter_expr: str) -> str:
+    """
+    """
     cells = ["N"]
     for k in keys:
         sub = df.query(filter_expr.format(k=k))
-        n = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
+        n    = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
         cells.append(f"{n:,}")
-    return row(cells)
+    return " & ".join(cells) + r" \\"  
 
+# -----------------------------------------------------------------
+#  Kleibergen–Paap rk Wald F helper
+# -----------------------------------------------------------------
 
 def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
+    """Return a LaTeX row containing the KP rk Wald F statistic for each column."""
+
+    import pandas as pd
+
     cells = ["KP rk Wald F"]
     for k in keys:
         sub = df.query(filter_expr.format(k=k)).head(1)
         val = sub.iloc[0]["rkf"] if not sub.empty else float("nan")
         cells.append(f"{val:.2f}" if pd.notna(val) else "")
-    return row(cells)
+    return " & ".join(cells) + r" \\"  
 
+# ------------------------------------------------------------------
+# 1)  Panel B  – base specification (IV)
+# ------------------------------------------------------------------
+def build_panel_base(df: pd.DataFrame) -> str:
+    ncIV = 1 + len(OUTCOME_LABEL)
 
-def build_panel_fe(df: pd.DataFrame) -> list[str]:
-    lines: list[str] = []
-    lines.append(row([rf"\multicolumn{{{1 + len(TAG_ORDER)}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}"]))
-    lines.append(r"\addlinespace")
-    lines.append(row(["", rf"\multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Growth}}"]))
-    lines.append(rf"\cmidrule(lr){{2-{len(TAG_ORDER)+1}}}")
-    lines.append(row([""] + COL_LABELS))
-    lines.append(MID)
-    for param in PARAM_ORDER:
-        cells = [PARAM_LABEL[param]]
-        for tag in TAG_ORDER:
-            sub = df.query("model_type=='IV' and outcome=='growth_rate_we' and fe_tag==@tag and param==@param")
-            cells.append(cell(*sub.iloc[0][['coef','se','pval']]) if not sub.empty else "")
-        lines.append(row(cells))
-    lines.append(MID)
-    lines.append(indicator_row("Time FE", TIME_FE_INCLUDED))
-    lines.append(indicator_row("Firm FE", FIRM_FE_INCLUDED))
-    lines.append(MID)
-    lines.append(build_obs_row(df, TAG_ORDER, filter_expr="model_type=='IV' and outcome=='growth_rate_we' and fe_tag=='{k}'"))
-    lines.append(build_kp_row(df, TAG_ORDER, filter_expr="model_type=='IV' and outcome=='growth_rate_we' and fe_tag=='{k}'"))
-    return lines
+    panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
+                      rf"\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
+    panel_row += "\n\\addlinespace"
 
+    # header: three outcomes grouped under one centred “Outcome” title
+    dep_hdr = r" & \multicolumn{3}{c}{Outcome} \\"
+    cmid    = r"\cmidrule(lr){2-4}"                            # thin rule
+    #cmid = r"\cmidrule(lr){2-4}\addlinespace[-\belowrulesep]" 
+    sub_hdr = " & ".join([""] + [OUTCOME_LABEL[o]
+                                   for o in OUTCOME_LABEL]) + r" \\"
 
-def build_panel_base(df: pd.DataFrame) -> list[str]:
-    lines: list[str] = []
-    lines.append(row([rf"\multicolumn{{{1 + len(OUTCOME_LABEL)}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}"]))
-    lines.append(r"\addlinespace")
-    lines.append(row(["", rf"\multicolumn{{{len(OUTCOME_LABEL)}}}{{c}}{{Outcome}}"]))
-    lines.append(rf"\cmidrule(lr){{2-{len(OUTCOME_LABEL)+1}}}")
-    lines.append(row([""] + [OUTCOME_LABEL[o] for o in OUTCOME_LABEL]))
-    lines.append(MID)
+    # coefficient rows
+    rows = []
     for param in PARAM_ORDER:
         cells = [PARAM_LABEL[param]]
         for out in OUTCOME_LABEL:
             sub = df.query("model_type=='IV' and outcome==@out and param==@param")
-            cells.append(cell(*sub.iloc[0][['coef','se','pval']]) if not sub.empty else "")
-        lines.append(row(cells))
-    lines.append(MID)
-    lines.append(build_obs_row(df, list(OUTCOME_LABEL), filter_expr="model_type=='IV' and outcome=='{k}'"))
-    lines.append(build_kp_row(df, list(OUTCOME_LABEL), filter_expr="model_type=='IV' and outcome=='{k}'"))
-    return lines
+            cells.append(cell(*sub.iloc[0][['coef', 'se', 'pval']])
+                         if not sub.empty else "")
+        rows.append(" & ".join(cells) + r" \\")
+    coef_block = "\n".join(rows)
 
+    obs_row = build_obs_row(
+        df,
+        list(OUTCOME_LABEL),
+        filter_expr="model_type=='IV' and outcome=='{k}'"
+    )
+
+    kp_row = build_kp_row(
+        df,
+        list(OUTCOME_LABEL),
+        filter_expr="model_type=='IV' and outcome=='{k}'"
+    )
+
+
+    col_fmt = r"@{}l@{\extracolsep{\fill}}ccc@{}"
+
+    top = ""
+    bottom = BOT
+    return textwrap.dedent(rf"""
+    \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {top}
+    {panel_row}
+    {dep_hdr}
+    {cmid}
+    {sub_hdr}
+    {MID}
+    {coef_block}
+    {MID}
+    {obs_row}
+    {kp_row}
+    {bottom}
+    \end{{tabular*}}""")
+
+# ------------------------------------------------------------------
+#  Panel A  – FE variants
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# 2)  Panel A  – FE variants
+# ------------------------------------------------------------------
+def build_panel_fe(df: pd.DataFrame) -> str:
+    ncIV = 1 + len(TAG_ORDER)           # 1 stub + 4 spec columns
+
+    # bold-underline caption
+    # bold-underline caption, no leading space
+    panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
+                rf"\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
+    panel_row += "\n\\addlinespace"
+            
+
+    # --- NEW lines ----------------------------------------------------
+    dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Growth}} \\"
+    cmid    = rf"\cmidrule(lr){{2-{len(TAG_ORDER)+1}}}"      # thin rule under "Growth"
+    # -----------------------------------------------------------------
+
+    header  = " & ".join([""] + COL_LABELS) + r" \\"
+
+    # coefficient rows -------------------------------------------------
+    rows = []
+    for param in PARAM_ORDER:
+        cells = [PARAM_LABEL[param]]
+        for tag in TAG_ORDER:
+            sub = df.query(
+                "model_type=='IV' and outcome=='growth_rate_we' "
+                "and fe_tag==@tag and param==@param"
+            )
+            cells.append(
+                cell(*sub.iloc[0][['coef', 'se', 'pval']]) if not sub.empty else ""
+            )
+        rows.append(" & ".join(cells) + r" \\")
+    coef_block = "\n".join(rows)
+
+    obs_row = build_obs_row(
+        df, TAG_ORDER,
+        filter_expr=("model_type=='IV' and outcome=='growth_rate_we' "
+                     "and fe_tag=='{k}'")
+    )
+
+    kp_row = build_kp_row(
+        df, TAG_ORDER,
+        filter_expr=("model_type=='IV' and outcome=='growth_rate_we' "
+                     "and fe_tag=='{k}'")
+    )
+    
+    # ✓ indicator block (no trailing \\)
+    ind_rows = "\n".join([
+        indicator_row("Time FE",  TIME_FE_INCLUDED),
+        indicator_row("Firm FE",  FIRM_FE_INCLUDED)
+    ])
+
+    # one stub + four c‐columns, no left \tabcolsep
+    col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c"*len(TAG_ORDER) + r"@{}"
+    #—or, if you still want stretchy space between columns:
+    #col_fmt = r"@{}l@{\extracolsep{\fill}}cccc"
+    top = TOP
+    bottom = MID + "\n" + PANEL_GAP
+    return textwrap.dedent(rf"""
+    \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {top}
+    {panel_row}
+    {dep_hdr}
+    {cmid}
+    {header}
+    {MID}
+    {coef_block}
+    {MID}
+    {ind_rows}
+    {MID}
+    {obs_row}
+    {kp_row}
+    {bottom}
+    \end{{tabular*}}""")
+
+# -----------------------------------------------------------------------------
+# 3) Main driver
+# -----------------------------------------------------------------------------
 
 def main() -> None:
     if not INPUT_BASE.exists():
-        raise FileNotFoundError(INPUT_BASE)
+        raise FileNotFoundError(f"Missing base CSV: {INPUT_BASE}")
     if not INPUT_ALT.exists():
-        raise FileNotFoundError(INPUT_ALT)
+        raise FileNotFoundError(f"Missing alternative FE CSV: {INPUT_ALT}")
 
     df_base = pd.read_csv(INPUT_BASE)
     df_alt = pd.read_csv(INPUT_ALT)
 
-    col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c" * N_COLS + r"@{}"
+    # ------------------------------------------------------------------
+    # Build the output LaTeX string – **real** new-line characters only.      
+    # Using "\n" previously wrote the *literal* back-slash–n sequence to disk
+    # which causes a LaTeX compilation error. We now construct the document
+    # line-by-line and join with "\n" so that the written file contains
+    # proper line breaks.
+    # ------------------------------------------------------------------
 
-    lines: list[str] = []
-    lines.append("% --------------------------------------------------------------")
-    lines.append("%  Firm-Scaling: Two-panel IV results")
-    lines.append("% --------------------------------------------------------------")
-    lines.append("")
-    lines.append(r"\begin{table}[H]")
-    lines.append(r"\centering")
-    lines.append(r"\caption{Firm Scaling IV}")
-    lines.append(r"\label{tab:firm_scaling_iv}")
-    lines.append(rf"\begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}")
-    lines.append(TOP)
-    lines.extend(build_panel_fe(df_alt))
-    lines.append(r"\addlinespace")
-    lines.extend(build_panel_base(df_base))
-    lines.append(BOTTOM)
-    lines.append(r"\end{tabular*}")
-    lines.append(r"\end{table}")
+    tex_lines: list[str] = []
+
+    tex_lines.append("% ------------------------------------------------------------------")
+    tex_lines.append("%  Firm-Scaling: Two-panel IV results")
+    tex_lines.append("% ------------------------------------------------------------------")
+    tex_lines.append("")
+
+    tex_lines.append(r"\begin{table}[H]")
+    tex_lines.append(r"\centering")
+    
+    # ----------------- NEW LINES -----------------
+    tex_lines.append(r"\caption{Firm Scaling IV}")
+    tex_lines.append(r"\label{tab:firm_scaling_iv}")   # optional for \ref{}
+    tex_lines.append(r"\centering")
+
+    # Panel A and Panel B (helpers already return strings with trailing \n)
+    # The helper builders still embed *escaped* new-line sequences ("\\n").
+    # Convert those to real new-lines so LaTeX does not see the two-character
+    # token "\\n" (which triggers an \undefined control sequence error).
+    # build both panels into one big tabular*
+
+    combined = build_panel_fe(df_alt).rstrip() \
+              + "\n" + r"\vspace{0.75em}" + "\n" \
+              + build_panel_base(df_base).lstrip()
+
+    tex_lines.append(combined)
+    #tex_lines.append(r"\vspace{0.5em}")
+    #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "
+    #                 r"Significance: *** $p<0.01$, ** $p<0.05$, * $p<0.10$.")
+    tex_lines.append(r"\end{table}")
+
+    tex_output = "\n".join(tex_lines) + "\n"  # final newline for POSIX friendliness
 
     OUTPUT_TEX.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_TEX.write_text("\n".join(lines) + "\n")
+    OUTPUT_TEX.write_text(tex_output)
     print(f"Wrote LaTeX table to {OUTPUT_TEX.resolve()}")
 
 
 if __name__ == "__main__":
     main()
+
