@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 import pandas as pd
 import textwrap
-
+import re
 # ----------------------------------------------------------------------
 # Default file locations
 # ----------------------------------------------------------------------
@@ -375,24 +375,20 @@ def main(
         ignore_index=True,
     )
 
-    a_tex = _strip_tabular(
-        panel_a.to_latex(
-            index=False,
-            header=False,
-            escape=False,
-            column_format=_with_gutter("lccc"),
-        )
+    raw_a = panel_a.to_latex(
+        index=False, header=False, escape=False,
+        column_format=_with_gutter("lccc"),
     )
-    b_tex = _strip_tabular(
-        panel_b.to_latex(
-            index=False,
-            header=False,
-            escape=False,
-            column_format=_with_gutter("lccc"),
-        )
+    a_stripped = _strip_tabular(raw_a)
+    a_tex = re.sub(r"^\\midrule[ \t]*\n", "", a_stripped, count=1)
+
+    raw_b = panel_b.to_latex(
+        index=False, header=False, escape=False,
+        column_format=_with_gutter("lccc"),
     )
-    a_tex = a_tex.replace(r"\midrule\n", "", 1)
-    b_tex = b_tex.replace(r"\midrule\n", "", 1)
+    b_stripped = _strip_tabular(raw_b)
+    b_tex = re.sub(r"^\\midrule[ \t]*\n", "", b_stripped, count=1)
+
 
     table_tex = textwrap.dedent(
         rf"""
