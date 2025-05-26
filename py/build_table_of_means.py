@@ -244,14 +244,13 @@ def _notes_block(
         )
         + "."
     )
-    return textwrap.dedent(
-        rf"""
+    notes = rf"""
         \begin{{tablenotes}}[flushleft]
         \footnotesize
-        \item \emph{{Notes}}: Each cell shows the mean on the first line and the standard deviation (SD) beneath it in parentheses. Decimal precision reflects each variable’s scale. {scale_sentence} \textit{{Teleworkable}} and \textit{{Remote}} scores are index values between 0 and 1. The sample period spans {firm_span} at the firm level and {user_span} at the user level; $N$ denotes the number of observations in each subgroup.
+        \item \emph{{Notes}}: Panel A is on firm--period observations.  The top rows (``Number of firms'' and ``Observations'') define the sample.  Below are mean (SD) for each variable across firm--periods.  Panel B uses worker--period observations. {scale_sentence} \textit{{Teleworkable}} and \textit{{Remote}} scores are index values between 0 and 1. The sample period spans {firm_span} at the firm level and {user_span} at the user level.
         \end{{tablenotes}}
-        """
-    ).strip()
+    """
+    return textwrap.dedent(notes).strip()
 
 
 # ----------------------------------------------------------------------
@@ -266,7 +265,31 @@ def main(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     df_firms = pd.read_csv(firm_path)
-    panel_a = build_panel(
+
+    # ------------------------------------------------------------------
+    # Sample-size block for Panel A
+    # ------------------------------------------------------------------
+    firm_counts = df_firms.groupby("startup")["firm_id"].nunique()
+    obs_counts = df_firms.groupby("startup").size()
+
+    extra_a = pd.DataFrame(
+        [
+            {
+                "variable": "\\addlinespace\n\\midrule\nNumber of firms",
+                "Startup": int(firm_counts.get(1, 0)),
+                "Incumbent": int(firm_counts.get(0, 0)),
+                "All Firms": int(df_firms["firm_id"].nunique()),
+            },
+            {
+                "variable": "Observations",
+                "Startup": int(obs_counts.get(1, 0)),
+                "Incumbent": int(obs_counts.get(0, 0)),
+                "All Firms": int(df_firms.shape[0]),
+            },
+        ]
+    )
+
+    panel_means = build_panel(
         df_firms.copy(),
         VAR_MAP_A,
         NICE_A,
@@ -285,42 +308,15 @@ def main(
     )
 
     # extract and drop the auto-generated ``N`` row so we can place it last
-    n_mask_a = panel_a.variable.str.contains("\\nN$")
-    n_row_a = panel_a.loc[n_mask_a].squeeze()
-    panel_a = panel_a.loc[~n_mask_a]
+    n_mask_a = panel_means.variable.str.contains("\\nN$")
+    n_row_a = panel_means.loc[n_mask_a].squeeze()
+    panel_means = panel_means.loc[~n_mask_a]
 
-    # compute explicit counts of firms
-    firm_counts = df_firms.groupby("startup")["firm_id"].nunique()
-
-    # compute per-firm average headcount, then sum across firms
-    avg_per_firm = (
-        df_firms.groupby(["firm_id", "startup"])["total_employees"].mean().reset_index()
-    )
-    emp_sums = avg_per_firm.groupby("startup")["total_employees"].sum()
-    emp_sums_all = avg_per_firm["total_employees"].sum()
-
-    extra_a = pd.DataFrame(
-        [
-            {
-                "variable": "\\addlinespace\n\\midrule\nN firms",
-                "Startup": int(firm_counts.get(1, 0)),
-                "Incumbent": int(firm_counts.get(0, 0)),
-                "All Firms": int(df_firms["firm_id"].nunique()),
-            },
-            {
-                "variable": "N employees",
-                "Startup": int(round(emp_sums.get(1, 0))),
-                "Incumbent": int(round(emp_sums.get(0, 0))),
-                "All Firms": int(round(emp_sums_all)),
-            },
-        ]
-    )
-
-    # append extra counts and place the ``N`` row last
+    # prepend sample-size rows and place the ``N`` row last
     panel_a = pd.concat(
         [
-            panel_a,
             extra_a,
+            panel_means,
             pd.DataFrame(
                 [
                     {
