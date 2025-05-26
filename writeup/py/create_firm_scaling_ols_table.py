@@ -2,10 +2,8 @@
 r"""
 Build a **two‑panel** LaTeX table of OLS results for the Firm‑Scaling project.
 
-* **Panel A** – Base specification: Growth, Join, Leave (OLS).
-* **Panel B** – Growth only, four FE specifications.
-
-Formatting tweaks (May 18 2025):
+* **Panel A** – Growth only, four FE specifications.
+* **Panel B** – Base specification: Growth, Join, Leave (OLS).
 * Drop `var4` rows.
 * Custom math labels for `var3` and `var5`.
 * Use `\makecell{}` (requires the *makecell* package) so each coefficient and
@@ -119,13 +117,14 @@ def build_obs_row(df: pd.DataFrame, keys: list[str], *,
     return " & ".join(cells) + r" \\"
 
 # ------------------------------------------------------------------
-# 1)  Panel A  – all scaling outcomes (OLS)
+# 1)  Panel B  – base specification (OLS)
 # ------------------------------------------------------------------
-def build_panel_a(df: pd.DataFrame, *, top_rule: bool = True, bottom_rule: bool = False) -> str:
+
+def build_panel_base(df: pd.DataFrame) -> str:
     ncIV = 1 + len(OUTCOME_LABEL)
 
     panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
-                rf"\textbf{{\uline{{Panel A: All Outcomes}}}}}}\\"
+                rf"\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
     # header: three outcomes grouped under one centred “Outcome” title
@@ -170,17 +169,19 @@ def build_panel_a(df: pd.DataFrame, *, top_rule: bool = True, bottom_rule: bool 
     \end{{tabular*}}""")
 
 # ------------------------------------------------------------------
-#  Panel B  – Growth, FE variants
+#  Panel A  – FE variants
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-# 2)  Panel B  – growth, FE variants
+# 2)  Panel A  – FE variants
 # ------------------------------------------------------------------
-def build_panel_b(df: pd.DataFrame, *, top_rule: bool = False, bottom_rule: bool = True) -> str:
+
+def build_panel_fe(df: pd.DataFrame) -> str:
+
     ncIV = 1 + len(TAG_ORDER)           # 1 stub + 4 spec columns
 
     # bold-underline caption
     panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
-                rf"\textbf{{\uline{{Panel B: FE Variants}}}}}}\\"
+                rf"\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
     panel_row += "\n\\addlinespace"
             
 
@@ -277,15 +278,13 @@ def main() -> None:
     # The helper builders still embed *escaped* new-line sequences ("\\n").
     # Convert those to real new-lines so LaTeX does not see the two-character
     # token "\\n" (which triggers an \undefined control sequence error).
-    panel_a = build_panel_a(df_base, top_rule=False, bottom_rule=True).rstrip()
-    panel_b = build_panel_b(df_alt, top_rule=True, bottom_rule=False).rstrip()
+
+    panel_a = build_panel_fe(df_alt).rstrip()
+    panel_b = build_panel_base(df_base).rstrip()
+
 
     # Panel B should appear before Panel A in the final table
     tex_lines.append(panel_b)
-    tex_lines.append(r"\vspace{0.1\baselineskip}")    # <<< extra gap
-    tex_lines.append(panel_a)
-
-    #tex_lines.append(r"\vspace{0.5em}")
     #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "
     #                 r"Significance: *** $p<0.01$, ** $p<0.05$, * $p<0.10$.")
     tex_lines.append(r"\end{table}")

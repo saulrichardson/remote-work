@@ -2,10 +2,8 @@
 """
 Generate a two-panel OLS table for the **User-Productivity** specification.
 
-Panel A – base spec, two outcomes (Total vs. Restricted contributions).
-Panel B – Total contributions only, five FE variants:
-           none, user, time, firm-year-half (fyh), firm-year-half×user (fyhu)
-
+Panel A -- FE variants for Total contributions (five specifications).
+Panel B -- base specification, Total and Restricted contributions.
 This is structurally identical to create_firm_scaling_ols_table.py; only the
 paths, outcome labels, and FE indicator definitions change.
 """
@@ -23,8 +21,8 @@ PROJECT_ROOT = HERE.parents[1]  # /project/main
 SPEC = "user_productivity"
 RAW_DIR = PROJECT_ROOT / "results" / "raw"
 
-INPUT_BASE = RAW_DIR / SPEC / "consolidated_results.csv"               # Panel A
-INPUT_ALT  = RAW_DIR / f"{SPEC}_alternative_fe" / "consolidated_results.csv"  # Panel B
+INPUT_BASE = RAW_DIR / SPEC / "consolidated_results.csv"               # Panel B
+INPUT_ALT  = RAW_DIR / f"{SPEC}_alternative_fe" / "consolidated_results.csv"  # Panel A
 
 OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / f"{SPEC}_ols.tex"
 
@@ -34,13 +32,13 @@ PARAM_LABEL = {
     "var5": r"$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $",
 }
 
-# Outcomes for Panel A (base CSV names)
+# Outcomes for Panel B (base CSV names)
 OUTCOME_LABEL = {
     "total_contributions_q100":     "Total",
     "restricted_contributions_q100": "Restricted",
 }
 
-# FE-variant column ordering (Panel B)
+# FE-variant column ordering (Panel A)
 TAG_ORDER   = ["none", "firm", "time", "fyh", "fyhu", "firmbyuseryh"]
 COL_LABELS  = [f"({i})" for i in range(1, len(TAG_ORDER)+1)] 
 
@@ -145,10 +143,12 @@ def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str
 
 
 
-def build_panel_a(df: pd.DataFrame, *, top_rule: bool = True, bottom_rule: bool = False) -> str:
+
+def build_panel_base(df: pd.DataFrame) -> str:
+
     ncols = 1 + len(OUTCOME_LABEL)  # stub + outcomes
 
-    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: All Outcomes}}}}}}\\"
+    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
     dep_hdr = rf" & \multicolumn{{{len(OUTCOME_LABEL)}}}{{c}}{{Outcome}} \\"  # merged header
@@ -170,7 +170,7 @@ def build_panel_a(df: pd.DataFrame, *, top_rule: bool = True, bottom_rule: bool 
         list(OUTCOME_LABEL),
         filter_expr="model_type=='OLS' and outcome=='{k}'"
     )
-    col_fmt = column_format(len(OUTCOME_LABEL))  # in build_panel_a
+    col_fmt = column_format(len(OUTCOME_LABEL))  # in build_panel_base
     
     cmid = rf"\cmidrule{{2-{ncols}}}"    
 
@@ -191,10 +191,12 @@ def build_panel_a(df: pd.DataFrame, *, top_rule: bool = True, bottom_rule: bool 
     \end{{{TABLE_ENV}}}""")
 
 
-def build_panel_b(df: pd.DataFrame, *, top_rule: bool = False, bottom_rule: bool = True) -> str:
+
+def build_panel_fe(df: pd.DataFrame) -> str:
+
     ncols = 1 + len(TAG_ORDER)
 
-    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: FE Variants}}}}}}\\"
+    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
     dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Total Contributions}} \\"  # Only one outcome
@@ -228,7 +230,7 @@ def build_panel_b(df: pd.DataFrame, *, top_rule: bool = False, bottom_rule: bool
     ])
 
 
-    col_fmt = column_format(len(TAG_ORDER))      # in build_panel_b
+    col_fmt = column_format(len(TAG_ORDER))      # in build_panel_fe
     
     cmid = rf"\cmidrule{{2-{ncols}}}"    
     top = TOP if top_rule else ""
@@ -275,9 +277,10 @@ def main() -> None:
         r"\centering",
     ]
 
-    # Output Panel B first so the FE variants precede the base results
-    tex_lines.append(build_panel_b(df_alt, top_rule=True, bottom_rule=False).rstrip())
-    tex_lines.append(build_panel_a(df_base, top_rule=False, bottom_rule=True).rstrip())
+
+    # Output Panel A (FE) before Panel B (base)
+    tex_lines.append(build_panel_fe(df_alt).rstrip())
+    tex_lines.append(build_panel_base(df_base).rstrip())
 
 
     tex_lines.append(r"\end{table}")
