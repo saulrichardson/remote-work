@@ -133,7 +133,8 @@ for panel_id, model in [("A", "OLS"), ("B", "IV")]:
         f"{int(nobs_ols[spec]):,}" if model == "OLS" else f"{int(nobs_iv[spec]):,}"
         for spec in specs
     ]
-    lines.append(r"\addlinespace")
+    # separate coefficients from summary statistics
+    lines.append(r"\midrule")
     lines.append(r"N & " + " & ".join(nobs_vals) + r" \\")
 
     if model == "IV":                # first-stage F for IV only
