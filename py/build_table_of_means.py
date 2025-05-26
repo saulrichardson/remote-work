@@ -391,6 +391,8 @@ def main(
             column_format=_with_gutter("lccc"),
         )
     )
+    a_tex = a_tex.replace(r"\midrule\n", "", 1)
+    b_tex = a_tex.replace(r"\midrule\n", "", 1)
 
     table_tex = textwrap.dedent(
         rf"""
@@ -406,6 +408,8 @@ def main(
         \addlinespace
         \multicolumn{{4}}{{l}}{{\textbf{{\uline{{Panel A: Firm-level}}}}}}\\[0.3em]
         {a_tex}
+        \addlinespace
+        \midrule
         \addlinespace
         \multicolumn{{4}}{{l}}{{\textbf{{\uline{{Panel B: User-level}}}}}}\\[0.3em]
         {b_tex}
