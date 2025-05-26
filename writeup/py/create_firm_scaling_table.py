@@ -201,6 +201,16 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {bottom}
     \end{{tabular*}}""")
 
+import re
+
+def strip_tabular_star(tex: str) -> str:
+    """Remove the \begin{tabular*}…\end{tabular*} wrapper."""
+    # drop the first line (\begin{tabular*}{...}{...})
+    tex = re.sub(r"^\\begin\{tabular\*\}\{.*?\}.*\n", "", tex)
+    # drop the last line (\end{tabular*})
+    tex = re.sub(r"\n\\end\{tabular\*\}$", "", tex)
+    return tex.strip("\n")
+
 # ---------------------------------------------------------------------------
 # Main driver
 # ---------------------------------------------------------------------------
@@ -225,30 +235,41 @@ def main() -> None:
     df_base = pd.read_csv(INPUT_BASE)
     df_alt = pd.read_csv(INPUT_ALT)
 
-    tex_lines: list[str] = []
-    tex_lines.append("% Auto-generated firm scaling table")
-    tex_lines.append("")
-    tex_lines.append(r"\begin{table}[H]")
-    tex_lines.append(r"\centering")
-    tex_lines.append(rf"\caption{{{caption}}}")
-    tex_lines.append(rf"\label{{{label}}}")
-    tex_lines.append(r"\centering")
+    raw_fe   = build_panel_fe(df_alt,   model, include_kp)
+    raw_base = build_panel_base(df_base, model, include_kp)
 
-    # start one big tabular*
-    tex_lines.append(rf"\begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt_fe}}}")
-    tex_lines.append(build_panel_fe_body(df_alt, model, include_kp))
-    tex_lines.append(r"\addlinespace")
-    tex_lines.append(r"\midrule")
-    tex_lines.append(r"\addlinespace")
-    tex_lines.append(build_panel_base_body(df_base, model, include_kp))
-    tex_lines.append(r"\end{tabular*}") 
-    tex_lines.append(combined)
-    tex_lines.append(r"\end{table}")
+    body_fe   = strip_tabular_star(raw_fe)
+    body_base = strip_tabular_star(raw_base)
+
+    # Single column‐format that matches Panel A’s width (1 label + len(TAG_ORDER) columns)
+    col_fmt = "@{}l@{\\extracolsep{\\fill}}" + "c"*len(TAG_ORDER) + "@{}"
+
+    tex_lines = [
+        "% Auto-generated firm scaling table",
+        r"\begin{table}[H]",
+        r"\centering",
+        rf"\caption{{{caption}}}",
+        rf"\label{{{label}}}",
+        rf"\begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}",
+        TOP,
+        r"\addlinespace",
+        # Panel A header (spans all columns)
+        rf"\multicolumn{{{1+len(TAG_ORDER)}}}{{l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\[0.3em]",
+        body_fe,
+        r"\addlinespace",
+        r"\midrule",
+        r"\addlinespace",
+        # Panel B header (also spans the same number of cols)
+        rf"\multicolumn{{{1+len(TAG_ORDER)}}}{{l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\[0.3em]",
+        body_base,
+        BOTTOM,
+        r"\end{tabular*}",
+        r"\end{table}",
+    ]
 
     output_tex.parent.mkdir(parents=True, exist_ok=True)
-    Path(output_tex).write_text("\n".join(tex_lines) + "\n")
+    output_tex.write_text("\n".join(tex_lines) + "\n")
     print(f"Wrote LaTeX table to {output_tex.resolve()}")
-
 
 if __name__ == "__main__":
     main()
