@@ -112,7 +112,9 @@ lines.append(r"\midrule")
 
 # Panels A & B
 # Panels A & B  ---------------------------------------------------------------
-for panel_id, model in [("A", "OLS"), ("B", "IV")]:
+panels = [("A", "OLS"), ("B", "IV")]
+
+for i, (panel_id, model) in enumerate(panels):
     # heading
     lines.append(
         r"\multicolumn{" + f"{len(specs)+1}" +
@@ -139,6 +141,10 @@ for panel_id, model in [("A", "OLS"), ("B", "IV")]:
     if model == "IV":                # first-stage F for IV only
         f_vals = [f"{rkf_iv[spec]:.2f}" for spec in specs]
         lines.append(r"KP\,rk Wald F & " + " & ".join(f_vals) + r" \\")
+
+    # insert a rule between panels
+    if i < len(panels) - 1:
+        lines.append(r"\midrule")
 
 
 lines.append(r"\bottomrule")
