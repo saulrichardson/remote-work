@@ -34,7 +34,7 @@ OUTCOME_LABEL = {
     "restricted_contributions_q100": "Restricted",
 }
 
-# FE-variant column ordering (Panel B)
+# FE-variant column ordering (Panel A)
 TAG_ORDER   = ["none", "firm", "time", "fyh", "fyhu", "firmbyuseryh"]
 COL_LABELS  = [f"({i})" for i in range(1, len(TAG_ORDER)+1)] 
 
@@ -132,10 +132,10 @@ def column_format(n_numeric: int) -> str:
 # Panel builders -------------------------------------------------------------
 TABLE_ENV = "tabularx"
 
-def build_panel_a(df: pd.DataFrame) -> str:
+def build_panel_base(df: pd.DataFrame) -> str:
     ncols = 1 + len(OUTCOME_LABEL)
 
-    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: All Outcomes}}}}}}\\"
+    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
     dep_hdr = rf" & \multicolumn{{{len(OUTCOME_LABEL)}}}{{c}}{{Outcome}} \\"  # merge hdr
@@ -164,7 +164,7 @@ def build_panel_a(df: pd.DataFrame) -> str:
         filter_expr="model_type=='IV' and outcome=='{k}'"
     )
 
-    col_fmt = column_format(len(OUTCOME_LABEL))  # in build_panel_a
+    col_fmt = column_format(len(OUTCOME_LABEL))  # in build_panel_fease
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {TOP}
@@ -181,10 +181,10 @@ def build_panel_a(df: pd.DataFrame) -> str:
     \end{{{TABLE_ENV}}}""")
 
 
-def build_panel_b(df: pd.DataFrame) -> str:
+def build_panel_fe(df: pd.DataFrame) -> str:
     ncols = 1 + len(TAG_ORDER)
 
-    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: FE Variants}}}}}}\\"
+    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
     dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Total Contributions}} \\"  # one outcome
@@ -224,7 +224,7 @@ def build_panel_b(df: pd.DataFrame) -> str:
         indicator_row("Firm $\\times$ User FE", FIRMUSER_FE_INCLUDED),
     ])
 
-    col_fmt = column_format(len(TAG_ORDER))      # in build_panel_b
+    col_fmt = column_format(len(TAG_ORDER))      # in build_panel_fe
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
     {panel_row}
@@ -263,8 +263,9 @@ def main() -> None:
         r"\centering",
     ]
 
-    tex_lines.append(build_panel_a(df_base).rstrip())
-    tex_lines.append(build_panel_b(df_alt).rstrip())
+    # Show the Panel A (FE variants) before Panel B (base)
+    tex_lines.append(build_panel_fe(df_alt).rstrip())
+    tex_lines.append(build_panel_base(df_base).rstrip())
 
     tex_lines.append(r"\end{table}")
 

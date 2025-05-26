@@ -2,10 +2,8 @@
 r"""
 Build a **two‑panel** LaTeX table of IV results for the Firm‑Scaling project.
 
-* **Panel A** – Base specification: Growth, Join, Leave (IV).
-* **Panel B** – Growth only, four FE specifications.
-
-Formatting tweaks (May 18 2025):
+* **Panel A** – Growth only, four FE specifications.
+* **Panel B** – Base specification: Growth, Join, Leave (IV).
 * Drop `var4` rows.
 * Custom math labels for `var3` and `var5`.
 * Use `\makecell{}` (requires the *makecell* package) so each coefficient and
@@ -134,13 +132,13 @@ def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
     return " & ".join(cells) + r" \\"  
 
 # ------------------------------------------------------------------
-# 1)  Panel A  – all scaling outcomes (IV)
+# 1)  Panel B  – base specification (IV)
 # ------------------------------------------------------------------
-def build_panel_a(df: pd.DataFrame) -> str:
+def build_panel_base(df: pd.DataFrame) -> str:
     ncIV = 1 + len(OUTCOME_LABEL)
 
     panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
-                      rf"\textbf{{\uline{{Panel A: All Outcomes}}}}}}\\"
+                      rf"\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
     # header: three outcomes grouped under one centred “Outcome” title
@@ -193,18 +191,18 @@ def build_panel_a(df: pd.DataFrame) -> str:
     \end{{tabular*}}""")
 
 # ------------------------------------------------------------------
-#  Panel B  – Growth, FE variants
+#  Panel A  – FE variants
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-# 2)  Panel B  – growth, FE variants
+# 2)  Panel A  – FE variants
 # ------------------------------------------------------------------
-def build_panel_b(df: pd.DataFrame) -> str:
+def build_panel_fe(df: pd.DataFrame) -> str:
     ncIV = 1 + len(TAG_ORDER)           # 1 stub + 4 spec columns
 
     # bold-underline caption
     # bold-underline caption, no leading space
     panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
-                rf"\textbf{{\uline{{Panel B: FE Variants}}}}}}\\"
+                rf"\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
     panel_row += "\n\\addlinespace"
             
 
@@ -309,9 +307,9 @@ def main() -> None:
     # Convert those to real new-lines so LaTeX does not see the two-character
     # token "\\n" (which triggers an \undefined control sequence error).
     # build both panels into one big tabular*
-    combined = build_panel_a(df_base).rstrip() \
+    combined = build_panel_fe(df_alt).rstrip() \
               + "\n" + r"\vspace{0.75em}" + "\n" \
-              + build_panel_b(df_alt).lstrip()
+              + build_panel_base(df_base).lstrip()
     tex_lines.append(combined)
     #tex_lines.append(r"\vspace{0.5em}")
     #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "
