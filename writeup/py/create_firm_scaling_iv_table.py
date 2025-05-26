@@ -136,7 +136,7 @@ def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
 # ------------------------------------------------------------------
 # 1)  Panel A  – all scaling outcomes (IV)
 # ------------------------------------------------------------------
-def build_panel_a(df: pd.DataFrame) -> str:
+def build_panel_a(df: pd.DataFrame, *, top_rule: bool = True, bottom_rule: bool = False) -> str:
     ncIV = 1 + len(OUTCOME_LABEL)
 
     panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
@@ -176,9 +176,14 @@ def build_panel_a(df: pd.DataFrame) -> str:
 
     col_fmt = r"@{}l@{\extracolsep{\fill}}ccc@{}"
 
+    top = TOP if top_rule else ""
+    if bottom_rule:
+        bottom = BOT
+    else:
+        bottom = MID + "\n" + PANEL_GAP
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
-    {TOP}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -188,8 +193,7 @@ def build_panel_a(df: pd.DataFrame) -> str:
     {MID}
     {obs_row}
     {kp_row}
-    {MID}
-    {PANEL_GAP}  
+    {bottom}
     \end{{tabular*}}""")
 
 # ------------------------------------------------------------------
@@ -198,7 +202,7 @@ def build_panel_a(df: pd.DataFrame) -> str:
 # ------------------------------------------------------------------
 # 2)  Panel B  – growth, FE variants
 # ------------------------------------------------------------------
-def build_panel_b(df: pd.DataFrame) -> str:
+def build_panel_b(df: pd.DataFrame, *, top_rule: bool = False, bottom_rule: bool = True) -> str:
     ncIV = 1 + len(TAG_ORDER)           # 1 stub + 4 spec columns
 
     # bold-underline caption
@@ -252,8 +256,14 @@ def build_panel_b(df: pd.DataFrame) -> str:
     col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c"*len(TAG_ORDER) + r"@{}"
     #—or, if you still want stretchy space between columns:
     #col_fmt = r"@{}l@{\extracolsep{\fill}}cccc"
+    top = TOP if top_rule else ""
+    if bottom_rule:
+        bottom = BOT
+    else:
+        bottom = MID + "\n" + PANEL_GAP
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -265,7 +275,7 @@ def build_panel_b(df: pd.DataFrame) -> str:
     {MID}
     {obs_row}
     {kp_row}
-    {BOT}  
+    {bottom}
     \end{{tabular*}}""")
 
 # -----------------------------------------------------------------------------
@@ -309,9 +319,9 @@ def main() -> None:
     # Convert those to real new-lines so LaTeX does not see the two-character
     # token "\\n" (which triggers an \undefined control sequence error).
     # build both panels into one big tabular*
-    combined = build_panel_a(df_base).rstrip() \
+    combined = build_panel_b(df_alt, top_rule=True, bottom_rule=False).rstrip() \
               + "\n" + r"\vspace{0.75em}" + "\n" \
-              + build_panel_b(df_alt).lstrip()
+              + build_panel_a(df_base, top_rule=False, bottom_rule=True).lstrip()
     tex_lines.append(combined)
     #tex_lines.append(r"\vspace{0.5em}")
     #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "
