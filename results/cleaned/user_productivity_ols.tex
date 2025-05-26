@@ -1,4 +1,4 @@
-% Auto-generated OLS table – User Productivity
+% Auto-generated user productivity table
 
 \begin{table}[H]
 \centering
@@ -6,12 +6,12 @@
 \label{tab:user_productivity_ols}
 \centering
 
-    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X @{}}
+    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
     \toprule
     \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: FE Variants}}}\\
 \addlinespace
      & \multicolumn{6}{c}{Total Contributions} \\
-    \cmidrule{2-7}
+    \cmidrule(lr){2-7}
      & (1) & (2) & (3) & (4) & (5) & (6) \\
     \midrule
     $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-1.29\\(1.05)} & \makecell[c]{-2.38**\\(1.01)} & \makecell[c]{-1.29\\(1.05)} & \makecell[c]{-2.38**\\(1.01)} & \makecell[c]{-2.66***\\(0.99)} & \makecell[c]{-2.79***\\(0.99)} \\
@@ -23,21 +23,23 @@ User FE &  &  &  &  & $\checkmark$ &  \\
 Firm $\times$ User FE &  &  &  &  &  & $\checkmark$ \\
     \midrule
     N & 53,020 & 52,995 & 53,020 & 52,995 & 52,995 & 52,718 \\
+
     \specialrule{\lightrulewidth}{0pt}{0pt}
     \end{tabularx}
 
-    \begin{tabularx}{\dimexpr\textwidth + 1cm\relax}{@{}l >{\centering\arraybackslash}X >{\centering\arraybackslash}X @{}}
+    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
 
     \multicolumn{3}{@{}l}{\textbf{\uline{Panel B: Base Specification}}}\\
 \addlinespace
      & \multicolumn{2}{c}{Outcome} \\
-    \cmidrule{2-3}
+    \cmidrule(lr){2-3}
      & Total & Restricted \\
     \midrule
     $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-2.66***\\(0.99)} & \makecell[c]{-1.96**\\(0.99)} \\
 $ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{9.18***\\(2.69)} & \makecell[c]{8.30***\\(2.62)} \\
     \midrule
     N & 52,995 & 52,995 \\
+
     \bottomrule
     \end{tabularx}
 \end{table}

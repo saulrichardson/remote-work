@@ -39,11 +39,11 @@ report:
 	@python py/create_user_mechanisms_table.py
 	@python py/create_firm_mechanisms_table.py
 	@echo "Generating firm scaling tables..."
-	@python py/create_firm_scaling_ols_table.py
-	@python py/create_firm_scaling_iv_table.py
+	@python py/create_firm_scaling_table.py --model-type ols
+	@python py/create_firm_scaling_table.py --model-type iv
 	@python py/create_firm_scaling_first_stage_table.py
-	@python py/create_user_productivity_ols_table.py
-	@python py/create_user_productivity_iv_table.py
+	@python py/create_user_productivity_table.py --model-type ols
+	@python py/create_user_productivity_table.py --model-type iv
 	@python py/create_user_productivity_first_stage_table.py
 	@echo "Compiling consolidated report..."
 	@pdflatex -halt-on-error -interaction=nonstopmode \
