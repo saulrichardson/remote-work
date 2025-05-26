@@ -121,7 +121,7 @@ def build_obs_row(df: pd.DataFrame, keys: list[str], *,
 # ------------------------------------------------------------------
 # 1)  Panel A  – all scaling outcomes (OLS)
 # ------------------------------------------------------------------
-def build_panel_a(df: pd.DataFrame) -> str:
+def build_panel_a(df: pd.DataFrame, *, top_rule: bool = True, bottom_rule: bool = False) -> str:
     ncIV = 1 + len(OUTCOME_LABEL)
 
     panel_row = rf"\multicolumn{{{ncIV}}}{{@{{}}l}}{{" \
@@ -153,9 +153,11 @@ def build_panel_a(df: pd.DataFrame) -> str:
     )
 
     col_fmt = r"@{}l@{\extracolsep{\fill}}ccc@{}"
+    top = TOP if top_rule else ""
+    bottom = BOTTOM if bottom_rule else PANEL_SEP
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
-    {TOP}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -164,7 +166,7 @@ def build_panel_a(df: pd.DataFrame) -> str:
     {coef_block}
     {MID}
     {obs_row}
-    {PANEL_SEP}   
+    {bottom}
     \end{{tabular*}}""")
 
 # ------------------------------------------------------------------
@@ -173,7 +175,7 @@ def build_panel_a(df: pd.DataFrame) -> str:
 # ------------------------------------------------------------------
 # 2)  Panel B  – growth, FE variants
 # ------------------------------------------------------------------
-def build_panel_b(df: pd.DataFrame) -> str:
+def build_panel_b(df: pd.DataFrame, *, top_rule: bool = False, bottom_rule: bool = True) -> str:
     ncIV = 1 + len(TAG_ORDER)           # 1 stub + 4 spec columns
 
     # bold-underline caption
@@ -216,9 +218,12 @@ def build_panel_b(df: pd.DataFrame) -> str:
         indicator_row("Firm FE",  FIRM_FE_INCLUDED)
     ])
 
-    col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c"*len(TAG_ORDER) + r"@{}"  
+    top = TOP if top_rule else ""
+    bottom = BOTTOM if bottom_rule else PANEL_SEP
+    col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c"*len(TAG_ORDER) + r"@{}"
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -229,7 +234,7 @@ def build_panel_b(df: pd.DataFrame) -> str:
     {ind_rows}
     {MID}
     {obs_row}
-    {BOTTOM}
+    {bottom}
     \end{{tabular*}}""")
 
 # -----------------------------------------------------------------------------
@@ -272,8 +277,8 @@ def main() -> None:
     # The helper builders still embed *escaped* new-line sequences ("\\n").
     # Convert those to real new-lines so LaTeX does not see the two-character
     # token "\\n" (which triggers an \undefined control sequence error).
-    panel_a = build_panel_a(df_base).rstrip()
-    panel_b = build_panel_b(df_alt).rstrip()
+    panel_a = build_panel_a(df_base, top_rule=False, bottom_rule=True).rstrip()
+    panel_b = build_panel_b(df_alt, top_rule=True, bottom_rule=False).rstrip()
 
     # Panel B should appear before Panel A in the final table
     tex_lines.append(panel_b)

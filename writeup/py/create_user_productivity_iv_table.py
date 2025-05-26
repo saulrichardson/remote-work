@@ -132,7 +132,7 @@ def column_format(n_numeric: int) -> str:
 # Panel builders -------------------------------------------------------------
 TABLE_ENV = "tabularx"
 
-def build_panel_a(df: pd.DataFrame) -> str:
+def build_panel_a(df: pd.DataFrame, *, top_rule: bool = True, bottom_rule: bool = False) -> str:
     ncols = 1 + len(OUTCOME_LABEL)
 
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: All Outcomes}}}}}}\\"
@@ -165,9 +165,11 @@ def build_panel_a(df: pd.DataFrame) -> str:
     )
 
     col_fmt = column_format(len(OUTCOME_LABEL))  # in build_panel_a
+    top = TOP if top_rule else ""
+    bottom = BOTTOM if bottom_rule else PANEL_SEP
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
-    {TOP}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -177,11 +179,11 @@ def build_panel_a(df: pd.DataFrame) -> str:
     {MID}
     {obs_row}
     {kp_row}
-    {PANEL_SEP}
+    {bottom}
     \end{{{TABLE_ENV}}}""")
 
 
-def build_panel_b(df: pd.DataFrame) -> str:
+def build_panel_b(df: pd.DataFrame, *, top_rule: bool = False, bottom_rule: bool = True) -> str:
     ncols = 1 + len(TAG_ORDER)
 
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: FE Variants}}}}}}\\"
@@ -225,8 +227,11 @@ def build_panel_b(df: pd.DataFrame) -> str:
     ])
 
     col_fmt = column_format(len(TAG_ORDER))      # in build_panel_b
+    top = TOP if top_rule else ""
+    bottom = BOTTOM if bottom_rule else PANEL_SEP
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -238,7 +243,7 @@ def build_panel_b(df: pd.DataFrame) -> str:
     {MID}
     {obs_row}
     {kp_row}
-    {BOTTOM}
+    {bottom}
     \end{{{TABLE_ENV}}}""")
 
 
@@ -264,8 +269,8 @@ def main() -> None:
     ]
 
     # Show the FE-variant results (Panel B) before the base specification
-    tex_lines.append(build_panel_b(df_alt).rstrip())
-    tex_lines.append(build_panel_a(df_base).rstrip())
+    tex_lines.append(build_panel_b(df_alt, top_rule=True, bottom_rule=False).rstrip())
+    tex_lines.append(build_panel_a(df_base, top_rule=False, bottom_rule=True).rstrip())
 
     tex_lines.append(r"\end{table}")
 
