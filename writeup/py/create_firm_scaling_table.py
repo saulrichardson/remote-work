@@ -97,7 +97,7 @@ def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
 
 def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     ncols = 1 + len(OUTCOME_LABEL)
-    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
+    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\[0.3em]"
     panel_row += "\n\\addlinespace"
 
     dep_hdr = r" & \multicolumn{3}{c}{Outcome} \\"  # header
@@ -146,7 +146,7 @@ def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
 
 def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     ncols = 1 + len(TAG_ORDER)
-    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
+    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\[0.3em]"
     panel_row += "\n\\addlinespace"
 
     dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Growth}} \\"  # one outcome
@@ -234,7 +234,14 @@ def main() -> None:
     tex_lines.append(rf"\label{{{label}}}")
     tex_lines.append(r"\centering")
 
-    combined = build_panel_fe(df_alt, model, include_kp).rstrip() + "\n" + r"\vspace{0.75em}" + "\n" + build_panel_base(df_base, model, include_kp).lstrip()
+    # start one big tabular*
+    tex_lines.append(rf"\begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt_fe}}}")
+    tex_lines.append(build_panel_fe_body(df_alt, model, include_kp))
+    tex_lines.append(r"\addlinespace")
+    tex_lines.append(r"\midrule")
+    tex_lines.append(r"\addlinespace")
+    tex_lines.append(build_panel_base_body(df_base, model, include_kp))
+    tex_lines.append(r"\end{tabular*}") 
     tex_lines.append(combined)
     tex_lines.append(r"\end{table}")
 
