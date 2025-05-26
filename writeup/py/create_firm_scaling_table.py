@@ -203,13 +203,22 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
 
 import re
 
+import re
+
+import re
+
 def strip_tabular_star(tex: str) -> str:
-    """Remove the \begin{tabular*}…\end{tabular*} wrapper."""
-    # drop the first line (\begin{tabular*}{...}{...})
+    r"""Remove the \begin{tabular*}…\end{tabular*} wrapper AND its top/bottom rules."""
+    # 1) drop the \begin{tabular*}{…}{…} line
     tex = re.sub(r"^\\begin\{tabular\*\}\{.*?\}.*\n", "", tex)
-    # drop the last line (\end{tabular*})
+    # 2) drop the \end{tabular*} line
     tex = re.sub(r"\n\\end\{tabular\*\}$", "", tex)
-    return tex.strip("\n")
+    # 3) drop a leading \toprule or \addlinespace if present
+    tex = re.sub(r"^(?:\\toprule|\\addlinespace).*?\n", "", tex)
+    # 4) drop a trailing \specialrule, \midrule, \addlinespace or \bottomrule
+    tex = re.sub(r"\n(?:\\specialrule.*|\\midrule|\\addlinespace|\\bottomrule)\s*$", "", tex)
+    return tex
+
 
 # ---------------------------------------------------------------------------
 # Main driver
