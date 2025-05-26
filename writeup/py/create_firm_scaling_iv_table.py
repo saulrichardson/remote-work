@@ -174,9 +174,14 @@ def build_panel_base(df: pd.DataFrame) -> str:
 
     col_fmt = r"@{}l@{\extracolsep{\fill}}ccc@{}"
 
+    top = TOP if top_rule else ""
+    if bottom_rule:
+        bottom = BOT
+    else:
+        bottom = MID + "\n" + PANEL_GAP
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
-    {TOP}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -186,8 +191,7 @@ def build_panel_base(df: pd.DataFrame) -> str:
     {MID}
     {obs_row}
     {kp_row}
-    {MID}
-    {PANEL_GAP}  
+    {bottom}
     \end{{tabular*}}""")
 
 # ------------------------------------------------------------------
@@ -250,8 +254,14 @@ def build_panel_fe(df: pd.DataFrame) -> str:
     col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c"*len(TAG_ORDER) + r"@{}"
     #—or, if you still want stretchy space between columns:
     #col_fmt = r"@{}l@{\extracolsep{\fill}}cccc"
+    top = TOP if top_rule else ""
+    if bottom_rule:
+        bottom = BOT
+    else:
+        bottom = MID + "\n" + PANEL_GAP
     return textwrap.dedent(rf"""
     \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -263,7 +273,7 @@ def build_panel_fe(df: pd.DataFrame) -> str:
     {MID}
     {obs_row}
     {kp_row}
-    {BOT}  
+    {bottom}
     \end{{tabular*}}""")
 
 # -----------------------------------------------------------------------------
@@ -307,9 +317,11 @@ def main() -> None:
     # Convert those to real new-lines so LaTeX does not see the two-character
     # token "\\n" (which triggers an \undefined control sequence error).
     # build both panels into one big tabular*
+
     combined = build_panel_fe(df_alt).rstrip() \
               + "\n" + r"\vspace{0.75em}" + "\n" \
               + build_panel_base(df_base).lstrip()
+
     tex_lines.append(combined)
     #tex_lines.append(r"\vspace{0.5em}")
     #tex_lines.append(r"\footnotesize Notes: Coefficients shown with robust standard errors in parentheses. "

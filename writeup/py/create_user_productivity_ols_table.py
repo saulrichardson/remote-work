@@ -143,7 +143,9 @@ def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str
 
 
 
+
 def build_panel_base(df: pd.DataFrame) -> str:
+
     ncols = 1 + len(OUTCOME_LABEL)  # stub + outcomes
 
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
@@ -172,9 +174,11 @@ def build_panel_base(df: pd.DataFrame) -> str:
     
     cmid = rf"\cmidrule{{2-{ncols}}}"    
 
+    top = TOP if top_rule else ""
+    bottom = BOTTOM if bottom_rule else PANEL_SEP
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
-    {TOP}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -183,11 +187,13 @@ def build_panel_base(df: pd.DataFrame) -> str:
     {coef_block}
     {MID}
     {obs_row}
-    {PANEL_SEP}
+    {bottom}
     \end{{{TABLE_ENV}}}""")
 
 
+
 def build_panel_fe(df: pd.DataFrame) -> str:
+
     ncols = 1 + len(TAG_ORDER)
 
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
@@ -227,8 +233,11 @@ def build_panel_fe(df: pd.DataFrame) -> str:
     col_fmt = column_format(len(TAG_ORDER))      # in build_panel_fe
     
     cmid = rf"\cmidrule{{2-{ncols}}}"    
+    top = TOP if top_rule else ""
+    bottom = BOTTOM if bottom_rule else PANEL_SEP
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -239,7 +248,7 @@ def build_panel_fe(df: pd.DataFrame) -> str:
     {ind_rows}
     {MID}
     {obs_row}
-    {BOTTOM}
+    {bottom}
     \end{{{TABLE_ENV}}}""")
 
 # ---------------------------------------------------------------------------
@@ -268,9 +277,11 @@ def main() -> None:
         r"\centering",
     ]
 
+
     # Output Panel A (FE) before Panel B (base)
     tex_lines.append(build_panel_fe(df_alt).rstrip())
     tex_lines.append(build_panel_base(df_base).rstrip())
+
 
     tex_lines.append(r"\end{table}")
 

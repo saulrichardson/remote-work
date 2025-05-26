@@ -132,7 +132,9 @@ def column_format(n_numeric: int) -> str:
 # Panel builders -------------------------------------------------------------
 TABLE_ENV = "tabularx"
 
+
 def build_panel_base(df: pd.DataFrame) -> str:
+
     ncols = 1 + len(OUTCOME_LABEL)
 
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
@@ -164,10 +166,12 @@ def build_panel_base(df: pd.DataFrame) -> str:
         filter_expr="model_type=='IV' and outcome=='{k}'"
     )
 
+
     col_fmt = column_format(len(OUTCOME_LABEL))  # in build_panel_fease
+
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
-    {TOP}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -177,11 +181,13 @@ def build_panel_base(df: pd.DataFrame) -> str:
     {MID}
     {obs_row}
     {kp_row}
-    {PANEL_SEP}
+    {bottom}
     \end{{{TABLE_ENV}}}""")
 
 
+
 def build_panel_fe(df: pd.DataFrame) -> str:
+
     ncols = 1 + len(TAG_ORDER)
 
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
@@ -224,9 +230,12 @@ def build_panel_fe(df: pd.DataFrame) -> str:
         indicator_row("Firm $\\times$ User FE", FIRMUSER_FE_INCLUDED),
     ])
 
+
     col_fmt = column_format(len(TAG_ORDER))      # in build_panel_fe
+
     return textwrap.dedent(rf"""
     \begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {top}
     {panel_row}
     {dep_hdr}
     {cmid}
@@ -238,7 +247,7 @@ def build_panel_fe(df: pd.DataFrame) -> str:
     {MID}
     {obs_row}
     {kp_row}
-    {BOTTOM}
+    {bottom}
     \end{{{TABLE_ENV}}}""")
 
 
@@ -263,9 +272,11 @@ def main() -> None:
         r"\centering",
     ]
 
+
     # Show the Panel A (FE variants) before Panel B (base)
     tex_lines.append(build_panel_fe(df_alt).rstrip())
     tex_lines.append(build_panel_base(df_base).rstrip())
+
 
     tex_lines.append(r"\end{table}")
 
