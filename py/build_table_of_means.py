@@ -14,24 +14,24 @@ import textwrap
 # ----------------------------------------------------------------------
 # Default file locations
 # ----------------------------------------------------------------------
-DEF_FIRM   = Path("../data/samples/firm_panel.csv")
+DEF_FIRM = Path("../data/samples/firm_panel.csv")
 # worker-level sample (expected file name: ``user_panel.csv``)
 DEF_WORKER = Path("../data/samples/user_panel.csv")
-DEF_OUT    = Path("../results/cleaned/table_of_means.tex")
+DEF_OUT = Path("../results/cleaned/table_of_means.tex")
 
 # ----------------------------------------------------------------------
 # Panel A: firm level settings
 # ----------------------------------------------------------------------
 VAR_MAP_A = {
-    "growth":           "growth_rate_we",
-    "leave":            "leave_rate_we",
-    "join":             "join_rate_we",
-    "teleworkable":     "teleworkable",
-    "remote":           "remote",
-    "total_employees":  "total_employees",
-    "age":              "age",
-    "rent":             "rent",
-    "hhi_1000":         "hhi_1000",
+    "growth": "growth_rate_we",
+    "leave": "leave_rate_we",
+    "join": "join_rate_we",
+    "teleworkable": "teleworkable",
+    "remote": "remote",
+    "total_employees": "total_employees",
+    "age": "age",
+    "rent": "rent",
+    "hhi_1000": "hhi_1000",
     "seniority_levels": "seniority_levels",
 }
 
@@ -54,15 +54,15 @@ SD_DECIMALS_A = {
 }
 
 NICE_A = {
-    "growth":           r"Growth",
-    "leave":            r"Leave",
-    "join":             r"Join",
-    "teleworkable":     r"Teleworkable Score \,(0--1)",
-    "remote":           r"Remote Score \,(0--1)",
-    "total_employees":  r"Employees (Count)",
-    "age":              r"Age",
-    "rent":             r"Rent (\textdollar/sq ft)",
-    "hhi_1000":         r"Centrality Score",
+    "growth": r"Growth",
+    "leave": r"Leave",
+    "join": r"Join",
+    "teleworkable": r"Teleworkable Score \,(0--1)",
+    "remote": r"Remote Score \,(0--1)",
+    "total_employees": r"Employees (Count)",
+    "age": r"Age",
+    "rent": r"Rent (\textdollar/sq ft)",
+    "hhi_1000": r"Centrality Score",
     "seniority_levels": r"Seniority Levels (Count)",
 }
 
@@ -72,25 +72,30 @@ PERCENT_VARS_A: set[str] = set()
 # Panel B: user level settings
 # ----------------------------------------------------------------------
 VAR_MAP_B = {
-    "total_contrib_q100":      "total_contributions",
+    "total_contrib_q100": "total_contributions",
     "restricted_contrib_q100": "restricted_contributions",
 }
 
 DECIMALS_B = {
-    "total_contrib_q100":      2,
+    "total_contrib_q100": 2,
     "restricted_contrib_q100": 2,
 }
 
 NICE_B = {
-    "total_contrib_q100":      r"Total Contributions",
+    "total_contrib_q100": r"Total Contributions",
     "restricted_contrib_q100": r"Restricted Contributions",
 }
+
 
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _fmt(code: str, value: float | int | pd.Series, decimals: dict[str, int],
-         pct_vars: set[str] | None = None) -> str:
+def _fmt(
+    code: str,
+    value: float | int | pd.Series,
+    decimals: dict[str, int],
+    pct_vars: set[str] | None = None,
+) -> str:
     """Format a numeric value with optional percent scaling."""
     if pd.isna(value):
         return ""
@@ -100,9 +105,14 @@ def _fmt(code: str, value: float | int | pd.Series, decimals: dict[str, int],
     return f"{value:.{dec}f}"
 
 
-def _mean_sd_cell(code: str, mean_val, sd_val,
-                  mean_dec: dict[str, int], sd_dec: dict[str, int],
-                  pct_vars: set[str] | None = None) -> str:
+def _mean_sd_cell(
+    code: str,
+    mean_val,
+    sd_val,
+    mean_dec: dict[str, int],
+    sd_dec: dict[str, int],
+    pct_vars: set[str] | None = None,
+) -> str:
     r"""Return a ``\makecell`` string with mean and SD."""
     if pd.isna(mean_val) or pd.isna(sd_val):
         return ""
@@ -156,32 +166,57 @@ def build_panel(
         flag_stats = dedup_stats_by_flag if use_dedup else stats_by_flag
         overall = dedup_overall_stats if use_dedup else overall_stats
 
-        m_start = flag_stats.loc[1, (col, "mean")] if 1 in flag_stats.index else float("nan")
-        sd_start = flag_stats.loc[1, (col, "std")] if 1 in flag_stats.index else float("nan")
-        m_non = flag_stats.loc[0, (col, "mean")] if 0 in flag_stats.index else float("nan")
-        sd_non = flag_stats.loc[0, (col, "std")] if 0 in flag_stats.index else float("nan")
+        m_start = (
+            flag_stats.loc[1, (col, "mean")] if 1 in flag_stats.index else float("nan")
+        )
+        sd_start = (
+            flag_stats.loc[1, (col, "std")] if 1 in flag_stats.index else float("nan")
+        )
+        m_non = (
+            flag_stats.loc[0, (col, "mean")] if 0 in flag_stats.index else float("nan")
+        )
+        sd_non = (
+            flag_stats.loc[0, (col, "std")] if 0 in flag_stats.index else float("nan")
+        )
         m_all, sd_all = overall.loc[col]
-        rows.append({
-            "variable": nice[code],
-            "Startup":    _mean_sd_cell(code, m_start, sd_start, mean_dec, sd_dec, pct_vars),
-            "Incumbent":  _mean_sd_cell(code, m_non, sd_non, mean_dec, sd_dec, pct_vars),
-            "All Firms":  _mean_sd_cell(code, m_all, sd_all, mean_dec, sd_dec, pct_vars),
-        })
+        rows.append(
+            {
+                "variable": nice[code],
+                "Startup": _mean_sd_cell(
+                    code, m_start, sd_start, mean_dec, sd_dec, pct_vars
+                ),
+                "Incumbent": _mean_sd_cell(
+                    code, m_non, sd_non, mean_dec, sd_dec, pct_vars
+                ),
+                "All Firms": _mean_sd_cell(
+                    code, m_all, sd_all, mean_dec, sd_dec, pct_vars
+                ),
+            }
+        )
 
-    rows.append({
-        "variable": "\\addlinespace\n\\midrule\nN",
-        "Startup":    int((df[startup_flag] == 1).sum()),
-        "Incumbent":  int((df[startup_flag] == 0).sum()),
-        "All Firms":  int(df.shape[0]),
-    })
+    rows.append(
+        {
+            "variable": "\\addlinespace\n\\midrule\nN",
+            "Startup": int((df[startup_flag] == 1).sum()),
+            "Incumbent": int((df[startup_flag] == 0).sum()),
+            "All Firms": int(df.shape[0]),
+        }
+    )
     return pd.DataFrame(rows)
 
 
 def _strip_tabular(latex: str) -> str:
     """Remove the outer ``tabular`` environment produced by ``DataFrame.to_latex``."""
-    skip = ("\\begin{tabular", "\\end{tabular", "\\toprule", "\\midrule", "\\bottomrule")
+    skip = (
+        "\\begin{tabular",
+        "\\end{tabular",
+        "\\toprule",
+        "\\midrule",
+        "\\bottomrule",
+    )
     return "\n".join(
-        line for line in latex.splitlines()
+        line
+        for line in latex.splitlines()
         if not any(line.lstrip().startswith(p) for p in skip)
     )
 
@@ -189,7 +224,6 @@ def _strip_tabular(latex: str) -> str:
 def _with_gutter(colspec: str) -> str:
     """Insert a small horizontal gutter before the last column."""
     return colspec[:-1] + "@{\\hspace{6pt}}" + colspec[-1]
-
 
 
 def _notes_block(
@@ -203,7 +237,11 @@ def _notes_block(
         raise ValueError("rate_scale must be 'fraction' or 'pp'")
     scale_sentence = (
         r"\textit{Growth}, \textit{Leave}, and \textit{Join} rates are "
-        + ("fractions between 0 and 1" if rate_scale == "fraction" else "expressed in percentage points (0--100)")
+        + (
+            "fractions between 0 and 1"
+            if rate_scale == "fraction"
+            else "expressed in percentage points (0--100)"
+        )
         + "."
     )
     return textwrap.dedent(
@@ -219,7 +257,12 @@ def _notes_block(
 # ----------------------------------------------------------------------
 # Main routine
 # ----------------------------------------------------------------------
-def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path: Path = DEF_OUT) -> None:
+def main(
+    *,
+    firm_path: Path = DEF_FIRM,
+    worker_path: Path = DEF_WORKER,
+    out_path: Path = DEF_OUT,
+) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     df_firms = pd.read_csv(firm_path)
@@ -251,35 +294,44 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
 
     # compute per-firm average headcount, then sum across firms
     avg_per_firm = (
-        df_firms
-        .groupby(["firm_id", "startup"])["total_employees"]
-        .mean()
-        .reset_index()
+        df_firms.groupby(["firm_id", "startup"])["total_employees"].mean().reset_index()
     )
     emp_sums = avg_per_firm.groupby("startup")["total_employees"].sum()
     emp_sums_all = avg_per_firm["total_employees"].sum()
 
-    extra_a = pd.DataFrame([
-        {
-            "variable":  "N firms",
-            "Startup":   int(firm_counts.get(1, 0)),
-            "Incumbent": int(firm_counts.get(0, 0)),
-            "All Firms": int(df_firms["firm_id"].nunique()),
-        },
-        {
-            "variable":  "N employees",
-            "Startup":   int(round(emp_sums.get(1, 0))),
-            "Incumbent": int(round(emp_sums.get(0, 0))),
-            "All Firms": int(round(emp_sums_all)),
-        },
-    ])
+    extra_a = pd.DataFrame(
+        [
+            {
+                "variable": "\\addlinespace\n\\midrule\nN firms",
+                "Startup": int(firm_counts.get(1, 0)),
+                "Incumbent": int(firm_counts.get(0, 0)),
+                "All Firms": int(df_firms["firm_id"].nunique()),
+            },
+            {
+                "variable": "N employees",
+                "Startup": int(round(emp_sums.get(1, 0))),
+                "Incumbent": int(round(emp_sums.get(0, 0))),
+                "All Firms": int(round(emp_sums_all)),
+            },
+        ]
+    )
 
     # append extra counts and place the ``N`` row last
     panel_a = pd.concat(
-        [panel_a, extra_a, pd.DataFrame([{"variable": "\\addlinespace\n\\midrule\nN",
-                                         "Startup": int(n_row_a.Startup),
-                                         "Incumbent": int(n_row_a.Incumbent),
-                                         "All Firms": int(n_row_a["All Firms"])}])],
+        [
+            panel_a,
+            extra_a,
+            pd.DataFrame(
+                [
+                    {
+                        "variable": "\\midrule\nN",
+                        "Startup": int(n_row_a.Startup),
+                        "Incumbent": int(n_row_a.Incumbent),
+                        "All Firms": int(n_row_a["All Firms"]),
+                    }
+                ]
+            ),
+        ],
         ignore_index=True,
     )
 
@@ -301,21 +353,33 @@ def main(*, firm_path: Path = DEF_FIRM, worker_path: Path = DEF_WORKER, out_path
     # compute distinct-company counts for the user sample
     company_counts = df_users.groupby("startup")["firm_id"].nunique()
 
-    extra_b = pd.DataFrame([
-        {
-            "variable":  "N companies",
-            "Startup":   int(company_counts.get(1, 0)),
-            "Incumbent": int(company_counts.get(0, 0)),
-            "All Firms": int(df_users["firm_id"].nunique()),
-        },
-    ])
+    extra_b = pd.DataFrame(
+        [
+            {
+                "variable": "\\addlinespace\n\\midrule\nN companies",
+                "Startup": int(company_counts.get(1, 0)),
+                "Incumbent": int(company_counts.get(0, 0)),
+                "All Firms": int(df_users["firm_id"].nunique()),
+            },
+        ]
+    )
 
     # append it to Panel B and place the ``N`` row last
     panel_b = pd.concat(
-        [panel_b, extra_b, pd.DataFrame([{"variable": "\\addlinespace\n\\midrule\nN",
-                                         "Startup": int(n_row_b.Startup),
-                                         "Incumbent": int(n_row_b.Incumbent),
-                                         "All Firms": int(n_row_b["All Firms"])}])],
+        [
+            panel_b,
+            extra_b,
+            pd.DataFrame(
+                [
+                    {
+                        "variable": "\\midrule\nN",
+                        "Startup": int(n_row_b.Startup),
+                        "Incumbent": int(n_row_b.Incumbent),
+                        "All Firms": int(n_row_b["All Firms"]),
+                    }
+                ]
+            ),
+        ],
         ignore_index=True,
     )
 
