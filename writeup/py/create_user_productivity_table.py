@@ -36,9 +36,17 @@ PARAM_LABEL = {
 # contributions.  Abbreviate where space is tight.
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Outcome labels
+#  • q100 variables are percentile‐ranked contributions
+#  • _we variables are winsorised at 1/99 levels (raw contribution counts)
+# ---------------------------------------------------------------------------
+
 OUTCOME_LABEL = {
-    "total_contributions_q100":     "Total Contrib. (pct. rk)",
+    "total_contributions_q100":      "Total Contrib. (pct. rk)",
     "restricted_contributions_q100": "Restricted (pct. rk)",
+    "total_contributions_we":        "Total (wins.)",
+    "restricted_contributions_we":   "Restr. (wins.)",
 }
 
 # Panel B should omit the “Total” column because Total Contributions are

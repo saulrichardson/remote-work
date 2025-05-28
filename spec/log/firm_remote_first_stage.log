@@ -1,0 +1,92 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_remote_first_stage.log
+  log type:  text
+ opened on:  28 May 2025, 09:03:51
+
+. 
+. // 0) Setup environment
+. do "../src/globals.do"
+
+. global raw_data "../data/raw"
+
+. global processed_data  "../data/processed"
+
+. global results "../results/raw"
+
+. global clean_results "../results/cleaned"
+
+. 
+. 
+. 
+end of do-file
+
+. local result_dir "$results/`specname'"
+
+. capture mkdir "`result_dir'"
+
+. 
+. // 1) Load firm-level panel
+. use "$processed_data/firm_panel.dta", clear
+
+. 
+. // 2) Keep one observation per firm
+. bysort firm_id: keep if _n == 1
+(38,472 observations deleted)
+
+. 
+. // 3) Prepare postfile for results
+. capture postclose handle
+
+. tempfile out
+
+. postfile handle ///
+>     str20 endovar ///
+>     str20 param   ///
+>     double coef se pval partialF rkf nobs r2 ///
+>     using `out', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_39148.000001 not found)
+
+. 
+. // 4) First-stage regression: Remote on Teleworkable
+. quietly regress remote teleworkable
+
+.     test teleworkable
+
+ ( 1)  teleworkable = 0
+
+       F(  1,  3506) = 1149.99
+            Prob > F =    0.0000
+
+.     local coef  = _b[teleworkable]
+
+.     local se    = _se[teleworkable]
+
+.     local pval  = r(p)
+
+.     local fstat = r(F)
+
+.     local N     = e(N)
+
+.     local R2    = e(r2)
+
+. 
+. post handle ("remote") ("teleworkable") ///
+>     (`coef') (`se') (`pval') (`fstat') (.) (`N') (`R2')
+
+. 
+. // 5) Export results
+. postclose handle
+
+. use `out', clear
+
+. export delimited using "`result_dir'/first_stage.csv", ///
+>     replace delimiter(",") quote
+file ../results/raw/firm_remote_first_stage/first_stage.csv saved
+
+. 
+. display as result "→ first-stage CSV : `result_dir'/first_stage.csv'"
+→ first-stage CSV : ../results/raw/firm_remote_first_stage/first_stage.csv'
+
+. 
+. capture log close
