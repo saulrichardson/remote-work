@@ -18,7 +18,7 @@ local outcomes total_contributions_q100 restricted_contributions_q100
 
 *--- main results -------------------------------------------------------------
 tempfile out  
-capture postclose handle
+capture postclose handle_fs
 postfile handle ///
     str20   model_type          ///
     str20   fe_tag              ///
@@ -657,6 +657,8 @@ foreach y of local outcomes {
 }
 
 
+encode msa, gen(msa_id)
+
 local feopt "absorb(firm_id user_id msa_id#yh)"
 local tag   "msatime"
 
@@ -827,6 +829,14 @@ foreach y of local outcomes {
 	}
 
 }
+
+
+
+
+
+
+
+
 
 
 

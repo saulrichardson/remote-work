@@ -123,7 +123,8 @@ foreach p in var3 var5 {
 }
 
 // 2) Restrict for mechanism specs
-drop if missing(rent, hhi_1000, seniority_4)
+// Align sample with wage-dispersion mechanisms: require all mechanism vars
+drop if missing(rent, hhi_1000, seniority_4, sd_wage, p90_p10_gap)
 
 
 

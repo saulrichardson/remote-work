@@ -11,7 +11,7 @@ do "../src/globals.do"
 use "$processed_data/user_panel.dta", clear
 
 // 2) Prepare output dir & reset any old postfile
-local specname    "user_productivity"
+local specname    "user_productivity_initial"
 local result_dir  "$results/`specname'"
 capture mkdir "`result_dir'"
 
@@ -33,14 +33,14 @@ postfile handle ///
 tempfile out_fs
 capture postclose handle_fs
 postfile handle_fs ///
-    str8   endovar            ///  var3 / var5
-    str40  param              ///  var6 / var7 / var4
+    str8   endovar            ///
+    str40  param              /// 
     double coef se pval       ///
     double partialF rkf nobs  ///
     using `out_fs', replace
 	
 // 3) Loop over outcomes
-local outcomes total_contributions_q100 restricted_contributions_q100
+local outcomes total_contributions_q100 
 local fs_done 0
 
 foreach y of local outcomes {
@@ -50,12 +50,12 @@ foreach y of local outcomes {
     local pre_mean = r(mean)
 
     // ----- OLS -----
-    reghdfe `y' var3 var5 var4, absorb(user_id firm_id yh) ///
+    reghdfe `y' var3 var4, absorb(user_id firm_id yh) ///
         vce(cluster user_id)
 		
 	local N = e(N) 
 	
-    foreach p in var3 var5 var4 {
+    foreach p in var3 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
@@ -68,13 +68,13 @@ foreach y of local outcomes {
 
     // ----- IV (2nd‐stage) -----
     ivreghdfe ///
-        `y' (var3 var5 = var6 var7) var4, ///
+        `y' (var3 = var6) var4, ///
         absorb(user_id firm_id yh) vce(cluster user_id) savefirst
 		
     local rkf = e(rkf)
 	local N = e(N) 
 	
-    foreach p in var3 var5 var4 {
+    foreach p in var3 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
@@ -89,12 +89,11 @@ foreach y of local outcomes {
 		
 		matrix FS = e(first)
         local F3 = FS[4,1]
-        local F5 = FS[4,2]
 
 		/* -------- var3 first stage -------------------------------- */
 		estimates restore _ivreg2_var3
 		local N_fs = e(N)
-		foreach p in var6 var7 var4 {
+		foreach p in var6 var4 {
 			local b    = _b[`p']
 			local se   = _se[`p']
 			local t    = `b'/`se'
@@ -105,19 +104,6 @@ foreach y of local outcomes {
 							(`F3') (`rkf') (`N_fs')
 		}
 
-		/* -------- var5 first stage -------------------------------- */
-		estimates restore _ivreg2_var5
-		local N_fs = e(N)
-		foreach p in var6 var7 var4 {
-			local b    = _b[`p']
-			local se   = _se[`p']
-			local t    = `b'/`se'
-			local pval = 2*ttail(e(df_r), abs(`t'))
-
-			post handle_fs ("var5") ("`p'") ///
-							(`b') (`se') (`pval') ///
-							(`F5') (`rkf') (`N_fs')
-		}
 
 		local fs_done 1
 	}

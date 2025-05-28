@@ -93,7 +93,7 @@ def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str
         sub = df.query(filter_expr.format(k=k)).head(1)
         n = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
         cells.append(f"{n:,}")
-    return " & ".join(cells) + r" \\""
+    return " & ".join(cells) + r" \\"
 
 
 def build_pre_mean_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
@@ -105,7 +105,7 @@ def build_pre_mean_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -
         sub = df.query(filter_expr.format(k=k)).head(1)
         val = sub.iloc[0]["pre_mean"] if "pre_mean" in sub.columns and not sub.empty else float("nan")
         cells.append(f"{val:.2f}" if pd.notna(val) else "")
-    return " & ".join(cells) + r" \\""
+    return " & ".join(cells) + r" \\"
 
 
 def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
@@ -205,11 +205,9 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
         rows.append(" & ".join(cells) + r" \\")
     coef_block = "\n".join(rows)
 
-    pre_mean_row = build_pre_mean_row(
-        df,
-        TAG_ORDER,
-        filter_expr=f"model_type=='{model}' and outcome=='total_contributions_q100'",
-    )
+    # Note: we omit the pre‐COVID mean for the FE‐variant panel to avoid
+    # repeating the same statistic that appears in the baseline panel below.
+    pre_mean_row = ""  # intentionally left blank
 
     obs_row = build_obs_row(
         df,
@@ -230,6 +228,10 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
         indicator_row("Firm $\\times$ User FE", FIRMUSER_FE_INCLUDED),
     ])
 
+    # Collect optional statistic rows, skipping any that are intentionally
+    # blank (e.g., pre_mean_row).
+    stats_block = "\n".join(row for row in [pre_mean_row, obs_row, kp_row] if row)
+
     col_fmt = column_format(len(TAG_ORDER))
     top = TOP
     bottom = PANEL_SEP
@@ -245,9 +247,7 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {MID}
     {ind_rows}
     {MID}
-    {pre_mean_row}
-    {obs_row}
-    {kp_row}
+    {stats_block}
     {bottom}
     \end{{{TABLE_ENV}}}""")
 # ---------------------------------------------------------------------------

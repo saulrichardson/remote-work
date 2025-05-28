@@ -125,7 +125,10 @@ foreach p in var3 var5 {
 }
 
 // 4) Now restrict to observations with mechanism vars
-drop if missing(rent, hhi_1000, seniority_4)
+// Ensure a common sample across *all* mechanism variables (rent, HHI, seniority,
+// wage dispersion).  This keeps the estimation sample identical in the two
+// mechanism families.
+drop if missing(rent, hhi_1000, seniority_4, sd_wage, p90_p10_gap)
 
 
 

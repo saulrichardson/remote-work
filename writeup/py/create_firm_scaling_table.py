@@ -79,7 +79,7 @@ def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str
         sub = df.query(filter_expr.format(k=k))
         n = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
         cells.append(f"{n:,}")
-    return " & ".join(cells) + r" \\""
+    return " & ".join(cells) + r" \\"
 
 
 def build_pre_mean_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
@@ -91,7 +91,7 @@ def build_pre_mean_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -
         sub = df.query(filter_expr.format(k=k)).head(1)
         val = sub.iloc[0]["pre_mean"] if "pre_mean" in sub.columns and not sub.empty else float("nan")
         cells.append(f"{val:.2f}" if pd.notna(val) else "")
-    return " & ".join(cells) + r" \\""
+    return " & ".join(cells) + r" \\"
 
 
 def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
@@ -183,12 +183,7 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
         rows.append(" & ".join(cells) + r" \\")
     coef_block = "\n".join(rows)
 
-    pre_mean_row = build_pre_mean_row(
-        df,
-        TAG_ORDER,
-        filter_expr=f"model_type=='{model}' and outcome=='growth_rate_we'",
-    )
-
+    
     obs_row = build_obs_row(
         df,
         TAG_ORDER,
@@ -221,7 +216,6 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {MID}
     {ind_rows}
     {MID}
-    {pre_mean_row}
     {obs_row}
     {kp_row}
     {bottom}

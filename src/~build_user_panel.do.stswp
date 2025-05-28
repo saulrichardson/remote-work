@@ -170,7 +170,6 @@ rename flexibility_score2 remote
 rename restrictedcontributionscount restricted_contributions
 rename totalcontribution  total_contributions
 
-encode msa, gen(msa_id)
 
 sort user_id yh
 

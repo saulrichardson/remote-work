@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_mechanisms.log
   log type:  text
- opened on:  28 May 2025, 03:27:57
+ opened on:  28 May 2025, 04:53:18
 
 . 
 . 
@@ -302,7 +302,10 @@ Absorbed degrees of freedom:
 
 . 
 . // 4) Now restrict to observations with mechanism vars
-. drop if missing(rent, hhi_1000, seniority_4)
+. // Ensure a common sample across *all* mechanism variables (rent, HHI, seniority,
+. // wage dispersion).  This keeps the estimation sample identical in the two
+. // mechanism families.
+. drop if missing(rent, hhi_1000, seniority_4, sd_wage, p90_p10_gap)
 (1,602 observations deleted)
 
 . 
@@ -417,7 +420,7 @@ Number of clusters (user_id) =    4510                Number of obs =    47771
                                                       Prob > F      =   0.7606
 Total (centered) SS     =  11897296.85                Centered R2   =  -5.5582
 Total (uncentered) SS   =  11897296.85                Uncentered R2 =  -5.5582
-Residual SS             =  78024573.27                Root MSE      =    40.85
+Residual SS             =  78024573.28                Root MSE      =    40.85
 
 ------------------------------------------------------------------------------
              |               Robust
@@ -719,7 +722,7 @@ Number of clusters (user_id) =    4510                Number of obs =    47771
                                                       Prob > F      =   0.9968
 Total (centered) SS     =  11897296.85                Centered R2   = -2.7e+02
 Total (uncentered) SS   =  11897296.85                Uncentered R2 = -2.7e+02
-Residual SS             =   3199679759                Root MSE      =    261.6
+Residual SS             =   3199679459                Root MSE      =    261.6
 
 ------------------------------------------------------------------------------
              |               Robust
@@ -728,7 +731,7 @@ total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
         var3 |  -21312.51   66029.29    -0.32   0.747    -150762.3    108137.3
         var5 |  -47.81493   427.1568    -0.11   0.911    -885.2517    789.6218
        var15 |    21459.9   66550.89     0.32   0.747    -109012.5    151932.3
-        var4 |  -9.716166   322.8544    -0.03   0.976    -642.6691    623.2368
+        var4 |  -9.716167   322.8544    -0.03   0.976    -642.6691    623.2367
        var14 |  -20103.53   62426.35    -0.32   0.747    -142489.8    102282.7
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):              0.099
@@ -925,7 +928,7 @@ Number of clusters (user_id) =    4510                Number of obs =    47771
                                                       Prob > F      =   0.5377
 Total (centered) SS     =  11897296.85                Centered R2   =  -1.6858
 Total (uncentered) SS   =  11897296.85                Uncentered R2 =  -1.6858
-Residual SS             =  31953315.67                Root MSE      =    26.14
+Residual SS             =  31953315.68                Root MSE      =    26.14
 
 ------------------------------------------------------------------------------
              |               Robust
