@@ -13,7 +13,6 @@ import argparse
 from pathlib import Path
 import pandas as pd
 import textwrap
-import re
 
 # ---------------------------------------------------------------------------
 # Paths and constants
@@ -98,7 +97,7 @@ def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
 
 def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     ncols = 1 + len(OUTCOME_LABEL)
-    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\[0.3em]"
+    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
     dep_hdr = r" & \multicolumn{3}{c}{Outcome} \\"  # header
@@ -147,7 +146,7 @@ def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
 
 def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     ncols = 1 + len(TAG_ORDER)
-    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\[0.3em]"
+    panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\"
     panel_row += "\n\\addlinespace"
 
     dep_hdr = rf" & \multicolumn{{{len(TAG_ORDER)}}}{{c}}{{Growth}} \\"  # one outcome
@@ -202,24 +201,6 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {bottom}
     \end{{tabular*}}""")
 
-
-def strip_tabular_star(tex: str) -> str:
-    r"""Remove the \begin{tabular*}…\end{tabular*} wrapper AND its top/bottom rules."""
-    # trim whitespace so that anchors in the regex match reliably when
-    # tabular blocks are indented. Use MULTILINE mode for substitutions
-    # because patterns start or end at line boundaries.
-    tex = tex.strip()
-    # 1) drop the \begin{tabular*}{…}{…} line
-    tex = re.sub(r"^\s*\\begin\{tabular\*\}\{.*?\}.*\n", "", tex, flags=re.MULTILINE)
-    # 2) drop the \end{tabular*} line
-    tex = re.sub(r"\n\s*\\end\{tabular\*\}$", "", tex, flags=re.MULTILINE)
-    # 3) drop a leading \toprule or \addlinespace if present
-    tex = re.sub(r"^\s*(?:\\toprule|\\addlinespace).*?\n", "", tex, flags=re.MULTILINE)
-    # 4) drop a trailing \specialrule, \midrule, \addlinespace or \bottomrule
-    tex = re.sub(r"\n\s*(?:\\specialrule.*|\\midrule|\\addlinespace|\\bottomrule)\s*$", "", tex, flags=re.MULTILINE)
-    return tex
-
-
 # ---------------------------------------------------------------------------
 # Main driver
 # ---------------------------------------------------------------------------
@@ -244,41 +225,23 @@ def main() -> None:
     df_base = pd.read_csv(INPUT_BASE)
     df_alt = pd.read_csv(INPUT_ALT)
 
-    raw_fe   = build_panel_fe(df_alt,   model, include_kp)
-    raw_base = build_panel_base(df_base, model, include_kp)
+    tex_lines: list[str] = []
+    tex_lines.append("% Auto-generated firm scaling table")
+    tex_lines.append("")
+    tex_lines.append(r"\begin{table}[H]")
+    tex_lines.append(r"\centering")
+    tex_lines.append(rf"\caption{{{caption}}}")
+    tex_lines.append(rf"\label{{{label}}}")
+    tex_lines.append(r"\centering")
 
-    body_fe   = strip_tabular_star(raw_fe)
-    body_base = strip_tabular_star(raw_base)
-
-    # Single column‐format that matches Panel A’s width (1 label + len(TAG_ORDER) columns)
-    col_fmt = "@{}l@{\\extracolsep{\\fill}}" + "c"*len(TAG_ORDER) + "@{}"
-
-    tex_lines = [
-        "% Auto-generated firm scaling table",
-        r"\begin{table}[H]",
-        r"\centering",
-        rf"\caption{{{caption}}}",
-        rf"\label{{{label}}}",
-        rf"\begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}",
-        TOP,
-        r"\addlinespace",
-        # Panel A header (spans all columns)
-        rf"\multicolumn{{{1+len(TAG_ORDER)}}}{{l}}{{\textbf{{\uline{{Panel A: FE Variants}}}}}}\\[0.3em]",
-        body_fe,
-        r"\addlinespace",
-        r"\midrule",
-        r"\addlinespace",
-        # Panel B header (also spans the same number of cols)
-        rf"\multicolumn{{{1+len(TAG_ORDER)}}}{{l}}{{\textbf{{\uline{{Panel B: Base Specification}}}}}}\\[0.3em]",
-        body_base,
-        BOTTOM,
-        r"\end{tabular*}",
-        r"\end{table}",
-    ]
+    combined = build_panel_fe(df_alt, model, include_kp).rstrip() + "\n" + r"\vspace{0.75em}" + "\n" + build_panel_base(df_base, model, include_kp).lstrip()
+    tex_lines.append(combined)
+    tex_lines.append(r"\end{table}")
 
     output_tex.parent.mkdir(parents=True, exist_ok=True)
-    output_tex.write_text("\n".join(tex_lines) + "\n")
+    Path(output_tex).write_text("\n".join(tex_lines) + "\n")
     print(f"Wrote LaTeX table to {output_tex.resolve()}")
+
 
 if __name__ == "__main__":
     main()

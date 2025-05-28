@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_alternative_fe.log
   log type:  text
- opened on:  19 May 2025, 03:54:04
+ opened on:  28 May 2025, 03:29:01
 
 . 
 . // 0) Setup environment
@@ -13,6 +13,8 @@
 . global processed_data  "../data/processed"
 
 . global results "../results/raw"
+
+. global clean_results "../results/cleaned"
 
 . 
 . 
@@ -33,14 +35,14 @@ end of do-file
 . tempfile out  
 
 . postfile handle ///
->     str20   model_type          ///  
+>     str20   model_type          ///
 >     str20   fe_tag              ///
 >     str40  outcome             ///
 >     str40  param               ///
->     double coef se pval        ///
->     double rkf nobs            ///  
+>     double coef se pval pre_mean ///
+>     double rkf nobs            ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_16952.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_39148.000001 not found)
 
 . 
 . 
@@ -57,7 +59,7 @@ end of do-file
 >     double coef se pval        ///
 >     double partialF rkf nobs   ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_16952.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_39148.000002 not found)
 
 . 
 .         
@@ -75,76 +77,79 @@ end of do-file
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5. 
+.     summarize `y' if covid == 0, meanonly
+  6.     local pre_mean = r(mean)
+  7. 
 .     // OLS
 .      reghdfe `y' var3 var5 var4, ///
 >         `feopt' vce(cluster user_id)
-  6.                 
+  8.                 
 .         local N = e(N)  
-  7.         
+  9.         
 .     foreach p in var3 var5 var4 {
-  8.         local b    = _b[`p']
-  9.         local se   = _se[`p']
- 10.         local t    = `b'/`se'
- 11.         local pval = 2*ttail(e(df_r), abs(`t'))
- 12. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
->                                         (.) (`N')
- 13.     }
+ 10.         local b    = _b[`p']
+ 11.         local se   = _se[`p']
+ 12.         local t    = `b'/`se'
+ 13.         local pval = 2*ttail(e(df_r), abs(`t'))
  14. 
+.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (.) (`N')
+ 15.     }
+ 16. 
 .     // IV (2nd stage)
 .      ivreghdfe ///
 >         `y' (var3 var5 = var6 var7) var4, ///
 >         `feopt' vce(cluster user_id) savefirst
- 15.     
+ 17.     
 .         local rkf = e(rkf)
- 16.         local N = e(N)  
- 17.         
+ 18.         local N = e(N)  
+ 19.         
 .     foreach p in var3 var5 var4 {
- 18.         local b    = _b[`p']
- 19.         local se   = _se[`p']
- 20.         local t    = `b'/`se'
- 21.         local pval = 2*ttail(e(df_r), abs(`t'))
- 22.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
+ 20.         local b    = _b[`p']
+ 21.         local se   = _se[`p']
+ 22.         local t    = `b'/`se'
+ 23.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
 >                                         (`rkf') (`N')
- 23.     }
- 24.         
+ 25.     }
+ 26.         
 .         *--- pull partial F's from the stacked matrix
 .         matrix FS = e(first)
- 25.         local F3 = FS[4,1]
- 26.         local F5 = FS[4,2]
- 27. 
+ 27.         local F3 = FS[4,1]
+ 28.         local F5 = FS[4,2]
+ 29. 
 .         *========= var3 first stage ===================================================
 .         estimates restore _ivreg2_var3
- 28.         local N_fs = e(N)
- 29. 
+ 30.         local N_fs = e(N)
+ 31. 
 .         foreach p in var6 var7 var4 {
- 30.                 local b    = _b[`p']
- 31.                 local se   = _se[`p']
- 32.                 local t    = `b'/`se'
- 33.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 34. 
+ 32.                 local b    = _b[`p']
+ 33.                 local se   = _se[`p']
+ 34.                 local t    = `b'/`se'
+ 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 36. 
 .                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F3') (`rkf') (`N_fs')
- 35.         }
- 36. 
+ 37.         }
+ 38. 
 .         *========= var5 first stage ===================================================
 .         estimates restore _ivreg2_var5
- 37.         local N_fs = e(N)
- 38. 
+ 39.         local N_fs = e(N)
+ 40. 
 .         foreach p in var6 var7 var4 {
- 39.                 local b    = _b[`p']
- 40.                 local se   = _se[`p']
- 41.                 local t    = `b'/`se'
- 42.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 43. 
+ 41.                 local b    = _b[`p']
+ 42.                 local se   = _se[`p']
+ 43.                 local t    = `b'/`se'
+ 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 45. 
 .                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F5') (`rkf') (`N_fs')
- 44.         }
- 45. 
+ 46.         }
+ 47. 
 . }
 >> FE spec: (tag=fyhu)
    – outcome: total_contributions_q100
@@ -367,77 +372,79 @@ Absorbed degrees of freedom:
   2.     use "$processed_data/user_panel.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
-  5. 
+  5.     summarize `y' if covid == 0, meanonly
+  6.     local pre_mean = r(mean)
+  7. 
 .     // OLS
 .      reghdfe `y' var3 var5 var4, ///
 >         `feopt' vce(cluster user_id)
-  6.                 
+  8.                 
 .         local N = e(N)  
-  7.         
+  9.         
 .     foreach p in var3 var5 var4 {
-  8.         local b    = _b[`p']
-  9.         local se   = _se[`p']
- 10.         local t    = `b'/`se'
- 11.         local pval = 2*ttail(e(df_r), abs(`t'))
- 12. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
->                                         (.) (`N')
- 13.     }
+ 10.         local b    = _b[`p']
+ 11.         local se   = _se[`p']
+ 12.         local t    = `b'/`se'
+ 13.         local pval = 2*ttail(e(df_r), abs(`t'))
  14. 
+.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (.) (`N')
+ 15.     }
+ 16. 
 .     // IV (2nd stage)
 .      ivreghdfe ///
 >         `y' (var3 var5 = var6 var7) var4, ///
 >         `feopt' vce(cluster user_id) savefirst
- 15.     
+ 17.     
 .         local rkf = e(rkf)
- 16.         local N = e(N)  
- 17.         
+ 18.         local N = e(N)  
+ 19.         
 .     foreach p in var3 var5 var4 {
- 18.         local b    = _b[`p']
- 19.         local se   = _se[`p']
- 20.         local t    = `b'/`se'
- 21.         local pval = 2*ttail(e(df_r), abs(`t'))
- 22.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
+ 20.         local b    = _b[`p']
+ 21.         local se   = _se[`p']
+ 22.         local t    = `b'/`se'
+ 23.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
 >                                         (`rkf') (`N')
- 23.     }
- 24.         
+ 25.     }
+ 26.         
 .         *--- pull partial F's from the stacked matrix
 .         matrix FS = e(first)
- 25.         local F3 = FS[4,1]
- 26.         local F5 = FS[4,2]
- 27. 
+ 27.         local F3 = FS[4,1]
+ 28.         local F5 = FS[4,2]
+ 29. 
 .         *========= var3 first stage ===================================================
 .         estimates restore _ivreg2_var3
- 28.         local N_fs = e(N)
- 29. 
+ 30.         local N_fs = e(N)
+ 31. 
 .         foreach p in var6 var7 var4 {
- 30.                 local b    = _b[`p']
- 31.                 local se   = _se[`p']
- 32.                 local t    = `b'/`se'
- 33.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 34. 
+ 32.                 local b    = _b[`p']
+ 33.                 local se   = _se[`p']
+ 34.                 local t    = `b'/`se'
+ 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 36. 
 .                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F3') (`rkf') (`N_fs')
- 35.         }
- 36. 
+ 37.         }
+ 38. 
 .         *========= var5 first stage ===================================================
 .         estimates restore _ivreg2_var5
- 37.         local N_fs = e(N)
- 38. 
+ 39.         local N_fs = e(N)
+ 40. 
 .         foreach p in var6 var7 var4 {
- 39.                 local b    = _b[`p']
- 40.                 local se   = _se[`p']
- 41.                 local t    = `b'/`se'
- 42.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 43. 
+ 41.                 local b    = _b[`p']
+ 42.                 local se   = _se[`p']
+ 43.                 local t    = `b'/`se'
+ 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 45. 
 .                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F5') (`rkf') (`N_fs')
- 44.         }
- 45. 
+ 46.         }
+ 47. 
 . }
 >> FE spec: (tag=firmbyuseryh)
    – outcome: total_contributions_q100
@@ -656,77 +663,79 @@ Absorbed degrees of freedom:
   2.     use "$processed_data/user_panel.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
-  5. 
+  5.     summarize `y' if covid == 0, meanonly
+  6.     local pre_mean = r(mean)
+  7. 
 .     // OLS
 .      reghdfe `y' var3 var5 var4, ///
 >         `feopt' vce(cluster user_id)
-  6.                 
+  8.                 
 .         local N = e(N)  
-  7.         
+  9.         
 .     foreach p in var3 var5 var4 {
-  8.         local b    = _b[`p']
-  9.         local se   = _se[`p']
- 10.         local t    = `b'/`se'
- 11.         local pval = 2*ttail(e(df_r), abs(`t'))
- 12. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
->                                         (.) (`N')
- 13.     }
+ 10.         local b    = _b[`p']
+ 11.         local se   = _se[`p']
+ 12.         local t    = `b'/`se'
+ 13.         local pval = 2*ttail(e(df_r), abs(`t'))
  14. 
+.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (.) (`N')
+ 15.     }
+ 16. 
 .     // IV (2nd stage)
 .      ivreghdfe ///
 >         `y' (var3 var5 = var6 var7) var4, ///
 >         `feopt' vce(cluster user_id) savefirst
- 15.     
+ 17.     
 .         local rkf = e(rkf)
- 16.         local N = e(N)  
- 17.         
+ 18.         local N = e(N)  
+ 19.         
 .     foreach p in var3 var5 var4 {
- 18.         local b    = _b[`p']
- 19.         local se   = _se[`p']
- 20.         local t    = `b'/`se'
- 21.         local pval = 2*ttail(e(df_r), abs(`t'))
- 22.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
+ 20.         local b    = _b[`p']
+ 21.         local se   = _se[`p']
+ 22.         local t    = `b'/`se'
+ 23.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
 >                                         (`rkf') (`N')
- 23.     }
- 24.         
+ 25.     }
+ 26.         
 .         *--- pull partial F's from the stacked matrix
 .         matrix FS = e(first)
- 25.         local F3 = FS[4,1]
- 26.         local F5 = FS[4,2]
- 27. 
+ 27.         local F3 = FS[4,1]
+ 28.         local F5 = FS[4,2]
+ 29. 
 .         *========= var3 first stage ===================================================
 .         estimates restore _ivreg2_var3
- 28.         local N_fs = e(N)
- 29. 
+ 30.         local N_fs = e(N)
+ 31. 
 .         foreach p in var6 var7 var4 {
- 30.                 local b    = _b[`p']
- 31.                 local se   = _se[`p']
- 32.                 local t    = `b'/`se'
- 33.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 34. 
+ 32.                 local b    = _b[`p']
+ 33.                 local se   = _se[`p']
+ 34.                 local t    = `b'/`se'
+ 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 36. 
 .                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F3') (`rkf') (`N_fs')
- 35.         }
- 36. 
+ 37.         }
+ 38. 
 .         *========= var5 first stage ===================================================
 .         estimates restore _ivreg2_var5
- 37.         local N_fs = e(N)
- 38. 
+ 39.         local N_fs = e(N)
+ 40. 
 .         foreach p in var6 var7 var4 {
- 39.                 local b    = _b[`p']
- 40.                 local se   = _se[`p']
- 41.                 local t    = `b'/`se'
- 42.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 43. 
+ 41.                 local b    = _b[`p']
+ 42.                 local se   = _se[`p']
+ 43.                 local t    = `b'/`se'
+ 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 45. 
 .                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F5') (`rkf') (`N_fs')
- 44.         }
- 45. 
+ 46.         }
+ 47. 
 . }
 >> FE spec: (tag=fyh)
    – outcome: total_contributions_q100
@@ -936,82 +945,85 @@ Absorbed degrees of freedom:
 . 
 . foreach y of local outcomes {
   2.     use "$processed_data/user_panel.dta", clear
-  3.         
+  3. 
 .         gen var8 = remote * startup
   4.         gen var9 = teleworkable*startup
-  5.         
+  5. 
+.     summarize `y' if covid == 0, meanonly
+  6.     local pre_mean = r(mean)
+  7.         
 .     display as text ">> FE spec: time  (tag=`tag')"
-  6.     display as text "   – outcome: `y'"
-  7. 
+  8.     display as text "   – outcome: `y'"
+  9. 
 .     // OLS
 .     reghdfe `y' var3 var5 var4 remote startup var8 covid, ///
 >         `feopt' vce(cluster user_id)
-  8.         local N   = e(N)
-  9.         
+ 10.         local N   = e(N)
+ 11.         
 .     foreach p in var3 var5 var4 {
- 10.         local b    = _b[`p']
- 11.         local se   = _se[`p']
- 12.         local t    = `b'/`se'
- 13.         local pval = 2*ttail(e(df_r), abs(`t'))
- 14. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
->                                         (.) (`N')
- 15.     }
+ 12.         local b    = _b[`p']
+ 13.         local se   = _se[`p']
+ 14.         local t    = `b'/`se'
+ 15.         local pval = 2*ttail(e(df_r), abs(`t'))
  16. 
+.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (.) (`N')
+ 17.     }
+ 18. 
 .     // IV (2nd stage)
 .      ivreghdfe ///
 >         `y' (var3 var5 var8 remote = var6 var7 var9 teleworkable) var4 startup covid, ///
 >         `feopt' vce(cluster user_id) savefirst
- 17.                 
+ 19.                 
 .     local rkf = e(rkf)
- 18.         local N   = e(N)
- 19.         
+ 20.         local N   = e(N)
+ 21.         
 .     foreach p in var3 var5 var4 {
- 20.         local b    = _b[`p']
- 21.         local se   = _se[`p']
- 22.         local t    = `b'/`se'
- 23.         local pval = 2*ttail(e(df_r), abs(`t'))
- 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
+ 22.         local b    = _b[`p']
+ 23.         local se   = _se[`p']
+ 24.         local t    = `b'/`se'
+ 25.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 26.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
 >                                         (`rkf') (`N')
- 25.     }
- 26. 
+ 27.     }
+ 28. 
 .         *--- pull partial F's from the stacked matrix
 .         matrix FS = e(first)
- 27.         local F3 = FS[4,1]
- 28.         local F5 = FS[4,2]
- 29. 
+ 29.         local F3 = FS[4,1]
+ 30.         local F5 = FS[4,2]
+ 31. 
 .         *========= var3 first stage ===================================================
 .         estimates restore _ivreg2_var3
- 30.         local N_fs = e(N)
- 31. 
+ 32.         local N_fs = e(N)
+ 33. 
 .         foreach p in var6 var7 var4 {
- 32.                 local b    = _b[`p']
- 33.                 local se   = _se[`p']
- 34.                 local t    = `b'/`se'
- 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 36. 
+ 34.                 local b    = _b[`p']
+ 35.                 local se   = _se[`p']
+ 36.                 local t    = `b'/`se'
+ 37.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 38. 
 .                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F3') (`rkf') (`N_fs')
- 37.         }
- 38. 
+ 39.         }
+ 40. 
 .         *========= var5 first stage ===================================================
 .         estimates restore _ivreg2_var5
- 39.         local N_fs = e(N)
- 40. 
+ 41.         local N_fs = e(N)
+ 42. 
 .         foreach p in var6 var7 var4 {
- 41.                 local b    = _b[`p']
- 42.                 local se   = _se[`p']
- 43.                 local t    = `b'/`se'
- 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 45. 
+ 43.                 local b    = _b[`p']
+ 44.                 local se   = _se[`p']
+ 45.                 local t    = `b'/`se'
+ 46.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 47. 
 .                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F5') (`rkf') (`N_fs')
- 46.         }
- 47. 
+ 48.         }
+ 49. 
 . }
 (3,733 missing values generated)
 >> FE spec: time  (tag=time)
@@ -1239,80 +1251,83 @@ Absorbed degrees of freedom:
 . 
 . foreach y of local outcomes {
   2.     use "$processed_data/user_panel.dta", clear
-  3.         
+  3. 
 .     display as text ">> FE spec: firm  (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5. 
+.     summarize `y' if covid == 0, meanonly
+  6.     local pre_mean = r(mean)
+  7. 
 .     // OLS
 .      reghdfe `y' var3 var5 var4 covid, ///
 >         `feopt' vce(cluster user_id)
-  6.         
+  8.         
 .         local N   = e(N)
-  7.         
+  9.         
 .     foreach p in var3 var5 var4 {
-  8.         local b    = _b[`p']
-  9.         local se   = _se[`p']
- 10.         local t    = `b'/`se'
- 11.         local pval = 2*ttail(e(df_r), abs(`t'))
- 12. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
->                                         (.) (`N')
- 13.     }
+ 10.         local b    = _b[`p']
+ 11.         local se   = _se[`p']
+ 12.         local t    = `b'/`se'
+ 13.         local pval = 2*ttail(e(df_r), abs(`t'))
  14. 
+.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (.) (`N')
+ 15.     }
+ 16. 
 .     // IV (2nd stage)
 .      ivreghdfe ///
 >         `y' (var3 var5 = var6 var7) var4 covid, ///
 >         `feopt' vce(cluster user_id) savefirst
- 15.                 
+ 17.                 
 .     local rkf = e(rkf)
- 16.         local N   = e(N)
- 17.         
+ 18.         local N   = e(N)
+ 19.         
 .     foreach p in var3 var5 var4 {
- 18.         local b    = _b[`p']
- 19.         local se   = _se[`p']
- 20.         local t    = `b'/`se'
- 21.         local pval = 2*ttail(e(df_r), abs(`t'))
- 22.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
+ 20.         local b    = _b[`p']
+ 21.         local se   = _se[`p']
+ 22.         local t    = `b'/`se'
+ 23.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
 >                                         (`rkf') (`N')
- 23.     }
- 24. 
+ 25.     }
+ 26. 
 .         *--- pull partial F's from the stacked matrix
 .         matrix FS = e(first)
- 25.         local F3 = FS[4,1]
- 26.         local F5 = FS[4,2]
- 27. 
+ 27.         local F3 = FS[4,1]
+ 28.         local F5 = FS[4,2]
+ 29. 
 .         *========= var3 first stage ===================================================
 .         estimates restore _ivreg2_var3
- 28.         local N_fs = e(N)
- 29. 
+ 30.         local N_fs = e(N)
+ 31. 
 .         foreach p in var6 var7 var4 {
- 30.                 local b    = _b[`p']
- 31.                 local se   = _se[`p']
- 32.                 local t    = `b'/`se'
- 33.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 34. 
+ 32.                 local b    = _b[`p']
+ 33.                 local se   = _se[`p']
+ 34.                 local t    = `b'/`se'
+ 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 36. 
 .                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F3') (`rkf') (`N_fs')
- 35.         }
- 36. 
+ 37.         }
+ 38. 
 .         *========= var5 first stage ===================================================
 .         estimates restore _ivreg2_var5
- 37.         local N_fs = e(N)
- 38. 
+ 39.         local N_fs = e(N)
+ 40. 
 .         foreach p in var6 var7 var4 {
- 39.                 local b    = _b[`p']
- 40.                 local se   = _se[`p']
- 41.                 local t    = `b'/`se'
- 42.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 43. 
+ 41.                 local b    = _b[`p']
+ 42.                 local se   = _se[`p']
+ 43.                 local t    = `b'/`se'
+ 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 45. 
 .                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F5') (`rkf') (`N_fs')
- 44.         }
- 45. 
+ 46.         }
+ 47. 
 . }
 >> FE spec: firm  (tag=firm)
    – outcome: total_contributions_q100
@@ -1524,80 +1539,83 @@ Absorbed degrees of freedom:
   2.     use "$processed_data/user_panel.dta", clear
   3.         
 .         gen var8 = remote * startup
-  4.         gen var9 = teleworkable*startup
-  5.         
-.     display as text ">> FE spec: none  (tag=`tag')"
-  6.     display as text "   – outcome: `y'"
+  4.     gen var9 = teleworkable*startup
+  5. 
+.     summarize `y' if covid == 0, meanonly
+  6.     local pre_mean = r(mean)
   7. 
+.     display as text ">> FE spec: none  (tag=`tag')"
+  8.     display as text "   – outcome: `y'"
+  9. 
 .     // OLS
 .     reghdfe `y' var3 var5 var4 remote startup var8 covid, ///
 >         absorb() vce(cluster user_id)
-  8.                 
+ 10.                 
 .         local N   = e(N)
-  9.         
+ 11.         
 .     foreach p in var3 var5 var4 {
- 10.         local b    = _b[`p']
- 11.         local se   = _se[`p']
- 12.         local t    = `b'/`se'
- 13.         local pval = 2*ttail(e(df_r), abs(`t'))
- 14. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
->                                         (.) (`N')
- 15.     }
+ 12.         local b    = _b[`p']
+ 13.         local se   = _se[`p']
+ 14.         local t    = `b'/`se'
+ 15.         local pval = 2*ttail(e(df_r), abs(`t'))
  16. 
+.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (.) (`N')
+ 17.     }
+ 18. 
 .     // IV (2nd stage)
 .     ivreghdfe ///
 >         `y' (var3 var5 var8 remote = var6 var7 var9 teleworkable) var4 startup covid, ///
 >         absorb() vce(cluster user_id) savefirst
- 17.     local rkf = e(rkf)
- 18.         local N   = e(N)
- 19.         
+ 19.     local rkf = e(rkf)
+ 20.         local N   = e(N)
+ 21.         
 .     foreach p in var3 var5 var4 {
- 20.         local b    = _b[`p']
- 21.         local se   = _se[`p']
- 22.         local t    = `b'/`se'
- 23.         local pval = 2*ttail(e(df_r), abs(`t'))
- 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') ///
+ 22.         local b    = _b[`p']
+ 23.         local se   = _se[`p']
+ 24.         local t    = `b'/`se'
+ 25.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 26.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
 >                                         (`rkf') (`N')
- 25.     }
- 26. 
+ 27.     }
+ 28. 
 .         *--- pull partial F's from the stacked matrix
 .         matrix FS = e(first)
- 27.         local F3 = FS[4,1]
- 28.         local F5 = FS[4,2]
- 29. 
+ 29.         local F3 = FS[4,1]
+ 30.         local F5 = FS[4,2]
+ 31. 
 .         *========= var3 first stage ===================================================
 .         estimates restore _ivreg2_var3
- 30.         local N_fs = e(N)
- 31. 
+ 32.         local N_fs = e(N)
+ 33. 
 .         foreach p in var6 var7 var4 {
- 32.                 local b    = _b[`p']
- 33.                 local se   = _se[`p']
- 34.                 local t    = `b'/`se'
- 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 36. 
+ 34.                 local b    = _b[`p']
+ 35.                 local se   = _se[`p']
+ 36.                 local t    = `b'/`se'
+ 37.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 38. 
 .                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F3') (`rkf') (`N_fs')
- 37.         }
- 38. 
+ 39.         }
+ 40. 
 .         *========= var5 first stage ===================================================
 .         estimates restore _ivreg2_var5
- 39.         local N_fs = e(N)
- 40. 
+ 41.         local N_fs = e(N)
+ 42. 
 .         foreach p in var6 var7 var4 {
- 41.                 local b    = _b[`p']
- 42.                 local se   = _se[`p']
- 43.                 local t    = `b'/`se'
- 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 45. 
+ 43.                 local b    = _b[`p']
+ 44.                 local se   = _se[`p']
+ 45.                 local t    = `b'/`se'
+ 46.                 local pval = 2*ttail(e(df_r), abs(`t'))
+ 47. 
 .                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
 >                                                 (`b') (`se') (`pval') ///
 >                                                 (`F5') (`rkf') (`N_fs')
- 46.         }
- 47. 
+ 48.         }
+ 49. 
 . }
 (3,733 missing values generated)
 >> FE spec: none  (tag=none)
@@ -1801,5 +1819,5 @@ file ../results/raw/user_productivity_alternative_fe/first_stage_fstats.csv save
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_alternative_fe.log
   log type:  text
- closed on:  19 May 2025, 03:54:33
+ closed on:  28 May 2025, 03:29:28
 -----------------------------------------------------------------------------------------------------------------------------------------

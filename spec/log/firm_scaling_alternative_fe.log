@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_scaling_alternative_fe.log
   log type:  text
- opened on:  21 May 2025, 14:30:30
+ opened on:  28 May 2025, 03:29:48
 
 . 
 . // 0) Setup environment
@@ -42,7 +42,7 @@ end of do-file
 >     double coef se pval pre_mean ///
 >     double rkf nobs            ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_76094.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_39148.000001 not found)
 
 . 
 . 
@@ -59,7 +59,7 @@ end of do-file
 >     double coef se pval        ///
 >     double partialF rkf nobs   ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_76094.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_39148.000002 not found)
 
 . 
 . //-------------------------------------------------------------
@@ -1610,5 +1610,5 @@ file ../results/raw/firm_scaling_alternative_fe/first_stage_fstats.csv saved
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_scaling_alternative_fe.log
   log type:  text
- closed on:  21 May 2025, 14:30:40
+ closed on:  28 May 2025, 03:29:59
 -----------------------------------------------------------------------------------------------------------------------------------------
