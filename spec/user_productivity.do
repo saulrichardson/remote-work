@@ -40,7 +40,9 @@ postfile handle_fs ///
     using `out_fs', replace
 	
 // 3) Loop over outcomes
-local outcomes total_contributions_q100 restricted_contributions_q100
+// Include percentile-rank and Winsorized versions of the contribution
+// measures
+local outcomes total_contributions_q100 restricted_contributions_q100 total_contributions_we restricted_contributions_we
 local fs_done 0
 
 foreach y of local outcomes {
