@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_mechanisms_wage_gap.log
   log type:  text
- opened on:  28 May 2025, 06:01:19
+ opened on:  28 May 2025, 06:16:10
 
 . 
 . 
@@ -61,20 +61,23 @@ end of do-file
 . 
 . 
 . // pick your mechanism here
-. local mech    sd_wage    // or: p90_p10_gap
+. // local mech    sd_wage    // or: p90_p10_gap
+. // local mech_label  sdw 
+. 
+. local mech    p90_p10_gap
 
-. local mech_label  sdw 
+. local mech_label  gap
 
 . 
 . // generate interactions
 . gen var17 = covid*`mech'
-(399 missing values generated)
+(37 missing values generated)
 
 . gen var18 = covid*`mech'*remote
-(399 missing values generated)
+(37 missing values generated)
 
 . gen var19 = teleworkable*covid*`mech'
-(399 missing values generated)
+(37 missing values generated)
 
 . 
 . 
@@ -756,15 +759,15 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-→ Spec 5: sdw
+→ Spec 5: gap
 (MWFE estimator converged in 4 iterations)
 
 HDFE Linear regression                            Number of obs   =     38,436
-Absorbing 2 HDFE groups                           F(   5,   3206) =      18.50
+Absorbing 2 HDFE groups                           F(   5,   3206) =      19.38
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.3524
-                                                  Adj R-squared   =     0.2931
-                                                  Within R-sq.    =     0.0069
+                                                  R-squared       =     0.3525
+                                                  Adj R-squared   =     0.2933
+                                                  Within R-sq.    =     0.0072
 Number of clusters (firm_id) =      3,207         Root MSE        =     0.1848
 
                             (Std. err. adjusted for 3,207 clusters in firm_id)
@@ -772,12 +775,12 @@ Number of clusters (firm_id) =      3,207         Root MSE        =     0.1848
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0436116   .0130695    -3.34   0.001    -.0692371   -.0179862
-        var5 |   .0664393   .0250799     2.65   0.008     .0172651    .1156135
-        var4 |  -.1188131   .0223884    -5.31   0.000    -.1627101   -.0749161
-       var17 |  -5.48e-07   3.26e-07    -1.68   0.093    -1.19e-06    9.14e-08
-       var18 |   1.80e-06   5.14e-07     3.51   0.000     7.95e-07    2.81e-06
-       _cons |   .1078674   .0034394    31.36   0.000     .1011238    .1146111
+        var3 |  -.0412312   .0115859    -3.56   0.000    -.0639477   -.0185147
+        var5 |   .0658585   .0250831     2.63   0.009     .0166779    .1150391
+        var4 |  -.1186479   .0224062    -5.30   0.000    -.1625798   -.0747159
+       var17 |  -2.18e-07   1.21e-07    -1.80   0.073    -4.56e-07    1.99e-08
+       var18 |   7.61e-07   1.97e-07     3.87   0.000     3.75e-07    1.15e-06
+       _cons |   .1073116    .003047    35.22   0.000     .1013374    .1132858
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -808,27 +811,27 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on firm_id
 
 Number of clusters (firm_id) =    3207                Number of obs =    38436
-                                                      F(  5,  3206) =    17.01
+                                                      F(  5,  3206) =    17.80
                                                       Prob > F      =   0.0000
-Total (centered) SS     =   1211.55256                Centered R2   =   0.0056
-Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0056
-Residual SS             =  1204.714966                Root MSE      =    .1771
+Total (centered) SS     =   1211.55256                Centered R2   =   0.0059
+Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0059
+Residual SS             =  1204.388686                Root MSE      =    .1771
 
 ------------------------------------------------------------------------------
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0732597   .0362498    -2.02   0.043    -.1443349   -.0021845
-        var5 |    .135586   .1003095     1.35   0.177    -.0610911    .3322632
-       var18 |   3.29e-06   1.50e-06     2.19   0.028     3.46e-07    6.23e-06
-        var4 |  -.1803858   .0860268    -2.10   0.036    -.3490589   -.0117126
-       var17 |  -1.69e-06   1.07e-06    -1.58   0.115    -3.80e-06    4.10e-07
+        var3 |  -.0424662   .0284413    -1.49   0.136    -.0982313    .0132988
+        var5 |   .1487599   .0999357     1.49   0.137    -.0471846    .3447043
+       var18 |   8.76e-07   4.98e-07     1.76   0.078    -9.98e-08    1.85e-06
+        var4 |  -.1913065   .0857879    -2.23   0.026    -.3595112   -.0231018
+       var17 |  -3.20e-07   3.57e-07    -0.90   0.370    -1.02e-06    3.80e-07
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             21.368
+Underidentification test (Kleibergen-Paap rk LM statistic):             21.564
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              808.953
-                         (Kleibergen-Paap rk Wald F statistic):          9.352
+Weak identification test (Cragg-Donald Wald F statistic):              830.488
+                         (Kleibergen-Paap rk Wald F statistic):          9.560
 Stock-Yogo weak ID test critical values:                       <not available>
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000
@@ -1051,15 +1054,15 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-→ Spec 8: rent_sdw
+→ Spec 8: rent_gap
 (MWFE estimator converged in 4 iterations)
 
 HDFE Linear regression                            Number of obs   =     38,436
-Absorbing 2 HDFE groups                           F(   7,   3206) =      13.73
+Absorbing 2 HDFE groups                           F(   7,   3206) =      14.37
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.3524
-                                                  Adj R-squared   =     0.2931
-                                                  Within R-sq.    =     0.0070
+                                                  R-squared       =     0.3526
+                                                  Adj R-squared   =     0.2933
+                                                  Within R-sq.    =     0.0073
 Number of clusters (firm_id) =      3,207         Root MSE        =     0.1848
 
                             (Std. err. adjusted for 3,207 clusters in firm_id)
@@ -1067,14 +1070,14 @@ Number of clusters (firm_id) =      3,207         Root MSE        =     0.1848
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0378472   .0165008    -2.29   0.022    -.0702003   -.0054941
-        var5 |   .0668363   .0255768     2.61   0.009     .0166878    .1169848
-        var4 |  -.1173478   .0226968    -5.17   0.000    -.1618494   -.0728461
-        var8 |  -.0001159   .0002209    -0.52   0.600    -.0005489    .0003171
-        var9 |  -.0000957   .0003286    -0.29   0.771    -.0007399    .0005486
-       var17 |  -5.34e-07   3.27e-07    -1.64   0.102    -1.17e-06    1.06e-07
-       var18 |   1.78e-06   5.16e-07     3.45   0.001     7.68e-07    2.79e-06
-       _cons |   .1092346   .0040867    26.73   0.000     .1012218    .1172473
+        var3 |  -.0354233   .0154313    -2.30   0.022    -.0656795   -.0051671
+        var5 |   .0662559   .0255839     2.59   0.010     .0160935    .1164183
+        var4 |  -.1170917   .0227199    -5.15   0.000    -.1616387   -.0725447
+        var8 |  -.0001223   .0002211    -0.55   0.580    -.0005558    .0003112
+        var9 |  -.0001017   .0003285    -0.31   0.757    -.0007457    .0005424
+       var17 |  -2.13e-07   1.22e-07    -1.75   0.079    -4.52e-07    2.50e-08
+       var18 |   7.55e-07   1.97e-07     3.83   0.000     3.68e-07    1.14e-06
+       _cons |   .1087862   .0038262    28.43   0.000     .1012841    .1162882
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1106,29 +1109,29 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on firm_id
 
 Number of clusters (firm_id) =    3207                Number of obs =    38436
-                                                      F(  7,  3206) =    12.94
+                                                      F(  7,  3206) =    13.52
                                                       Prob > F      =   0.0000
-Total (centered) SS     =   1211.55256                Centered R2   =  -0.0049
-Total (uncentered) SS   =   1211.55256                Uncentered R2 =  -0.0049
-Residual SS             =  1217.509774                Root MSE      =     .178
+Total (centered) SS     =   1211.55256                Centered R2   =  -0.0046
+Total (uncentered) SS   =   1211.55256                Uncentered R2 =  -0.0046
+Residual SS             =  1217.152391                Root MSE      =     .178
 
 ------------------------------------------------------------------------------
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.1826339   .0527159    -3.46   0.001    -.2859942   -.0792736
-        var5 |   .1205025   .0994373     1.21   0.226    -.0744647    .3154697
-        var9 |   .0043056   .0016084     2.68   0.007      .001152    .0074593
-       var18 |   3.06e-06   1.54e-06     1.98   0.048     3.04e-08    6.08e-06
-        var4 |  -.1784954   .0869486    -2.05   0.040    -.3489759   -.0080149
-        var8 |  -.0034283   .0012113    -2.83   0.005    -.0058034   -.0010533
-       var17 |  -1.55e-06   1.10e-06    -1.41   0.158    -3.71e-06    6.02e-07
+        var3 |  -.1525999   .0478727    -3.19   0.001    -.2464641   -.0587357
+        var5 |   .1326982   .0988405     1.34   0.180    -.0610989    .3264952
+        var9 |   .0042594   .0016022     2.66   0.008     .0011179    .0074009
+       var18 |   8.19e-07   5.06e-07     1.62   0.105    -1.73e-07    1.81e-06
+        var4 |  -.1883997   .0865545    -2.18   0.030    -.3581074    -.018692
+        var8 |  -.0034126   .0012053    -2.83   0.005    -.0057759   -.0010493
+       var17 |  -2.83e-07   3.61e-07    -0.78   0.433    -9.91e-07    4.25e-07
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             30.209
+Underidentification test (Kleibergen-Paap rk LM statistic):             30.759
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              337.405
-                         (Kleibergen-Paap rk Wald F statistic):          7.980
+Weak identification test (Cragg-Donald Wald F statistic):              342.410
+                         (Kleibergen-Paap rk Wald F statistic):          8.146
 Stock-Yogo weak ID test critical values:                       <not available>
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000
@@ -1251,15 +1254,15 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-→ Spec 10: hhi_sdw
+→ Spec 10: hhi_gap
 (MWFE estimator converged in 4 iterations)
 
 HDFE Linear regression                            Number of obs   =     38,436
-Absorbing 2 HDFE groups                           F(   7,   3206) =      21.96
+Absorbing 2 HDFE groups                           F(   7,   3206) =      22.85
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.3553
-                                                  Adj R-squared   =     0.2962
-                                                  Within R-sq.    =     0.0114
+                                                  R-squared       =     0.3555
+                                                  Adj R-squared   =     0.2965
+                                                  Within R-sq.    =     0.0118
 Number of clusters (firm_id) =      3,207         Root MSE        =     0.1844
 
                             (Std. err. adjusted for 3,207 clusters in firm_id)
@@ -1267,14 +1270,14 @@ Number of clusters (firm_id) =      3,207         Root MSE        =     0.1844
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   -.051249   .0129869    -3.95   0.000    -.0767123   -.0257856
-        var5 |   .0603665   .0248248     2.43   0.015     .0116923    .1090407
-        var4 |  -.1216712   .0222847    -5.46   0.000    -.1653649   -.0779776
-       var11 |   4.89e-06   3.17e-06     1.54   0.123    -1.32e-06    .0000111
-       var12 |   .0000199   5.62e-06     3.54   0.000     8.88e-06    .0000309
-       var17 |  -5.44e-07   3.21e-07    -1.69   0.090    -1.17e-06    8.54e-08
-       var18 |   1.37e-06   5.10e-07     2.69   0.007     3.72e-07    2.37e-06
-       _cons |   .1063216   .0033548    31.69   0.000     .0997439    .1128994
+        var3 |  -.0534421   .0119857    -4.46   0.000    -.0769425   -.0299417
+        var5 |   .0592728   .0248249     2.39   0.017     .0105986     .107947
+        var4 |  -.1213543   .0222975    -5.44   0.000    -.1650732   -.0776355
+       var11 |   4.70e-06   3.14e-06     1.49   0.135    -1.46e-06    .0000109
+       var12 |   .0000202   5.54e-06     3.65   0.000     9.34e-06    .0000311
+       var17 |  -2.02e-07   1.20e-07    -1.69   0.091    -4.37e-07    3.23e-08
+       var18 |   6.42e-07   1.95e-07     3.30   0.001     2.60e-07    1.02e-06
+       _cons |   .1055667   .0030862    34.21   0.000     .0995156    .1116177
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1306,29 +1309,29 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on firm_id
 
 Number of clusters (firm_id) =    3207                Number of obs =    38436
-                                                      F(  7,  3206) =    20.68
+                                                      F(  7,  3206) =    21.89
                                                       Prob > F      =   0.0000
-Total (centered) SS     =   1211.55256                Centered R2   =   0.0096
-Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0096
-Residual SS             =  1199.885736                Root MSE      =    .1767
+Total (centered) SS     =   1211.55256                Centered R2   =   0.0100
+Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0100
+Residual SS             =  1199.389313                Root MSE      =    .1767
 
 ------------------------------------------------------------------------------
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0774842   .0421652    -1.84   0.066    -.1601576    .0051893
-        var5 |   .0320815   .1020689     0.31   0.753    -.1680455    .2322084
-       var12 |     .00005   .0000171     2.92   0.003     .0000165    .0000836
-       var18 |   1.63e-06   1.67e-06     0.98   0.329    -1.65e-06    4.90e-06
-        var4 |   -.101012   .0878288    -1.15   0.250    -.2732182    .0711942
-       var11 |  -.0000158    .000012    -1.32   0.188    -.0000394    7.74e-06
-       var17 |  -8.24e-07   1.21e-06    -0.68   0.497    -3.20e-06    1.55e-06
+        var3 |   -.061257   .0333119    -1.84   0.066    -.1265718    .0040578
+        var5 |   .0382708   .1013601     0.38   0.706    -.1604663    .2370079
+       var12 |   .0000501    .000017     2.95   0.003     .0000168    .0000834
+       var18 |   3.96e-07   5.34e-07     0.74   0.459    -6.52e-07    1.44e-06
+        var4 |   -.106223    .087273    -1.22   0.224    -.2773395    .0648934
+       var11 |  -.0000158    .000012    -1.32   0.188    -.0000392    7.69e-06
+       var17 |  -5.44e-08   3.80e-07    -0.14   0.886    -7.99e-07    6.91e-07
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             22.971
+Underidentification test (Kleibergen-Paap rk LM statistic):             23.259
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              586.401
-                         (Kleibergen-Paap rk Wald F statistic):          7.399
+Weak identification test (Cragg-Donald Wald F statistic):              595.979
+                         (Kleibergen-Paap rk Wald F statistic):          7.538
 Stock-Yogo weak ID test critical values:                       <not available>
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000
@@ -1351,15 +1354,15 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-→ Spec 11: seniority_sdw
+→ Spec 11: seniority_gap
 (MWFE estimator converged in 4 iterations)
 
 HDFE Linear regression                            Number of obs   =     38,436
-Absorbing 2 HDFE groups                           F(   7,   3206) =      18.88
+Absorbing 2 HDFE groups                           F(   7,   3206) =      19.59
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.3539
-                                                  Adj R-squared   =     0.2947
-                                                  Within R-sq.    =     0.0092
+                                                  R-squared       =     0.3540
+                                                  Adj R-squared   =     0.2949
+                                                  Within R-sq.    =     0.0095
 Number of clusters (firm_id) =      3,207         Root MSE        =     0.1846
 
                             (Std. err. adjusted for 3,207 clusters in firm_id)
@@ -1367,14 +1370,14 @@ Number of clusters (firm_id) =      3,207         Root MSE        =     0.1846
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0162999    .026615    -0.61   0.540    -.0684841    .0358843
-        var5 |   .0642842   .0245867     2.61   0.009     .0160769    .1124914
-        var4 |  -.1241161    .021904    -5.67   0.000    -.1670633   -.0811689
-       var17 |  -4.12e-07   3.19e-07    -1.29   0.197    -1.04e-06    2.14e-07
-       var18 |   1.58e-06   4.99e-07     3.16   0.002     5.99e-07    2.55e-06
-       var14 |  -.0321287   .0197794    -1.62   0.104    -.0709102    .0066528
-       var15 |  -.0277182   .0245911    -1.13   0.260    -.0759341    .0204976
-       _cons |    .119586   .0084828    14.10   0.000     .1029537    .1362183
+        var3 |  -.0158129   .0258971    -0.61   0.542    -.0665894    .0349636
+        var5 |   .0637462   .0245785     2.59   0.010     .0155551    .1119373
+        var4 |  -.1240039   .0219096    -5.66   0.000     -.166962   -.0810457
+       var17 |  -1.73e-07   1.20e-07    -1.44   0.151    -4.08e-07    6.29e-08
+       var18 |   6.86e-07   1.92e-07     3.57   0.000     3.09e-07    1.06e-06
+       var14 |  -.0326044    .019836    -1.64   0.100    -.0714969    .0062881
+       var15 |  -.0271637   .0245996    -1.10   0.270    -.0753962    .0210688
+       _cons |    .119535   .0083016    14.40   0.000     .1032582    .1358119
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1406,29 +1409,29 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on firm_id
 
 Number of clusters (firm_id) =    3207                Number of obs =    38436
-                                                      F(  7,  3206) =    18.05
+                                                      F(  7,  3206) =    18.64
                                                       Prob > F      =   0.0000
-Total (centered) SS     =   1211.55256                Centered R2   =   0.0083
-Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0083
-Residual SS             =  1201.512881                Root MSE      =    .1768
+Total (centered) SS     =   1211.55256                Centered R2   =   0.0087
+Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0087
+Residual SS             =  1200.992972                Root MSE      =    .1768
 
 ------------------------------------------------------------------------------
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.1114729   .0725756    -1.54   0.125    -.2537722    .0308265
-        var5 |   .1048535   .0972296     1.08   0.281    -.0857849    .2954919
-       var18 |   2.81e-06   1.43e-06     1.97   0.049     9.43e-09    5.60e-06
-       var15 |   .0459201   .0697381     0.66   0.510    -.0908157    .1826558
-        var4 |  -.1598358   .0830766    -1.92   0.054    -.3227244    .0030528
-       var17 |  -1.29e-06   1.04e-06    -1.24   0.216    -3.33e-06    7.51e-07
-       var14 |  -.0884131   .0552886    -1.60   0.110    -.1968177    .0199914
+        var3 |  -.0831529   .0681993    -1.22   0.223    -.2168715    .0505658
+        var5 |   .1159012   .0965595     1.20   0.230    -.0734234    .3052258
+       var18 |   7.24e-07   4.92e-07     1.47   0.141    -2.41e-07    1.69e-06
+       var15 |   .0451309   .0695396     0.65   0.516    -.0912157    .1814775
+        var4 |  -.1690967    .082564    -2.05   0.041    -.3309803   -.0072132
+       var17 |  -1.94e-07   3.61e-07    -0.54   0.591    -9.02e-07    5.14e-07
+       var14 |  -.0888247   .0551103    -1.61   0.107    -.1968797    .0192303
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             21.458
+Underidentification test (Kleibergen-Paap rk LM statistic):             21.648
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              616.023
-                         (Kleibergen-Paap rk Wald F statistic):          7.149
+Weak identification test (Cragg-Donald Wald F statistic):              629.678
+                         (Kleibergen-Paap rk Wald F statistic):          7.288
 Stock-Yogo weak ID test critical values:                       <not available>
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000
@@ -1556,15 +1559,15 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-→ Spec 13: rent_hhi_sdw
+→ Spec 13: rent_hhi_gap
 (MWFE estimator converged in 4 iterations)
 
 HDFE Linear regression                            Number of obs   =     38,436
-Absorbing 2 HDFE groups                           F(   9,   3206) =      17.45
+Absorbing 2 HDFE groups                           F(   9,   3206) =      18.15
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.3553
-                                                  Adj R-squared   =     0.2962
-                                                  Within R-sq.    =     0.0114
+                                                  R-squared       =     0.3556
+                                                  Adj R-squared   =     0.2965
+                                                  Within R-sq.    =     0.0118
 Number of clusters (firm_id) =      3,207         Root MSE        =     0.1844
 
                             (Std. err. adjusted for 3,207 clusters in firm_id)
@@ -1572,16 +1575,16 @@ Number of clusters (firm_id) =      3,207         Root MSE        =     0.1844
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0481866   .0166289    -2.90   0.004    -.0807909   -.0155823
-        var5 |   .0604559    .025386     2.38   0.017     .0106815    .1102302
-        var4 |   -.120607   .0226227    -5.33   0.000    -.1649634   -.0762506
-        var8 |  -.0000836   .0002225    -0.38   0.707    -.0005198    .0003526
-        var9 |  -.0000432   .0003267    -0.13   0.895    -.0006837    .0005974
-       var11 |   4.85e-06   3.19e-06     1.52   0.129    -1.41e-06    .0000111
-       var12 |   .0000198   5.67e-06     3.49   0.000     8.69e-06    .0000309
-       var17 |  -5.35e-07   3.22e-07    -1.66   0.097    -1.17e-06    9.62e-08
-       var18 |   1.36e-06   5.11e-07     2.66   0.008     3.56e-07    2.36e-06
-       _cons |   .1073355   .0041642    25.78   0.000     .0991707    .1155003
+        var3 |  -.0504596   .0160234    -3.15   0.002    -.0818767   -.0190425
+        var5 |    .059323   .0253898     2.34   0.020     .0095411    .1091048
+        var4 |  -.1201979   .0226413    -5.31   0.000    -.1645908    -.075805
+        var8 |  -.0000907   .0002226    -0.41   0.684    -.0005271    .0003457
+        var9 |  -.0000428   .0003265    -0.13   0.896     -.000683    .0005973
+       var11 |   4.65e-06   3.16e-06     1.47   0.141    -1.54e-06    .0000108
+       var12 |   .0000201   5.59e-06     3.60   0.000     9.14e-06    .0000311
+       var17 |  -1.99e-07   1.20e-07    -1.66   0.096    -4.35e-07    3.57e-08
+       var18 |   6.39e-07   1.95e-07     3.27   0.001     2.56e-07    1.02e-06
+       _cons |   .1066934   .0040213    26.53   0.000     .0988089    .1145779
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1614,31 +1617,31 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on firm_id
 
 Number of clusters (firm_id) =    3207                Number of obs =    38436
-                                                      F(  9,  3206) =    17.14
+                                                      F(  9,  3206) =    18.03
                                                       Prob > F      =   0.0000
-Total (centered) SS     =   1211.55256                Centered R2   =   0.0012
-Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0012
-Residual SS             =   1210.10489                Root MSE      =    .1775
+Total (centered) SS     =   1211.55256                Centered R2   =   0.0019
+Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0019
+Residual SS             =  1209.212668                Root MSE      =    .1774
 
 ------------------------------------------------------------------------------
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.1869655   .0559193    -3.34   0.001    -.2966068   -.0773243
-        var5 |   .0220622   .1010415     0.22   0.827    -.1760503    .2201747
-        var9 |   .0043205   .0016223     2.66   0.008     .0011397    .0075012
-       var12 |   .0000469   .0000172     2.72   0.007     .0000131    .0000807
-       var18 |   1.44e-06   1.71e-06     0.84   0.402    -1.92e-06    4.80e-06
-        var4 |  -.1040203   .0885547    -1.17   0.240    -.2776499    .0696093
-        var8 |  -.0033469   .0012261    -2.73   0.006    -.0057509   -.0009429
-       var11 |  -.0000136   .0000122    -1.12   0.263    -.0000376    .0000103
-       var17 |  -7.00e-07   1.24e-06    -0.56   0.573    -3.14e-06    1.73e-06
+        var3 |   -.169435   .0491343    -3.45   0.001     -.265773   -.0730971
+        var5 |   .0281027   .1001948     0.28   0.779    -.1683497    .2245551
+        var9 |   .0042316   .0016103     2.63   0.009     .0010743    .0073888
+       var12 |   .0000468   .0000171     2.74   0.006     .0000133    .0000804
+       var18 |   3.37e-07   5.46e-07     0.62   0.537    -7.34e-07    1.41e-06
+        var4 |  -.1088238   .0878981    -1.24   0.216    -.2811661    .0635184
+        var8 |  -.0032875    .001216    -2.70   0.007    -.0056718   -.0009032
+       var11 |  -.0000135   .0000121    -1.11   0.266    -.0000373    .0000103
+       var17 |  -1.39e-08   3.89e-07    -0.04   0.972    -7.77e-07    7.49e-07
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             30.650
+Underidentification test (Kleibergen-Paap rk LM statistic):             31.020
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              255.119
-                         (Kleibergen-Paap rk Wald F statistic):          6.455
+Weak identification test (Cragg-Donald Wald F statistic):              257.316
+                         (Kleibergen-Paap rk Wald F statistic):          6.542
 Stock-Yogo weak ID test critical values:                       <not available>
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000
@@ -1661,15 +1664,15 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-→ Spec 14: rent_seniority_sdw
+→ Spec 14: rent_seniority_gap
 (MWFE estimator converged in 4 iterations)
 
 HDFE Linear regression                            Number of obs   =     38,436
-Absorbing 2 HDFE groups                           F(   9,   3206) =      14.96
+Absorbing 2 HDFE groups                           F(   9,   3206) =      15.54
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.3539
-                                                  Adj R-squared   =     0.2947
-                                                  Within R-sq.    =     0.0093
+                                                  R-squared       =     0.3541
+                                                  Adj R-squared   =     0.2949
+                                                  Within R-sq.    =     0.0096
 Number of clusters (firm_id) =      3,207         Root MSE        =     0.1846
 
                             (Std. err. adjusted for 3,207 clusters in firm_id)
@@ -1677,16 +1680,16 @@ Number of clusters (firm_id) =      3,207         Root MSE        =     0.1846
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0119123   .0280715    -0.42   0.671    -.0669521    .0431275
-        var5 |   .0647051   .0250841     2.58   0.010     .0155226    .1138876
-        var4 |  -.1230193   .0221965    -5.54   0.000    -.1665401   -.0794985
-        var8 |   -.000084   .0002199    -0.38   0.702    -.0005152    .0003471
-        var9 |   -.000081   .0003257    -0.25   0.804    -.0007197    .0005577
-       var14 |  -.0319552   .0197475    -1.62   0.106    -.0706743    .0067639
-       var15 |  -.0274096   .0245964    -1.11   0.265    -.0756358    .0208166
-       var17 |  -4.03e-07   3.20e-07    -1.26   0.209    -1.03e-06    2.25e-07
-       var18 |   1.56e-06   5.00e-07     3.12   0.002     5.79e-07    2.54e-06
-       _cons |   .1205089   .0087924    13.71   0.000     .1032696    .1377482
+        var3 |  -.0113318   .0274537    -0.41   0.680    -.0651603    .0424967
+        var5 |   .0641835   .0250805     2.56   0.011      .015008     .113359
+        var4 |  -.1228288   .0222079    -5.53   0.000    -.1663719   -.0792856
+        var8 |  -.0000894     .00022    -0.41   0.685    -.0005208    .0003421
+        var9 |  -.0000873   .0003257    -0.27   0.789    -.0007259    .0005513
+       var14 |  -.0324158   .0198039    -1.64   0.102    -.0712455    .0064138
+       var15 |  -.0268267   .0246053    -1.09   0.276    -.0750703     .021417
+       var17 |  -1.69e-07   1.20e-07    -1.41   0.160    -4.05e-07    6.67e-08
+       var18 |   6.82e-07   1.93e-07     3.54   0.000     3.04e-07    1.06e-06
+       _cons |   .1205369   .0086406    13.95   0.000     .1035953    .1374786
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1719,31 +1722,31 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on firm_id
 
 Number of clusters (firm_id) =    3207                Number of obs =    38436
-                                                      F(  9,  3206) =    14.25
+                                                      F(  9,  3206) =    14.71
                                                       Prob > F      =   0.0000
-Total (centered) SS     =   1211.55256                Centered R2   =   0.0001
-Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0001
-Residual SS             =  1211.463614                Root MSE      =    .1776
+Total (centered) SS     =   1211.55256                Centered R2   =   0.0006
+Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0006
+Residual SS             =  1210.874637                Root MSE      =    .1775
 
 ------------------------------------------------------------------------------
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.2127192   .0814384    -2.61   0.009    -.3723957   -.0530426
-        var5 |   .0939354   .0964034     0.97   0.330     -.095083    .2829539
-        var9 |   .0039583   .0015505     2.55   0.011     .0009181    .0069984
-       var15 |   .0450196   .0703515     0.64   0.522    -.0929188    .1829581
-       var18 |   2.62e-06   1.46e-06     1.79   0.073    -2.43e-07    5.49e-06
-        var4 |  -.1604776   .0839137    -1.91   0.056    -.3250075    .0040523
-        var8 |  -.0031048   .0011683    -2.66   0.008    -.0053955    -.000814
-       var14 |  -.0845159   .0555817    -1.52   0.128    -.1934952    .0244634
-       var17 |  -1.18e-06   1.06e-06    -1.11   0.267    -3.26e-06    9.01e-07
+        var3 |   -.184465   .0777913    -2.37   0.018    -.3369907   -.0319393
+        var5 |   .1043689   .0956063     1.09   0.275    -.0830867    .2918246
+        var9 |   .0039014    .001543     2.53   0.012     .0008762    .0069267
+       var15 |   .0443917   .0702154     0.63   0.527    -.0932798    .1820633
+       var18 |   6.78e-07   4.98e-07     1.36   0.173    -2.98e-07    1.65e-06
+        var4 |  -.1689889   .0833204    -2.03   0.043    -.3323555   -.0056222
+        var8 |  -.0030795   .0011614    -2.65   0.008    -.0053567   -.0008023
+       var14 |  -.0849541   .0554523    -1.53   0.126    -.1936796    .0237714
+       var17 |  -1.65e-07   3.64e-07    -0.45   0.651    -8.79e-07    5.50e-07
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             29.963
+Underidentification test (Kleibergen-Paap rk LM statistic):             30.433
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              265.275
-                         (Kleibergen-Paap rk Wald F statistic):          6.367
+Weak identification test (Cragg-Donald Wald F statistic):              268.681
+                         (Kleibergen-Paap rk Wald F statistic):          6.479
 Stock-Yogo weak ID test critical values:                       <not available>
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000
@@ -1766,15 +1769,15 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-→ Spec 15: hhi_seniority_sdw
+→ Spec 15: hhi_seniority_gap
 (MWFE estimator converged in 4 iterations)
 
 HDFE Linear regression                            Number of obs   =     38,436
-Absorbing 2 HDFE groups                           F(   9,   3206) =      18.18
+Absorbing 2 HDFE groups                           F(   9,   3206) =      18.86
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.3555
-                                                  Adj R-squared   =     0.2965
-                                                  Within R-sq.    =     0.0118
+                                                  R-squared       =     0.3558
+                                                  Adj R-squared   =     0.2968
+                                                  Within R-sq.    =     0.0122
 Number of clusters (firm_id) =      3,207         Root MSE        =     0.1844
 
                             (Std. err. adjusted for 3,207 clusters in firm_id)
@@ -1782,16 +1785,16 @@ Number of clusters (firm_id) =      3,207         Root MSE        =     0.1844
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |    -.05067   .0280611    -1.81   0.071    -.1056894    .0043495
-        var5 |    .062013   .0245567     2.53   0.012     .0138645    .1101614
-        var4 |  -.1251498   .0219522    -5.70   0.000    -.1681916    -.082108
-       var11 |   2.86e-06   3.09e-06     0.93   0.354    -3.19e-06    8.92e-06
-       var12 |   .0000185   6.00e-06     3.09   0.002     6.75e-06    .0000303
-       var14 |  -.0256072   .0199741    -1.28   0.200    -.0647706    .0135561
-       var15 |   .0004157   .0252308     0.02   0.987    -.0490544    .0498859
-       var17 |  -4.52e-07   3.20e-07    -1.41   0.158    -1.08e-06    1.75e-07
-       var18 |   1.30e-06   5.04e-07     2.58   0.010     3.11e-07    2.29e-06
-       _cons |    .116435   .0086464    13.47   0.000      .099482     .133388
+        var3 |   -.055025   .0277732    -1.98   0.048    -.1094802   -.0005699
+        var5 |   .0611644   .0245482     2.49   0.013     .0130326    .1092963
+        var4 |  -.1249946   .0219581    -5.69   0.000     -.168048   -.0819413
+       var11 |   2.62e-06   3.06e-06     0.86   0.392    -3.37e-06    8.61e-06
+       var12 |    .000019   5.91e-06     3.22   0.001     7.42e-06    .0000306
+       var14 |  -.0266586   .0200285    -1.33   0.183    -.0659287    .0126114
+       var15 |   .0021601   .0252139     0.09   0.932    -.0472768     .051597
+       var17 |  -1.77e-07   1.20e-07    -1.48   0.139    -4.13e-07    5.79e-08
+       var18 |   6.19e-07   1.93e-07     3.21   0.001     2.40e-07    9.97e-07
+       _cons |   .1164562   .0085223    13.66   0.000     .0997464     .133166
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1824,31 +1827,31 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on firm_id
 
 Number of clusters (firm_id) =    3207                Number of obs =    38436
-                                                      F(  9,  3206) =    17.94
+                                                      F(  9,  3206) =    18.71
                                                       Prob > F      =   0.0000
-Total (centered) SS     =   1211.55256                Centered R2   =   0.0096
-Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0096
-Residual SS             =  1199.876815                Root MSE      =    .1767
+Total (centered) SS     =   1211.55256                Centered R2   =   0.0100
+Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0100
+Residual SS             =  1199.434921                Root MSE      =    .1767
 
 ------------------------------------------------------------------------------
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.1877258   .0773992    -2.43   0.015    -.3394828   -.0359688
-        var5 |   .0517385   .1013485     0.51   0.610     -.146976     .250453
-       var12 |   .0000519   .0000171     3.03   0.002     .0000183    .0000855
-       var15 |   .1174466   .0687021     1.71   0.087    -.0172579    .2521511
-       var18 |   1.31e-06   1.64e-06     0.80   0.424    -1.90e-06    4.53e-06
-        var4 |  -.1176685    .086972    -1.35   0.176     -.288195    .0528579
-       var11 |  -.0000196   .0000119    -1.65   0.098    -.0000429    3.65e-06
-       var14 |  -.1115651   .0549541    -2.03   0.042    -.2193138   -.0038163
-       var17 |  -4.74e-07   1.21e-06    -0.39   0.694    -2.84e-06    1.89e-06
+        var3 |  -.1735929   .0720291    -2.41   0.016    -.3148207   -.0323651
+        var5 |   .0576969   .1006374     0.57   0.566    -.1396233    .2550171
+       var12 |   .0000521    .000017     3.06   0.002     .0000187    .0000855
+       var15 |   .1187412   .0685422     1.73   0.083    -.0156498    .2531322
+       var18 |   2.77e-07   5.40e-07     0.51   0.608    -7.81e-07    1.34e-06
+        var4 |  -.1227261   .0864063    -1.42   0.156    -.2921433    .0466911
+       var11 |  -.0000196   .0000118    -1.65   0.098    -.0000428    3.64e-06
+       var14 |  -.1128954    .054739    -2.06   0.039    -.2202224   -.0055684
+       var17 |   6.27e-08   3.91e-07     0.16   0.872    -7.03e-07    8.29e-07
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             23.195
+Underidentification test (Kleibergen-Paap rk LM statistic):             23.559
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              469.164
-                         (Kleibergen-Paap rk Wald F statistic):          5.992
+Weak identification test (Cragg-Donald Wald F statistic):              476.342
+                         (Kleibergen-Paap rk Wald F statistic):          6.111
 Stock-Yogo weak ID test critical values:                       <not available>
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000
@@ -1871,15 +1874,15 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-→ Spec 16: rent_hhi_seniority_sdw
+→ Spec 16: rent_hhi_seniority_gap
 (MWFE estimator converged in 4 iterations)
 
 HDFE Linear regression                            Number of obs   =     38,436
-Absorbing 2 HDFE groups                           F(  11,   3206) =      15.11
+Absorbing 2 HDFE groups                           F(  11,   3206) =      15.68
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.3556
-                                                  Adj R-squared   =     0.2965
-                                                  Within R-sq.    =     0.0118
+                                                  R-squared       =     0.3558
+                                                  Adj R-squared   =     0.2967
+                                                  Within R-sq.    =     0.0122
 Number of clusters (firm_id) =      3,207         Root MSE        =     0.1844
 
                             (Std. err. adjusted for 3,207 clusters in firm_id)
@@ -1887,18 +1890,18 @@ Number of clusters (firm_id) =      3,207         Root MSE        =     0.1844
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0478114    .030291    -1.58   0.115     -.107203    .0115802
-        var5 |   .0621478    .025092     2.48   0.013     .0129499    .1113458
-        var4 |  -.1241904   .0222672    -5.58   0.000    -.1678497   -.0805311
-        var8 |  -.0000743   .0002218    -0.33   0.738    -.0005092    .0003607
-        var9 |   -.000044   .0003258    -0.14   0.893    -.0006828    .0005948
-       var11 |   2.83e-06   3.11e-06     0.91   0.363    -3.28e-06    8.94e-06
-       var12 |   .0000184   6.05e-06     3.05   0.002     6.58e-06    .0000303
-       var14 |  -.0255183   .0199506    -1.28   0.201    -.0646355    .0135989
-       var15 |   .0005243   .0252181     0.02   0.983     -.048921    .0499695
-       var17 |  -4.44e-07   3.21e-07    -1.38   0.167    -1.07e-06    1.85e-07
-       var18 |   1.29e-06   5.06e-07     2.55   0.011     2.97e-07    2.28e-06
-       _cons |   .1172982    .009159    12.81   0.000     .0993401    .1352562
+        var3 |  -.0521769   .0301137    -1.73   0.083     -.111221    .0068672
+        var5 |   .0612737   .0250881     2.44   0.015     .0120834    .1104639
+        var4 |  -.1239505   .0222792    -5.56   0.000    -.1676334   -.0802677
+        var8 |  -.0000805   .0002218    -0.36   0.717    -.0005155    .0003544
+        var9 |   -.000045   .0003256    -0.14   0.890    -.0006834    .0005933
+       var11 |   2.59e-06   3.08e-06     0.84   0.401    -3.45e-06    8.63e-06
+       var12 |   .0000189   5.96e-06     3.18   0.002     7.24e-06    .0000306
+       var14 |  -.0265518   .0200024    -1.33   0.184    -.0657706    .0126671
+       var15 |   .0022589   .0251988     0.09   0.929    -.0471484    .0516663
+       var17 |  -1.75e-07   1.20e-07    -1.45   0.146    -4.11e-07    6.10e-08
+       var18 |   6.16e-07   1.93e-07     3.19   0.001     2.37e-07    9.96e-07
+       _cons |   .1174097     .00907    12.94   0.000     .0996261    .1351933
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1932,33 +1935,33 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on firm_id
 
 Number of clusters (firm_id) =    3207                Number of obs =    38436
-                                                      F( 11,  3206) =    15.19
+                                                      F( 11,  3206) =    15.81
                                                       Prob > F      =   0.0000
-Total (centered) SS     =   1211.55256                Centered R2   =   0.0018
-Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0018
-Residual SS             =  1209.348554                Root MSE      =    .1774
+Total (centered) SS     =   1211.55256                Centered R2   =   0.0025
+Total (uncentered) SS   =   1211.55256                Uncentered R2 =   0.0025
+Residual SS             =  1208.553038                Root MSE      =    .1774
 
 ------------------------------------------------------------------------------
              |               Robust
 growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.2909133   .0862563    -3.37   0.001    -.4600363   -.1217903
-        var5 |    .042529   .1005233     0.42   0.672    -.1545675    .2396255
-        var9 |   .0042009   .0016099     2.61   0.009     .0010443    .0073575
-       var12 |   .0000494   .0000174     2.84   0.005     .0000153    .0000834
-       var15 |   .1136693   .0691122     1.64   0.100    -.0218392    .2491778
-       var18 |   1.13e-06   1.69e-06     0.67   0.505    -2.18e-06    4.44e-06
-        var4 |  -.1209751   .0878872    -1.38   0.169     -.293296    .0513458
-        var8 |   -.003238   .0012185    -2.66   0.008    -.0056272   -.0008489
-       var11 |  -.0000174   .0000122    -1.43   0.153    -.0000413    6.50e-06
-       var14 |   -.104925   .0550795    -1.90   0.057    -.2129197    .0030697
-       var17 |  -3.67e-07   1.24e-06    -0.30   0.767    -2.80e-06    2.07e-06
+        var3 |  -.2753822   .0812548    -3.39   0.001    -.4346988   -.1160657
+        var5 |   .0483292   .0996872     0.48   0.628    -.1471279    .2437863
+        var9 |   .0041121   .0015974     2.57   0.010       .00098    .0072442
+       var12 |   .0000494   .0000173     2.86   0.004     .0000155    .0000832
+       var15 |   .1149982   .0689671     1.67   0.096    -.0202258    .2502223
+       var18 |   2.20e-07   5.53e-07     0.40   0.691    -8.64e-07    1.30e-06
+        var4 |  -.1256145   .0872313    -1.44   0.150    -.2966494    .0454203
+        var8 |  -.0031791    .001208    -2.63   0.009    -.0055476   -.0008105
+       var11 |  -.0000173   .0000121    -1.42   0.155     -.000041    6.51e-06
+       var14 |  -.1063761   .0548686    -1.94   0.053    -.2139572     .001205
+       var17 |   9.99e-08   4.01e-07     0.25   0.803    -6.86e-07    8.86e-07
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             30.066
+Underidentification test (Kleibergen-Paap rk LM statistic):             30.482
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              207.717
-                         (Kleibergen-Paap rk Wald F statistic):          5.284
+Weak identification test (Cragg-Donald Wald F statistic):              209.854
+                         (Kleibergen-Paap rk Wald F statistic):          5.362
 Stock-Yogo weak ID test critical values:                       <not available>
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000

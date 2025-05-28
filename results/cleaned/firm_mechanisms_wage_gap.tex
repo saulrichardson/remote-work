@@ -1,0 +1,73 @@
+\begin{table}[H]
+\centering
+\caption{Firm Mechanisms – Wage Dispersion (Part 1)}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Growth Rate} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  & \checkmark &  &  &  & \checkmark & \checkmark & \checkmark \\
+Hhi &  &  & \checkmark &  &  & \checkmark &  &  \\
+Seniority &  &  &  & \checkmark &  &  & \checkmark &  \\
+Wage &  &  &  &  & \checkmark &  &  & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & 0.00 & 0.01 & -0.02*** & 0.02 & -0.04*** & -0.02 & 0.03 & -0.04** \\
+ & (0.00) & (0.01) & (0.01) & (0.02) & (0.01) & (0.01) & (0.03) & (0.02) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.07*** & 0.07*** & 0.06** & 0.07*** & 0.07*** & 0.06** & 0.07*** & 0.07*** \\
+ & (0.03) & (0.03) & (0.02) & (0.02) & (0.03) & (0.03) & (0.03) & (0.03) \\
+\midrule
+N & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & 0.01 & -0.11*** & -0.04** & -0.04 & -0.04 & -0.16*** & -0.15* & -0.15*** \\
+ & (0.01) & (0.04) & (0.02) & (0.07) & (0.03) & (0.04) & (0.08) & (0.05) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.16 & 0.14 & 0.04 & 0.12 & 0.15 & 0.03 & 0.11 & 0.13 \\
+ & (0.10) & (0.10) & (0.10) & (0.10) & (0.10) & (0.10) & (0.10) & (0.10) \\
+\midrule
+N & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 \\
+KP\,rk Wald F & 14.56 & 11.27 & 10.14 & 9.84 & 9.56 & 8.41 & 8.35 & 8.15 \\
+\bottomrule
+\end{tabular}
+\label{tab:firm_mechanisms_wage_gap_1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Firm Mechanisms – Wage Dispersion (Part 2)}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Growth Rate} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  &  &  & \checkmark & \checkmark & \checkmark &  & \checkmark \\
+Hhi & \checkmark & \checkmark &  & \checkmark & \checkmark &  & \checkmark & \checkmark \\
+Seniority & \checkmark &  & \checkmark & \checkmark &  & \checkmark & \checkmark & \checkmark \\
+Wage &  & \checkmark & \checkmark &  & \checkmark & \checkmark & \checkmark & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -0.02 & -0.05*** & -0.02 & -0.02 & -0.05*** & -0.01 & -0.06** & -0.05* \\
+ & (0.03) & (0.01) & (0.03) & (0.03) & (0.02) & (0.03) & (0.03) & (0.03) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.06*** & 0.06** & 0.06*** & 0.06** & 0.06** & 0.06** & 0.06** & 0.06** \\
+ & (0.02) & (0.02) & (0.02) & (0.03) & (0.03) & (0.03) & (0.02) & (0.03) \\
+\midrule
+N & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -0.16** & -0.06* & -0.08 & -0.27*** & -0.17*** & -0.18** & -0.17** & -0.28*** \\
+ & (0.07) & (0.03) & (0.07) & (0.08) & (0.05) & (0.08) & (0.07) & (0.08) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.06 & 0.04 & 0.12 & 0.05 & 0.03 & 0.10 & 0.06 & 0.05 \\
+ & (0.10) & (0.10) & (0.10) & (0.10) & (0.10) & (0.10) & (0.10) & (0.10) \\
+\midrule
+N & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 & 38,436 \\
+KP\,rk Wald F & 7.70 & 7.54 & 7.29 & 6.62 & 6.54 & 6.48 & 6.11 & 5.36 \\
+\bottomrule
+\end{tabular}
+\label{tab:firm_mechanisms_wage_gap_2}
+\end{table}

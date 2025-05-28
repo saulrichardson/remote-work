@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build LaTeX tables for the *wage-gap* firm mechanism regressions.
+r"""Build LaTeX tables for the *wage-gap* firm mechanism regressions.
 
 The Stata script `spec/firm_mechanisms_wage_gap.do` produces a CSV with up to
 32 specification columns.  This script automatically detects how many
@@ -33,7 +33,7 @@ PARAM_LABELS = {
 }
 
 # Dimension list for check-marks (order matters)
-DIMS = ["Rent", "HHI", "Seniority", "sd_wage", "p90_p10_gap"]
+DIMS = ["Rent", "HHI", "Seniority", "Wage"]
 
 
 # ---------------------------------------------------------------------------
@@ -70,8 +70,8 @@ def build_check_matrix(specs: list[str]):
         check["Rent"].append("rent" in lower)
         check["HHI"].append("hhi" in lower)
         check["Seniority"].append("seniority" in lower)
-        check["sd_wage"].append("sd_wage" in lower)
-        check["p90_p10_gap"].append("gap" in lower)
+        # Wage row: flag if any wage-dispersion keyword present
+        check["Wage"].append(any(k in lower for k in ("sd_wage", "sdw", "wage", "gap")))
     return check
 
 

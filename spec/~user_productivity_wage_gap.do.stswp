@@ -32,8 +32,11 @@ gen var16 = teleworkable*covid*seniority_4
 
 
 // pick your mechanism here
-local mech    sd_wage    // or: p90_p10_gap
-local mech_label  sdw 
+// local mech    sd_wage
+// local mech_label  sdw 
+
+local mech    p90_p10_gap
+local mech_label  gap
 
 // generate interactions
 gen var17 = covid*`mech'

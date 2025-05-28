@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Generate LaTeX tables for the wage-gap user mechanisms.
+r"""Generate LaTeX tables for the wage-gap user mechanisms.
 
 Reads results from `results/raw/user_mechanisms_wage_gap/` and breaks the
 specification columns into blocks of 8 per table (same logic as the firm
-counterpart).
+counterpart).  The resulting tables are concatenated into a single `.tex`
+file so the paper can include them via `\input{}` once.
 """
 
 from pathlib import Path
@@ -24,7 +25,7 @@ PARAM_LABELS = {
     "var5": r"$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $",
 }
 
-DIMS = ["Rent", "HHI", "Seniority", "sd_wage", "p90_p10_gap"]
+DIMS = ["Rent", "HHI", "Seniority", "Wage"]
 
 
 def starify(p):
@@ -54,8 +55,7 @@ def checks(specs):
         out["Rent"].append("rent" in low)
         out["HHI"].append("hhi" in low)
         out["Seniority"].append("seniority" in low)
-        out["sd_wage"].append("sd_wage" in low)
-        out["p90_p10_gap"].append("gap" in low)
+        out["Wage"].append(any(k in low for k in ("sd_wage", "sdw", "wage", "gap")))
     return out
 
 
