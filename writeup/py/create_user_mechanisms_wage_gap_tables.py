@@ -83,7 +83,7 @@ def one_table(df_iv, df_ols, specs, idx):
     lines.append(r"\begin{tabular}{l" + "c" * len(specs) + "}")
     lines.append(r"\toprule")
 
-    lines.append(r" & \multicolumn{%d}{c}{Total Contributions} \\" % len(specs))
+    lines.append(r" & \multicolumn{%d}{c}{Total Contrib. (pct. rk)} \\" % len(specs))
     lines.append(r"\cmidrule(lr){2-%d}" % (len(specs) + 1))
 
     lines.append("Specification & " + " & ".join(f"({i})" for i in range(1, len(specs) + 1)) + r" \\")

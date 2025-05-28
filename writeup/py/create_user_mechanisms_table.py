@@ -88,8 +88,9 @@ lines.append(r"\begin{tabular}{l" + "c"*len(specs) + "}")
 lines.append(r"\toprule")
 
 # ---------- NEW: group-header row -------------------------------------------
+# Insert descriptive group header – clarify percentile‐rank scaling.
 lines.append(
-    r" & \multicolumn{%d}{c}{Total Contributions} \\" % len(specs)
+    r" & \multicolumn{%d}{c}{Total Contrib. (pct. rk)} \\" % len(specs)
 )
 # Draw a rule only under the grouped columns (booktabs)
 lines.append(

@@ -8,37 +8,39 @@
 
     \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
     \toprule
-    \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: FE Variants}}}\\
+    \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: Total Contrib. (pct. rk)}}}\\
 \addlinespace
-     & \multicolumn{6}{c}{Total Contributions} \\
-    \cmidrule(lr){2-7}
+
+
      & (1) & (2) & (3) & (4) & (5) & (6) \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-1.29\\(1.05)} & \makecell[c]{-2.38**\\(1.01)} & \makecell[c]{-1.29\\(1.05)} & \makecell[c]{-2.38**\\(1.01)} & \makecell[c]{-2.66***\\(0.99)} & \makecell[c]{-2.79***\\(0.99)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{2.74\\(2.92)} & \makecell[c]{6.19**\\(2.82)} & \makecell[c]{2.75\\(2.92)} & \makecell[c]{6.20**\\(2.82)} & \makecell[c]{9.18***\\(2.69)} & \makecell[c]{9.77***\\(2.68)} \\
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-1.52*\\(0.92)} & \makecell[c]{-2.66***\\(0.99)} & \makecell[c]{-2.79***\\(0.99)} & \makecell[c]{-2.62***\\(1.01)} & \makecell[c]{-2.52**\\(1.06)} & \makecell[c]{-2.62**\\(1.17)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{9.18***\\(2.69)} & \makecell[c]{9.77***\\(2.68)} & \makecell[c]{8.41***\\(2.91)} & \makecell[c]{9.44***\\(2.80)} & \makecell[c]{8.20**\\(3.28)} \\
     \midrule
-    Time FE &  &  & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-Firm FE &  & $\checkmark$ &  & $\checkmark$ & $\checkmark$ &  \\
-User FE &  &  &  &  & $\checkmark$ &  \\
-Firm $\times$ User FE &  &  &  &  &  & $\checkmark$ \\
+    Time FE & $\checkmark$ & $\checkmark$ & $\checkmark$ &  &  &  \\
+Firm FE & $\checkmark$ & $\checkmark$ &  & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+User FE & $\checkmark$ & $\checkmark$ &  & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Firm $\times$ User FE &  &  & $\checkmark$ &  &  &  \\
+Industry $\times$ Time FE &  &  &  & $\checkmark$ &  & $\checkmark$ \\
+MSA $\times$ Time FE &  &  &  &  & $\checkmark$ & $\checkmark$ \\
     \midrule
-    N & 53,020 & 52,995 & 53,020 & 52,995 & 52,995 & 52,718 \\
+    N & 52,995 & 52,995 & 52,718 & 52,386 & 52,176 & 49,470 \\
     \specialrule{\lightrulewidth}{0pt}{0pt}
     \end{tabularx}
 
-    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
+    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
 
-    \multicolumn{3}{@{}l}{\textbf{\uline{Panel B: Base Specification}}}\\
+    \multicolumn{2}{@{}l}{\textbf{\uline{Panel B: Additional Outcomes}}}\\
 \addlinespace
-     & \multicolumn{2}{c}{Outcome} \\
-    \cmidrule(lr){2-3}
-     & Total & Restricted \\
+     & \multicolumn{1}{c}{Outcome} \\
+    \cmidrule(lr){2-2}
+     & Restricted (pct. rk) \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-2.66***\\(0.99)} & \makecell[c]{-1.96**\\(0.99)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{9.18***\\(2.69)} & \makecell[c]{8.30***\\(2.62)} \\
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-1.96**\\(0.99)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{8.30***\\(2.62)} \\
     \midrule
-    Pre-COVID mean & 50.30 & 49.79 \\
-    N & 52,995 & 52,995 \\
+    Pre-COVID mean & 49.79 \\
+    N & 52,995 \\
 
     \bottomrule
     \end{tabularx}

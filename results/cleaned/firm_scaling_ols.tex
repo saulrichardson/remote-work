@@ -6,38 +6,40 @@
 \label{tab:firm_scaling_ols}
 \centering
 
-    \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}cccc@{}}
+    \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}ccccc@{}}
     \toprule
-    \multicolumn{5}{@{}l}{\textbf{\uline{Panel A: FE Variants}}}\\
+    \multicolumn{6}{@{}l}{\textbf{\uline{Panel A: Growth}}}\\
 \addlinespace
-     & \multicolumn{4}{c}{Growth} \\
-    \cmidrule(lr){2-5}
-     & (1) & (2) & (3) & (4) \\
+
+
+     & (1) & (2) & (3) & (4) & (5) \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.00\\(0.00)} & \makecell[c]{0.00\\(0.00)} & \makecell[c]{0.00\\(0.00)} & \makecell[c]{0.00\\(0.00)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{0.07***\\(0.02)} & \makecell[c]{0.07***\\(0.02)} & \makecell[c]{0.07***\\(0.02)} & \makecell[c]{0.07***\\(0.02)} \\
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.013**\\(0.005)} & \makecell[c]{0.003\\(0.005)} & \makecell[c]{-0.003\\(0.006)} & \makecell[c]{-0.000\\(0.007)} & \makecell[c]{-0.004\\(0.011)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{0.070***\\(0.024)} & \makecell[c]{0.077***\\(0.024)} & \makecell[c]{0.080***\\(0.027)} & \makecell[c]{0.090***\\(0.035)} \\
     \midrule
-    Time FE &  &  & $\checkmark$ & $\checkmark$ \\
-Firm FE &  & $\checkmark$ &  & $\checkmark$ \\
+    Time FE & $\checkmark$ & $\checkmark$ &  &  &  \\
+Firm FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Industry $\times$ Time FE &  &  & $\checkmark$ &  & $\checkmark$ \\
+HQ $\times$ Time FE &  &  &  & $\checkmark$ & $\checkmark$ \\
     \midrule
-    N & 41,980 & 41,980 & 41,980 & 41,980 \\
+    N & 41,980 & 41,980 & 41,644 & 33,710 & 24,003 \\
 
     \specialrule{\lightrulewidth}{0pt}{0pt}
     \end{tabular*}
 \vspace{0.75em}
-\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}ccc@{}}
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}cc@{}}
 
-    \multicolumn{4}{@{}l}{\textbf{\uline{Panel B: Base Specification}}}\\
+    \multicolumn{3}{@{}l}{\textbf{\uline{Panel B: Additional Outcomes}}}\\
 \addlinespace
-     & \multicolumn{3}{c}{Outcome} \\
-    \cmidrule(lr){2-4}
-     & Growth & Join & Leave \\
+     & \multicolumn{2}{c}{Outcome} \\
+    \cmidrule(lr){2-3}
+     & Join & Leave \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.00\\(0.00)} & \makecell[c]{0.01**\\(0.00)} & \makecell[c]{0.02***\\(0.00)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{0.07***\\(0.02)} & \makecell[c]{0.05*\\(0.03)} & \makecell[c]{-0.01\\(0.01)} \\
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.012**\\(0.005)} & \makecell[c]{0.016***\\(0.002)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{0.050*\\(0.026)} & \makecell[c]{-0.013\\(0.011)} \\
     \midrule
-    Pre-COVID mean & 0.11 & 0.24 & 0.14 \\
-    N & 41,980 & 41,980 & 41,980 \\
+    Pre-COVID mean & 0.24 & 0.14 \\
+    N & 41,980 & 41,980 \\
 
     \bottomrule
     \end{tabular*}
