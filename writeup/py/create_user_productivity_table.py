@@ -93,7 +93,19 @@ def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str
         sub = df.query(filter_expr.format(k=k)).head(1)
         n = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
         cells.append(f"{n:,}")
-    return " & ".join(cells) + r" \\"
+    return " & ".join(cells) + r" \\""
+
+
+def build_pre_mean_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
+    """Return a row of pre-COVID means."""
+    import pandas as pd
+
+    cells = ["Pre-COVID mean"]
+    for k in keys:
+        sub = df.query(filter_expr.format(k=k)).head(1)
+        val = sub.iloc[0]["pre_mean"] if "pre_mean" in sub.columns and not sub.empty else float("nan")
+        cells.append(f"{val:.2f}" if pd.notna(val) else "")
+    return " & ".join(cells) + r" \\""
 
 
 def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
@@ -135,6 +147,12 @@ def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
         rows.append(" & ".join(cells) + r" \\")
     coef_block = "\n".join(rows)
 
+    pre_mean_row = build_pre_mean_row(
+        df,
+        list(OUTCOME_LABEL),
+        filter_expr=f"model_type=='{model}' and outcome=='{{k}}'",
+    )
+
     obs_row = build_obs_row(
         df,
         list(OUTCOME_LABEL),
@@ -160,6 +178,7 @@ def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {MID}
     {coef_block}
     {MID}
+    {pre_mean_row}
     {obs_row}
     {kp_row}
     {bottom}
@@ -185,6 +204,12 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
             cells.append(cell(*sub.iloc[0][["coef", "se", "pval"]]) if not sub.empty else "")
         rows.append(" & ".join(cells) + r" \\")
     coef_block = "\n".join(rows)
+
+    pre_mean_row = build_pre_mean_row(
+        df,
+        TAG_ORDER,
+        filter_expr=f"model_type=='{model}' and outcome=='total_contributions_q100'",
+    )
 
     obs_row = build_obs_row(
         df,
@@ -220,6 +245,7 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {MID}
     {ind_rows}
     {MID}
+    {pre_mean_row}
     {obs_row}
     {kp_row}
     {bottom}
