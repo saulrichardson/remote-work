@@ -113,7 +113,6 @@ gen hqcity  = strtrim(city)
 gen hqstate = strtrim(state)
 sort hqcity hqstate
 egen hqID = group(hqcity hqstate), label
-label var hqID "Unique numeric ID of HQ city & state"
 
 tempfile _lease
 save `_lease', replace

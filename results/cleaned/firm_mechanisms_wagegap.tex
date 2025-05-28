@@ -1,0 +1,34 @@
+\begin{table}[H]
+\centering
+\caption{Firm Scaling – Wage Dispersion Mechanisms}
+\begin{tabular}{lccc}
+\toprule
+ & \multicolumn{3}{c}{Growth Rate} \\
+\cmidrule(lr){2-4}
+Specification & (1) & (2) & (3) \\
+\midrule
+Sd Wage & \checkmark &  & \checkmark \\
+P90 P10 Gap &  & \checkmark & \checkmark \\
+\midrule
+\multicolumn{4}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -0.04*** & -0.04*** & -0.04*** \\
+ & (0.01) & (0.01) & (0.01) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.07*** & 0.07*** & 0.07*** \\
+ & (0.03) & (0.03) & (0.03) \\
+\midrule
+N & 38,436 & 38,436 & 38,436 \\
+\midrule
+\multicolumn{4}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -0.07** & -0.04 & -0.07* \\
+ & (0.04) & (0.03) & (0.04) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.14 & 0.15 & 0.14 \\
+ & (0.10) & (0.10) & (0.10) \\
+\midrule
+N & 38,436 & 38,436 & 38,436 \\
+KP\,rk Wald F & 9.35 & 9.56 & 6.76 \\
+\bottomrule
+\end{tabular}
+\label{tab:firm_mechanisms_wagegap}
+\end{table}

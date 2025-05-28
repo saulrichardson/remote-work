@@ -38,6 +38,8 @@ report:
 	@python ../py/figures.py
 	@python py/create_user_mechanisms_table.py
 	@python py/create_firm_mechanisms_table.py
+	@python py/create_user_mechanisms_wage_gap_tables.py
+	@python py/create_firm_mechanisms_wage_gap_tables.py
 	@echo "Generating firm scaling tables..."
 	@python py/create_firm_scaling_table.py --model-type ols
 	@python py/create_firm_scaling_table.py --model-type iv
