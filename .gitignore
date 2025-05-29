@@ -10,7 +10,13 @@ writeup/build/
 # Python bytecode
 __pycache__/
 
+
+# Vim and Stata swap/lock files
 *.swp
+# Stata dataset swap lock files
+*.dta.swp
+# Stata swap lock files (other)
+*.stswp
 
 # Local folders for old scripts
 **/bin/
