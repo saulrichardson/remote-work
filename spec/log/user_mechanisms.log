@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_mechanisms.log
   log type:  text
- opened on:  29 May 2025, 10:39:39
+ opened on:  29 May 2025, 11:18:49
 
 . 
 . 
@@ -156,6 +156,10 @@ end of do-file
 
 . 
 . 
+. drop if missing(rent, hhi_1000, seniority_4, sd_wage, p90_p10_gap)
+(6,898 observations deleted)
+
+. 
 . 
 . // 3) SPEC 1: Baseline on the full sample
 . display as text "→ Spec 1: baseline (full sample)"
@@ -170,34 +174,34 @@ end of do-file
 . // 3a) OLS
 . reghdfe total_contributions_q100 var3 var5 var4, ///
 >     absorb(firm_id user_id yh) vce(cluster user_id)
-(dropped 1443 singleton observations)
-(MWFE estimator converged in 81 iterations)
+(dropped 1491 singleton observations)
+(MWFE estimator converged in 82 iterations)
 
-HDFE Linear regression                            Number of obs   =    229,862
-Absorbing 3 HDFE groups                           F(   3,  35788) =      11.67
+HDFE Linear regression                            Number of obs   =    222,916
+Absorbing 3 HDFE groups                           F(   3,  34860) =       7.74
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.6838
-                                                  Adj R-squared   =     0.6213
-                                                  Within R-sq.    =     0.0004
-Number of clusters (user_id) =     35,789         Root MSE        =    18.4409
+                                                  R-squared       =     0.6850
+                                                  Adj R-squared   =     0.6226
+                                                  Within R-sq.    =     0.0002
+Number of clusters (user_id) =     34,861         Root MSE        =    18.4086
 
-                           (Std. err. adjusted for 35,789 clusters in user_id)
+                           (Std. err. adjusted for 34,861 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -1.032798   .4818263    -2.14   0.032    -1.977192   -.0884035
-        var5 |   5.175073   1.236242     4.19   0.000     2.752001    7.598144
-        var4 |  -5.526524   1.065824    -5.19   0.000    -7.615571   -3.437477
-       _cons |   50.13249   .1467355   341.65   0.000     49.84489     50.4201
+        var3 |  -1.081912   .4901627    -2.21   0.027    -2.042646   -.1211772
+        var5 |    3.24594   1.223121     2.65   0.008     .8485841    5.643296
+        var4 |   -3.78003   1.048323    -3.61   0.000    -5.834776   -1.725284
+       _cons |   50.15663   .1489116   336.82   0.000     49.86476     50.4485
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
 -----------------------------------------------------+
  Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------+---------------------------------------|
-     firm_id |      2151           1        2150     |
-     user_id |     35789       35789           0    *|
+     firm_id |      2004           1        2003     |
+     user_id |     34861       34861           0    *|
           yh |        11           1          10     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
@@ -218,8 +222,8 @@ Absorbed degrees of freedom:
 . // 3b) IV
 . ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, ///
 >     absorb(firm_id user_id yh) vce(cluster user_id) savefirst
-(dropped 1443 singleton observations)
-(MWFE estimator converged in 81 iterations)
+(dropped 1491 singleton observations)
+(MWFE estimator converged in 82 iterations)
 
 Stored estimation results
 -------------------------
@@ -237,26 +241,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   35789                Number of obs =   229862
-                                                      F(  3, 35788) =     7.03
-                                                      Prob > F      =   0.0001
-Total (centered) SS     =  65286353.41                Centered R2   =  -0.0014
-Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0014
-Residual SS             =  65377411.43                Root MSE      =    16.94
+Number of clusters (user_id) =   34861                Number of obs =   222916
+                                                      F(  3, 34860) =     5.83
+                                                      Prob > F      =   0.0006
+Total (centered) SS     =  63059303.46                Centered R2   =  -0.0015
+Total (uncentered) SS   =  63059303.46                Uncentered R2 =  -0.0015
+Residual SS             =  63157043.56                Root MSE      =    16.91
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -7.151334   3.898685    -1.83   0.067    -14.79287    .4902066
-        var5 |   9.937201   5.370722     1.85   0.064    -.5895776    20.46398
-        var4 |  -8.364159    4.04877    -2.07   0.039    -16.29987    -.428447
+        var3 |  -7.282505   4.196497    -1.74   0.083    -15.50777     .942763
+        var5 |   9.197523   5.766456     1.60   0.111    -2.104914    20.49996
+        var4 |  -7.598681   4.342074    -1.75   0.080    -16.10928    .9119238
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            266.393
+Underidentification test (Kleibergen-Paap rk LM statistic):            229.890
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1850.988
-                         (Kleibergen-Paap rk Wald F statistic):        140.597
+Weak identification test (Cragg-Donald Wald F statistic):             1609.227
+                         (Kleibergen-Paap rk Wald F statistic):        120.884
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -280,8 +284,8 @@ Absorbed degrees of freedom:
 -----------------------------------------------------+
  Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------+---------------------------------------|
-     firm_id |      2151           1        2150     |
-     user_id |     35789       35789           0    *|
+     firm_id |      2004           1        2003     |
+     user_id |     34861       34861           0    *|
           yh |        11           1          10     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
@@ -305,9 +309,6 @@ Absorbed degrees of freedom:
 . // Ensure a common sample across *all* mechanism variables (rent, HHI, seniority,
 . // wage dispersion).  This keeps the estimation sample identical in the two
 . // mechanism families.
-. drop if missing(rent, hhi_1000, seniority_4, sd_wage, p90_p10_gap)
-(6,898 observations deleted)
-
 . 
 . 
 . 

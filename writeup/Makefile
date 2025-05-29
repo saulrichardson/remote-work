@@ -35,7 +35,7 @@ report:
 	@mkdir -p $(BUILD)
 	@echo "Generating consolidated report tables..."
 	@python ../py/build_table_of_means.py
-	@python ../py/figures.py
+	@MPLBACKEND=Agg python ../py/figures.py
 	@python py/create_user_mechanisms_table.py
 	@python py/create_firm_mechanisms_table.py
 	@python py/create_user_mechanisms_wage_gap_tables.py
@@ -44,6 +44,7 @@ report:
 	@python py/create_firm_scaling_table.py --model-type ols
 	@python py/create_firm_scaling_table.py --model-type iv
 	@python py/create_firm_scaling_first_stage_table.py
+	@python py/create_remote_first_stage_table.py
 	@python py/create_user_productivity_table.py --model-type ols
 	@python py/create_user_productivity_table.py --model-type iv
 	@python py/create_user_productivity_first_stage_table.py

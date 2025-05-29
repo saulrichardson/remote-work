@@ -14,7 +14,8 @@ do "../src/globals.do"
 local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
 
-local outcomes total_contributions_q100 restricted_contributions_q100
+local outcomes total_contributions_q100 
+// restricted_contributions_q100
 
 *--- main results -------------------------------------------------------------
 tempfile out  
