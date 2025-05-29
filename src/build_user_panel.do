@@ -180,19 +180,19 @@ by user_id: egen pre_covid_rest = total(cond(pre_covid == 1 & restricted_contrib
 
 
 * Enforce balanced panel 
-gsort user_id yh
-summarize yh
-local global_min = r(min)
-local global_max = r(max)
-by user_id: egen min_time = min(yh)
-by user_id: egen max_time = max(yh)
-by user_id: egen nobs = count(yh)
-preserve
-    contract yh, freq(count_yh)
-    local total_periods = _N
-restore
-keep if min_time == `global_min'  & max_time == `global_max' & nobs == `total_periods'
-drop min_time max_time nobs
+// gsort user_id yh
+// summarize yh
+// local global_min = r(min)
+// local global_max = r(max)
+// by user_id: egen min_time = min(yh)
+// by user_id: egen max_time = max(yh)
+// by user_id: egen nobs = count(yh)
+// preserve
+//     contract yh, freq(count_yh)
+//     local total_periods = _N
+// restore
+// keep if min_time == `global_min'  & max_time == `global_max' & nobs == `total_periods'
+// drop min_time max_time nobs
 
 * Keep only users with positive pre-COVID restricted contributions
 keep if pre_covid_rest > 0
