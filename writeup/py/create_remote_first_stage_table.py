@@ -42,7 +42,7 @@ def stars(p: float) -> str:
 
 
 def cell(coef: float, se: float, p: float) -> str:
-    """Return a centred ``\makecell`` with coefficient and (se)."""
+    r"""Return a centred ``\makecell`` with coefficient and (se)."""
     return rf"\makecell[c]{{{coef:.3f}{stars(p)}\\({se:.3f})}}"
 
 

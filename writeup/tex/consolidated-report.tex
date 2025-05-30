@@ -50,88 +50,6 @@
 \section{Table of Means}
 \input{\cleanedresultsdir/table_of_means.tex}
 
-\section{Mechanisms}
-
-We begin with the “base” specification:
-\[
-\begin{aligned}
-y_{it} &= \alpha 
-  + \beta_1\,(remote_i \times covid_t)
-  + \beta_2\,(remote_i \times covid_t \times startup_i) \\
-       &\quad
-  + \delta\,(covid_t \times startup_i)
-  + \mathrm{FE}_{it}
-  + \varepsilon_{it},
-\end{aligned}
-\]
-which captures how the outcome responds to remote work during COVID and
-whether that effect differs in young firms.
-
-In the \textbf{rent} “mirror” model we add two additional channels:
-\[
-\begin{aligned}
-y_{it} &= \alpha 
-  + \beta_1\,(remote_i \times covid_t)
-  + \beta_2\,(remote_i \times covid_t \times startup_i) \\
-       &\quad
-  + \delta\,(covid_t \times startup_i)
-  + \gamma_1\,(covid_t \times rent_i)
-  + \gamma_2\,(remote_i \times covid_t \times rent_i) \\
-       &\quad
-  + \mathrm{FE}_{it}
-  + \varepsilon_{it},
-\end{aligned}
-\]
-so that \(\gamma_1\) and \(\gamma_2\) capture how both the baseline COVID
-effect and the remote‐work premium vary with local office rents.
-
-Likewise, the \textbf{centrality} (HHI) model adds:
-\[
-\begin{aligned}
-y_{it} &= \alpha 
-  + \beta_1\,(remote_i \times covid_t)
-  + \beta_2\,(remote_i \times covid_t \times startup_i) \\
-       &\quad
-  + \delta\,(covid_t \times startup_i)
-  + \gamma_1\,(covid_t \times hhi_i)
-  + \gamma_2\,(remote_i \times covid_t \times hhi_i) \\
-       &\quad
-  + \mathrm{FE}_{it}
-  + \varepsilon_{it}.
-\end{aligned}
-\]
-By turning on each check‐mark (rent, centrality, seniority) one at a time—and
-then in combination—we “mirror” the base COVID×Remote specification through
-different mechanisms.
-
-
-
-	\clearpage
-	\begin{landscape}
-	\subsection{User Productivity Mechanisms}
-	\input{\cleanedresultsdir/user_mechanisms.tex}
-	\end{landscape}
-
-% ================= Wage–Dispersion Mechanisms ======================
-\clearpage
-\begin{landscape}
-\subsection{User Productivity – Wage Dispersion Mechanisms}
-\input{\cleanedresultsdir/user_mechanisms_wage_gap.tex}
-\end{landscape}
-
-% ---------------- Firm Mechanisms ----------------------------
-\clearpage
-\begin{landscape}
-\subsection{Firm Mechanisms}
-\input{\cleanedresultsdir/firm_mechanisms.tex}
-\end{landscape}
-
-\clearpage
-\begin{landscape}
-\subsection{Firm Mechanisms -- Wage Dispersion}
-\input{\cleanedresultsdir/firm_mechanisms_wage_gap.tex}
-\end{landscape}
-
 %-----------------------------------------------------------------
 %=====================================================================
 % Firm Scaling
@@ -173,7 +91,20 @@ different mechanisms.
 
 \subsection{First Stage}
 \input{\cleanedresultsdir/user_productivity_first_stage.tex}
+% -------------------------------------------------------------------------
+% Mechanisms
+% -------------------------------------------------------------------------
+\clearpage
+\begin{landscape}
+\subsection{User Productivity Mechanisms}
+\input{\cleanedresultsdir/user_mechanisms.tex}
+\end{landscape}
 
+\clearpage
+\begin{landscape}
+\subsection{Firm Mechanisms}
+\input{\cleanedresultsdir/firm_mechanisms.tex}
+\end{landscape}
 %-----------------------------------------------------------------
 %=====================================================================
 % Dynamic Event‐Study Results
