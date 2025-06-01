@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 r"""Build LaTeX tables for the firm mechanism tests.
 
-The Stata script `spec/firm_mechanisms_wage_gap.do` produces a CSV with up to
-32 specification columns.  This script automatically detects how many
-specifications are present, keeps their order, and emits *multiple* LaTeX
-tables, each displaying at most 8 columns.  Tables are concatenated into a
-single .tex file so the paper can `\input{}` it once.
+The Stata script `spec/firm_mechanisms.do` produces a CSV with up to
+32 specification columns (including the wage dimension).  This script
+automatically detects how many specifications are present, keeps their order,
+and emits *multiple* LaTeX tables, each displaying at most 8 columns.  Tables
+are concatenated into a single .tex file so the paper can `\input{}` it once.
 """
 
 from pathlib import Path
@@ -19,6 +19,8 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
 
+# Use wage-gap enriched specification results
+# Primary specification directory (includes wage dimension by default)
 SPECNAME = "firm_mechanisms"
 INPUT_CSV = PROJECT_ROOT / "results" / "raw" / SPECNAME / "consolidated_results.csv"
 OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / "firm_mechanisms.tex"

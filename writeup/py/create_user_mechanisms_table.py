@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 r"""Generate LaTeX tables for the user mechanism tests.
 
-Reads results from `results/raw/user_mechanisms/` and breaks the
-specification columns into blocks of 8 per table.  The resulting tables are
-concatenated into a single `.tex` file so the paper can include them via
-`\\input{}` once.
+The Stata script `spec/user_productivity_wage_gap.do` has been promoted to the
+default mechanism specification and now outputs to
+`results/raw/user_mechanisms/`.  This Python builder loads that CSV and breaks
+its specification columns into blocks of 8 per LaTeX table, concatenating the
+pieces so the paper can include them via one `\\input{}`.
 r"""
 
 from pathlib import Path
@@ -14,6 +15,8 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
 
+# Use wage-gap enriched specification results
+# Primary specification directory (includes wage dimension by default)
 SPECNAME = "user_mechanisms"
 INPUT_CSV = PROJECT_ROOT / "results" / "raw" / SPECNAME / "consolidated_results.csv"
 OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / "user_mechanisms.tex"

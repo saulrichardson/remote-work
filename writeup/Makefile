@@ -1,34 +1,19 @@
 SHELL := /usr/bin/env bash
+# Source directories
 SRC        := tex
 REPORT_SRC := $(SRC)/consolidated-report.tex
-README_SRC := $(SRC)/README.tex
 
+# Build artefacts
 BUILD  := build
 FINAL  := final
+
 .PHONY: all report clean deploy
-README_PDF := README.pdf          # final artefact at project root
-
-.PHONY: readme
 
 
-all: clean report deploy          # report target already rebuilds README
-
-# ---------------------------------------------------------------------
-# README document
-#   – compile LaTeX into writeup/build
-#   – copy resulting PDF to repository root
-# ---------------------------------------------------------------------
-readme:
-	@mkdir -p $(BUILD)
-	@echo "Compiling README.pdf…"
-	@(cd $(BUILD) && pdflatex -shell-escape -halt-on-error -interaction=nonstopmode \
-	  ../$(SRC)/README.tex)
-	@cp $(BUILD)/README.pdf ../$(README_PDF)
-	@echo "→ PDF copied to project root ($(README_PDF))"
-
+all: clean report deploy          # Report target rebuilds paper only
 
 clean:
-	@rm -rf $(BUILD) $(FINAL) ../README.pdf $(SRC)/_minted-README $(BUILD)/_minted-README
+	@rm -rf $(BUILD) $(FINAL) $(SRC)/_minted-README $(BUILD)/_minted-README
 
 # Report document
 report:
@@ -52,8 +37,7 @@ report:
 	@mkdir -p $(FINAL)
 	@cp $(BUILD)/consolidated-report.pdf $(FINAL)/
 
-# Also regenerate README so that both PDFs are up-to-date with one command
-	@$(MAKE) readme
+# Finished compiling report
 
 # -------------------------------------------------------------------------
 #  Deploy: copy artefacts to Overleaf-synced Dropbox folder
@@ -74,6 +58,7 @@ deploy:
 	@mkdir -p $(DEST_TABLES)
 	@rm -rf $(DEST_TABLES)/*
 	@cp $(FINAL)/consolidated-report.pdf $(DEST_PAPER)/
-	@cp $(TABLE_SRC)/* $(DEST_TABLES)/
+	# Exclude any tables explicitly marked as deprecated to avoid clutter on Overleaf
+	@find $(TABLE_SRC) -maxdepth 1 -type f ! -name '*_deprecated.tex' -exec cp {} $(DEST_TABLES)/ \;
 	@echo "→ PDF copied to $(DEST_PAPER)"
 	@echo "→ Tables copied to $(DEST_TABLES)"
