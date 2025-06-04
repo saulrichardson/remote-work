@@ -5,7 +5,7 @@
 *============================================================*
 
 capture log close
-local specname   "firm_mechanisms"
+local specname   "firm_mechanisms_covid"
 log using "log/`specname'.log", replace text
 
 
@@ -20,14 +20,14 @@ gen seniority_4 = !inrange(seniority_levels,1,3)
 
 // interactions
 gen var8  = covid*rent
-gen var9  = covid*rent*remote
-gen var10 = teleworkable*covid*rent
+// gen   = covid*rent*remote
+// gen  = teleworkable*covid*rent
 gen var11 = covid*hhi_1000
-gen var12 = covid*hhi_1000*remote
-gen var13 = teleworkable*covid*hhi_1000
+// gen  = covid*hhi_1000*remote
+// gen  = teleworkable*covid*hhi_1000
 gen var14 = covid*seniority_4
-gen var15 = covid*seniority_4*remote
-gen var16 = teleworkable*covid*seniority_4
+// gen  = covid*seniority_4*remote
+// gen  = teleworkable*covid*seniority_4
 
 
 // pick your mechanism here
@@ -82,22 +82,22 @@ local spec_instr1     var6 var7
 local spec_endo1      var3 var5
 
 //  2) rent
-local spec_ols_exog2  var4 var8  var9
+local spec_ols_exog2  var4 var8  
 local spec_iv_exog2   var4 var8
-local spec_instr2     var6 var7 var10
-local spec_endo2      var3 var5 var9
+local spec_instr2     var6 var7 
+local spec_endo2      var3 var5 
 
 //  3) hhi
-local spec_ols_exog3  var4 var11 var12
+local spec_ols_exog3  var4 var11 
 local spec_iv_exog3   var4 var11
-local spec_instr3     var6 var7 var13
-local spec_endo3      var3 var5 var12
+local spec_instr3     var6 var7 
+local spec_endo3      var3 var5 
 
 //  4) seniority
-local spec_ols_exog4  var4 var14 var15
+local spec_ols_exog4  var4 var14 
 local spec_iv_exog4   var4 var14
-local spec_instr4     var6 var7 var16
-local spec_endo4      var3 var5 var15
+local spec_instr4     var6 var7 
+local spec_endo4      var3 var5 
 
 //  5) `mech'
 local spec_ols_exog5  var4 var17 var18
@@ -106,70 +106,70 @@ local spec_instr5     var6 var7 var19
 local spec_endo5      var3 var5 var18
 
 //  6) rent_hhi
-local spec_ols_exog6  var4 var8 var9 var11 var12
+local spec_ols_exog6  var4 var8  var11 
 local spec_iv_exog6   var4 var8 var11
-local spec_instr6     var6 var7 var10 var13
-local spec_endo6      var3 var5 var9 var12
+local spec_instr6     var6 var7  
+local spec_endo6      var3 var5  
 
 //  7) rent_seniority
-local spec_ols_exog7  var4 var8 var9 var14 var15
+local spec_ols_exog7  var4 var8  var14 
 local spec_iv_exog7   var4 var8 var14
-local spec_instr7     var6 var7 var10 var16
-local spec_endo7      var3 var5 var9 var15
+local spec_instr7     var6 var7  
+local spec_endo7      var3 var5  
 
 //  8) rent_`mech'
-local spec_ols_exog8  var4 var8 var9 var17 var18
+local spec_ols_exog8  var4 var8  var17 var18
 local spec_iv_exog8   var4 var8 var17
-local spec_instr8     var6 var7 var10 var19
-local spec_endo8      var3 var5 var9 var18
+local spec_instr8     var6 var7  var19
+local spec_endo8      var3 var5  var18
 
 //  9) hhi_seniority
-local spec_ols_exog9  var4 var11 var12 var14 var15
+local spec_ols_exog9  var4 var11  var14 
 local spec_iv_exog9   var4 var11 var14
-local spec_instr9     var6 var7 var13 var16
-local spec_endo9      var3 var5 var12 var15
+local spec_instr9     var6 var7  
+local spec_endo9      var3 var5  
 
 // 10) hhi_`mech'
-local spec_ols_exog10 var4 var11 var12 var17 var18
+local spec_ols_exog10 var4 var11  var17 var18
 local spec_iv_exog10  var4 var11 var17
-local spec_instr10    var6 var7 var13 var19
-local spec_endo10     var3 var5 var12 var18
+local spec_instr10    var6 var7  var19
+local spec_endo10     var3 var5  var18
 
 // 11) `mech'_seniority
-local spec_ols_exog11 var4 var17 var18 var14 var15
+local spec_ols_exog11 var4 var17 var18 var14 
 local spec_iv_exog11  var4 var17 var14
-local spec_instr11    var6 var7 var19 var16
-local spec_endo11     var3 var5 var18 var15
+local spec_instr11    var6 var7 var19 
+local spec_endo11     var3 var5 var18 
 
 // 12) rent_hhi_seniority
-local spec_ols_exog12 var4 var8 var9 var11 var12 var14 var15
+local spec_ols_exog12 var4 var8  var11  var14 
 local spec_iv_exog12  var4 var8 var11 var14
-local spec_instr12    var6 var7 var10 var13 var16
-local spec_endo12     var3 var5 var9 var12 var15
+local spec_instr12    var6 var7   
+local spec_endo12     var3 var5   
 
 // 13) rent_hhi_`mech'
-local spec_ols_exog13 var4 var8 var9 var11 var12 var17 var18
+local spec_ols_exog13 var4 var8  var11  var17 var18
 local spec_iv_exog13  var4 var8 var11 var17
-local spec_instr13    var6 var7 var10 var13 var19
-local spec_endo13     var3 var5 var9 var12 var18
+local spec_instr13    var6 var7   var19
+local spec_endo13     var3 var5   var18
 
 // 14) rent_seniority_`mech'
-local spec_ols_exog14 var4 var8 var9 var14 var15 var17 var18
+local spec_ols_exog14 var4 var8  var14  var17 var18
 local spec_iv_exog14  var4 var8 var14 var17
-local spec_instr14    var6 var7 var10 var16 var19
-local spec_endo14     var3 var5 var9 var15 var18
+local spec_instr14    var6 var7   var19
+local spec_endo14     var3 var5   var18
 
 // 15) hhi_seniority_`mech'
-local spec_ols_exog15 var4 var11 var12 var14 var15 var17 var18
+local spec_ols_exog15 var4 var11  var14  var17 var18
 local spec_iv_exog15  var4 var11 var14 var17
-local spec_instr15    var6 var7 var13 var16 var19
-local spec_endo15     var3 var5 var12 var15 var18
+local spec_instr15    var6 var7   var19
+local spec_endo15     var3 var5   var18
 
 // 16) rent_hhi_seniority_`mech'
-local spec_ols_exog16 var4 var8 var9 var11 var12 var14 var15 var17 var18
+local spec_ols_exog16 var4 var8  var11  var14  var17 var18
 local spec_iv_exog16  var4 var8 var11 var14 var17
-local spec_instr16    var6 var7 var10 var13 var16 var19
-local spec_endo16     var3 var5 var9 var12 var15 var18
+local spec_instr16    var6 var7    var19
+local spec_endo16     var3 var5    var18
 
 
 
