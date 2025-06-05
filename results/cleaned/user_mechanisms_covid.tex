@@ -1,0 +1,73 @@
+\begin{table}[H]
+\centering
+\caption{User Mechanisms during COVID (Part 1)}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Total Contrib. (pct. rk)} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  & \checkmark &  &  &  & \checkmark & \checkmark & \checkmark \\
+Hhi &  &  & \checkmark &  &  & \checkmark &  &  \\
+Seniority &  &  &  & \checkmark &  &  & \checkmark &  \\
+Wage &  &  &  &  & \checkmark &  &  & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -1.03** & -0.79 & -1.04** & -1.02** & 3.36** & -0.79 & -0.77 & 3.29** \\
+ & (0.48) & (0.50) & (0.48) & (0.48) & (1.56) & (0.50) & (0.50) & (1.59) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 5.18*** & 3.02** & 5.14*** & 5.21*** & 5.02*** & 2.97** & 3.06** & 2.92** \\
+ & (1.24) & (1.22) & (1.24) & (1.24) & (1.23) & (1.23) & (1.23) & (1.22) \\
+\midrule
+N & 229,862 & 223,003 & 229,741 & 229,862 & 229,862 & 222,919 & 223,003 & 223,003 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -7.15* & -6.54 & -7.18* & -7.14* & 392.75 & -6.75 & -6.49 & 403.14 \\
+ & (3.90) & (4.66) & (3.87) & (3.93) & (422.93) & (4.65) & (4.72) & (403.90) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 9.94* & 7.93 & 9.65* & 9.98* & -106.43 & 7.40 & 8.03 & -128.34 \\
+ & (5.37) & (6.41) & (5.55) & (5.31) & (130.26) & (6.56) & (6.33) & (143.24) \\
+\midrule
+N & 229,862 & 223,003 & 229,741 & 229,862 & 214,482 & 222,919 & 223,003 & 208,209 \\
+KP\,rk Wald F & 140.60 & 96.50 & 143.89 & 138.52 & 0.31 & 97.63 & 94.20 & 0.35 \\
+\bottomrule
+\end{tabular}
+\label{tab:user_mechanisms_covid_1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{User Mechanisms during COVID (Part 2)}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Total Contrib. (pct. rk)} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  &  &  & \checkmark & \checkmark & \checkmark &  & \checkmark \\
+Hhi & \checkmark & \checkmark &  & \checkmark & \checkmark &  & \checkmark & \checkmark \\
+Seniority & \checkmark &  & \checkmark & \checkmark &  & \checkmark & \checkmark & \checkmark \\
+Wage &  & \checkmark & \checkmark &  & \checkmark & \checkmark & \checkmark & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -1.02** & 3.32** & 3.33** & -0.77 & 3.26** & 3.26** & 3.29** & 3.22** \\
+ & (0.48) & (1.56) & (1.56) & (0.50) & (1.59) & (1.59) & (1.57) & (1.59) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 5.20*** & 4.98*** & 5.05*** & 3.04** & 2.86** & 2.95** & 5.03*** & 2.93** \\
+ & (1.25) & (1.24) & (1.24) & (1.24) & (1.23) & (1.22) & (1.25) & (1.24) \\
+\midrule
+N & 229,741 & 229,741 & 229,862 & 222,919 & 222,919 & 223,003 & 229,741 & 222,919 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -7.17* & 390.59 & 379.61 & -6.70 & 400.87 & 394.25 & 375.37 & 390.14 \\
+ & (3.93) & (415.50) & (398.15) & (4.78) & (400.29) & (388.77) & (389.55) & (384.85) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 9.68* & -111.16 & -106.43 & 7.50 & -133.99 & -128.38 & -115.80 & -138.69 \\
+ & (5.48) & (131.51) & (126.24) & (6.42) & (145.68) & (140.47) & (131.23) & (146.54) \\
+\midrule
+N & 229,741 & 214,370 & 214,482 & 222,919 & 208,127 & 208,209 & 214,370 & 208,127 \\
+KP\,rk Wald F & 139.96 & 0.32 & 0.33 & 92.79 & 0.36 & 0.36 & 0.34 & 0.37 \\
+\bottomrule
+\end{tabular}
+\label{tab:user_mechanisms_covid_2}
+\end{table}

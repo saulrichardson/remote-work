@@ -94,6 +94,28 @@
 % -------------------------------------------------------------------------
 % Mechanisms
 % -------------------------------------------------------------------------
+
+\clearpage
+\begin{landscape}
+% ------------------------------------------------------------
+\subsection*{Full Horse–Race}
+\textbf{Core interactions}
+\[\begin{aligned}
+ v_3 &= \text{post}\cdot\text{remote}, &
+ v_4 &= \text{post}\cdot\text{startup}, &
+ v_5 &= \text{post}\cdot\text{remote}\cdot\text{startup}. 
+\end{aligned}\]
+For each mechanism $Z\in\{\text{rent},\text{HHI},\text{seniority},\text{gap}\}$ create
+\[v_Z=\text{post}\,Z,\; v_{Zr}=\text{post}\,Z\,\text{remote},\; v_{Zt}=\text{teleworkable}\,\text{post}\,Z.\]
+\emph{Equation}
+\[Y_{it}=\beta_3 v_{3,it}+\beta_5 v_{5,it}+\sum_{Z\in S}(\delta_Z v_{Z,it}+\theta_Z v_{Zr,it}+\kappa_Z v_{Zt,it})+\varphi v_{4,it}.
+\]
+\emph{Endogenous set}\; $\{v_3,v_5,v_{Zr}|Z\in S\}$ \quad\emph{Instruments}\; $\{v_6,v_7,v_{Zt}|Z\in S\}$.
+Watching how $\widehat\beta_5$ changes as $S$ expands reveals whether the mechanism works generally ($v_Z$) or only for remote roles ($v_{Zr}$).
+
+\end{landscape}
+
+
 \clearpage
 \begin{landscape}
 \subsection{User Productivity Mechanisms}
@@ -104,6 +126,35 @@
 \begin{landscape}
 \subsection{Firm Mechanisms}
 \input{\cleanedresultsdir/firm_mechanisms.tex}
+\end{landscape}
+
+% -------------------------------------------------------------------------
+%  Lean mechanism extensions
+% -------------------------------------------------------------------------
+
+\clearpage
+\begin{landscape}
+\subsection*{Lean Horse–Race}
+Only the two–way interaction of each mechanism is added:
+\[v_Z=\text{post}\,Z.\]
+\emph{Equation}
+\[Y_{it}=\beta_3 v_{3,it}+\beta_5 v_{5,it}+\sum_{Z\in S}\delta_Z v_{Z,it}+\varphi v_{4,it}.
+\]
+\emph{Endogenous variables}\; $\{v_3,v_5\}$ \quad\emph{Instruments}\; $\{v_6,v_7\}$.
+If $\widehat\beta_5$ collapses when $v_Z$ enters, $Z$ is the mediating channel.
+\end{landscape}
+
+
+\clearpage
+\begin{landscape}
+\subsection{User Mechanisms (Lean)}
+\input{\cleanedresultsdir/user_mechanisms_lean.tex}
+\end{landscape}
+
+\clearpage
+\begin{landscape}
+\subsection{Firm Mechanisms (Lean)}
+\input{\cleanedresultsdir/firm_mechanisms_lean.tex}
 \end{landscape}
 %-----------------------------------------------------------------
 %=====================================================================

@@ -19,6 +19,23 @@ clean:
 report:
 	@mkdir -p $(BUILD)
 	@echo "Generating consolidated report tables..."
+	# ------------------------------------------------------------------
+# 1) Ensure raw Stata outputs exist (Lean mechanism extensions)
+	# ------------------------------------------------------------------
+	# ------------------------------------------------------------------
+	#  Verify that required raw Stata outputs are present.  The Makefile
+	#  no longer attempts to run any .do files automatically—if the
+	#  expected artefacts are missing, we abort with an informative
+	#  message so the user can generate them manually in Stata.
+	# ------------------------------------------------------------------
+	@if [ ! -f ../results/raw/user_mechanisms_lean/consolidated_results.csv ]; then \
+	  echo "ERROR: Missing ../results/raw/user_mechanisms_lean/consolidated_results.csv.  Please run spec/user_mechanisms_lean.do in Stata first."; \
+	  exit 1; \
+	fi
+	@if [ ! -f ../results/raw/firm_mechanisms_lean/consolidated_results.csv ]; then \
+	  echo "ERROR: Missing ../results/raw/firm_mechanisms_lean/consolidated_results.csv.  Please run spec/firm_mechanisms_lean.do in Stata first."; \
+	  exit 1; \
+	fi
 	@python ../py/build_table_of_means.py
 	@MPLBACKEND=Agg python ../py/figures.py
 	@python py/create_user_mechanisms_table.py
@@ -31,6 +48,9 @@ report:
 	@python py/create_user_productivity_table.py --model-type ols
 	@python py/create_user_productivity_table.py --model-type iv
 	@python py/create_user_productivity_first_stage_table.py
+	# Lean mechanism tables
+	@python py/create_user_mechanisms_lean_table.py
+	@python py/create_firm_mechanisms_lean_table.py
 	@echo "Compiling consolidated report..."
 	@pdflatex -halt-on-error -interaction=nonstopmode \
 	  -output-directory=$(BUILD) $(REPORT_SRC)
