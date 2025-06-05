@@ -16,7 +16,7 @@ local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
 
 // 1) Load & prepare once
-use "$processed_data/user_panel.dta", clear
+use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 gen seniority_4 = !inrange(seniority_levels,1,3)
 // drop if missing(hhi_1000, seniority_4, rent)
 

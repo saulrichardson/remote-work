@@ -8,6 +8,7 @@ statistics in a single table. Means and standard deviations are stacked using
 from __future__ import annotations
 
 from pathlib import Path
+import argparse
 import pandas as pd
 import textwrap
 import re
@@ -15,8 +16,8 @@ import re
 # Default file locations
 # ----------------------------------------------------------------------
 DEF_FIRM = Path("../data/samples/firm_panel.csv")
-# worker-level sample (expected file name: ``user_panel.csv``)
-DEF_WORKER = Path("../data/samples/user_panel.csv")
+# worker-level sample (expected file name: ``user_panel_<variant>.csv``)
+DEF_WORKER = Path("../data/samples/user_panel_precovid.csv")
 DEF_OUT = Path("../results/cleaned/table_of_means.tex")
 
 # ----------------------------------------------------------------------
@@ -422,5 +423,17 @@ def main(
     print(f"LaTeX table written to {out_path.resolve()}")
 
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build table of means")
+    parser.add_argument(
+        "--worker-file",
+        type=Path,
+        default=DEF_WORKER,
+        help="CSV file with worker-level sample",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    main()
+    args = _parse_args()
+    main(worker_path=args.worker_file)

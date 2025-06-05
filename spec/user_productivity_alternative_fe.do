@@ -51,7 +51,7 @@ local tag   "fyhu"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 
@@ -140,7 +140,7 @@ local tag   "firmbyuseryh"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
     summarize `y' if covid == 0, meanonly
@@ -228,7 +228,7 @@ local feopt "absorb(firm_id yh)"
 local tag   "fyh"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
     summarize `y' if covid == 0, meanonly
@@ -312,7 +312,7 @@ local feopt "absorb(user_id yh)"
 local tag   "useryh"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
     summarize `y' if covid == 0, meanonly
@@ -398,7 +398,7 @@ local feopt "absorb(yh)"
 local tag   "time"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 
         gen var8 = remote * startup
         gen var9 = teleworkable*startup
@@ -487,7 +487,7 @@ local feopt "absorb(firm_id)"
 local tag   "firm"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 
     display as text ">> FE spec: firm  (tag=`tag')"
     display as text "   – outcome: `y'"
@@ -574,7 +574,7 @@ local feopt ""
 local tag   "none"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 	
 	gen var8 = remote * startup
     gen var9 = teleworkable*startup
@@ -663,7 +663,7 @@ local tag   "industrytime"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 
@@ -748,7 +748,7 @@ local tag   "msatime"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 
@@ -835,7 +835,7 @@ local tag   "msaindustrytime"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel.dta", clear
+    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 

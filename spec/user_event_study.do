@@ -3,7 +3,7 @@ do "../src/globals.do"
 local specname   "user_event_study"
 local result_path "$clean_results"
 
-use "$processed_data/user_panel.dta", clear
+use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 
 * Create half-year dummies: time1 ... timeN
 tab yh, gen(time)
