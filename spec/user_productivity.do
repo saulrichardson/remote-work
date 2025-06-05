@@ -8,7 +8,7 @@
 do "../src/globals.do"
 
 // 1) Load worker‐level panel
-use "$processed_data/user_panel.dta", clear
+use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 
 // 2) Prepare output dir & reset any old postfile
 local specname    "user_productivity"

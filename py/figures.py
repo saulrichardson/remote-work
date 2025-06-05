@@ -22,6 +22,7 @@ Inputs (CSV expected under `data/samples/`)
 """
 
 from pathlib import Path
+import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -38,7 +39,7 @@ OUTPUT_DIR = PROJECT_ROOT / "results" / "figures"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)   # ensure path exists
 
 # 3) File paths
-WORKER_FILE = DATA_DIR / "user_panel.csv"   # worker-level sample
+WORKER_FILE = DATA_DIR / "user_panel_precovid.csv"   # worker-level sample
 FIRM_FILE   = DATA_DIR / "firm_panel.csv"
 
 ###############################################################################
@@ -181,13 +182,13 @@ def _plot_bins_reg(
 # MAIN WORKFLOW
 ###############################################################################
 
-def main():
+def main(worker_file: Path = WORKER_FILE):
     # ────────────────────────── READ DATA ────────────────────────────
     firms   = pd.read_csv(FIRM_FILE)
     # keep a single observation per firm (sorted by yh) for remoteness plots
     firms_unique = firms.sort_values("yh").drop_duplicates("firm_id")
     # later growth/productivity figures use the full `firms` DataFrame
-    workers = pd.read_csv(WORKER_FILE)
+    workers = pd.read_csv(worker_file)
 
     # ────────────────── BUILD FIRM‑LEVEL PRODUCTIVITY ────────────────
     prod = (
@@ -309,6 +310,18 @@ def main():
     )
 
 """
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Create main figures")
+    parser.add_argument(
+        "--worker-file",
+        type=Path,
+        default=WORKER_FILE,
+        help="CSV file with worker-level sample",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    main()
+    args = _parse_args()
+    main(worker_file=args.worker_file)
 
