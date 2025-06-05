@@ -11,6 +11,9 @@ writeup/build/
 __pycache__/
 
 
+archive/
+
+
 # Vim and Stata swap/lock files
 *.swp
 # Stata dataset swap lock files
