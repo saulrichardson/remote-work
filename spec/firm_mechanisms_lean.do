@@ -20,14 +20,8 @@ gen seniority_4 = !inrange(seniority_levels,1,3)
 
 // interactions
 gen var8  = covid*rent
-// gen   = covid*rent*remote
-// gen  = teleworkable*covid*rent
 gen var11 = covid*hhi_1000
-// gen  = covid*hhi_1000*remote
-// gen  = teleworkable*covid*hhi_1000
 gen var14 = covid*seniority_4
-// gen  = covid*seniority_4*remote
-// gen  = teleworkable*covid*seniority_4
 
 
 // pick your mechanism here

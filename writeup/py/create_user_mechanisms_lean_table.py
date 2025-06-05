@@ -33,7 +33,22 @@ PARAM_LABELS = {
     "var5": r"$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $",
 }
 
-DIMS = ["Rent", "HHI", "Seniority", "Wage"]
+# Mechanism dimensions in desired display order. Explicit strings ensure
+# acronyms retain intended capitalisation (e.g. "HHI").
+DIMS = [
+    "Rent",
+    "HHI",
+    "Seniority",
+    "Wage",
+]
+
+# Mapping from dimension code to pretty label shown in the table.
+ROW_LABELS = {
+    "Rent": "Rent",
+    "HHI": "HHI",
+    "Seniority": "Seniority",
+    "Wage": "Wage",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +121,8 @@ def one_table(df_iv: pd.DataFrame, df_ols: pd.DataFrame, specs: list[str], idx: 
     # Dimension check-marks ---------------------------------------------------
     for dim in DIMS:
         marks = ["\\checkmark" if v else "" for v in check[dim]]
-        lines.append(dim.replace("_", " ").title() + " & " + " & ".join(marks) + r" \\")
+        pretty_dim = ROW_LABELS.get(dim, dim)
+        lines.append(pretty_dim + " & " + " & ".join(marks) + r" \\")
     lines.append(r"\midrule")
 
     # Two-panel (OLS / IV) layout -------------------------------------------

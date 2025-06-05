@@ -28,7 +28,25 @@ PARAM_LABELS = {
     "var5": r"$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $",
 }
 
-DIMS = ["Rent", "HHI", "Seniority", "Wage"]
+# Order to display mechanism dimensions. Using exact strings ensures the
+# LaTeX output preserves intentional capitalisation (e.g. "HHI" rather than
+# the undesired "Hhi").
+DIMS = [
+    "Rent",
+    "HHI",        # keep all–caps acronym
+    "Seniority",
+    "Wage",       # wage–dispersion channel
+]
+
+# Mapping from internal dimension code to the label that should appear in the
+# LaTeX table.  Relying on :py:meth:`str.title` previously converted "HHI" to
+# "Hhi", so we now use an explicit dictionary for full control.
+ROW_LABELS = {
+    "Rent": "Rent",
+    "HHI": "HHI",
+    "Seniority": "Seniority",
+    "Wage": "Wage",
+}
 
 
 def starify(p):
@@ -94,7 +112,8 @@ def one_table(df_iv, df_ols, specs, idx):
 
     for dim in DIMS:
         marks = ["\\checkmark" if v else "" for v in check[dim]]
-        lines.append(dim.replace("_", " ").title() + " & " + " & ".join(marks) + r" \\")
+        pretty_dim = ROW_LABELS.get(dim, dim)
+        lines.append(pretty_dim + " & " + " & ".join(marks) + r" \\")
     lines.append(r"\midrule")
 
     for p_idx, (panel_id, model, pdata) in enumerate([("A", "OLS", p_ols), ("B", "IV", p_iv)]):

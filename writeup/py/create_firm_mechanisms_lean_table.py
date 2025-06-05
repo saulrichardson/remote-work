@@ -33,7 +33,20 @@ PARAM_LABELS = {
 }
 
 # Dimension list for check-marks (order matters)
-DIMS = ["Rent", "HHI", "Seniority", "Wage"]
+# Mechanism dimensions (explicit labels to retain capitalisation).
+DIMS = [
+    "Rent",
+    "HHI",
+    "Seniority",
+    "Wage",
+]
+
+ROW_LABELS = {
+    "Rent": "Rent",
+    "HHI": "HHI",
+    "Seniority": "Seniority",
+    "Wage": "Wage",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -108,7 +121,8 @@ def make_table(df_iv: pd.DataFrame, df_ols: pd.DataFrame, specs: list[str], idx:
     # Check‐mark rows --------------------------------------------------------
     for dim in DIMS:
         marks = ["\\checkmark" if v else "" for v in check[dim]]
-        lines.append(dim.replace("_", " ").title() + " & " + " & ".join(marks) + r" \\")
+        pretty_dim = ROW_LABELS.get(dim, dim)
+        lines.append(pretty_dim + " & " + " & ".join(marks) + r" \\")
     lines.append(r"\midrule")
 
     # Panels -----------------------------------------------------------------
