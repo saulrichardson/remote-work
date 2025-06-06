@@ -1,10 +1,25 @@
 *============================================================*
-*  do/firm_scaling_alternative_fe_regressions.do
-*  — Automated export of OLS, IV, and first‐stage F's
-*    across four explicit FE specifications
+*  user_productivity_alternative_fe.do
+*  — Exports results across explicit FE variants.  First (optional)
+*    argument selects panel variant (unbalanced | balanced | precovid).
 *============================================================*
+
+/* -----------------------------------------------------------------------
+   Parse variant argument BEFORE doing anything else so that downstream
+   scripts & path macros pick up the correct sample.                     */
+
+args variant
+if "`variant'" == "" local variant "unbalanced"
+global user_panel_variant "`variant'"
 capture log close
-local specname  "user_productivity_alternative_fe"
+*---------------------------------------------------------------------------*
+* Write results to a *variant‐specific* directory if we are not using the
+* default (unbalanced) worker panel.  This prevents subsequent runs from
+* overwriting earlier CSVs when `spec/run_productivity_variants.do` loops
+* over the three panel samples.
+*---------------------------------------------------------------------------*
+
+local specname user_productivity_alternative_fe_$user_panel_variant
 log using "log/`specname'.log", replace text
 
 // 0) Setup environment

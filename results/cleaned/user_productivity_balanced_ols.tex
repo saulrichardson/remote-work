@@ -1,0 +1,47 @@
+% Auto-generated user productivity table
+
+\begin{table}[H]
+\centering
+\caption{User Productivity (balanced) -- OLS}
+\label{tab:user_productivity_balanced_ols}
+\centering
+
+    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
+    \toprule
+    \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: Total Contrib. (pct. rk)}}}\\
+\addlinespace
+
+
+     & (1) & (2) & (3) & (4) & (5) & (6) \\
+    \midrule
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.25\\(0.35)} & \makecell[c]{0.40\\(0.36)} & \makecell[c]{0.43\\(0.36)} & \makecell[c]{0.39\\(0.37)} & \makecell[c]{0.34\\(0.38)} & \makecell[c]{0.13\\(0.42)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{-3.11**\\(1.44)} & \makecell[c]{-3.27**\\(1.48)} & \makecell[c]{-3.39**\\(1.48)} & \makecell[c]{-3.04**\\(1.45)} & \makecell[c]{-3.14**\\(1.57)} \\
+    \midrule
+    Time FE & $\checkmark$ & $\checkmark$ & $\checkmark$ &  &  &  \\
+Firm FE & $\checkmark$ & $\checkmark$ &  & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+User FE & $\checkmark$ & $\checkmark$ &  & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Firm $\times$ User FE &  &  & $\checkmark$ &  &  &  \\
+Industry $\times$ Time FE &  &  &  & $\checkmark$ &  & $\checkmark$ \\
+MSA $\times$ Time FE &  &  &  &  & $\checkmark$ & $\checkmark$ \\
+    \midrule
+    N & 519,099 & 519,099 & 516,442 & 515,817 & 518,431 & 508,510 \\
+    \specialrule{\lightrulewidth}{0pt}{0pt}
+    \end{tabularx}
+
+    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
+
+    \multicolumn{4}{@{}l}{\textbf{\uline{Panel B: Additional Outcomes}}}\\
+\addlinespace
+     & \multicolumn{3}{c}{Outcome} \\
+    \cmidrule(lr){2-4}
+     & Restricted (pct. rk) & Total (wins.) & Restr. (wins.) \\
+    \midrule
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-0.15\\(0.11)} & \makecell[c]{-0.98\\(0.69)} & \makecell[c]{-0.44\\(0.36)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{0.95\\(0.62)} & \makecell[c]{2.31\\(4.01)} & \makecell[c]{3.31\\(2.43)} \\
+    \midrule
+    Pre-COVID mean & 9.52 & 29.47 & 11.86 \\
+    N & 519,099 & 519,099 & 519,099 \\
+
+    \bottomrule
+    \end{tabularx}
+\end{table}

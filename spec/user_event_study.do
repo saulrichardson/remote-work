@@ -1,7 +1,13 @@
 do "../src/globals.do"
 
-local specname   "user_event_study"
-local result_path "$clean_results"
+*---------------------------------------------------------------------------*
+* The output directory now encodes the worker-panel variant so that event
+* study plots for different samples can coexist side-by-side.
+*---------------------------------------------------------------------------*
+
+local specname     "user_event_study_${user_panel_variant}"
+local result_path  "$clean_results/`specname'"
+capture mkdir "`result_path'"
 
 use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 

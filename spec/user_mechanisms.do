@@ -6,11 +6,25 @@
 
 capture log close
 // Canonical user mechanism regression script (wage included by default)
-local specname   "user_mechanisms"
+*---------------------------------------------------------------------------*
+* 0) Parse optional panel variant argument ----------------------------------
+*     Accepts:  unbalanced | balanced | precovid  (default = unbalanced)
+*---------------------------------------------------------------------------*
+
+args variant
+if "`variant'" == "" local variant "unbalanced"
+global user_panel_variant "`variant'"
+
+*---------------------------------------------------------------------------*
+* Tag *every* output directory with the user-panel variant so downstream
+* tables/figures always document the underlying sample.
+*---------------------------------------------------------------------------*
+
+local specname   "user_mechanisms_${user_panel_variant}"
 log using "log/`specname'.log", replace text
 
 
-// 0) Globals + setup
+// 1) Globals + setup
 do "../src/globals.do"
 local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"

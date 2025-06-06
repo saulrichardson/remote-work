@@ -13,8 +13,18 @@
 |                  global min & max yh
 |   • precovid   – users with positive pre-COVID restricted contributions
 |
-| For backward compatibility the `precovid` variant is also written to
-| the legacy filenames `user_panel.dta/csv`.
+# NOTE ──────────────────────────────────────────────────────────────────
+# In earlier versions the *pre-COVID* (“precovid”) sample was silently
+# duplicated to the generic legacy filenames `user_panel.dta/csv`.  This
+# implicit fallback made it impossible to see at a glance which panel
+# variant later specification scripts had been run on.
+#
+# The compatibility artefact has now been **removed**: every output file
+# is written *only* under an explicit, self-describing filename of the
+# form `user_panel_<variant>.dta|csv` (e.g. `user_panel_unbalanced.dta`).
+# Down-stream code must therefore always set the global macro
+# `$user_panel_variant` (see `src/globals.do`) and reference the variant
+# in filenames.  No more silent defaults.
 |
 | USAGE
 | -----
@@ -256,12 +266,7 @@ foreach sample of local sample_types {
     quietly save   "`base'.dta", replace
     export delimited "../data/samples/user_panel_`sample'.csv", replace
 
-    /* backward compatibility: legacy filenames for precovid ----------- */
-    if "`sample'" == "precovid" {
-        quietly save "$processed_data/user_panel.dta", replace
-        export delimited "../data/samples/user_panel.csv", replace
-    }
-
+    * progress message ---------------------------------------------------
     di as txt "✓ Created `sample' sample (" _N " obs)"
 }
 

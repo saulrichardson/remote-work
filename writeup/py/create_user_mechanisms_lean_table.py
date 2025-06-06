@@ -21,9 +21,49 @@ PROJECT_ROOT = HERE.parents[1]
 
 
 # Directory & filenames ------------------------------------------------------
-SPECNAME = "user_mechanisms_lean"
-INPUT_CSV = PROJECT_ROOT / "results" / "raw" / SPECNAME / "consolidated_results.csv"
-OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / "user_mechanisms_lean.tex"
+# ---------------------------------------------------------------------------
+# Variant handling mirroring the baseline mechanisms builder.
+# ---------------------------------------------------------------------------
+
+import argparse
+
+DEFAULT_VARIANT = "unbalanced"
+
+parser = argparse.ArgumentParser(description="Create lean user mechanisms regression tables")
+parser.add_argument(
+    "--variant",
+    choices=["unbalanced", "balanced", "precovid"],
+    default=DEFAULT_VARIANT,
+    help="Which user_panel sample variant to load (default: %(default)s)",
+)
+
+args = parser.parse_args()
+
+variant = args.variant
+
+# Stata exports follow the pattern `user_mechanisms_lean_<variant>`.  Keep
+# compatibility with the legacy directory lacking a suffix when *unbalanced*
+# is requested.
+
+SPECNAME = f"user_mechanisms_lean_{variant}"
+
+RAW_DIR = PROJECT_ROOT / "results" / "raw"
+input_dir = RAW_DIR / SPECNAME
+
+if not input_dir.exists():
+    # 1) Legacy non-variant directory
+    legacy_dir = RAW_DIR / "user_mechanisms_lean"
+    if legacy_dir.exists():
+        input_dir = legacy_dir
+    else:
+        # 2) Check archived location
+        archive_dir = RAW_DIR / "archive" / "user_mechanisms_lean"
+        if archive_dir.exists():
+            input_dir = archive_dir
+
+INPUT_CSV = input_dir / "consolidated_results.csv"
+
+OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / f"user_mechanisms_lean_{variant}.tex"
 
 # Keep parity with the baseline version --------------------------------------
 COLS_PER_TABLE = 8
@@ -108,7 +148,7 @@ def one_table(df_iv: pd.DataFrame, df_ols: pd.DataFrame, specs: list[str], idx: 
     lines: list[str] = []
     lines.append(r"\begin{table}[H]")
     lines.append(r"\centering")
-    lines.append(rf"\caption{{User Mechanisms – Lean (Part {idx})}}")
+    lines.append(rf"\caption{{User Mechanisms – Lean ({variant.capitalize()}) – Part {idx}}}")
     lines.append(r"\begin{tabular}{l" + "c" * len(specs) + "}")
     lines.append(r"\toprule")
 
@@ -148,7 +188,7 @@ def one_table(df_iv: pd.DataFrame, df_ols: pd.DataFrame, specs: list[str], idx: 
 
     lines.append(r"\bottomrule")
     lines.append(r"\end{tabular}")
-    lines.append(rf"\label{{tab:user_mechanisms_lean_{idx}}}")
+    lines.append(rf"\label{{tab:user_mechanisms_lean_{variant}_{idx}}}")
     lines.append(r"\end{table}")
     return lines
 
@@ -178,7 +218,11 @@ def main():
         lines.append("")  # blank line between tables for readability
 
     OUTPUT_TEX.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_TEX.write_text("\n".join(lines))
+    tex_content = "\n".join(lines)
+    OUTPUT_TEX.write_text(tex_content)
+    if variant == "unbalanced":
+        legacy_tex = OUTPUT_TEX.with_name("user_mechanisms_lean.tex")
+        legacy_tex.write_text(tex_content)
 
 
 if __name__ == "__main__":

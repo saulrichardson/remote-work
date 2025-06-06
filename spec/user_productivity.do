@@ -1,8 +1,20 @@
 *============================================================*
-*  do/worker_productivity_regressions.do
-*  — Automated export of OLS, IV, and first‐stage partial F's
-*    for worker productivity outcomes
+*  user_productivity.do
+*  — Export OLS, IV and first‐stage results for worker productivity
+*    OUTCOME.  The *first* (optional) command-line argument selects the user
+*    panel variant:  unbalanced | balanced | precovid  (default = unbalanced)
+*    This avoids reliance on pre-existing globals and makes driver scripts
+*    more robust.
+*    Example:   do user_productivity.do balanced
 *============================================================*
+
+* --------------------------------------------------------------------------
+* 0) Parse optional variant argument *before* sourcing globals --------------
+* --------------------------------------------------------------------------
+
+args variant
+if "`variant'" == "" local variant "unbalanced"
+global user_panel_variant "`variant'"
 
 // 0) Setup environment
 do "../src/globals.do"
@@ -11,7 +23,14 @@ do "../src/globals.do"
 use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 
 // 2) Prepare output dir & reset any old postfile
-local specname    "user_productivity"
+*--------------------------------------------------------------------------*
+* Results are now *always* written to <specname> _<panel‐variant> (e.g.,
+*   "user_productivity_unbalanced") so the output folder unambiguously states
+* which user‐panel sample was used.  No silent fallback for the default
+* sample.
+*--------------------------------------------------------------------------*
+
+local specname user_productivity_$user_panel_variant
 local result_dir  "$results/`specname'"
 capture mkdir "`result_dir'"
 

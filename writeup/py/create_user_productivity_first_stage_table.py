@@ -24,7 +24,24 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
 
-SPEC = "user_productivity"
+# ---------------------------------------------------------------
+# Allow panel‐variant selection so the table name/paths always
+# advertise the underlying sample (unbalanced / balanced / precovid).
+# ---------------------------------------------------------------
+
+DEFAULT_VARIANT = "unbalanced"
+
+import argparse
+
+parser = argparse.ArgumentParser(description="Create first-stage table (user productivity)")
+parser.add_argument("--variant", choices=["unbalanced", "balanced", "precovid"], default=DEFAULT_VARIANT)
+args = parser.parse_args()
+
+variant = args.variant
+
+SPEC_BASE = "user_productivity"
+
+SPEC = f"{SPEC_BASE}_{variant}"
 INPUT_CSV = PROJECT_ROOT / "results" / "raw" / SPEC / "first_stage.csv"
 OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / f"{SPEC}_first_stage.tex"
 
@@ -84,8 +101,8 @@ lines: list[str] = []
 lines.append("% Auto-generated – do *not* edit by hand")
 lines.append(r"\begin{table}[H]")
 lines.append(r"\centering")
-lines.append(r"\caption{First-Stage Estimates -- User Productivity}")
-lines.append(r"\label{tab:user_productivity_first_stage}")
+lines.append(rf"\caption{{First-Stage Estimates -- User Productivity ({variant})}}")
+lines.append(rf"\label{{tab:user_productivity_{variant}_first_stage}}")
 
 # Tabular preamble
 col_spec = "l" + "c" * len(ENDOVARS)

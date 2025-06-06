@@ -1,0 +1,46 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/run_productivity_variants.log
+  log type:  text
+ opened on:   6 Jun 2025, 00:52:22
+
+. 
+. local variants "unbalanced balanced precovid"
+
+. local scripts  "user_productivity.do user_productivity_alternative_fe.do user_productivity_initial.do user_mechanisms.do user_mechanism
+> s_lean.do"
+
+. 
+. foreach v of local variants {
+  2.     di as txt "=== Variant: `v' ==="
+  3.     foreach s of local scripts {
+  4.         di as txt "Running `s' with variant `v'"
+  5.         quietly do `"`s'"' "`v'"
+  6.     }
+  7. }
+=== Variant: unbalanced ===
+Running user_productivity.do with variant unbalanced
+file user_productivity.do not found
+r(601);
+
+end of do-file
+
+r(601);
+
+. cd ..
+/Users/saul/Dropbox/Remote Work Startups/main
+
+. cd spec
+/Users/saul/Dropbox/Remote Work Startups/main/spec
+
+. do "/Users/saul/Dropbox/Remote Work Startups/main/spec/run_productivity_variants.do"
+
+. * Execute productivity specifications for all user panel variants
+. 
+. // -------------------------------------------------------------------------
+. //  Master driver – run all productivity & mechanisms specs for every panel
+. //  variant.  A single *driver log* is written in addition to the per-script
+. //  logs created by each individual do-file.
+. // -------------------------------------------------------------------------
+. 
+. capture log close

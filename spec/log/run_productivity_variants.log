@@ -1,0 +1,31 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/run_productivity_variants.log
+  log type:  text
+ opened on:   6 Jun 2025, 00:52:34
+
+. 
+. local variants "unbalanced balanced precovid"
+
+. local scripts  "user_productivity.do user_productivity_alternative_fe.do user_productivity_initial.do user_mechanisms.do user_mechanism
+> s_lean.do"
+
+. 
+. foreach v of local variants {
+  2.     di as txt "=== Variant: `v' ==="
+  3.     foreach s of local scripts {
+  4.         di as txt "Running `s' with variant `v'"
+  5.         quietly do `"`s'"' "`v'"
+  6.     }
+  7. }
+=== Variant: unbalanced ===
+Running user_productivity.do with variant unbalanced
+--Break--
+--Break--
+r(1);
+
+end of do-file
+
+--Break--
+r(1);
+

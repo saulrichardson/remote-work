@@ -17,7 +17,7 @@ Inputs (CSV expected under `data/samples/`)
 * `firm_panel.csv`   – must contain  
   `firm_id`, `age` (years since founding), `remote`, `teleworkable`,
   `growth_rate_we`, `covid`.
-* `user_panel.csv` – must contain
+* `user_panel_<variant>.csv` – must contain (e.g. `user_panel_unbalanced.csv`)
   `firm_id`, `covid`, `total_contributions_q100`.
 """
 

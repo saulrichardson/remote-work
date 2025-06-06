@@ -18,12 +18,23 @@ import textwrap
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
 
-SPEC = "user_productivity"
+# ---------------------------------------------------------------------------
+# Panel‐sample variant handling
+# ---------------------------------------------------------------------------
+#  • "unbalanced" (default) — original filenames are kept to avoid breaking
+#    existing paths in the LaTeX source and elsewhere.
+#  • "balanced" / "precovid" — variant suffix appended to every directory
+#    name to prevent clobbering the default outputs.
+# ---------------------------------------------------------------------------
+
+DEFAULT_VARIANT = "unbalanced"
+
+# The variant identifier is injected further below once CLI arguments have
+# been parsed.  We build the path *templates* here so that the rest of the
+# script can stay untouched.
+
+SPEC_BASE = "user_productivity"
 RAW_DIR = PROJECT_ROOT / "results" / "raw"
-INPUT_BASE = RAW_DIR / SPEC / "consolidated_results.csv"
-# Alternative FE and baseline (initial) CSVs
-INPUT_ALT = RAW_DIR / f"{SPEC}_alternative_fe" / "consolidated_results.csv"
-INPUT_INIT = RAW_DIR / f"{SPEC}_initial" / "consolidated_results.csv"
 
 PARAM_ORDER = ["var3", "var5"]
 PARAM_LABEL = {
@@ -337,22 +348,43 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Create user productivity regression table")
     parser.add_argument("--model-type", choices=["ols", "iv"], default="ols")
+    parser.add_argument(
+        "--variant",
+        choices=["unbalanced", "balanced", "precovid"],
+        default=DEFAULT_VARIANT,
+        help="Which user_panel sample variant to load (default: %(default)s)",
+    )
     args = parser.parse_args()
 
     model = "IV" if args.model_type.lower() == "iv" else "OLS"
     include_kp = model == "IV"
 
-    output_tex = PROJECT_ROOT / "results" / "cleaned" / f"{SPEC}_{args.model_type}.tex"
-    caption = f"User Productivity -- {model}"
-    label = f"tab:user_productivity_{args.model_type}"
+    # ------------------------------------------------------------------
+    # Construct variant-aware input/output paths
+    # ------------------------------------------------------------------
 
-    for fp in (INPUT_BASE, INPUT_ALT, INPUT_INIT):
+    dir_base = f"{SPEC_BASE}_{args.variant}"
+    dir_alt = f"{SPEC_BASE}_alternative_fe_{args.variant}"
+    dir_init = f"{SPEC_BASE}_initial_{args.variant}"
+
+    input_base = RAW_DIR / dir_base / "consolidated_results.csv"
+    input_alt = RAW_DIR / dir_alt / "consolidated_results.csv"
+    input_init = RAW_DIR / dir_init / "consolidated_results.csv"
+
+    tex_stub = f"{SPEC_BASE}_{args.variant}_{args.model_type}"
+    tex_label_stub = f"user_productivity_{args.variant}_{args.model_type}"
+
+    output_tex = PROJECT_ROOT / "results" / "cleaned" / f"{tex_stub}.tex"
+    caption = f"User Productivity ({args.variant}) -- {model}"
+    label = f"tab:{tex_label_stub}"
+
+    for fp in (input_base, input_alt, input_init):
         if not fp.exists():
             raise FileNotFoundError(fp)
 
-    df_base = pd.read_csv(INPUT_BASE)
-    df_alt = pd.read_csv(INPUT_ALT)
-    df_init = pd.read_csv(INPUT_INIT).copy()
+    df_base = pd.read_csv(input_base)
+    df_alt = pd.read_csv(input_alt)
+    df_init = pd.read_csv(input_init).copy()
     df_init["fe_tag"] = "init"
 
     df_fe = pd.concat([df_init, df_alt], ignore_index=True)

@@ -1,8 +1,15 @@
 *============================================================*
-*  do/worker_productivity_regressions.do
-*  — Automated export of OLS, IV, and first‐stage partial F's
-*    for worker productivity outcomes
+*  user_productivity_initial.do
+*  — Baseline spec (no startup × remote interaction) for worker
+*    productivity.  Accepts *optional* first argument selecting the user
+*    panel variant (unbalanced | balanced | precovid).  Default = unbalanced.
+*    Example: do user_productivity_initial.do balanced
 *============================================================*
+
+* Parse variant argument ----------------------------------------------------
+args variant
+if "`variant'" == "" local variant "unbalanced"
+global user_panel_variant "`variant'"
 
 // 0) Setup environment
 do "../src/globals.do"
@@ -11,7 +18,12 @@ do "../src/globals.do"
 use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 
 // 2) Prepare output dir & reset any old postfile
-local specname    "user_productivity_initial"
+*--------------------------------------------------------------------------*
+* Output directory is *always* suffixed with the panel variant so each run is
+* explicit about the underlying sample (e.g., "user_productivity_initial_balanced").
+*--------------------------------------------------------------------------*
+
+local specname user_productivity_initial_$user_panel_variant
 local result_dir  "$results/`specname'"
 capture mkdir "`result_dir'"
 

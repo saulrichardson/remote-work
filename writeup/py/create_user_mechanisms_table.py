@@ -17,9 +17,52 @@ PROJECT_ROOT = HERE.parents[1]
 
 # Use wage-gap enriched specification results
 # Primary specification directory (includes wage dimension by default)
-SPECNAME = "user_mechanisms"
-INPUT_CSV = PROJECT_ROOT / "results" / "raw" / SPECNAME / "consolidated_results.csv"
-OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / "user_mechanisms.tex"
+# ---------------------------------------------------------------------------
+# Allow panel-sample variants so every generated table advertises the
+# underlying dataset (unbalanced / balanced / precovid).  This mirrors the
+# variant handling already used by the user-productivity table builders.
+# ---------------------------------------------------------------------------
+
+import argparse
+
+DEFAULT_VARIANT = "unbalanced"
+
+parser = argparse.ArgumentParser(description="Create user mechanisms regression tables")
+parser.add_argument(
+    "--variant",
+    choices=["unbalanced", "balanced", "precovid"],
+    default=DEFAULT_VARIANT,
+    help="Which user_panel sample variant to load (default: %(default)s)",
+)
+args = parser.parse_args()
+
+variant = args.variant
+
+# Directory names follow the pattern `user_mechanisms_<variant>` to be
+# consistent with the Stata export scripts.  We still support the legacy
+# directory `user_mechanisms` (no suffix) to keep backward compatibility with
+# previously archived results.
+
+SPECNAME = f"user_mechanisms_{variant}"
+
+# Prefer the explicit variant directory; fall back to the legacy path if it
+# does not exist and the requested variant is *unbalanced*.
+RAW_DIR = PROJECT_ROOT / "results" / "raw"
+input_dir = RAW_DIR / SPECNAME
+if not input_dir.exists():
+    # 1) Legacy non-variant directory under results/raw/
+    legacy_dir = RAW_DIR / "user_mechanisms"
+    if legacy_dir.exists():
+        input_dir = legacy_dir
+    else:
+        # 2) Older archives were moved into results/raw/archive/ – look there
+        archive_dir = RAW_DIR / "archive" / "user_mechanisms"
+        if archive_dir.exists():
+            input_dir = archive_dir
+
+INPUT_CSV = input_dir / "consolidated_results.csv"
+
+OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / f"user_mechanisms_{variant}.tex"
 
 COLS_PER_TABLE = 8
 
@@ -100,7 +143,7 @@ def one_table(df_iv, df_ols, specs, idx):
     lines = []
     lines.append(r"\begin{table}[H]")
     lines.append(r"\centering")
-    lines.append(rf"\caption{{User Mechanisms (Part {idx})}}")
+    lines.append(rf"\caption{{User Mechanisms ({variant.capitalize()}) – Part {idx}}}")
     lines.append(r"\begin{tabular}{l" + "c" * len(specs) + "}")
     lines.append(r"\toprule")
 
@@ -138,7 +181,7 @@ def one_table(df_iv, df_ols, specs, idx):
 
     lines.append(r"\bottomrule")
     lines.append(r"\end{tabular}")
-    lines.append(rf"\label{{tab:user_mechanisms_{idx}}}")
+    lines.append(rf"\label{{tab:user_mechanisms_{variant}_{idx}}}")
     lines.append(r"\end{table}")
     return lines
 
@@ -158,7 +201,12 @@ def main():
         lines.append("")
 
     OUTPUT_TEX.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_TEX.write_text("\n".join(lines), encoding="utf-8")
+    tex_content = "\n".join(lines)
+    OUTPUT_TEX.write_text(tex_content, encoding="utf-8")
+    # Write legacy filename for back-compatibility when variant == unbalanced
+    if variant == "unbalanced":
+        legacy_tex = OUTPUT_TEX.with_name("user_mechanisms.tex")
+        legacy_tex.write_text(tex_content, encoding="utf-8")
     print(f"Wrote {OUTPUT_TEX}")
 
 

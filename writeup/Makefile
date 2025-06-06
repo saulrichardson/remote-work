@@ -45,9 +45,12 @@ report:
 	@python py/create_firm_scaling_table.py --model-type iv
 	@python py/create_firm_scaling_first_stage_table.py
 	@python py/create_remote_first_stage_table.py
-	@python py/create_user_productivity_table.py --model-type ols
-	@python py/create_user_productivity_table.py --model-type iv
-	@python py/create_user_productivity_first_stage_table.py
+	# User productivity tables for each panel variant ----------------
+	@for v in unbalanced balanced precovid; do \
+	  python py/create_user_productivity_table.py --model-type ols --variant $$v; \
+	  python py/create_user_productivity_table.py --model-type iv  --variant $$v; \
+	  python py/create_user_productivity_first_stage_table.py --variant $$v; \
+	done
 	# Lean mechanism tables
 	@python py/create_user_mechanisms_lean_table.py
 	@python py/create_firm_mechanisms_lean_table.py
