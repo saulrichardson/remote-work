@@ -28,7 +28,7 @@ report:
 	#  expected artefacts are missing, we abort with an informative
 	#  message so the user can generate them manually in Stata.
 	# ------------------------------------------------------------------
-	@for v in unbalanced balanced precovid; do \
+	@for v in unbalanced balanced precovid balanced_pre; do \
 	  if [ ! -f ../results/raw/user_mechanisms_lean_$${v}/consolidated_results.csv ]; then \
 	    echo "ERROR: Missing ../results/raw/user_mechanisms_lean_$${v}/consolidated_results.csv. Please run spec/user_mechanisms_lean.do in Stata first."; \
 	    exit 1; \
@@ -41,7 +41,7 @@ report:
 	@python ../py/build_table_of_means.py
 	@MPLBACKEND=Agg python ../py/figures.py
 	@echo "Generating user mechanism tables..."
-	@for v in unbalanced balanced precovid; do \
+	@for v in unbalanced balanced precovid balanced_pre; do \
 	  python py/create_user_mechanisms_table.py --variant $$v; \
 	done
 	@python py/create_firm_mechanisms_table.py
@@ -51,14 +51,14 @@ report:
 	@python py/create_firm_scaling_first_stage_table.py
 	@python py/create_remote_first_stage_table.py
 	# User productivity tables for each panel variant ----------------
-	@for v in unbalanced balanced precovid; do \
+	@for v in unbalanced balanced precovid balanced_pre; do \
 	  python py/create_user_productivity_table.py --model-type ols --variant $$v; \
 	  python py/create_user_productivity_table.py --model-type iv  --variant $$v; \
 	  python py/create_user_productivity_first_stage_table.py --variant $$v; \
 	done
 	# Lean mechanism tables
 	@echo "Generating lean user mechanism tables..."
-	@for v in unbalanced balanced precovid; do \
+	@for v in unbalanced balanced precovid balanced_pre; do \
 	  python py/create_user_mechanisms_lean_table.py --variant $$v; \
 	done
 	@python py/create_firm_mechanisms_lean_table.py

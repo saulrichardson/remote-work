@@ -1,0 +1,73 @@
+\begin{table}[H]
+\centering
+\caption{User Mechanisms (Balanced_pre) – Part 1}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Total Contrib. (pct. rk)} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  & \checkmark &  &  &  & \checkmark & \checkmark & \checkmark \\
+HHI &  &  & \checkmark &  &  & \checkmark &  &  \\
+Seniority &  &  &  & \checkmark &  &  & \checkmark &  \\
+Wage &  &  &  &  & \checkmark &  &  & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -0.97 & 0.30 & -1.14 & 0.49 & 1.85 & 0.50 & 2.09 & 3.11 \\
+ & (0.79) & (1.79) & (0.98) & (6.65) & (2.38) & (1.84) & (6.53) & (2.82) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 4.38** & 2.74* & 3.89* & 4.35** & 4.03** & 2.29 & 2.72 & 2.50 \\
+ & (1.96) & (1.66) & (2.24) & (1.99) & (1.97) & (1.83) & (1.66) & (1.66) \\
+\midrule
+N & 52,995 & 51,405 & 52,982 & 52,995 & 52,995 & 51,392 & 51,405 & 51,405 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -6.17 & -450.43 & 67.77 & -5614.71 & 12.48 & -180.20 & 126.94 & -398.83 \\
+ & (7.50) & (882.68) & (273.16) & (14831.29) & (36.18) & (1023.24) & (631.45) & (639.07) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 16.94* & 72.73 & 114.08 & 4.50 & 12.49 & 158.27 & 40.42 & 63.41 \\
+ & (9.37) & (119.08) & (348.69) & (102.83) & (14.68) & (276.13) & (46.85) & (88.63) \\
+\midrule
+N & 52,995 & 47,784 & 49,233 & 49,246 & 49,246 & 47,771 & 47,784 & 47,784 \\
+KP\,rk Wald F & 26.05 & 0.09 & 0.03 & 0.12 & 1.25 & 0.04 & 0.08 & 0.10 \\
+\bottomrule
+\end{tabular}
+\label{tab:user_mechanisms_balanced_pre_1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{User Mechanisms (Balanced_pre) – Part 2}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Total Contrib. (pct. rk)} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  &  &  & \checkmark & \checkmark & \checkmark &  & \checkmark \\
+HHI & \checkmark & \checkmark &  & \checkmark & \checkmark &  & \checkmark & \checkmark \\
+Seniority & \checkmark &  & \checkmark & \checkmark &  & \checkmark & \checkmark & \checkmark \\
+Wage &  & \checkmark & \checkmark &  & \checkmark & \checkmark & \checkmark & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & 1.08 & 1.74 & 3.30 & 3.33 & 3.43 & 4.92 & 3.70 & 6.01 \\
+ & (6.70) & (2.36) & (7.17) & (6.61) & (2.81) & (7.03) & (7.17) & (7.06) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 3.80* & 3.30 & 4.00** & 2.16 & 1.79 & 2.48 & 3.22 & 1.68 \\
+ & (2.27) & (2.27) & (2.00) & (1.84) & (1.84) & (1.66) & (2.29) & (1.84) \\
+\midrule
+N & 52,982 & 52,982 & 52,995 & 51,392 & 51,392 & 51,405 & 52,982 & 51,392 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & 962.16 & 72.99 & -633.23 & -218.66 & -187.44 & 132.15 & 755.24 & -329.64 \\
+ & (5330.98) & (501.24) & (1887.75) & (2982.88) & (1254.59) & (557.90) & (7285.20) & (7847.54) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & -162.47 & 128.42 & -0.99 & 165.07 & 143.45 & 38.24 & -142.52 & 205.86 \\
+ & (1072.07) & (947.83) & (50.32) & (967.15) & (257.84) & (33.19) & (937.58) & (2710.79) \\
+\midrule
+N & 49,233 & 49,233 & 49,246 & 47,771 & 47,771 & 47,784 & 49,233 & 47,771 \\
+KP\,rk Wald F & 0.01 & 0.00 & 0.16 & 0.00 & 0.01 & 0.10 & 0.00 & 0.00 \\
+\bottomrule
+\end{tabular}
+\label{tab:user_mechanisms_balanced_pre_2}
+\end{table}

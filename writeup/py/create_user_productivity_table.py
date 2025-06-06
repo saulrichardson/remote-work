@@ -23,8 +23,8 @@ PROJECT_ROOT = HERE.parents[1]
 # ---------------------------------------------------------------------------
 #  • "unbalanced" (default) — original filenames are kept to avoid breaking
 #    existing paths in the LaTeX source and elsewhere.
-#  • "balanced" / "precovid" — variant suffix appended to every directory
-#    name to prevent clobbering the default outputs.
+#  • "balanced" / "precovid" / "balanced_pre" — variant suffix appended to every
+#    directory name to prevent clobbering the default outputs.
 # ---------------------------------------------------------------------------
 
 DEFAULT_VARIANT = "unbalanced"
@@ -350,7 +350,7 @@ def main() -> None:
     parser.add_argument("--model-type", choices=["ols", "iv"], default="ols")
     parser.add_argument(
         "--variant",
-        choices=["unbalanced", "balanced", "precovid"],
+        choices=["unbalanced", "balanced", "precovid", "balanced_pre"],
         default=DEFAULT_VARIANT,
         help="Which user_panel sample variant to load (default: %(default)s)",
     )

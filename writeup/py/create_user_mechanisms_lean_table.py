@@ -23,6 +23,7 @@ PROJECT_ROOT = HERE.parents[1]
 # Directory & filenames ------------------------------------------------------
 # ---------------------------------------------------------------------------
 # Variant handling mirroring the baseline mechanisms builder.
+# Allow panel-sample variants (unbalanced / balanced / precovid / balanced_pre).
 # ---------------------------------------------------------------------------
 
 import argparse
@@ -32,7 +33,7 @@ DEFAULT_VARIANT = "unbalanced"
 parser = argparse.ArgumentParser(description="Create lean user mechanisms regression tables")
 parser.add_argument(
     "--variant",
-    choices=["unbalanced", "balanced", "precovid"],
+    choices=["unbalanced", "balanced", "precovid", "balanced_pre"],
     default=DEFAULT_VARIANT,
     help="Which user_panel sample variant to load (default: %(default)s)",
 )

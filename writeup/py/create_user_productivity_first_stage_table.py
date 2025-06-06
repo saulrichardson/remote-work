@@ -26,7 +26,7 @@ PROJECT_ROOT = HERE.parents[1]
 
 # ---------------------------------------------------------------
 # Allow panel‐variant selection so the table name/paths always
-# advertise the underlying sample (unbalanced / balanced / precovid).
+# advertise the underlying sample (unbalanced / balanced / precovid / balanced_pre).
 # ---------------------------------------------------------------
 
 DEFAULT_VARIANT = "unbalanced"
@@ -34,7 +34,7 @@ DEFAULT_VARIANT = "unbalanced"
 import argparse
 
 parser = argparse.ArgumentParser(description="Create first-stage table (user productivity)")
-parser.add_argument("--variant", choices=["unbalanced", "balanced", "precovid"], default=DEFAULT_VARIANT)
+parser.add_argument("--variant", choices=["unbalanced", "balanced", "precovid", "balanced_pre"], default=DEFAULT_VARIANT)
 args = parser.parse_args()
 
 variant = args.variant

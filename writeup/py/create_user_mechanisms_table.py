@@ -19,8 +19,8 @@ PROJECT_ROOT = HERE.parents[1]
 # Primary specification directory (includes wage dimension by default)
 # ---------------------------------------------------------------------------
 # Allow panel-sample variants so every generated table advertises the
-# underlying dataset (unbalanced / balanced / precovid).  This mirrors the
-# variant handling already used by the user-productivity table builders.
+# underlying dataset (unbalanced / balanced / precovid / balanced_pre).
+# This mirrors the variant handling already used by the user-productivity table builders.
 # ---------------------------------------------------------------------------
 
 import argparse
@@ -30,7 +30,7 @@ DEFAULT_VARIANT = "unbalanced"
 parser = argparse.ArgumentParser(description="Create user mechanisms regression tables")
 parser.add_argument(
     "--variant",
-    choices=["unbalanced", "balanced", "precovid"],
+    choices=["unbalanced", "balanced", "precovid", "balanced_pre"],
     default=DEFAULT_VARIANT,
     help="Which user_panel sample variant to load (default: %(default)s)",
 )
