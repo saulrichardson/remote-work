@@ -375,7 +375,8 @@ def main() -> None:
     tex_label_stub = f"user_productivity_{args.variant}_{args.model_type}"
 
     output_tex = PROJECT_ROOT / "results" / "cleaned" / f"{tex_stub}.tex"
-    caption = f"User Productivity ({args.variant}) -- {model}"
+    variant_tex = args.variant.replace("_", r"\_")
+    caption = f"User Productivity ({variant_tex}) -- {model}"
     label = f"tab:{tex_label_stub}"
 
     for fp in (input_base, input_alt, input_init):

@@ -149,7 +149,8 @@ def one_table(df_iv: pd.DataFrame, df_ols: pd.DataFrame, specs: list[str], idx: 
     lines: list[str] = []
     lines.append(r"\begin{table}[H]")
     lines.append(r"\centering")
-    lines.append(rf"\caption{{User Mechanisms – Lean ({variant.capitalize()}) – Part {idx}}}")
+    variant_tex = variant.capitalize().replace("_", r"\_")
+    lines.append(rf"\caption{{User Mechanisms – Lean ({variant_tex}) – Part {idx}}}")
     lines.append(r"\begin{tabular}{l" + "c" * len(specs) + "}")
     lines.append(r"\toprule")
 
