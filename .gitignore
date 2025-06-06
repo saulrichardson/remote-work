@@ -24,3 +24,7 @@ archive/
 # Local folders for old scripts
 **/bin/
 .DS_Store
+
+# HPC generated files
+hpc/sbatch/
+hpc/out/

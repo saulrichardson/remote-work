@@ -8,9 +8,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-# Adjust path to Stata executable if needed
-STATA_BIN="stata-mp"
 EMAIL="sxr203@nyu.edu"
+
+# Folder to store generated sbatch files and slurm outputs
+SBATCH_DIR="hpc/sbatch"
+OUT_DIR="hpc/out"
+LOG_DIR="spec/log"
+
+mkdir -p "$SBATCH_DIR" "$OUT_DIR" "$LOG_DIR"
 
 variants=(unbalanced balanced precovid)
 scripts=(
@@ -23,10 +28,14 @@ scripts=(
 
 for variant in "${variants[@]}"; do
   for script in "${scripts[@]}"; do
-    job_name="$(basename "$script" .do)_${variant}"
-    sbatch <<EOT
+    script_base="$(basename "$script" .do)"
+    job_name="${script_base}_${variant}"
+    sbatch_file="${SBATCH_DIR}/${job_name}.sbatch"
+
+    cat >"$sbatch_file" <<EOF
 #!/bin/bash
 #SBATCH --job-name=${job_name}
+#SBATCH --output=${OUT_DIR}/${job_name}.out
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=${EMAIL}
 #SBATCH --time=48:00:00
@@ -36,8 +45,17 @@ for variant in "${variants[@]}"; do
 set -euo pipefail
 cd "$ROOT_DIR"
 
-"${STATA_BIN}" -b do spec/${script} ${variant}
-EOT
+module purge
+module load stata/17.0
+
+stata -b do spec/${script} ${variant}
+
+if [ -f spec/${script_base}.log ]; then
+    mv spec/${script_base}.log ${LOG_DIR}/${job_name}.log
+fi
+EOF
+
+    sbatch "$sbatch_file"
   done
 done
 
