@@ -10,6 +10,10 @@
 args variant
 if "`variant'" == "" local variant "unbalanced"
 global user_panel_variant "`variant'"
+local specname user_productivity_initial_$user_panel_variant
+capture log close
+cap mkdir "log"
+log using "log/`specname'.log", replace text
 
 // 0) Setup environment
 do "../src/globals.do"
@@ -23,7 +27,6 @@ use "$processed_data/user_panel_${user_panel_variant}.dta", clear
 * explicit about the underlying sample (e.g., "user_productivity_initial_balanced").
 *--------------------------------------------------------------------------*
 
-local specname user_productivity_initial_$user_panel_variant
 local result_dir  "$results/`specname'"
 capture mkdir "`result_dir'"
 
@@ -135,3 +138,4 @@ export delimited using "`result_dir'/first_stage.csv", ///
 
 di as result "→ second-stage CSV : `result_dir'/consolidated_results.csv"
 di as result "→ first-stage  CSV : `result_dir'/first_stage.csv"
+capture log close

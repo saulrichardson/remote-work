@@ -12,6 +12,7 @@ args variant
 if "`variant'" == "" local variant "unbalanced"
 global user_panel_variant "`variant'"
 capture log close
+cap mkdir "log"
 *---------------------------------------------------------------------------*
 * Write results to a *variant‐specific* directory if we are not using the
 * default (unbalanced) worker panel.  This prevents subsequent runs from
