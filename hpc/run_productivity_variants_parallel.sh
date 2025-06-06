@@ -13,9 +13,8 @@ EMAIL="sxr203@nyu.edu"
 # Folder to store generated sbatch files and slurm outputs
 SBATCH_DIR="hpc/sbatch"
 OUT_DIR="hpc/out"
-LOG_DIR="spec/log"
 
-mkdir -p "$SBATCH_DIR" "$OUT_DIR" "$LOG_DIR"
+mkdir -p "$SBATCH_DIR" "$OUT_DIR"
 
 variants=(unbalanced balanced precovid)
 scripts=(
@@ -48,11 +47,7 @@ cd "$ROOT_DIR"
 module purge
 module load stata/17.0
 
-stata -b do spec/${script} ${variant}
-
-if [ -f spec/${script_base}.log ]; then
-    mv spec/${script_base}.log ${LOG_DIR}/${job_name}.log
-fi
+    stata -b do spec/${script} ${variant}
 EOF
 
     sbatch "$sbatch_file"

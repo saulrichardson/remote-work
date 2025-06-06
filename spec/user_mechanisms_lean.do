@@ -5,6 +5,7 @@
 *============================================================*
 
 capture log close
+cap mkdir "log"
 // Canonical user mechanism regression script (wage included by default)
 *---------------------------------------------------------------------------*
 * 0) Parse optional panel variant argument ----------------------------------
