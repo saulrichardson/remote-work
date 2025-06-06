@@ -231,7 +231,7 @@ save     "`_master_panel'", replace
 * 2.  Parameterised sample creation
 ****************************************************************************
 
-local sample_types "unbalanced balanced precovid"
+local sample_types "unbalanced balanced precovid balanced_pre"
 
 foreach sample of local sample_types {
 
@@ -259,6 +259,28 @@ foreach sample of local sample_types {
 
     if "`sample'" == "precovid" {
         keep if pre_covid_rest > 0
+    }
+	
+	if "`sample'" == "balanced_pre" {
+		keep if pre_covid_rest > 0
+		
+        gsort user_id yh
+        quietly summarize yh, meanonly
+        local global_min = r(min)
+        local global_max = r(max)
+
+        by user_id: egen min_time = min(yh)
+        by user_id: egen max_time = max(yh)
+        by user_id: egen nobs     = count(yh)
+
+        preserve
+            contract yh, freq(count_yh)
+            local total_periods = _N
+        restore
+
+        keep if min_time==`global_min' & max_time==`global_max' & nobs==`total_periods'
+        drop min_time max_time nobs
+		
     }
 
     /* ----------------------- output ---------------------------------- */

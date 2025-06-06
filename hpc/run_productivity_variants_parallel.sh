@@ -16,7 +16,7 @@ OUT_DIR="hpc/out"
 
 mkdir -p "$SBATCH_DIR" "$OUT_DIR"
 
-variants=(unbalanced balanced precovid)
+variants=(unbalanced balanced precovid balanced_pre)
 scripts=(
     user_productivity.do
     user_productivity_alternative_fe.do

@@ -28,17 +28,22 @@ report:
 	#  expected artefacts are missing, we abort with an informative
 	#  message so the user can generate them manually in Stata.
 	# ------------------------------------------------------------------
-	@if [ ! -f ../results/raw/user_mechanisms_lean/consolidated_results.csv ]; then \
-	  echo "ERROR: Missing ../results/raw/user_mechanisms_lean/consolidated_results.csv.  Please run spec/user_mechanisms_lean.do in Stata first."; \
-	  exit 1; \
-	fi
+	@for v in unbalanced balanced precovid; do \
+	  if [ ! -f ../results/raw/user_mechanisms_lean_$${v}/consolidated_results.csv ]; then \
+	    echo "ERROR: Missing ../results/raw/user_mechanisms_lean_$${v}/consolidated_results.csv. Please run spec/user_mechanisms_lean.do in Stata first."; \
+	    exit 1; \
+	  fi; \
+	done
 	@if [ ! -f ../results/raw/firm_mechanisms_lean/consolidated_results.csv ]; then \
 	  echo "ERROR: Missing ../results/raw/firm_mechanisms_lean/consolidated_results.csv.  Please run spec/firm_mechanisms_lean.do in Stata first."; \
 	  exit 1; \
 	fi
 	@python ../py/build_table_of_means.py
 	@MPLBACKEND=Agg python ../py/figures.py
-	@python py/create_user_mechanisms_table.py
+	@echo "Generating user mechanism tables..."
+	@for v in unbalanced balanced precovid; do \
+	  python py/create_user_mechanisms_table.py --variant $$v; \
+	done
 	@python py/create_firm_mechanisms_table.py
 	@echo "Generating firm scaling tables..."
 	@python py/create_firm_scaling_table.py --model-type ols
@@ -52,7 +57,10 @@ report:
 	  python py/create_user_productivity_first_stage_table.py --variant $$v; \
 	done
 	# Lean mechanism tables
-	@python py/create_user_mechanisms_lean_table.py
+	@echo "Generating lean user mechanism tables..."
+	@for v in unbalanced balanced precovid; do \
+	  python py/create_user_mechanisms_lean_table.py --variant $$v; \
+	done
 	@python py/create_firm_mechanisms_lean_table.py
 	@echo "Compiling consolidated report..."
 	@pdflatex -halt-on-error -interaction=nonstopmode \
