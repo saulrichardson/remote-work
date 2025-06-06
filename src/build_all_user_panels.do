@@ -22,9 +22,9 @@
 # The compatibility artefact has now been **removed**: every output file
 # is written *only* under an explicit, self-describing filename of the
 # form `user_panel_<variant>.dta|csv` (e.g. `user_panel_unbalanced.dta`).
-# Down-stream code must therefore always set the global macro
-# `$user_panel_variant` (see `src/globals.do`) and reference the variant
-# in filenames.  No more silent defaults.
+# Down-stream code must therefore always reference the panel variant
+# explicitly in filenames (e.g. by passing it as an argument to
+# specification scripts).  No more silent defaults.
 |
 | USAGE
 | -----

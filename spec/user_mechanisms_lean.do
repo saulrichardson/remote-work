@@ -12,16 +12,15 @@ cap mkdir "log"
 *     Accepts:  unbalanced | balanced | precovid  (default = unbalanced)
 *---------------------------------------------------------------------------*
 
-args variant
-if "`variant'" == "" local variant "unbalanced"
-global user_panel_variant "`variant'"
+args panel_variant
+if "`panel_variant'" == "" local panel_variant "unbalanced"
 
 *---------------------------------------------------------------------------*
 * Ensure the panel variant is explicitly part of every identifier so that
 * results can never be mistaken for a different sample.
 *---------------------------------------------------------------------------*
 
-local specname   "user_mechanisms_lean_${user_panel_variant}"
+local specname   "user_mechanisms_lean_`panel_variant'"
 log using "log/`specname'.log", replace text
 
 
@@ -31,7 +30,7 @@ local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
 
 // 1) Load & prepare once
-use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+use "$processed_data/user_panel_`panel_variant'.dta", clear
 gen seniority_4 = !inrange(seniority_levels,1,3)
 
 // interactions

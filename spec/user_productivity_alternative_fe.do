@@ -8,9 +8,8 @@
    Parse variant argument BEFORE doing anything else so that downstream
    scripts & path macros pick up the correct sample.                     */
 
-args variant
-if "`variant'" == "" local variant "unbalanced"
-global user_panel_variant "`variant'"
+args panel_variant
+if "`panel_variant'" == "" local panel_variant "unbalanced"
 capture log close
 cap mkdir "log"
 *---------------------------------------------------------------------------*
@@ -20,7 +19,7 @@ cap mkdir "log"
 * over the three panel samples.
 *---------------------------------------------------------------------------*
 
-local specname user_productivity_alternative_fe_$user_panel_variant
+local specname user_productivity_alternative_fe_`panel_variant'
 log using "log/`specname'.log", replace text
 
 // 0) Setup environment
@@ -67,7 +66,7 @@ local tag   "fyhu"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 
@@ -156,7 +155,7 @@ local tag   "firmbyuseryh"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
     summarize `y' if covid == 0, meanonly
@@ -244,7 +243,7 @@ local feopt "absorb(firm_id yh)"
 local tag   "fyh"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
     summarize `y' if covid == 0, meanonly
@@ -328,7 +327,7 @@ local feopt "absorb(user_id yh)"
 local tag   "useryh"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
     summarize `y' if covid == 0, meanonly
@@ -414,7 +413,7 @@ local feopt "absorb(yh)"
 local tag   "time"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
 
         gen var8 = remote * startup
         gen var9 = teleworkable*startup
@@ -503,7 +502,7 @@ local feopt "absorb(firm_id)"
 local tag   "firm"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
 
     display as text ">> FE spec: firm  (tag=`tag')"
     display as text "   – outcome: `y'"
@@ -590,7 +589,7 @@ local feopt ""
 local tag   "none"
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
 	
 	gen var8 = remote * startup
     gen var9 = teleworkable*startup
@@ -679,7 +678,7 @@ local tag   "industrytime"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 
@@ -764,7 +763,7 @@ local tag   "msatime"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 
@@ -851,7 +850,7 @@ local tag   "msaindustrytime"
 
 
 foreach y of local outcomes {
-    use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+    use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
     display as text "   – outcome: `y'"
 

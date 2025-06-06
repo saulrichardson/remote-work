@@ -7,10 +7,9 @@
 *============================================================*
 
 * Parse variant argument ----------------------------------------------------
-args variant
-if "`variant'" == "" local variant "unbalanced"
-global user_panel_variant "`variant'"
-local specname user_productivity_initial_$user_panel_variant
+args panel_variant
+if "`panel_variant'" == "" local panel_variant "unbalanced"
+local specname user_productivity_initial_`panel_variant'
 capture log close
 cap mkdir "log"
 log using "log/`specname'.log", replace text
@@ -19,7 +18,7 @@ log using "log/`specname'.log", replace text
 do "../src/globals.do"
 
 // 1) Load worker‐level panel
-use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+use "$processed_data/user_panel_`panel_variant'.dta", clear
 
 // 2) Prepare output dir & reset any old postfile
 *--------------------------------------------------------------------------*

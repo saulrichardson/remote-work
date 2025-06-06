@@ -1,3 +1,5 @@
+args panel_variant
+if "`panel_variant'" == "" local panel_variant "unbalanced"
 do "../src/globals.do"
 
 *---------------------------------------------------------------------------*
@@ -5,11 +7,11 @@ do "../src/globals.do"
 * study plots for different samples can coexist side-by-side.
 *---------------------------------------------------------------------------*
 
-local specname     "user_event_study_${user_panel_variant}"
+local specname     "user_event_study_`panel_variant'"
 local result_path  "$clean_results/`specname'"
 capture mkdir "`result_path'"
 
-use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+use "$processed_data/user_panel_`panel_variant'.dta", clear
 
 * Create half-year dummies: time1 ... timeN
 tab yh, gen(time)
