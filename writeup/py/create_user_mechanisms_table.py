@@ -143,7 +143,8 @@ def one_table(df_iv, df_ols, specs, idx):
     lines = []
     lines.append(r"\begin{table}[H]")
     lines.append(r"\centering")
-    lines.append(rf"\caption{{User Mechanisms ({variant.capitalize()}) – Part {idx}}}")
+    variant_tex = variant.capitalize().replace("_", r"\_")
+    lines.append(rf"\caption{{User Mechanisms ({variant_tex}) – Part {idx}}}")
     lines.append(r"\begin{tabular}{l" + "c" * len(specs) + "}")
     lines.append(r"\toprule")
 

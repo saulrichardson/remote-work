@@ -38,6 +38,7 @@ parser.add_argument("--variant", choices=["unbalanced", "balanced", "precovid", 
 args = parser.parse_args()
 
 variant = args.variant
+variant_tex = variant.replace("_", r"\_")
 
 SPEC_BASE = "user_productivity"
 
@@ -101,7 +102,7 @@ lines: list[str] = []
 lines.append("% Auto-generated – do *not* edit by hand")
 lines.append(r"\begin{table}[H]")
 lines.append(r"\centering")
-lines.append(rf"\caption{{First-Stage Estimates -- User Productivity ({variant})}}")
+lines.append(rf"\caption{{First-Stage Estimates -- User Productivity ({variant_tex})}}")
 lines.append(rf"\label{{tab:user_productivity_{variant}_first_stage}}")
 
 # Tabular preamble
