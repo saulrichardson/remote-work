@@ -42,12 +42,12 @@ for variant in "${variants[@]}"; do
 #SBATCH --cpus-per-task=4
 
 set -euo pipefail
-cd "$ROOT_DIR"
+cd "$ROOT_DIR/spec"
 
 module purge
 module load stata/17.0
 
-    stata -b do spec/${script} ${variant}
+    stata -b do ${script} ${variant}
 EOF
 
     sbatch "$sbatch_file"
