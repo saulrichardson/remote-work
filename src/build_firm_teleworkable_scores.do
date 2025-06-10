@@ -1,15 +1,42 @@
 do "globals.do"
 
+
+import delimited "$raw_data/rolek1000_onet_cw.csv", varnames(1)  ///
+    clear bindquote(strict) stringcols(_all)
+
+rename onet_code new_onet_code
+rename onet_title new_onet_title
+
+tempfile new_onet
+save `new_onet', replace
+
+
 ********************************************************************************
 * Import LinkedIn Occupation Data
 ********************************************************************************
 
 import delimited "$raw_data/Scoop_workers_positions.csv", clear bindquote(strict) ///
-    stringcols(_all)
+    stringcols(_all) rowrange(1:1000)
     
 * Standardize SOC codes: use soc_2010; if missing, use soc6d.
-gen soc_new = soc_2010
-replace soc_new = soc6d if (soc_new == "")
+// gen soc_new = soc_2010
+// replace soc_new = soc6d if (soc_new == "")
+
+merge m:1 role_k1000 using `new_onet'
+keep if _merge != 2 //gets rid of roles from onet that we dont have in linkedin
+drop _merge
+
+//assume new onset scores are full match and replace previous soc_new which
+//serve as merging variable for teleworkable socre 
+
+replace new_onet_code = strtrim(new_onet_code)
+gen before_dot = substr(new_onet_code, 1, 7)  // e.g., "15-1130"
+gen after_dot  = substr(new_onet_code, 8, .)   // e.g., ".00"
+keep if after_dot == ".00"
+rename before_dot new_onet_code_cleaned
+rename new_onet_code_cleaned soc_new
+
+
 
 tempfile tf_linkedin_occupation
 save `tf_linkedin_occupation', replace

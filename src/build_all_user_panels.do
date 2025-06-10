@@ -206,23 +206,6 @@ gen var5 = remote*covid*startup
 gen var6 = covid*company_teleworkable
 gen var7 = startup*covid*company_teleworkable
 
-* outcome transforms -----------------------------------------------------*
-local original_outcomes "total_contributions restricted_contributions"
-foreach var of local original_outcomes {
-    winsor2 `var', cuts(5 95) suffix(_we)
-    bysort yh: egen `var'_q100 = xtile(`var'), nq(100)
-    label var `var'_we    "`var' (Winsorised [5–95])"
-    label var `var'_q100 "`var' (Percentile rank [1–100])"
-}
-
-* common-sample screen ----------------------------------------------------*
-local keep_vars ///
-    user_id firm_id yh covid remote startup company_teleworkable ///
-    total_contributions_q100 restricted_contributions_q100 ///
-    var3 var4 var5 var6 var7
-
-egen miss_ct = rowmiss(`keep_vars')
-keep if miss_ct==0
 
 tempfile _master_panel
 save     "`_master_panel'", replace
@@ -282,6 +265,24 @@ foreach sample of local sample_types {
         drop min_time max_time nobs
 		
     }
+	
+	* outcome transforms -----------------------------------------------------*
+	local original_outcomes "total_contributions restricted_contributions"
+	foreach var of local original_outcomes {
+		winsor2 `var', cuts(5 95) suffix(_we)
+		bysort yh: egen `var'_q100 = xtile(`var'), nq(100)
+		label var `var'_we    "`var' (Winsorised [5–95])"
+		label var `var'_q100 "`var' (Percentile rank [1–100])"
+	}
+	
+	* common-sample screen ----------------------------------------------------*
+	local keep_vars ///
+		user_id firm_id yh covid remote startup company_teleworkable ///
+		total_contributions_q100 restricted_contributions_q100 ///
+		var3 var4 var5 var6 var7
+
+	egen miss_ct = rowmiss(`keep_vars')
+	keep if miss_ct==0
 
     /* ----------------------- output ---------------------------------- */
     local base   = "$processed_data/user_panel_`sample'"
