@@ -1,5 +1,9 @@
 do "../src/globals.do"
 local specname  "firm_event_study"
+capture log close
+cap mkdir "log"
+log using "log/`specname'.log", replace text
+
 local result_path "$clean_results"
 // capture mkdir "`result_path'"
 

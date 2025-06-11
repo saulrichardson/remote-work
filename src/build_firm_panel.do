@@ -1,6 +1,10 @@
 
 do "globals.do"
 
+capture log close
+cap mkdir "log"
+log using "log/build_firm_panel.log", replace text
+
 
 import delimited "$raw_data/Scoop_alt.csv", clear
 
@@ -190,3 +194,5 @@ drop miss_ct common_sample
 
 save "$processed_data/firm_panel.dta", replace
 export delimited "../data/samples/firm_panel.csv", replace
+
+log close

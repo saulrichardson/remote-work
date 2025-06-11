@@ -5,6 +5,7 @@
 *============================================================*
 
 capture log close
+cap mkdir "log"
 local specname   "firm_mechanisms"
 log using "log/`specname'.log", replace text
 

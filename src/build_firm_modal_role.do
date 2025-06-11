@@ -4,6 +4,10 @@
 
 do "../globals.do"
 
+capture log close
+cap mkdir "log"
+log using "log/build_firm_modal_role.log", replace text
+
 ********************************************************************************
 ** 1) Import LinkedIn Occupation Data
 ********************************************************************************
@@ -32,5 +36,7 @@ bysort companyname : keep if _n == 1
 keep companyname role_k7 _freq
 
 save "$data/modal_role_per_firm.dta", replace
+
+log close
 
 

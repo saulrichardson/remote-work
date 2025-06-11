@@ -4,6 +4,10 @@
 ********************************************************************************
 
 do "../globals.do"
+
+capture log close
+cap mkdir "log"
+log using "log/build_linkedin_panel.log", replace text
 *---------------------------------------------------------*
 * 1) Load the LinkedIn Positions Data & Standardize SOC Codes
 *---------------------------------------------------------*
@@ -155,3 +159,5 @@ collapse (last) `keepvars', by(user_id yh)
 * Remove any variables you don't want to keep (if needed).
 * (For example, the previous version dropped several variables; here we keep all.)
 save "$data/expanded_half_years.dta", replace
+
+log close

@@ -1,3 +1,7 @@
+capture log close
+cap mkdir "log"
+log using "log/build_worker_modal_role.log", replace text
+
 use "$data/expanded_half_years_2.dta", clear
 
 keep if yh < 120                    
@@ -14,3 +18,5 @@ keep user_id baseline_role_k7
 
 tempfile worker_baseline_role
 save "$processed_data/worker_baseline_role", replace
+
+log close

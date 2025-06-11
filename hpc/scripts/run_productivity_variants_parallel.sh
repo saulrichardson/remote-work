@@ -4,17 +4,15 @@
 
 set -euo pipefail
 
-# Determine repository root (directory above this script)
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT_DIR"
+# Repository root
+REPO="$HOME/main"
+cd "$REPO"
 
 EMAIL="sxr203@nyu.edu"
 
 # Folder to store generated sbatch files and slurm outputs
-SBATCH_DIR="hpc/sbatch"
-OUT_DIR="hpc/out"
-
-mkdir -p "$SBATCH_DIR" "$OUT_DIR"
+SBATCH_DIR="$REPO/hpc/sbatch"
+mkdir -p "$SBATCH_DIR"
 
 variants=(unbalanced balanced precovid balanced_pre)
 scripts=(
@@ -29,20 +27,19 @@ for variant in "${variants[@]}"; do
   for script in "${scripts[@]}"; do
     script_base="$(basename "$script" .do)"
     job_name="${script_base}_${variant}"
-    sbatch_file="${SBATCH_DIR}/${job_name}.sbatch"
+    sbatch_file="$SBATCH_DIR/${job_name}.sbatch"
 
     cat >"$sbatch_file" <<EOF
 #!/bin/bash
+#SBATCH --time=3:00:00
+#SBATCH --mem=10GB
 #SBATCH --job-name=${job_name}
-#SBATCH --output=${OUT_DIR}/${job_name}.out
+#SBATCH --output=${job_name}.out
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=${EMAIL}
-#SBATCH --time=48:00:00
-#SBATCH --mem=128G
-#SBATCH --cpus-per-task=4
 
 set -euo pipefail
-cd "$ROOT_DIR/spec"
+cd "$HOME/main/spec"
 
 module purge
 module load stata/17.0
@@ -50,7 +47,11 @@ module load stata/17.0
     stata -b do ${script} ${variant}
 EOF
 
-    sbatch "$sbatch_file"
+    if [[ -n "${USER_PANEL_JID:-}" ]]; then
+      sbatch --dependency=afterok:${USER_PANEL_JID} "$sbatch_file"
+    else
+      sbatch "$sbatch_file"
+    fi
   done
 done
 

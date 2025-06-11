@@ -1,5 +1,9 @@
 do "globals.do"
 
+capture log close
+cap mkdir "log"
+log using "log/build_firm_teleworkable_scores.log", replace text
+
 
 import delimited "$raw_data/rolek1000_onet_cw.csv", varnames(1)  ///
     clear bindquote(strict) stringcols(_all)
@@ -16,7 +20,7 @@ save `new_onet', replace
 ********************************************************************************
 
 import delimited "$raw_data/Scoop_workers_positions.csv", clear bindquote(strict) ///
-    stringcols(_all) rowrange(1:1000)
+    stringcols(_all) 
     
 * Standardize SOC codes: use soc_2010; if missing, use soc6d.
 // gen soc_new = soc_2010
@@ -139,5 +143,7 @@ keep companyname teleworkable
 ********************************************************************************
 
 save "$processed_data/scoop_firm_tele_2.dta", replace
+
+log close
 
 

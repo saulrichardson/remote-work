@@ -8,6 +8,10 @@ do "../src/globals.do"
 *---------------------------------------------------------------------------*
 
 local specname     "user_event_study_`panel_variant'"
+capture log close
+cap mkdir "log"
+log using "log/`specname'.log", replace text
+
 local result_path  "$clean_results/`specname'"
 capture mkdir "`result_path'"
 

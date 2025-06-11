@@ -1,0 +1,272 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_firm_teleworkable_scores.log
+  log type:  text
+ opened on:  10 Jun 2025, 15:16:50
+
+. 
+. 
+. import delimited "$raw_data/rolek1000_onet_cw.csv", varnames(1)  ///
+>     clear bindquote(strict) stringcols(_all)
+(encoding automatically selected: ISO-8859-1)
+(3 vars, 999 obs)
+
+. 
+. rename onet_code new_onet_code
+
+. rename onet_title new_onet_title
+
+. 
+. tempfile new_onet
+
+. save `new_onet', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000001 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000001 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. * Import LinkedIn Occupation Data
+. ********************************************************************************
+. 
+. import delimited "$raw_data/Scoop_workers_positions.csv", clear bindquote(strict) ///
+>     stringcols(_all) rowrange(1:1000)
+(encoding automatically selected: UTF-8)
+(40 vars, 999 obs)
+
+.     
+. * Standardize SOC codes: use soc_2010; if missing, use soc6d.
+. // gen soc_new = soc_2010
+. // replace soc_new = soc6d if (soc_new == "")
+. 
+. merge m:1 role_k1000 using `new_onet'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           853
+        from master                         2  (_merge==1)
+        from using                        851  (_merge==2)
+
+    Matched                               997  (_merge==3)
+    -----------------------------------------
+
+. keep if _merge != 2 //gets rid of roles from onet that we dont have in linkedin
+(851 observations deleted)
+
+. drop _merge
+
+. 
+. //assume new onset scores are full match and replace previous soc_new which
+. //serve as merging variable for teleworkable socre 
+. 
+. replace new_onet_code = strtrim(new_onet_code)
+(0 real changes made)
+
+. gen before_dot = substr(new_onet_code, 1, 7)  // e.g., "15-1130"
+(2 missing values generated)
+
+. gen after_dot  = substr(new_onet_code, 8, .)   // e.g., ".00"
+(2 missing values generated)
+
+. keep if after_dot == ".00"
+(46 observations deleted)
+
+. rename before_dot new_onet_code_cleaned
+
+. rename new_onet_code_cleaned soc_new
+
+. 
+. 
+. 
+. tempfile tf_linkedin_occupation
+
+. save `tf_linkedin_occupation', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000002 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000002 saved as .dta format
+
+. 
+. ********************************************************************************
+. * Import ONET Teleworkability Data
+. ********************************************************************************
+. 
+. import delimited "$raw_data/occupations_workathome.csv", clear stringcols(_all)
+(encoding automatically selected: ISO-8859-1)
+(3 vars, 968 obs)
+
+. destring teleworkable, replace
+teleworkable: all characters numeric; replaced as byte
+
+. 
+. // Clean up ONET codes.
+. replace onetsoccode = strtrim(onetsoccode)
+(0 real changes made)
+
+. gen before_dot = substr(onetsoccode, 1, 7)  // e.g., "15-1130"
+
+. gen after_dot  = substr(onetsoccode, 8, .)   // e.g., ".00"
+
+. keep if after_dot == ".00"
+(265 observations deleted)
+
+. rename before_dot soc_new
+
+. 
+. // Save to a tempfile.
+. tempfile tf_onet
+
+. save `tf_onet', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000003 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000003 saved as .dta format
+
+. 
+. ********************************************************************************
+. * Merge LinkedIn with ONET Data
+. ********************************************************************************
+. 
+. use `tf_onet', clear
+
+. merge 1:m soc_new using `tf_linkedin_occupation'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           901
+        from master                       643  (_merge==1)
+        from using                        258  (_merge==2)
+
+    Matched                               695  (_merge==3)
+    -----------------------------------------
+
+. 
+. * Drop ONET records that did not match any LinkedIn observations.
+. drop if _merge == 1
+(643 observations deleted)
+
+. drop _merge
+
+. 
+. * Save the merged (partial) results.
+. tempfile tf_soc_partial
+
+. save `tf_soc_partial', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000004 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000004 saved as .dta format
+
+. 
+. ********************************************************************************
+. * Collapse Teleworkability by Role (role_k1000)
+. ********************************************************************************
+. 
+. preserve
+
+.     drop if role_k1000 == ""
+(0 observations deleted)
+
+.     drop if soc_new == ""
+(0 observations deleted)
+
+.     collapse (mean) teleworkable, by(role_k1000)
+
+.     tempfile tf_tele_by_role
+
+.     save `tf_tele_by_role', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000006 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000006 saved as .dta format
+
+. restore
+
+. 
+. ********************************************************************************
+. * Merge Role-Level Teleworkability Back into Main Data
+. ********************************************************************************
+. 
+. merge m:1 role_k1000 using `tf_tele_by_role', update
+(variable teleworkable was byte, now float to accommodate using data's values)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                             0
+
+    Matched                               953
+        not updated                       953  (_merge==3)
+        missing updated                     0  (_merge==4)
+        nonmissing conflict                 0  (_merge==5)
+    -----------------------------------------
+
+. drop if _merge == 1
+(0 observations deleted)
+
+. drop _merge
+
+. 
+. // Optionally, filter out unwanted roles.
+. drop if role_k1000 == "10.0"
+(0 observations deleted)
+
+. drop if role_k1000 == "7.0"
+(0 observations deleted)
+
+. 
+. // Save the cleaned dataset.
+. tempfile tf_linkedin_full
+
+. save `tf_linkedin_full', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000007 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000007 saved as .dta format
+
+. 
+. ********************************************************************************
+. * Filter to Pre-COVID Job Spells 
+. ********************************************************************************
+. 
+. use `tf_linkedin_full', clear
+
+. 
+. * Convert date strings to Stata date values.
+. gen start = date(start_date, "YMD")
+(264 missing values generated)
+
+. gen end   = date(end_date, "YMD")
+
+. format start %td
+
+. format end   %td
+
+. 
+. * Drop observations with missing start or end dates.
+. drop if missing(start) | missing(end)
+(264 observations deleted)
+
+. 
+. * 2 Year Window
+. local end_cutoff = date("2019-12-31", "YMD")
+
+. local start_cutoff = date("2017-12-31", "YMD")
+
+. 
+. * Keep only job spells that ended strictly before the cutoff.
+. keep if end >= `start_cutoff'
+(104 observations deleted)
+
+. keep if start <= `end_cutoff'
+(158 observations deleted)
+
+. 
+. ********************************************************************************
+. * Collapse to Company Level (Firm-Level Teleworkability)
+. ********************************************************************************
+. 
+. collapse (mean) teleworkable (first) company (first) final_parent_company, ///
+>     by(companyname)
+
+. drop if companyname == ""
+(0 observations deleted)
+
+. keep companyname teleworkable
+
+. 
+. ********************************************************************************
+. * Save the Final Dataset
+. ********************************************************************************
+. 
+end of do-file
+

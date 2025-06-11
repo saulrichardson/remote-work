@@ -1,5 +1,9 @@
 do "../src/globals.do"
 
+capture log close
+cap mkdir "log"
+log using "log/build_panel_og.log", replace text
+
 *----------------------------------------------------------
 * User-Level Contributions
 *----------------------------------------------------------
@@ -238,4 +242,6 @@ drop miss_ct common_sample
 
 
 save "$processed_data/user_panel.dta", replace
+
+log close
 // export delimited "../data/samples/user_panel.csv", replace

@@ -1,4 +1,7 @@
-/**************************************************************************
+/**************************************************************************/
+capture log close
+cap mkdir "log"
+log using "log/build_avg_employee_distances.log", replace text
 *  make_distance.do
 *  --------------------------------------------------------------
 *  Adds worker ↔ HQ MSA distance to expanded_half_years_2.dta
@@ -74,3 +77,5 @@ save "$data/expanded_half_years_2_with_distance.dta", replace
 
 display as txt "✓  Distance variables added and file saved:"
 display as txt "   $data/expanded_half_years_2_with_distance.dta"
+
+log close

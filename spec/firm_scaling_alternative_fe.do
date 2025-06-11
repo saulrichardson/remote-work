@@ -4,6 +4,7 @@
 *    across four explicit FE specifications
 *============================================================*
 capture log close
+cap mkdir "log"
 local specname  "firm_scaling_alternative_fe"
 log using "log/`specname'.log", replace text
 

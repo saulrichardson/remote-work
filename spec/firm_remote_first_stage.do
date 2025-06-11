@@ -4,6 +4,7 @@
 *============================================================*
 
 capture log close
+cap mkdir "log"
 local specname   "firm_remote_first_stage"
 log using "log/`specname'.log", replace text
 

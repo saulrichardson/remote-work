@@ -10,6 +10,10 @@ use "$processed_data/firm_panel.dta", clear
 
 // 2) Prepare output dir & tempfile
 local specname   "firm_scaling_initial"
+capture log close
+cap mkdir "log"
+log using "log/`specname'.log", replace text
+
 local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
 
