@@ -13,7 +13,7 @@ cap mkdir "log"
 *---------------------------------------------------------------------------*
 
 args panel_variant
-if "`panel_variant'" == "" local panel_variant "unbalanced"
+if "`panel_variant'" == "" local panel_variant "precovid"
 
 *---------------------------------------------------------------------------*
 * Ensure the panel variant is explicitly part of every identifier so that
@@ -191,7 +191,7 @@ local pre_mean = r(mean)
 
 // 3a) OLS
 reghdfe total_contributions_q100 var3 var5 var4, ///
-    absorb(firm_id user_id yh) vce(cluster user_id)
+    absorb(firm_id#user_id yh) vce(cluster user_id)
 local N = e(N)
 foreach p in var3 var5 {
     local b    = _b[`p']
@@ -205,7 +205,7 @@ foreach p in var3 var5 {
 
 // 3b) IV
 ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, ///
-    absorb(firm_id user_id yh) vce(cluster user_id) savefirst
+    absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
 local rkf = e(rkf)
 local N   = e(N)
 foreach p in var3 var5 {
@@ -239,7 +239,7 @@ forvalues i = 2/16 {
 
     // 4a) OLS
     reghdfe total_contributions_q100 var3 var5 `ols_exog', ///
-        absorb(firm_id user_id yh) vce(cluster user_id)
+        absorb(firm_id#user_id yh) vce(cluster user_id)
 	
 	local N = e(N) 
 	
@@ -255,7 +255,7 @@ forvalues i = 2/16 {
 
     // 4b) IV
     ivreghdfe total_contributions_q100 (`endo' = `instr') `iv_exog', ///
-        absorb(firm_id user_id yh) vce(cluster user_id) savefirst
+        absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
     local rkf = e(rkf)
 	local N   = e(N)
 	

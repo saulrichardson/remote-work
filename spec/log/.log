@@ -1,0 +1,32 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/.log
+  log type:  text
+ opened on:  12 Jun 2025, 14:08:18
+
+. 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD86562.000000"
+
+. *============================================================*
+. *  user_productivity.do
+. *  — Export OLS, IV and first‐stage results for worker productivity
+. *    OUTCOME.  The *first* (optional) command-line argument selects the user
+. *    panel variant:  unbalanced | balanced | precovid  (default = unbalanced)
+. *    This avoids reliance on pre-existing globals and makes driver scripts
+. *    more robust.
+. *    Example:   do user_productivity.do balanced
+. *============================================================*
+. 
+. * --------------------------------------------------------------------------
+. * 0) Parse optional variant argument *before* sourcing globals --------------
+. * --------------------------------------------------------------------------
+. 
+. args panel_variant
+
+. if "`panel_variant'" == "" local panel_variant "precovid"
+
+. local specname user_productivity_`panel_variant'
+
+. capture log close

@@ -34,9 +34,23 @@ parser.add_argument(
     default=DEFAULT_VARIANT,
     help="Which user_panel sample variant to load (default: %(default)s)",
 )
+# Optional list of mechanism dimensions to omit from the table (comma-sep)
+parser.add_argument(
+    "--exclude",
+    default="",
+    help="Comma-separated list of mechanism dimensions to *exclude* (e.g. Wage,HHI)",
+)
 args = parser.parse_args()
 
 variant = args.variant
+
+# ------------------------------------------------------------------
+# Handle optional exclusions (case-sensitive to match DIMS entries)
+# ------------------------------------------------------------------
+
+exclude_set = {x.strip() for x in args.exclude.split(",") if x.strip()}
+
+# -- filtering is applied further below once DIMS & ROW_LABELS are defined.
 
 # Directory names follow the pattern `user_mechanisms_<variant>` to be
 # consistent with the Stata export scripts.  We still support the legacy
@@ -91,6 +105,31 @@ ROW_LABELS = {
     "Wage": "Wage",
 }
 
+# ------------------------------------------------------------------
+# For spec filtering we need to know which keywords identify each mechanism
+# ------------------------------------------------------------------
+
+DIM_KEYWORDS = {
+    "Rent": ["rent"],
+    "HHI": ["hhi"],
+    "Seniority": ["seniority"],
+    "Wage": ["sd_wage", "sdw", "wage", "gap"],
+}
+
+# Apply exclusion list -------------------------------------------------------
+
+if exclude_set:
+    DIMS = [d for d in DIMS if d not in exclude_set]
+    ROW_LABELS = {k: v for k, v in ROW_LABELS.items() if k in DIMS}
+
+# ------------------------------------------------------------------
+# Apply exclusion list
+# ------------------------------------------------------------------
+
+if exclude_set:
+    DIMS = [d for d in DIMS if d not in exclude_set]
+    ROW_LABELS = {k: v for k, v in ROW_LABELS.items() if k in DIMS}
+
 
 def starify(p):
     if p < 0.01:
@@ -119,7 +158,8 @@ def checks(specs):
         out["Rent"].append("rent" in low)
         out["HHI"].append("hhi" in low)
         out["Seniority"].append("seniority" in low)
-        out["Wage"].append(any(k in low for k in ("sd_wage", "sdw", "wage", "gap")))
+        if "Wage" in out:
+            out["Wage"].append(any(k in low for k in ("sd_wage", "sdw", "wage", "gap")))
     return out
 
 
@@ -192,7 +232,24 @@ def main():
     df_iv = df[df.model_type == "IV"].copy()
     df_ols = df[df.model_type == "OLS"].copy()
 
-    spec_order = df["spec"].drop_duplicates().tolist()
+    # Filter specifications to remove those that include *any* excluded mechanism
+    spec_order_all = df["spec"].drop_duplicates().tolist()
+
+    def spec_has_dim(s: str, dim: str) -> bool:
+        low = s.lower()
+        return any(k in low for k in DIM_KEYWORDS.get(dim, []))
+
+    if exclude_set:
+        spec_order = [
+            s
+            for s in spec_order_all
+            if not any(spec_has_dim(s, d) for d in exclude_set)
+        ]
+        # Also subset the dataframes to the kept specs
+        df_iv = df_iv[df_iv["spec"].isin(spec_order)]
+        df_ols = df_ols[df_ols["spec"].isin(spec_order)]
+    else:
+        spec_order = spec_order_all
     tables_needed = math.ceil(len(spec_order) / COLS_PER_TABLE)
 
     lines: list[str] = []

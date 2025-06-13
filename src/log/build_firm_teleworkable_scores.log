@@ -270,3 +270,36 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000007 saved as .
 . 
 end of do-file
 
+. do spec/user_productivity_alternative_fe.do balanced_pre
+file spec/user_productivity_alternative_fe.do not found
+r(601);
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD71501.000000"
+
+. do spec/user_productivity_alternative_fe.do balanced_pre
+file spec/user_productivity_alternative_fe.do not found
+r(601);
+
+end of do-file
+
+r(601);
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD71501.000000"
+
+. do user_productivity_alternative_fe.do balanced_pre
+
+. *============================================================*
+. *  user_productivity_alternative_fe.do
+. *  — Exports results across explicit FE variants.  First (optional)
+. *    argument selects panel variant (unbalanced | balanced | precovid).
+. *============================================================*
+. 
+. /* -----------------------------------------------------------------------
+>    Parse variant argument BEFORE doing anything else so that downstream
+>    scripts & path macros pick up the correct sample.                     */
+. 
+. args panel_variant
+
+. if "`panel_variant'" == "" local panel_variant "unbalanced"
+
+. capture log close

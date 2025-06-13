@@ -12,12 +12,26 @@ from pathlib import Path
 from textwrap import dedent
 import math
 import pandas as pd
+import argparse
 
 # ---------------------------------------------------------------------------
 # Paths & constants
 # ---------------------------------------------------------------------------
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
+
+# ---------------------------------------------------------------------------
+# CLI arguments (optional mechanism exclusion)
+# ---------------------------------------------------------------------------
+
+parser = argparse.ArgumentParser(description="Create firm mechanisms regression tables")
+parser.add_argument(
+    "--exclude",
+    default="",
+    help="Comma-separated list of mechanism dimensions to exclude (e.g. Wage)",
+)
+args = parser.parse_args()
+exclude_set = {x.strip() for x in args.exclude.split(",") if x.strip()}
 
 # Use wage-gap enriched specification results
 # Primary specification directory (includes wage dimension by default)
@@ -35,6 +49,7 @@ PARAM_LABELS = {
 }
 
 # Dimension list for check-marks (order matters)
+# Optional dimension exclusion via CLI
 # Mechanism dimensions (explicit labels preserve capitalisation).
 DIMS = [
     "Rent",
@@ -49,6 +64,20 @@ ROW_LABELS = {
     "Seniority": "Seniority",
     "Wage": "Wage",
 }
+
+# Keywords to detect each mechanism inside spec names
+DIM_KEYWORDS = {
+    "Rent": ["rent"],
+    "HHI": ["hhi"],
+    "Seniority": ["seniority"],
+    "Wage": ["sd_wage", "sdw", "wage", "gap"],
+}
+
+# Apply exclusion list -------------------------------------------------------
+
+if exclude_set:
+    DIMS = [d for d in DIMS if d not in exclude_set]
+    ROW_LABELS = {k: v for k, v in ROW_LABELS.items() if k in DIMS}
 
 
 # ---------------------------------------------------------------------------
@@ -78,15 +107,12 @@ def load_prepare() -> pd.DataFrame:
 
 
 def build_check_matrix(specs: list[str]):
-    """Return dict: dim -> list[bool] same length as specs."""
     check = {d: [] for d in DIMS}
     for spec in specs:
-        lower = spec.lower()
-        check["Rent"].append("rent" in lower)
-        check["HHI"].append("hhi" in lower)
-        check["Seniority"].append("seniority" in lower)
-        # Wage row: flag if any wage-dispersion keyword present
-        check["Wage"].append(any(k in lower for k in ("sd_wage", "sdw", "wage", "gap")))
+        low = spec.lower()
+        for d in DIMS:
+            keywords = DIM_KEYWORDS.get(d, [d.lower()])
+            check[d].append(any(k in low for k in keywords))
     return check
 
 
@@ -168,7 +194,20 @@ def main() -> None:
     df_ols = df[df.model_type == "OLS"].copy()
 
     # Keep the order Stata wrote to CSV
-    spec_order = df["spec"].drop_duplicates().tolist()
+    spec_all = df["spec"].drop_duplicates().tolist()
+
+    def spec_has_dim(s: str, dim: str) -> bool:
+        low = s.lower()
+        return any(k in low for k in DIM_KEYWORDS.get(dim, []))
+
+    if exclude_set:
+        spec_order = [
+            s for s in spec_all if not any(spec_has_dim(s, d) for d in exclude_set)
+        ]
+        df_iv = df_iv[df_iv.spec.isin(spec_order)]
+        df_ols = df_ols[df_ols.spec.isin(spec_order)]
+    else:
+        spec_order = spec_all
 
     num_tables = math.ceil(len(spec_order) / COLS_PER_TABLE)
     all_lines: list[str] = []

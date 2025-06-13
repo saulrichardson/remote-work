@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_alternative_fe_precovid.log
   log type:  text
- opened on:   5 Jun 2025, 20:32:05
+ opened on:  12 Jun 2025, 11:11:35
 
 . 
 . // 0) Setup environment
@@ -17,9 +17,7 @@
 . global clean_results "../results/cleaned"
 
 . 
-. // default user panel variant (unbalanced | balanced | precovid)
-. global user_panel_variant "precovid"
-
+. 
 . 
 . 
 . 
@@ -49,7 +47,7 @@ end of do-file
 >     double coef se pval pre_mean ///
 >     double rkf nobs            ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_56802.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000001 not found)
 
 . 
 . 
@@ -66,7 +64,7 @@ end of do-file
 >     double coef se pval        ///
 >     double partialF rkf nobs   ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_56802.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000002 not found)
 
 . 
 .         
@@ -80,7 +78,7 @@ end of do-file
 . 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5. 
@@ -164,22 +162,22 @@ end of do-file
 (MWFE estimator converged in 80 iterations)
 
 HDFE Linear regression                            Number of obs   =    229,862
-Absorbing 3 HDFE groups                           F(   3,  35788) =       4.30
-Statistics robust to heteroskedasticity           Prob > F        =     0.0048
-                                                  R-squared       =     0.5120
-                                                  Adj R-squared   =     0.4154
-                                                  Within R-sq.    =     0.0001
-Number of clusters (user_id) =     35,789         Root MSE        =    21.3218
+Absorbing 3 HDFE groups                           F(   3,  35788) =      11.67
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6838
+                                                  Adj R-squared   =     0.6213
+                                                  Within R-sq.    =     0.0004
+Number of clusters (user_id) =     35,789         Root MSE        =    18.4409
 
                            (Std. err. adjusted for 35,789 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   .0351778    .452934     0.08   0.938    -.8525865    .9229421
-        var5 |   3.348483   1.049727     3.19   0.001     1.290987     5.40598
-        var4 |  -2.994229   .9105734    -3.29   0.001     -4.77898   -1.209477
-       _cons |   76.54872   .1380704   554.42   0.000      76.2781    76.81934
+        var3 |  -1.032798   .4818263    -2.14   0.032    -1.977192   -.0884035
+        var5 |   5.175073   1.236242     4.19   0.000     2.752001    7.598144
+        var4 |  -5.526524   1.065824    -5.19   0.000    -7.615571   -3.437477
+       _cons |   50.13249   .1467355   341.65   0.000     49.84489     50.4201
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -211,19 +209,19 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35789                Number of obs =   229862
-                                                      F(  3, 35788) =     1.33
-                                                      Prob > F      =   0.2616
-Total (centered) SS     =  87251870.26                Centered R2   =  -0.0005
-Total (uncentered) SS   =  87251870.26                Uncentered R2 =  -0.0005
-Residual SS             =  87291385.87                Root MSE      =    19.58
+                                                      F(  3, 35788) =     7.03
+                                                      Prob > F      =   0.0001
+Total (centered) SS     =  65286353.41                Centered R2   =  -0.0014
+Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0014
+Residual SS             =  65377411.43                Root MSE      =    16.94
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   3.879417   3.995425     0.97   0.332    -3.951737    11.71057
-        var5 |   .6094645   4.857187     0.13   0.900    -8.910769     10.1297
-        var4 |  -1.425919    3.52147    -0.40   0.686    -8.328106    5.476268
+        var3 |  -7.151334   3.898685    -1.83   0.067    -14.79287    .4902066
+        var5 |   9.937201   5.370722     1.85   0.064    -.5895776    20.46398
+        var4 |  -8.364159    4.04877    -2.07   0.039    -16.29987    -.428447
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):            266.393
                                                    Chi-sq(1) P-val =    0.0000
@@ -274,7 +272,7 @@ Absorbed degrees of freedom:
 . 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5.     summarize `y' if covid == 0, meanonly
@@ -357,22 +355,22 @@ Absorbed degrees of freedom:
 (MWFE estimator converged in 8 iterations)
 
 HDFE Linear regression                            Number of obs   =    224,708
-Absorbing 2 HDFE groups                           F(   3,  35478) =       7.23
-Statistics robust to heteroskedasticity           Prob > F        =     0.0001
-                                                  R-squared       =     0.5527
-                                                  Adj R-squared   =     0.4477
-                                                  Within R-sq.    =     0.0001
-Number of clusters (user_id) =     35,479         Root MSE        =    20.4806
+Absorbing 2 HDFE groups                           F(   3,  35478) =      16.65
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7186
+                                                  Adj R-squared   =     0.6525
+                                                  Within R-sq.    =     0.0006
+Number of clusters (user_id) =     35,479         Root MSE        =    17.6444
 
                            (Std. err. adjusted for 35,479 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.1867437   .4587737    -0.41   0.684    -1.085954    .7124668
-        var5 |   4.416104   1.058933     4.17   0.000     2.340562    6.491646
-        var4 |  -4.140034   .9203786    -4.50   0.000    -5.944005   -2.336064
-       _cons |   76.99593   .1396971   551.16   0.000     76.72212    77.26974
+        var3 |  -1.234691   .4958927    -2.49   0.013    -2.206656   -.2627261
+        var5 |   6.208444   1.270913     4.89   0.000     3.717416    8.699472
+        var4 |  -6.711066   1.096609    -6.12   0.000    -8.860454   -4.561678
+       _cons |   50.52317   .1507992   335.04   0.000      50.2276    50.81874
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -403,19 +401,19 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35479                Number of obs =   224708
-                                                      F(  3, 35478) =     1.56
-                                                      Prob > F      =   0.1965
-Total (centered) SS     =  76343728.34                Centered R2   =  -0.0001
-Total (uncentered) SS   =  76343728.34                Uncentered R2 =  -0.0001
-Residual SS             =  76350941.93                Root MSE      =    18.43
+                                                      F(  3, 35478) =    10.55
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  56688987.29                Centered R2   =  -0.0026
+Total (uncentered) SS   =  56688987.29                Uncentered R2 =  -0.0026
+Residual SS             =   56837758.2                Root MSE      =     15.9
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   2.242522   4.036885     0.56   0.579    -5.669896    10.15494
-        var5 |   1.158292   4.780738     0.24   0.809    -8.212103    10.52869
-        var4 |   -1.85033   3.439417    -0.54   0.591    -8.591694    4.891034
+        var3 |  -9.263295   4.013595    -2.31   0.021    -17.13006   -1.396526
+        var5 |   12.45296   5.392867     2.31   0.021     1.882779    23.02315
+        var4 |  -10.43373   4.045733    -2.58   0.010    -18.36349   -2.503968
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):            231.086
                                                    Chi-sq(1) P-val =    0.0000
@@ -465,7 +463,7 @@ Absorbed degrees of freedom:
 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5.     summarize `y' if covid == 0, meanonly
@@ -548,22 +546,22 @@ Absorbed degrees of freedom:
 (MWFE estimator converged in 5 iterations)
 
 HDFE Linear regression                            Number of obs   =    231,234
-Absorbing 2 HDFE groups                           F(   3,  37159) =       2.61
-Statistics robust to heteroskedasticity           Prob > F        =     0.0499
-                                                  R-squared       =     0.1607
-                                                  Adj R-squared   =     0.1527
-                                                  Within R-sq.    =     0.0000
-Number of clusters (user_id) =     37,160         Root MSE        =    25.6126
+Absorbing 2 HDFE groups                           F(   3,  37159) =       6.37
+Statistics robust to heteroskedasticity           Prob > F        =     0.0003
+                                                  R-squared       =     0.2466
+                                                  Adj R-squared   =     0.2395
+                                                  Within R-sq.    =     0.0001
+Number of clusters (user_id) =     37,160         Root MSE        =    26.1023
 
                            (Std. err. adjusted for 37,160 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   .0050692   .4602434     0.01   0.991    -.8970206     .907159
-        var5 |   1.770334   1.030819     1.72   0.086    -.2500999    3.790768
-        var4 |  -2.063829   .8908436    -2.32   0.021    -3.809907   -.3177508
-       _cons |   76.61914   .1658313   462.03   0.000     76.29411    76.94418
+        var3 |  -.3466863   .5191074    -0.67   0.504    -1.364151    .6707786
+        var5 |   2.772734    1.32315     2.10   0.036     .1793224    5.366145
+        var4 |  -3.637828   1.143099    -3.18   0.001    -5.878334   -1.397322
+       _cons |   49.90137    .194417   256.67   0.000      49.5203    50.28243
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -593,19 +591,19 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   37160                Number of obs =   231234
-                                                      F(  3, 37159) =     1.89
-                                                      Prob > F      =   0.1286
-Total (centered) SS     =  150274738.2                Centered R2   =  -0.0000
-Total (uncentered) SS   =  150274738.2                Uncentered R2 =  -0.0000
-Residual SS             =  150280316.9                Root MSE      =    25.61
+                                                      F(  3, 37159) =     5.89
+                                                      Prob > F      =   0.0005
+Total (centered) SS     =  156091290.6                Centered R2   =  -0.0009
+Total (uncentered) SS   =  156091290.6                Uncentered R2 =  -0.0009
+Residual SS             =  156225377.7                Root MSE      =    26.12
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   1.531758   4.065686     0.38   0.706    -6.437099    9.500615
-        var5 |   1.609625   4.992231     0.32   0.747    -8.175287    11.39454
-        var4 |  -2.227263   3.630542    -0.61   0.540    -9.343225      4.8887
+        var3 |  -6.617619   4.131174    -1.60   0.109    -14.71483    1.479597
+        var5 |   9.142997   5.930672     1.54   0.123    -2.481286    20.76728
+        var4 |  -7.802626   4.511079    -1.73   0.084    -16.64447    1.039215
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):            354.579
                                                    Chi-sq(1) P-val =    0.0000
@@ -650,7 +648,7 @@ Absorbed degrees of freedom:
 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5.     summarize `y' if covid == 0, meanonly
@@ -733,22 +731,22 @@ Absorbed degrees of freedom:
 (MWFE estimator converged in 7 iterations)
 
 HDFE Linear regression                            Number of obs   =    229,913
-Absorbing 2 HDFE groups                           F(   3,  35793) =      33.73
+Absorbing 2 HDFE groups                           F(   3,  35793) =      21.12
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.4884
-                                                  Adj R-squared   =     0.3940
+                                                  R-squared       =     0.6578
+                                                  Adj R-squared   =     0.5947
                                                   Within R-sq.    =     0.0008
-Number of clusters (user_id) =     35,794         Root MSE        =    21.7128
+Number of clusters (user_id) =     35,794         Root MSE        =    19.0783
 
                            (Std. err. adjusted for 35,794 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   1.875668   .4620782     4.06   0.000     .9699808    2.781355
-        var5 |  -.0211048   1.123972    -0.02   0.985    -2.224123    2.181914
-        var4 |   2.275435   .9768885     2.33   0.020     .3607035    4.190166
-       _cons |    75.7353   .1412325   536.25   0.000     75.45848    76.01212
+        var3 |   1.221329   .4892801     2.50   0.013     .2623249    2.180332
+        var5 |   .4371179   1.299989     0.34   0.737    -2.110901    2.985136
+        var4 |   1.891716   1.129001     1.68   0.094    -.3211593    4.104592
+       _cons |   49.09652   .1490449   329.41   0.000     48.80439    49.38865
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -779,19 +777,19 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35794                Number of obs =   229913
-                                                      F(  3, 35793) =    36.15
+                                                      F(  3, 35793) =    22.60
                                                       Prob > F      =   0.0000
-Total (centered) SS     =  91580642.98                Centered R2   =  -0.0161
-Total (uncentered) SS   =  91580642.98                Uncentered R2 =  -0.0161
-Residual SS             =  93054385.58                Root MSE      =    20.12
+Total (centered) SS     =  70708970.56                Centered R2   =  -0.0076
+Total (uncentered) SS   =  70708970.56                Uncentered R2 =  -0.0076
+Residual SS             =  71244892.04                Root MSE      =     17.6
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   22.80691   4.109818     5.55   0.000     14.75154    30.86228
-        var5 |  -24.72366   5.286675    -4.68   0.000     -35.0857   -14.36161
-        var4 |   19.21747   3.930327     4.89   0.000     11.51391    26.92102
+        var3 |   13.90442   3.886623     3.58   0.000     6.286521    21.52232
+        var5 |  -18.83578   5.742923    -3.28   0.001    -30.09209   -7.579481
+        var4 |   15.80588   4.431485     3.57   0.000     7.120038    24.49173
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):            301.177
                                                    Chi-sq(1) P-val =    0.0000
@@ -839,7 +837,7 @@ Absorbed degrees of freedom:
 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3. 
 .         gen var8 = remote * startup
   4.         gen var9 = teleworkable*startup
@@ -927,26 +925,26 @@ Absorbed degrees of freedom:
 note: covid is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
 
 HDFE Linear regression                            Number of obs   =    231,305
-Absorbing 1 HDFE group                            F(   6,  37185) =     518.96
+Absorbing 1 HDFE group                            F(   6,  37185) =     549.59
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.0572
-                                                  Adj R-squared   =     0.0571
-                                                  Within R-sq.    =     0.0294
-Number of clusters (user_id) =     37,186         Root MSE        =    27.0230
+                                                  R-squared       =     0.0578
+                                                  Adj R-squared   =     0.0577
+                                                  Within R-sq.    =     0.0569
+Number of clusters (user_id) =     37,186         Root MSE        =    29.0548
 
                            (Std. err. adjusted for 37,186 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   .5684576   .4867958     1.17   0.243    -.3856756    1.522591
-        var5 |    1.75726   1.111431     1.58   0.114    -.4211747    3.935696
-        var4 |  -2.472984   .9643099    -2.56   0.010    -4.363058   -.5829093
-      remote |   6.942174   .4096125    16.95   0.000     6.139322    7.745025
-     startup |    15.2355   .7288642    20.90   0.000     13.80691     16.6641
-        var8 |  -6.301659   .8503361    -7.41   0.000    -7.968342   -4.634977
+        var3 |    .714413   .5695163     1.25   0.210    -.4018548    1.830681
+        var5 |   2.360973   1.453712     1.62   0.104     -.488343    5.210289
+        var4 |  -3.964441   1.256937    -3.15   0.002    -6.428073    -1.50081
+      remote |   10.11765   .5510969    18.36   0.000     9.037483    11.19781
+     startup |   23.83356    1.12242    21.23   0.000     21.63358    26.03353
+        var8 |  -9.861706   1.308261    -7.54   0.000    -12.42593   -7.297478
        covid |          0  (omitted)
-       _cons |   69.77564   .2817511   247.65   0.000      69.2234    70.32788
+       _cons |   39.65689   .3683293   107.67   0.000     38.93495    40.37883
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -976,22 +974,22 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35717                Number of obs =   216111
-                                                      F(  6, 35716) =   219.48
+                                                      F(  6, 35716) =   274.16
                                                       Prob > F      =   0.0000
-Total (centered) SS     =    161421891                Centered R2   = -39.2106
-Total (uncentered) SS   =    161421891                Uncentered R2 = -39.2106
-Residual SS             =   6490873207                Root MSE      =    173.3
+Total (centered) SS     =  193199922.2                Centered R2   = -1.1e+02
+Total (uncentered) SS   =  193199922.2                Uncentered R2 = -1.1e+02
+Residual SS             =  2.06577e+10                Root MSE      =    309.2
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -113.2777   31.20129    -3.63   0.000    -174.4332   -52.12226
-        var5 |   2195.204   3419.556     0.64   0.521     -4507.23    8897.638
-        var8 |  -2274.308   3419.358    -0.67   0.506    -8976.354    4427.739
-      remote |   188.1112   31.29422     6.01   0.000     126.7736    249.4488
-        var4 |  -1849.818   2915.772    -0.63   0.526    -7564.819    3865.183
-     startup |    1913.01   2915.599     0.66   0.512    -3801.653    7627.673
+        var3 |  -180.9319   42.54185    -4.25   0.000    -264.3153   -97.54862
+        var5 |   3958.632   6209.567     0.64   0.524    -8212.307    16129.57
+        var8 |  -4059.056   6209.173    -0.65   0.513    -16229.22    8111.112
+      remote |   269.6202   42.78757     6.30   0.000     185.7552    353.4851
+        var4 |  -3340.972   5294.792    -0.63   0.528    -13718.93    7036.981
+     startup |   3425.023   5294.454     0.65   0.518    -6952.268    13802.31
        covid |          0  (omitted)
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):              0.377
@@ -1038,7 +1036,7 @@ Absorbed degrees of freedom:
 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3. 
 .     display as text ">> FE spec: firm  (tag=`tag')"
   4.     display as text "   – outcome: `y'"
@@ -1123,23 +1121,23 @@ Absorbed degrees of freedom:
 (MWFE estimator converged in 1 iterations)
 
 HDFE Linear regression                            Number of obs   =    231,234
-Absorbing 1 HDFE group                            F(   4,  37159) =      72.95
+Absorbing 1 HDFE group                            F(   4,  37159) =      32.06
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.1379
-                                                  Adj R-squared   =     0.1298
-                                                  Within R-sq.    =     0.0015
-Number of clusters (user_id) =     37,160         Root MSE        =    25.9569
+                                                  R-squared       =     0.2464
+                                                  Adj R-squared   =     0.2394
+                                                  Within R-sq.    =     0.0008
+Number of clusters (user_id) =     37,160         Root MSE        =    26.1044
 
                            (Std. err. adjusted for 37,160 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   .2620468   .4652837     0.56   0.573    -.6499223    1.174016
-        var5 |    1.57165   1.039204     1.51   0.130    -.4652188    3.608519
-        var4 |  -1.565963   .8984945    -1.74   0.081    -3.327037    .1951114
-       covid |  -2.190856   .3486577    -6.28   0.000    -2.874235   -1.507477
-       _cons |   77.49692   .0976541   793.59   0.000     77.30551    77.68832
+        var3 |  -.3299741     .51894    -0.64   0.525    -1.347111    .6871626
+        var5 |   2.754832   1.322552     2.08   0.037      .162594     5.34707
+        var4 |  -3.599818   1.142516    -3.15   0.002    -5.839182   -1.360455
+       covid |  -.9689637   .3761478    -2.58   0.010    -1.706224   -.2317034
+       _cons |   50.33152   .1232131   408.49   0.000     50.09002    50.57303
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1168,20 +1166,20 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   37160                Number of obs =   231234
-                                                      F(  4, 37159) =    72.49
+                                                      F(  4, 37159) =    31.63
                                                       Prob > F      =   0.0000
-Total (centered) SS     =  154578356.4                Centered R2   =   0.0013
-Total (uncentered) SS   =  154578356.4                Uncentered R2 =   0.0013
-Residual SS             =  154380679.7                Root MSE      =    25.96
+Total (centered) SS     =  156234472.1                Centered R2   =  -0.0001
+Total (uncentered) SS   =  156234472.1                Uncentered R2 =  -0.0001
+Residual SS             =  156253997.7                Root MSE      =    26.12
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   3.237687     4.1248     0.78   0.432    -4.847035    11.32241
-        var5 |   .4423758   5.043552     0.09   0.930    -9.443127    10.32788
-        var4 |  -1.193674   3.662313    -0.33   0.744    -8.371909    5.984561
-       covid |  -4.126831   2.703914    -1.53   0.127    -9.426578    1.172915
+        var3 |    -6.5573   4.128091    -1.59   0.112    -14.64847    1.533873
+        var5 |   9.116751   5.926063     1.54   0.124    -2.498498      20.732
+        var4 |  -7.765353    4.50706    -1.72   0.085    -16.59932    1.068609
+       covid |   3.082584   2.691613     1.15   0.252    -2.193052    8.358221
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):            355.016
                                                    Chi-sq(1) P-val =    0.0000
@@ -1226,7 +1224,7 @@ Absorbed degrees of freedom:
 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3.         
 .         gen var8 = remote * startup
   4.     gen var9 = teleworkable*startup
@@ -1313,26 +1311,26 @@ Absorbed degrees of freedom:
 (MWFE estimator converged in 1 iterations)
 
 HDFE Linear regression                            Number of obs   =    231,305
-Absorbing 1 HDFE group                            F(   7,  37185) =     476.87
+Absorbing 1 HDFE group                            F(   7,  37185) =     474.13
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.0304
-                                                  Adj R-squared   =     0.0303
-                                                  Within R-sq.    =     0.0304
-Number of clusters (user_id) =     37,186         Root MSE        =    27.4043
+                                                  R-squared       =     0.0571
+                                                  Adj R-squared   =     0.0571
+                                                  Within R-sq.    =     0.0571
+Number of clusters (user_id) =     37,186         Root MSE        =    29.0648
 
                            (Std. err. adjusted for 37,186 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   .8484727   .4916319     1.73   0.084    -.1151394    1.812085
-        var5 |   1.552023     1.1199     1.39   0.166    -.6430129    3.747059
-        var4 |  -2.027893   .9721338    -2.09   0.037    -3.933302   -.1224837
-      remote |   6.944621   .4093942    16.96   0.000     6.142197    7.747045
-     startup |   15.30079   .7286911    21.00   0.000     13.87253    16.72904
-        var8 |  -6.347886   .8500048    -7.47   0.000    -8.013919   -4.681853
-       covid |  -2.360368   .3650497    -6.47   0.000    -3.075875    -1.64486
-       _cons |   70.72142   .2997602   235.93   0.000     70.13388    71.30896
+        var3 |   .7602669   .5696902     1.33   0.182    -.3563416    1.876875
+        var5 |   2.307666   1.453947     1.59   0.112    -.5421111    5.157444
+        var4 |  -3.859724   1.257118    -3.07   0.002    -6.323711   -1.395737
+      remote |   10.11862   .5511843    18.36   0.000     9.038281    11.19895
+     startup |   23.81398   1.122456    21.22   0.000     21.61393    26.01403
+        var8 |  -9.849809   1.308403    -7.53   0.000    -12.41432   -7.285303
+       covid |  -1.187035   .4042193    -2.94   0.003    -1.979316   -.3947534
+       _cons |   40.17406   .3857806   104.14   0.000     39.41792     40.9302
 ------------------------------------------------------------------------------
 
 Stored estimation results
@@ -1354,24 +1352,24 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35717                Number of obs =   216111
-                                                      F(  7, 35716) =   194.26
+                                                      F(  7, 35716) =   237.42
                                                       Prob > F      =   0.0000
-Total (centered) SS     =  166169421.2                Centered R2   = -38.0994
-Total (uncentered) SS   =   1437539747                Uncentered R2 =  -3.5196
-Residual SS             =   6497123133                Root MSE      =    173.4
+Total (centered) SS     =  193380018.3                Centered R2   = -1.0e+02
+Total (uncentered) SS   =    729793751                Uncentered R2 = -26.9963
+Residual SS             =  2.04315e+10                Root MSE      =    307.5
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   -108.622   30.78795    -3.53   0.000    -168.9652   -48.27871
-        var5 |   2192.397   3398.885     0.65   0.519    -4469.296     8854.09
-        var8 |  -2273.069   3398.689    -0.67   0.504    -8934.377    4388.238
-      remote |   185.5217   30.85976     6.01   0.000     125.0376    246.0057
-        var4 |  -1847.896    2898.88    -0.64   0.524    -7529.595    3833.804
-     startup |   1912.351   2898.707     0.66   0.509    -3769.011    7593.713
-       covid |   68.43143   19.96982     3.43   0.001      29.2913    107.5716
-       _cons |  -45.05451   20.00137    -2.25   0.024    -84.25646   -5.852549
+        var3 |  -175.4761   41.08412    -4.27   0.000    -255.9995   -94.95267
+        var5 |   3933.566   6136.028     0.64   0.521    -8092.828    15959.96
+        var8 |  -4034.159   6135.634    -0.66   0.511    -16059.78    7991.463
+      remote |   264.4083    41.3252     6.40   0.000     183.4124    345.4042
+        var4 |  -3320.368   5233.411    -0.63   0.526    -13577.67     6936.93
+     startup |   3404.559   5233.074     0.65   0.515    -6852.077    13661.19
+       covid |   112.8945    26.6408     4.24   0.000      60.6795    165.1095
+       _cons |  -124.7335   26.77917    -4.66   0.000    -177.2197   -72.24731
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):              0.381
                                                    Chi-sq(1) P-val =    0.5371
@@ -1400,7 +1398,7 @@ Excluded instruments: var6 var7 var9 teleworkable
 . 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5. 
@@ -1481,25 +1479,25 @@ Excluded instruments: var6 var7 var9 teleworkable
 >> FE spec: (tag=industrytime)
    – outcome: total_contributions_q100
 (dropped 1449 singleton observations)
-(MWFE estimator converged in 83 iterations)
+(MWFE estimator converged in 84 iterations)
 
 HDFE Linear regression                            Number of obs   =    227,829
-Absorbing 3 HDFE groups                           F(   3,  35527) =       3.72
-Statistics robust to heteroskedasticity           Prob > F        =     0.0109
-                                                  R-squared       =     0.5126
-                                                  Adj R-squared   =     0.4155
-                                                  Within R-sq.    =     0.0001
-Number of clusters (user_id) =     35,528         Root MSE        =    21.3486
+Absorbing 3 HDFE groups                           F(   3,  35527) =      10.43
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6844
+                                                  Adj R-squared   =     0.6216
+                                                  Within R-sq.    =     0.0003
+Number of clusters (user_id) =     35,528         Root MSE        =    18.4347
 
                            (Std. err. adjusted for 35,528 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.0504259   .4638168    -0.11   0.913     -.959521    .8586692
-        var5 |   3.472225   1.121199     3.10   0.002     1.274641    5.669809
-        var4 |  -2.934078   .9908402    -2.96   0.003    -4.876156   -.9920012
-       _cons |     76.495   .1406651   543.81   0.000      76.2193    76.77071
+        var3 |  -.9337776     .49345    -1.89   0.058    -1.900955    .0333995
+        var5 |   5.408624   1.286843     4.20   0.000     2.886371    7.930876
+        var4 |  -5.677708   1.121153    -5.06   0.000    -7.875202   -3.480213
+       _cons |   50.00746   .1495826   334.31   0.000     49.71427    50.30065
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1512,7 +1510,7 @@ Absorbed degrees of freedom:
 ----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (dropped 1449 singleton observations)
-(MWFE estimator converged in 83 iterations)
+(MWFE estimator converged in 84 iterations)
 
 Stored estimation results
 -------------------------
@@ -1531,19 +1529,19 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35528                Number of obs =   227829
-                                                      F(  3, 35527) =     1.51
-                                                      Prob > F      =   0.2098
-Total (centered) SS     =     86595752                Centered R2   =  -0.0038
-Total (uncentered) SS   =     86595752                Uncentered R2 =  -0.0038
-Residual SS             =  86928951.32                Root MSE      =    19.63
+                                                      F(  3, 35527) =     5.14
+                                                      Prob > F      =   0.0015
+Total (centered) SS     =  64587361.27                Centered R2   =  -0.0005
+Total (uncentered) SS   =  64587361.27                Uncentered R2 =  -0.0005
+Residual SS             =  64617596.79                Root MSE      =    16.93
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   10.68652   5.436205     1.97   0.049     .0313905    21.34165
-        var5 |  -3.346171   4.679626    -0.72   0.475    -12.51838    5.826039
-        var4 |   .5366997   3.382359     0.16   0.874    -6.092828    7.166227
+        var3 |  -5.105247   5.271801    -0.97   0.333    -15.43814    5.227645
+        var5 |   7.666563   5.066646     1.51   0.130     -2.26422    17.59735
+        var4 |   -6.69044   3.824033    -1.75   0.080    -14.18566    .8047823
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):            210.978
                                                    Chi-sq(1) P-val =    0.0000
@@ -1590,7 +1588,7 @@ Absorbed degrees of freedom:
 . 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5. 
@@ -1671,25 +1669,25 @@ Absorbed degrees of freedom:
 >> FE spec: (tag=msatime)
    – outcome: total_contributions_q100
 (dropped 2262 singleton observations)
-(MWFE estimator converged in 96 iterations)
+(MWFE estimator converged in 98 iterations)
 
 HDFE Linear regression                            Number of obs   =    229,043
-Absorbing 3 HDFE groups                           F(   3,  35716) =       4.34
-Statistics robust to heteroskedasticity           Prob > F        =     0.0046
-                                                  R-squared       =     0.5184
-                                                  Adj R-squared   =     0.4164
-                                                  Within R-sq.    =     0.0001
-Number of clusters (user_id) =     35,717         Root MSE        =    21.3095
+Absorbing 3 HDFE groups                           F(   3,  35716) =       7.75
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6888
+                                                  Adj R-squared   =     0.6228
+                                                  Within R-sq.    =     0.0002
+Number of clusters (user_id) =     35,717         Root MSE        =    18.4015
 
                            (Std. err. adjusted for 35,717 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   .3094679   .4768295     0.65   0.516    -.6251324    1.244068
-        var5 |   3.066401   1.068638     2.87   0.004     .9718386    5.160963
-        var4 |  -2.538893   .9301707    -2.73   0.006    -4.362056   -.7157305
-       _cons |    76.4262   .1457308   524.43   0.000     76.14056    76.71184
+        var3 |  -.6638063   .5041134    -1.32   0.188    -1.651884    .3242713
+        var5 |   4.838795   1.253392     3.86   0.000     2.382109    7.295481
+        var4 |  -4.953129   1.086105    -4.56   0.000    -7.081928   -2.824329
+       _cons |   49.96369   .1537545   324.96   0.000     49.66232    50.26505
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1702,7 +1700,7 @@ Absorbed degrees of freedom:
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (dropped 2262 singleton observations)
-(MWFE estimator converged in 96 iterations)
+(MWFE estimator converged in 98 iterations)
 
 Stored estimation results
 -------------------------
@@ -1721,19 +1719,19 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35717                Number of obs =   229043
-                                                      F(  3, 35716) =     1.20
-                                                      Prob > F      =   0.3076
-Total (centered) SS     =  85834042.19                Centered R2   =  -0.0003
-Total (uncentered) SS   =  85834042.19                Uncentered R2 =  -0.0003
-Residual SS             =  85862183.42                Root MSE      =    19.55
+                                                      F(  3, 35716) =     3.73
+                                                      Prob > F      =   0.0108
+Total (centered) SS     =  64017118.36                Centered R2   =  -0.0010
+Total (uncentered) SS   =  64017118.36                Uncentered R2 =  -0.0010
+Residual SS             =  64080715.32                Root MSE      =    16.89
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |    3.83465   4.302725     0.89   0.373    -4.598822    12.26812
-        var5 |   .3912133   5.413987     0.07   0.942    -10.22037    11.00279
-        var4 |  -.9275899   3.947847    -0.23   0.814    -8.665491    6.810311
+        var3 |  -6.048587   4.171122    -1.45   0.147    -14.22411     2.12694
+        var5 |   9.504083   5.854591     1.62   0.105    -1.971094    20.97926
+        var4 |   -7.90567   4.414345    -1.79   0.073    -16.55792    .7465797
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):            250.628
                                                    Chi-sq(1) P-val =    0.0000
@@ -1782,7 +1780,7 @@ Absorbed degrees of freedom:
 . 
 . 
 . foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_${user_panel_variant}.dta", clear
+  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
   3.     display as text ">> FE spec: (tag=`tag')"
   4.     display as text "   – outcome: `y'"
   5. 
@@ -1866,22 +1864,22 @@ Absorbed degrees of freedom:
 (MWFE estimator converged in 140 iterations)
 
 HDFE Linear regression                            Number of obs   =    222,867
-Absorbing 3 HDFE groups                           F(   3,  35000) =       3.26
-Statistics robust to heteroskedasticity           Prob > F        =     0.0206
-                                                  R-squared       =     0.5334
-                                                  Adj R-squared   =     0.4211
+Absorbing 3 HDFE groups                           F(   3,  35000) =       4.76
+Statistics robust to heteroskedasticity           Prob > F        =     0.0025
+                                                  R-squared       =     0.6990
+                                                  Adj R-squared   =     0.6266
                                                   Within R-sq.    =     0.0001
-Number of clusters (user_id) =     35,001         Root MSE        =    21.2497
+Number of clusters (user_id) =     35,001         Root MSE        =    18.3094
 
                            (Std. err. adjusted for 35,001 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   .2977955   .5142619     0.58   0.563    -.7101742    1.305765
-        var5 |   2.525327   1.207094     2.09   0.036     .1593841    4.891269
-        var4 |  -1.739284   1.069778    -1.63   0.104    -3.836083     .357515
-       _cons |   76.34123   .1567902   486.90   0.000     76.03392    76.64855
+        var3 |  -.4964325   .5493515    -0.90   0.366    -1.573179    .5803138
+        var5 |   4.656526   1.383118     3.37   0.001     1.945571     7.36748
+        var4 |   -4.50797   1.207292    -3.73   0.000    -6.874301   -2.141638
+       _cons |   49.80853   .1671252   298.03   0.000     49.48096     50.1361
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -1913,19 +1911,19 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35001                Number of obs =   222867
-                                                      F(  3, 35000) =     1.31
-                                                      Prob > F      =   0.2707
-Total (centered) SS     =  81110345.39                Centered R2   =  -0.0020
-Total (uncentered) SS   =  81110345.39                Uncentered R2 =  -0.0020
-Residual SS             =  81276215.47                Root MSE      =    19.46
+                                                      F(  3, 35000) =     1.64
+                                                      Prob > F      =   0.1773
+Total (centered) SS     =  60221899.37                Centered R2   =  -0.0046
+Total (uncentered) SS   =  60221899.37                Uncentered R2 =  -0.0046
+Residual SS             =  60497514.46                Root MSE      =    16.79
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   8.989937   8.331822     1.08   0.281    -7.340699    25.32057
-        var5 |  -4.774801   6.463574    -0.74   0.460    -17.44361    7.894009
-        var4 |   2.724941   4.562032     0.60   0.550    -6.216786    11.66667
+        var3 |  -11.54688   8.138701    -1.42   0.156    -27.49899    4.405235
+        var5 |    9.77675   6.682231     1.46   0.143    -3.320635    22.87413
+        var4 |  -6.570141   4.914404    -1.34   0.181    -16.20253    3.062246
 ------------------------------------------------------------------------------
 Underidentification test (Kleibergen-Paap rk LM statistic):            101.404
                                                    Chi-sq(1) P-val =    0.0000
@@ -2003,5 +2001,5 @@ file ../results/raw/user_productivity_alternative_fe_precovid/first_stage_fstats
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_alternative_fe_precovid.log
   log type:  text
- closed on:   5 Jun 2025, 20:35:09
+ closed on:  12 Jun 2025, 11:14:15
 -----------------------------------------------------------------------------------------------------------------------------------------

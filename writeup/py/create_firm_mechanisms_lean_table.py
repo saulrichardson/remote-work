@@ -11,6 +11,7 @@ import math
 from pathlib import Path
 
 import pandas as pd
+import argparse
 
 
 # ---------------------------------------------------------------------------
@@ -18,6 +19,16 @@ import pandas as pd
 # ---------------------------------------------------------------------------
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
+
+# CLI args -------------------------------------------------------
+parser = argparse.ArgumentParser(description="Create lean firm mechanisms tables")
+parser.add_argument(
+    "--exclude",
+    default="",
+    help="Comma-separated mechanism dimensions to exclude (e.g. Wage)",
+)
+args = parser.parse_args()
+exclude_set = {x.strip() for x in args.exclude.split(",") if x.strip()}
 
 SPECNAME = "firm_mechanisms_lean"
 INPUT_CSV = PROJECT_ROOT / "results" / "raw" / SPECNAME / "consolidated_results.csv"
@@ -47,6 +58,19 @@ ROW_LABELS = {
     "Seniority": "Seniority",
     "Wage": "Wage",
 }
+
+# Keywords
+DIM_KEYWORDS = {
+    "Rent": ["rent"],
+    "HHI": ["hhi"],
+    "Seniority": ["seniority"],
+    "Wage": ["sd_wage", "sdw", "wage", "gap"],
+}
+
+# Apply exclusions
+if exclude_set:
+    DIMS = [d for d in DIMS if d not in exclude_set]
+    ROW_LABELS = {k: v for k, v in ROW_LABELS.items() if k in DIMS}
 
 
 # ---------------------------------------------------------------------------
@@ -79,11 +103,9 @@ def load_prepare() -> pd.DataFrame:
 def build_check_matrix(specs: list[str]):
     check = {d: [] for d in DIMS}
     for spec in specs:
-        lower = spec.lower()
-        check["Rent"].append("rent" in lower)
-        check["HHI"].append("hhi" in lower)
-        check["Seniority"].append("seniority" in lower)
-        check["Wage"].append(any(k in lower for k in ("sd_wage", "sdw", "wage", "gap")))
+        low = spec.lower()
+        for d in DIMS:
+            check[d].append(any(k in low for k in DIM_KEYWORDS.get(d, [d.lower()])))
     return check
 
 
@@ -171,7 +193,18 @@ def main() -> None:
     df_iv = df[df.model_type == "IV"].copy()
     df_ols = df[df.model_type == "OLS"].copy()
 
-    spec_order = df["spec"].drop_duplicates().tolist()
+    spec_all = df["spec"].drop_duplicates().tolist()
+
+    def spec_has_dim(s: str, dim: str) -> bool:
+        low = s.lower()
+        return any(k in low for k in DIM_KEYWORDS.get(dim, []))
+
+    if exclude_set:
+        spec_order = [s for s in spec_all if not any(spec_has_dim(s, d) for d in exclude_set)]
+        df_iv = df_iv[df_iv.spec.isin(spec_order)]
+        df_ols = df_ols[df_ols.spec.isin(spec_order)]
+    else:
+        spec_order = spec_all
     tables_needed = math.ceil(len(spec_order) / COLS_PER_TABLE)
 
     lines: list[str] = []

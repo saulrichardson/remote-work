@@ -1,0 +1,107 @@
+% Mini report: Pre-COVID productivity & lean user mechanisms
+\documentclass{article}
+
+% -------------------------------------------------------------------------
+%  Packages (keep parity with consolidated‐report for tables)
+% -------------------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{makecell}
+\usepackage{threeparttable}
+\usepackage{float}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[normalem]{ulem}
+\usepackage{dsfont}
+\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+
+% define a “centering” version of X
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+% Base directory for cleaned LaTeX tables
+\newcommand{\cleanedresultsdir}{../results/cleaned}
+
+\begin{document}
+
+% -------------------------------------------------------------------------
+%  Table of contents (suppress automatic \clearpage inside)
+% -------------------------------------------------------------------------
+\begingroup
+  \let\clearpage\relax
+  \tableofcontents
+\endgroup
+
+% -------------------------------------------------------------------------
+%  Table of Means
+% -------------------------------------------------------------------------
+\section{Table of Means}
+\input{\cleanedresultsdir/table_of_means.tex}
+
+% -------------------------------------------------------------------------
+%  User productivity – Pre-COVID (main headline results)
+% -------------------------------------------------------------------------
+\section{User Productivity – Pre-COVID Panel}
+
+\subsection{OLS}
+\input{\cleanedresultsdir/user_productivity_precovid_ols.tex}
+
+\subsection{Instrumental Variables}
+\input{\cleanedresultsdir/user_productivity_precovid_iv.tex}
+
+\subsection{First Stage}
+\input{\cleanedresultsdir/user_productivity_precovid_first_stage.tex}
+
+% -------------------------------------------------------------------------
+%  Lean mechanism horse-race (Pre-COVID only)
+% -------------------------------------------------------------------------
+\clearpage
+\begin{landscape}
+\section{User Mechanisms (Lean) – Pre-COVID Panel}
+\input{\cleanedresultsdir/user_mechanisms_lean_precovid.tex}
+\end{landscape}
+
+% -------------------------------------------------------------------------
+%  Full horse‐race mechanisms (Pre-COVID) – include both OLS & IV panels
+% -------------------------------------------------------------------------
+\clearpage
+\begin{landscape}
+\section{User Mechanisms (Full Horse–Race) – Pre-COVID Panel}
+\input{\cleanedresultsdir/user_mechanisms_precovid.tex}
+\end{landscape}
+
+% -------------------------------------------------------------------------
+%  Firm results (mirroring the consolidated report)
+% -------------------------------------------------------------------------
+
+\clearpage
+\section{Firm Scaling}
+
+\subsection{OLS}
+\input{\cleanedresultsdir/firm_scaling_ols.tex}
+
+\subsection{Instrumental Variables}
+\input{\cleanedresultsdir/firm_scaling_iv.tex}
+
+\subsection{First Stage}
+\input{\cleanedresultsdir/firm_scaling_first_stage.tex}
+
+% Remote vs. Teleworkable first stage
+\subsection{Remote $\rightarrow$ Teleworkable: First Stage}
+\input{\cleanedresultsdir/remote_first_stage.tex}
+
+% Firm mechanisms ----------------------------------------------------------
+\clearpage
+\begin{landscape}
+\subsection{Firm Mechanisms}
+\input{\cleanedresultsdir/firm_mechanisms.tex}
+\end{landscape}
+
+\begin{landscape}
+\subsection{Firm Mechanisms (Lean)}
+\input{\cleanedresultsdir/firm_mechanisms_lean.tex}
+\end{landscape}
+
+\end{document}

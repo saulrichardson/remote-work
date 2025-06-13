@@ -32,9 +32,6 @@
 |   *Optionally* edit `local sample_types` to generate a subset.
 *-------------------------------------------------------------------*/
 
-version 18.0
-set more off
-
 capture log close
 cap mkdir "log"
 log using "log/build_all_user_panels.log", replace text

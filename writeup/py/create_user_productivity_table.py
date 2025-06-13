@@ -379,16 +379,34 @@ def main() -> None:
     caption = f"User Productivity ({variant_tex}) -- {model}"
     label = f"tab:{tex_label_stub}"
 
-    for fp in (input_base, input_alt, input_init):
-        if not fp.exists():
-            raise FileNotFoundError(fp)
+    # ------------------------------------------------------------------
+    # Robustness: some panel variants (e.g. balanced_pre) were generated
+    # only for the baseline specification.  If the alternative‐FE or
+    # initial‐spec folders are absent we still want to build Panel A so the
+    # overall report compiles.  We therefore *require* the baseline CSV but
+    # silently skip the others when missing.
+    # ------------------------------------------------------------------
+
+    if not input_base.exists():
+        raise FileNotFoundError(input_base)
 
     df_base = pd.read_csv(input_base)
-    df_alt = pd.read_csv(input_alt)
-    df_init = pd.read_csv(input_init).copy()
+
+    if input_alt.exists():
+        df_alt = pd.read_csv(input_alt)
+    else:
+        df_alt = pd.DataFrame()
+
+    if input_init.exists():
+        df_init = pd.read_csv(input_init).copy()
+        df_init["fe_tag"] = "init"
+    else:
+        df_init = pd.DataFrame()
     df_init["fe_tag"] = "init"
 
-    df_fe = pd.concat([df_init, df_alt], ignore_index=True)
+    df_fe = pd.concat([df_init, df_alt], ignore_index=True, sort=False)
+    if df_fe.empty:
+        print("Warning: no alternative-FE results found; Panel B will be omitted.")
 
     tex_lines = [
         "% Auto-generated user productivity table",
@@ -400,7 +418,8 @@ def main() -> None:
         r"\centering",
     ]
 
-    tex_lines.append(build_panel_fe(df_fe, model, include_kp).rstrip())
+    if not df_fe.empty:
+        tex_lines.append(build_panel_fe(df_fe, model, include_kp).rstrip())
     tex_lines.append(build_panel_base(df_base, model, include_kp).rstrip())
     tex_lines.append(r"\end{table}")
 

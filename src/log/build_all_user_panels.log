@@ -1,0 +1,139 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_all_user_panels.log
+  log type:  text
+ opened on:  11 Jun 2025, 11:10:19
+
+. 
+. ****************************************************************************
+. * 0.  Globals
+. ****************************************************************************
+. do "../src/globals.do"
+
+. global raw_data "../data/raw"
+
+. global processed_data  "../data/processed"
+
+. global results "../results/raw"
+
+. global clean_results "../results/cleaned"
+
+. 
+. 
+. 
+. 
+. 
+end of do-file
+
+. 
+. ****************************************************************************
+. * 1.  Build the *full* (unfiltered) master panel
+. ****************************************************************************
+. 
+. *----------------------------------------------------------
+. * 1.1  User-level contributions (historic)
+. *----------------------------------------------------------
+. use "$processed_data/Contributions_Scoop.dta", clear
+
+. 
+. * drop inactive accounts --------------------------------------------------
+. gsort user_id year month
+
+. destring year month, replace
+year already numeric; no replace
+month already numeric; no replace
+
+. 
+. 
+. * derive half-year id ------------------------------------------------------
+. gen half = ceil(month/6)
+
+. gen yh   = yh(year, half)
+
+. format yh %th
+
+. 
+. * monthly → half-year collapse -------------------------------------------*
+. label var totalcontribution            "Total Contributions"
+
+. label var restrictedcontributionscount "Pvt Contributions"
+
+. 
+. keep if yh <= yh(2022,1)
+(0 observations deleted)
+
+. 
+. tempfile user_yh
+
+. save     "`user_yh'", replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000001 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000001 saved as .dta format
+
+. 
+. *----------------------------------------------------------
+. * 1.2  Add 2022 H1 contributions (monthly CSV)
+. *----------------------------------------------------------
+. import delimited "$raw_data/MonthlyContributions.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(5 vars, 6,368,184 obs)
+
+. 
+. tostring monthyear, replace format(%06.0f)
+monthyear was long now str6
+
+. gen year  = substr(monthyear,1,4)
+
+. gen month = substr(monthyear,5,2)
+
+. 
+. destring year month, replace
+year: all characters numeric; replaced as int
+month: all characters numeric; replaced as byte
+
+. 
+. label var totalcontribution            "Total Contributions"
+
+. label var restrictedcontributionscount "Pvt Contributions"
+
+. 
+. tempfile user_yh_new
+
+. save     "`user_yh_new'", replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000002 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000002 saved as .dta format
+
+. 
+. * attach company names -----------------------------------------------------
+. // use "$processed_data/expanded_half_years_2.dta", clear
+. // keep if yh == yh(2022,1)
+. // keep user_id companyname yh
+. 
+. // duplicates tag user_id yh, gen(dup_tag)
+. // keep if dup_tag==0
+. 
+. // merge 1:1 user_id yh using "`user_yh_new'", keep(3) nogen
+. 
+. append using "`user_yh'"
+
+. save   "`user_yh'", replace
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_71501.000001 saved as .dta format
+
+. 
+. keep user_id year month
+
+. 
+. export delimited "~/Downloads/all_contributions.csv", replace
+(file /Users/saul/Downloads/all_contributions.csv not found)
+file /Users/saul/Downloads/all_contributions.csv saved
+
+. 
+end of do-file
+
+. sort user_id year month 
+
+. keep if user_id == 1004442
+(17,003,500 observations deleted)
+
+. clear
+
+. exit
