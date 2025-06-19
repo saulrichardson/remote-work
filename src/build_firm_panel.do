@@ -19,8 +19,9 @@ format yh %th
 
 collapse (last) date (sum) join leave, by(companyname yh)
 
-tempfile join_leave
+
 keep companyname yh join leave
+tempfile join_leave
 save `join_leave'
 
 
@@ -154,6 +155,17 @@ gen covid = yh >= 120
 
 
 rename flexibility_score2 remote
+
+gen hybrid  = (remote>0 & remote<1)
+gen fullrem = (remote==1)
+
+* For the hybrid treatment
+gen var3_hybrid = hybrid * covid
+gen var5_hybrid = hybrid * covid * startup
+
+* For the fully-remote treatment
+gen var3_fullrem = fullrem * covid
+gen var5_fullrem = fullrem * covid * startup
 
 
 summarize yh

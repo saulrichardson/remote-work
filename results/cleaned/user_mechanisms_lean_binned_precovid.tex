@@ -1,0 +1,35 @@
+\begin{table}[H]
+\centering
+\caption{User Mechanisms – Lean (Precovid) – Part 1}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Total Contrib. (pct. rk)} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  & \checkmark &  &  & \checkmark & \checkmark &  & \checkmark \\
+HHI &  &  & \checkmark &  & \checkmark &  & \checkmark & \checkmark \\
+Seniority &  &  &  & \checkmark &  & \checkmark & \checkmark & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -1.23** & -1.11* & -1.54** & 2.65 & -1.21* & 4.16 & 2.14 & 3.96 \\
+ & (0.50) & (0.63) & (0.63) & (5.85) & (0.71) & (5.80) & (5.90) & (5.86) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 6.21*** & 4.08*** & 6.07*** & 6.09*** & 4.06*** & 3.90*** & 5.95*** & 3.88*** \\
+ & (1.27) & (1.27) & (1.29) & (1.28) & (1.28) & (1.27) & (1.29) & (1.28) \\
+\midrule
+N & 224,708 & 218,112 & 224,596 & 224,708 & 218,032 & 218,112 & 224,596 & 218,032 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -9.26** & -990.04 & -188.00** & -21799.94 & -677.88 & 7540.44 & 5749.41 & 19936.89 \\
+ & (4.01) & (3169.06) & (95.53) & (13665.66) & (982.93) & (13396.79) & (11264.50) & (149586.97) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 12.45** & -182.31 & -14.51 & -310.11 & 80.55 & 177.08 & 122.50 & -67.96 \\
+ & (5.39) & (642.58) & (16.54) & (255.37) & (85.79) & (266.43) & (200.54) & (1452.16) \\
+\midrule
+N & 224,708 & 203,754 & 209,684 & 209,788 & 203,676 & 203,754 & 209,684 & 203,676 \\
+KP\,rk Wald F & 123.43 & 0.03 & 2.18 & 0.96 & 0.17 & 0.09 & 0.07 & 0.00 \\
+\bottomrule
+\end{tabular}
+\label{tab:user_mechanisms_lean_precovid_1}
+\end{table}

@@ -380,33 +380,19 @@ def main() -> None:
     label = f"tab:{tex_label_stub}"
 
     # ------------------------------------------------------------------
-    # Robustness: some panel variants (e.g. balanced_pre) were generated
-    # only for the baseline specification.  If the alternative‐FE or
-    # initial‐spec folders are absent we still want to build Panel A so the
-    # overall report compiles.  We therefore *require* the baseline CSV but
-    # silently skip the others when missing.
+    # Single-panel output: only the FE variants (Panel A)
     # ------------------------------------------------------------------
 
-    if not input_base.exists():
-        raise FileNotFoundError(input_base)
+    if not input_alt.exists():
+        raise FileNotFoundError(input_alt)
 
-    df_base = pd.read_csv(input_base)
+    if not input_init.exists():
+        raise FileNotFoundError(input_init)
 
-    if input_alt.exists():
-        df_alt = pd.read_csv(input_alt)
-    else:
-        df_alt = pd.DataFrame()
-
-    if input_init.exists():
-        df_init = pd.read_csv(input_init).copy()
-        df_init["fe_tag"] = "init"
-    else:
-        df_init = pd.DataFrame()
+    df_alt = pd.read_csv(input_alt)
+    df_init = pd.read_csv(input_init).copy()
     df_init["fe_tag"] = "init"
-
     df_fe = pd.concat([df_init, df_alt], ignore_index=True, sort=False)
-    if df_fe.empty:
-        print("Warning: no alternative-FE results found; Panel B will be omitted.")
 
     tex_lines = [
         "% Auto-generated user productivity table",
@@ -416,12 +402,9 @@ def main() -> None:
         rf"\caption{{{caption}}}",
         rf"\label{{{label}}}",
         r"\centering",
+        build_panel_fe(df_fe, model, include_kp).rstrip(),
+        r"\end{table}",
     ]
-
-    if not df_fe.empty:
-        tex_lines.append(build_panel_fe(df_fe, model, include_kp).rstrip())
-    tex_lines.append(build_panel_base(df_base, model, include_kp).rstrip())
-    tex_lines.append(r"\end{table}")
 
     output_tex.parent.mkdir(parents=True, exist_ok=True)
     output_tex.write_text("\n".join(tex_lines) + "\n")

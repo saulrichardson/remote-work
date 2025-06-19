@@ -44,19 +44,13 @@ REPORT_SRC := $(SRC)/consolidated-report.tex
 BUILD  := build
 FINAL  := final
 
-.PHONY: all report mini clean deploy deploy-mini mini-report
+.PHONY: all report clean deploy deploy-mini mini-report
 
 
 all: clean report deploy          # Report target rebuilds paper only
 
 # -------------------------------------------------------------------------
 #  Mini consolidated report (Pre-COVID only)
-# -------------------------------------------------------------------------
-
-mini: clean mini-report deploy-mini     # Build & sync the mini-report
-
-# -------------------------------------------------------------------------
-#  Build the *mini* report – only Pre-COVID variant tables
 # -------------------------------------------------------------------------
 
 mini-report:
@@ -68,6 +62,10 @@ mini-report:
 	@for d in \
 	  ../results/raw/user_mechanisms_lean_precovid \
 	  ../results/raw/user_mechanisms_precovid \
+	  ../results/raw/user_mechanisms_binned_precovid \
+	  ../results/raw/user_mechanisms_lean_binned_precovid \
+	  ../results/raw/firm_mechanisms_binned \
+	  ../results/raw/firm_mechanisms_lean_binned \
 	  ../results/raw/firm_mechanisms_lean \
 	  ../results/raw/firm_mechanisms; do \
 	    if [ ! -f $$d/consolidated_results.csv ]; then \
@@ -79,49 +77,75 @@ mini-report:
 	# ------------------------------------------------------------------
 	#  1) Descriptive table of means
 	# ------------------------------------------------------------------
-	@echo "[1/7] Table of means"
+	@echo "[1/12] Table of means"
 	@$(PYTHON) ../py/build_table_of_means.py || { echo "✖ Failed: build_table_of_means.py"; exit 1; }
 
 	# ------------------------------------------------------------------
-	#  2) Firm scaling results (OLS, IV, first-stage) + Remote→Teleworkable
+	#  2) Core descriptive figures
 	# ------------------------------------------------------------------
-	@echo "[2/7] Firm scaling tables"
+	@echo "[2/12] Figures"
+	@MPLBACKEND=Agg $(PYTHON) ../py/figures.py || { echo "✖ Failed: figures.py"; exit 1; }
+
+	# ------------------------------------------------------------------
+	#  3) Firm scaling results (OLS, IV, first-stage) + Remote→Teleworkable
+	# ------------------------------------------------------------------
+	@echo "[3/12] Firm scaling tables"
 	@$(call RUN_PYSCRIPT,create_firm_scaling_table.py,--model-type ols)
 	@$(call RUN_PYSCRIPT,create_firm_scaling_table.py,--model-type iv)
 	@$(call RUN_PYSCRIPT,create_firm_scaling_first_stage_table.py,)
 	@$(call RUN_PYSCRIPT,create_remote_first_stage_table.py,)
 
 	# ------------------------------------------------------------------
-	#  3) Firm mechanisms (baseline & lean)
+	#  4) Firm mechanisms (baseline & lean)
 	# ------------------------------------------------------------------
-	@echo "[3/7] Firm mechanisms tables"
+	@echo "[4/12] Firm mechanisms tables"
 	@$(call RUN_PYSCRIPT,create_firm_mechanisms_table.py,--exclude Wage)
 	@$(call RUN_PYSCRIPT,create_firm_mechanisms_lean_table.py,--exclude Wage)
 
 	# ------------------------------------------------------------------
-	#  4) User productivity tables (OLS, IV, first-stage) – Pre-COVID
+	#  5) User productivity tables (OLS, IV, first-stage) – Pre-COVID
 	# ------------------------------------------------------------------
-	@echo "[4/7] User productivity tables – Pre-COVID"
+	@echo "[5/12] User productivity tables – Pre-COVID"
 	@$(call RUN_PYSCRIPT,create_user_productivity_table.py,--model-type ols --variant precovid)
 	@$(call RUN_PYSCRIPT,create_user_productivity_table.py,--model-type iv --variant precovid)
 	@$(call RUN_PYSCRIPT,create_user_productivity_first_stage_table.py,--variant precovid)
 
 	# ------------------------------------------------------------------
-	#  5) Lean user mechanisms – Pre-COVID
+	#  6) Lean user mechanisms – Pre-COVID
 	# ------------------------------------------------------------------
-	@echo "[5/7] Lean user mechanisms – Pre-COVID (excluding Wage)"
+	@echo "[6/12] Lean user mechanisms – Pre-COVID (excluding Wage)"
 	@$(call RUN_PYSCRIPT,create_user_mechanisms_lean_table.py,--variant precovid --exclude Wage)
 
 	# ------------------------------------------------------------------
-	#  6) Full user mechanisms – Pre-COVID
+	#  7) Full user mechanisms – Pre-COVID
 	# ------------------------------------------------------------------
-	@echo "[6/7] Full user mechanisms – Pre-COVID (excluding Wage)"
+	@echo "[7/12] Full user mechanisms – Pre-COVID (excluding Wage)"
 	@$(call RUN_PYSCRIPT,create_user_mechanisms_table.py,--variant precovid --exclude Wage)
 
 	# ------------------------------------------------------------------
-	#  7) Compile PDF
+	#  8) Binned user mechanisms – Pre-COVID
 	# ------------------------------------------------------------------
-	@echo "[7/7] Compiling LaTeX PDF"
+	@echo "[8/12] Binned user mechanisms – Pre-COVID (excluding Wage)"
+	@$(call RUN_PYSCRIPT,create_user_mechanisms_binned_table.py,--variant precovid --exclude Wage)
+
+	# ------------------------------------------------------------------
+	#  9) Lean binned user mechanisms – Pre-COVID
+	# ------------------------------------------------------------------
+	@echo "[9/12] Lean binned user mechanisms – Pre-COVID (excluding Wage)"
+	@$(call RUN_PYSCRIPT,create_user_mechanisms_lean_binned_table.py,--variant precovid --exclude Wage)
+
+	# ------------------------------------------------------------------
+	# 10) Firm mechanisms (binned baseline & lean)
+	# ------------------------------------------------------------------
+	@echo "[10/12] Firm mechanisms (binned baseline)"
+	@$(call RUN_PYSCRIPT,create_firm_mechanisms_binned_table.py,--exclude Wage)
+	@echo "[11/12] Firm mechanisms (binned lean)"
+	@$(call RUN_PYSCRIPT,create_firm_mechanisms_lean_binned_table.py,--exclude Wage)
+
+	# ------------------------------------------------------------------
+	#  9) Compile PDF
+	# ------------------------------------------------------------------
+	@echo "[12/12] Compiling LaTeX PDF"
 	@pdflatex -halt-on-error -interaction=nonstopmode \
 	  -output-directory=$(BUILD) $(SRC)/mini-report.tex
 	# Second run for TOC / cross-refs
@@ -129,6 +153,11 @@ mini-report:
 	  -output-directory=$(BUILD) $(SRC)/mini-report.tex
 	@mkdir -p $(FINAL)
 	@cp $(BUILD)/mini-report.pdf $(FINAL)/
+
+	@echo "Syncing mini report to Overleaf Dropbox folder…"
+	@mkdir -p $(DEST_PAPER)
+	@cp $(FINAL)/mini-report.pdf $(DEST_PAPER)/
+	@echo "→ mini-report.pdf copied to $(DEST_PAPER)"
 
 # -------------------------------------------------------------------------
 #  Deploy mini-report to Overleaf-synced Dropbox folder

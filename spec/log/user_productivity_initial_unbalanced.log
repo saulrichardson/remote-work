@@ -1,0 +1,202 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_initial_unbalanced.log
+  log type:  text
+ opened on:  13 Jun 2025, 09:47:39
+
+. 
+. // 0) Setup environment
+. do "../src/globals.do"
+
+. global raw_data "../data/raw"
+
+. global processed_data  "../data/processed"
+
+. global results "../results/raw"
+
+. global clean_results "../results/cleaned"
+
+. 
+. 
+. 
+. 
+. 
+end of do-file
+
+. 
+. // 1) Load worker‐level panel
+. use "$processed_data/user_panel_`panel_variant'.dta", clear
+
+. 
+. // 2) Prepare output dir & reset any old postfile
+. *--------------------------------------------------------------------------*
+. * Output directory is *always* suffixed with the panel variant so each run is
+. * explicit about the underlying sample (e.g., "user_productivity_initial_balanced").
+. *--------------------------------------------------------------------------*
+. 
+. local result_dir  "$results/`specname'"
+
+. capture mkdir "`result_dir'"
+
+. 
+. capture postclose handle
+
+. tempfile out
+
+. *--- postfile header (main results) -------------------------------------------
+. postfile handle ///
+>     str8   model_type ///
+>     str40  outcome     ///
+>     str40  param       ///
+>     double coef se pval pre_mean ///
+>     double rkf nobs     ///
+>     using `out', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000001 not found)
+
+. 
+. 
+. *------------------------------------------------------------------
+. *  First-stage results → first_stage_fstats.csv
+. *------------------------------------------------------------------
+. tempfile out_fs
+
+. capture postclose handle_fs
+
+. postfile handle_fs ///
+>     str8   endovar            ///
+>     str40  param              /// 
+>     double coef se pval       ///
+>     double partialF rkf nobs  ///
+>     using `out_fs', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000002 not found)
+
+.         
+. // 3) Loop over outcomes
+. local outcomes total_contributions_q100 
+
+. local fs_done 0
+
+. 
+. foreach y of local outcomes {
+  2.     di as text "→ Processing outcome: `y'"
+  3. 
+.     summarize `y' if covid == 0, meanonly
+  4.     local pre_mean = r(mean)
+  5. 
+.     // ----- OLS -----
+.     reghdfe `y' var3 var4, absorb(user_id firm_id yh) ///
+>         vce(cluster user_id)
+  6.                 
+.         local N = e(N) 
+  7.         
+.     foreach p in var3 var4 {
+  8.         local b    = _b[`p']
+  9.         local se   = _se[`p']
+ 10.         local t    = `b'/`se'
+ 11.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 12.                 *--- inside the OLS loop ------------------------------------------------------
+.         post handle ("OLS") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (.) (`N')                 // dot for rkf, then nobs
+ 13.     }
+ 14. 
+.     // ----- IV (2nd‐stage) -----
+.     ivreghdfe ///
+>         `y' (var3 = var6) var4, ///
+>         absorb(user_id firm_id yh) vce(cluster user_id) savefirst
+ 15.                 
+.     local rkf = e(rkf)
+ 16.         local N = e(N) 
+ 17.         
+.     foreach p in var3 var4 {
+ 18.         local b    = _b[`p']
+ 19.         local se   = _se[`p']
+ 20.         local t    = `b'/`se'
+ 21.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 22.                 *--- inside the IV loop -------------------------------------------------------
+.         post handle ("IV") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (`rkf') (`N')            // rkf, then nobs
+ 23.     }
+ 24. 
+.         if !`fs_done' {
+ 25.                 
+.                 matrix FS = e(first)
+ 26.         local F3 = FS[4,1]
+ 27. 
+.                 /* -------- var3 first stage -------------------------------- */
+.                 estimates restore _ivreg2_var3
+ 28.                 local N_fs = e(N)
+ 29.                 foreach p in var6 var4 {
+ 30.                         local b    = _b[`p']
+ 31.                         local se   = _se[`p']
+ 32.                         local t    = `b'/`se'
+ 33.                         local pval = 2*ttail(e(df_r), abs(`t'))
+ 34. 
+.                         post handle_fs ("var3") ("`p'") ///
+>                                                         (`b') (`se') (`pval') ///
+>                                                         (`F3') (`rkf') (`N_fs')
+ 35.                 }
+ 36. 
+. 
+.                 local fs_done 1
+ 37.         }
+ 38. }
+→ Processing outcome: total_contributions_q100
+(dropped 5213 singleton observations)
+(MWFE estimator converged in 85 iterations)
+
+HDFE Linear regression                            Number of obs   =  1,226,437
+Absorbing 3 HDFE groups                           F(   2, 171670) =       4.34
+Statistics robust to heteroskedasticity           Prob > F        =     0.0131
+                                                  R-squared       =     0.5991
+                                                  Adj R-squared   =     0.5325
+                                                  Within R-sq.    =     0.0000
+Number of clusters (user_id) =    171,671         Root MSE        =    26.1899
+
+                          (Std. err. adjusted for 171,671 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |   .2910415   .2421262     1.20   0.229    -.1835205    .7656036
+        var4 |   -.641985   .2217275    -2.90   0.004    -1.076566   -.2074041
+       _cons |   37.59104    .075698   496.59   0.000     37.44267    37.73941
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |    171671      171671           0    *|
+     firm_id |      2908           1        2907     |
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(dropped 5213 singleton observations)
+--Break--
+r(1);
+
+end of do-file
+
+--Break--
+r(1);
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD86562.000000"
+
+. *============================================================*
+. *  user_productivity_initial.do
+. *  — Baseline spec (no startup × remote interaction) for worker
+. *    productivity.  Accepts *optional* first argument selecting the user
+. *    panel variant (unbalanced | balanced | precovid).  Default = unbalanced.
+. *    Example: do user_productivity_initial.do balanced
+. *============================================================*
+. 
+. * Parse variant argument ----------------------------------------------------
+. args panel_variant
+
+. if "`panel_variant'" == "" local panel_variant "precovid"
+
+. local specname user_productivity_initial_`panel_variant'
+
+. capture log close

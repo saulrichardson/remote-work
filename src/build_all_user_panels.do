@@ -190,6 +190,18 @@ gen startup = age <= 10
 gen covid   = yh >= 120    // 120 = 2020H1
 gen remote  = flexibility_score2
 
+gen hybrid  = (remote>0 & remote<1)
+gen fullrem = (remote==1)
+
+* For the hybrid treatment
+gen var3_hybrid = hybrid * covid
+gen var5_hybrid = hybrid * covid * startup
+
+* For the fully-remote treatment
+gen var3_fullrem = fullrem * covid
+gen var5_fullrem = fullrem * covid * startup
+
+
 rename restrictedcontributionscount restricted_contributions
 rename totalcontribution            total_contributions
 
@@ -216,6 +228,7 @@ save     "`_master_panel'", replace
 ****************************************************************************
 
 local sample_types "unbalanced balanced precovid balanced_pre"
+local sample_types "precovid"
 
 foreach sample of local sample_types {
 

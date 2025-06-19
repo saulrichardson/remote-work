@@ -1,0 +1,125 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_precovid_hybird.log
+  log type:  text
+ opened on:  19 Jun 2025, 00:34:34
+
+. 
+. // 0) Setup environment
+. do "../src/globals.do"
+
+. global raw_data "../data/raw"
+
+. global processed_data  "../data/processed"
+
+. global results "../results/raw"
+
+. global clean_results "../results/cleaned"
+
+. 
+. 
+. 
+. 
+. 
+end of do-file
+
+. 
+. // 1) Load worker‐level panel
+. use "$processed_data/user_panel_`panel_variant'.dta", clear
+
+. 
+. // 2) Prepare output dir & reset any old postfile
+. *--------------------------------------------------------------------------*
+. * Results are now *always* written to <specname> _<panel‐variant> (e.g.,
+. *   "user_productivity_unbalanced") so the output folder unambiguously states
+. * which user‐panel sample was used.  No silent fallback for the default
+. * sample.
+. *--------------------------------------------------------------------------*
+. 
+. local result_dir  "$results/`specname'"
+
+. capture mkdir "`result_dir'"
+
+. 
+. capture postclose handle
+
+. tempfile out
+
+. *--- postfile header (main results) -------------------------------------------
+. postfile handle ///
+>     str8   model_type ///
+>     str40  outcome     ///
+>     str40  param       ///
+>     double coef se pval pre_mean ///
+>     double rkf nobs     ///
+>     using `out', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000001 not found)
+
+. 
+. 
+. *------------------------------------------------------------------
+. *  First-stage results → first_stage_fstats.csv
+. *------------------------------------------------------------------
+. tempfile out_fs
+
+. capture postclose handle_fs
+
+. postfile handle_fs ///
+>     str8   endovar            ///  var3 / var5
+>     str40  param              ///  var6 / var7 / var4
+>     double coef se pval       ///
+>     double partialF rkf nobs  ///
+>     using `out_fs', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000002 not found)
+
+.         
+. 
+. 
+. // `treat' was passed in as "remote" or "hybrid"
+. if `treat' == "fullremote" {
+hybird not found
+r(111);
+
+end of do-file
+
+r(111);
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD97664.000000"
+
+. 
+. * --------------------------------------------------------------------------
+. * 0) Parse optional variant argument *before* sourcing globals --------------
+. * --------------------------------------------------------------------------
+. 
+. 
+. args panel_variant treat
+
+. if "`panel_variant'" == "" local panel_variant "precovid"
+
+. if `treat'         == "" local treat         "hybird"
+=="" invalid name
+r(198);
+
+end of do-file
+
+r(198);
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD97664.000000"
+
+. 
+. * --------------------------------------------------------------------------
+. * 0) Parse optional variant argument *before* sourcing globals --------------
+. * --------------------------------------------------------------------------
+. 
+. 
+. args panel_variant treat
+
+. if "`panel_variant'" == "" local panel_variant "precovid"
+
+. if "`treat'"         == "" local treat         "hybrid"
+
+. 
+. 
+. local specname user_productivity_`panel_variant'_`treat'
+
+. capture log close

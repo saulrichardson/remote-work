@@ -1,20 +1,15 @@
-*============================================================*
-*  user_productivity.do
-*  — Export OLS, IV and first‐stage results for worker productivity
-*    OUTCOME.  The *first* (optional) command-line argument selects the user
-*    panel variant:  unbalanced | balanced | precovid  (default = unbalanced)
-*    This avoids reliance on pre-existing globals and makes driver scripts
-*    more robust.
-*    Example:   do user_productivity.do balanced
-*============================================================*
 
 * --------------------------------------------------------------------------
 * 0) Parse optional variant argument *before* sourcing globals --------------
 * --------------------------------------------------------------------------
 
-args panel_variant
+
+args panel_variant treat
 if "`panel_variant'" == "" local panel_variant "precovid"
-local specname user_productivity_`panel_variant'
+if "`treat'"         == "" local treat         "fullremote"
+
+
+local specname user_productivity_`panel_variant'_`treat'
 capture log close
 cap mkdir "log"
 log using "log/`specname'.log", replace text
@@ -60,10 +55,24 @@ postfile handle_fs ///
     double partialF rkf nobs  ///
     using `out_fs', replace
 	
-// 3) Loop over outcomes
-// Include percentile-rank and Winsorized versions of the contribution
-// measures
-local outcomes total_contributions_q100 restricted_contributions_q100 total_contributions_we restricted_contributions_we
+
+
+// `treat' was passed in as "remote" or "hybrid"
+if "`treat'" == "fullremote" {
+    local v3 = "var3_fullrem"
+    local v5 = "var5_fullrem"
+}
+else if "`treat'" == "hybrid" {
+    local v3 = "var3_hybrid"
+    local v5 = "var5_hybrid"
+}
+else {
+    di as error "Unknown treat=`treat'—must be remote or hybrid"
+    exit 1
+}
+
+
+local outcomes total_contributions_q100 
 local fs_done 0
 
 foreach y of local outcomes {
@@ -73,12 +82,12 @@ foreach y of local outcomes {
     local pre_mean = r(mean)
 
     // ----- OLS -----
-    reghdfe `y' var3 var5 var4, absorb(user_id firm_id yh) ///
+    reghdfe `y' `v3' `v5' var4, absorb(user_id firm_id yh) ///
         vce(cluster user_id)
 		
 	local N = e(N) 
 	
-    foreach p in var3 var5 var4 {
+    foreach p in v3 v5 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
@@ -91,13 +100,13 @@ foreach y of local outcomes {
 
     // ----- IV (2nd‐stage) -----
     ivreghdfe ///
-        `y' (var3 var5 = var6 var7) var4, ///
+         `y' (`v3' `v5' = var6 var7) var4, ///
         absorb(user_id firm_id yh) vce(cluster user_id) savefirst
 		
     local rkf = e(rkf)
 	local N = e(N) 
 	
-    foreach p in var3 var5 var4 {
+    foreach p in v3 v5 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'

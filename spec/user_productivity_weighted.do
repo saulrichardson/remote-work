@@ -1,20 +1,8 @@
-*============================================================*
-*  user_productivity.do
-*  — Export OLS, IV and first‐stage results for worker productivity
-*    OUTCOME.  The *first* (optional) command-line argument selects the user
-*    panel variant:  unbalanced | balanced | precovid  (default = unbalanced)
-*    This avoids reliance on pre-existing globals and makes driver scripts
-*    more robust.
-*    Example:   do user_productivity.do balanced
-*============================================================*
 
-* --------------------------------------------------------------------------
-* 0) Parse optional variant argument *before* sourcing globals --------------
-* --------------------------------------------------------------------------
 
 args panel_variant
 if "`panel_variant'" == "" local panel_variant "precovid"
-local specname user_productivity_`panel_variant'
+local specname user_productivity_`panel_variant'_weighted
 capture log close
 cap mkdir "log"
 log using "log/`specname'.log", replace text
@@ -22,8 +10,78 @@ log using "log/`specname'.log", replace text
 // 0) Setup environment
 do "../src/globals.do"
 
+
+
+import delimited "$raw_data/Scoop_alt.csv", clear
+
+gen date_numeric = date(date, "YMD")
+drop date
+rename date_numeric date
+format date %td
+
+gen yh = hofd(date)
+gen year = yofd(date)
+format yh %th
+
+collapse (last) date (sum) join leave, by(companyname yh)
+
+tempfile join_leave
+keep companyname yh join leave
+save `join_leave'
+
+
+import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+drop v1
+
+gen date_numeric = date(date, "YMD")
+drop date
+rename date_numeric date
+format date %td
+
+gen yh = hofd(date)
+gen year = yofd(date)
+format yh %th
+
+// Drop one-off observations in June 2022
+drop if date == 22797
+
+
+// Collapse to have one observation per firm-half-year, and calculate growth & rates:
+collapse (last) total_employees date (sum) join leave, by(companyname yh)
+
+drop join leave
+merge 1:1 companyname yh using `join_leave'
+drop _merge
+
+encode companyname, gen(company_numeric)
+xtset company_numeric yh
+sort company_numeric yh
+
+gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
+gen join_rate = join / L.total_employees if _n > 1
+gen leave_rate = leave / L.total_employees if _n > 1
+
+xtset, clear
+
+winsor2 growth_rate join_rate leave_rate, cuts(1 99) suffix(_we)
+label variable growth_rate_we "Winsorized growth rate [1,99]"
+label variable join_rate_we "Winsorized join rate [1,99]"
+label variable leave_rate_we "Winsorized leave rate [1,99]"
+
+drop growth_rate join_rate leave_rate company_numeric
+
+keep companyname yh	total_employees
+
+tempfile employee_counts
+save `employee_counts'
+
+
 // 1) Load worker‐level panel
 use "$processed_data/user_panel_`panel_variant'.dta", clear
+capture drop _merge
+
+merge m:1 companyname yh using `employee_counts'
+
 
 // 2) Prepare output dir & reset any old postfile
 *--------------------------------------------------------------------------*
@@ -60,10 +118,8 @@ postfile handle_fs ///
     double partialF rkf nobs  ///
     using `out_fs', replace
 	
-// 3) Loop over outcomes
-// Include percentile-rank and Winsorized versions of the contribution
-// measures
-local outcomes total_contributions_q100 restricted_contributions_q100 total_contributions_we restricted_contributions_we
+
+local outcomes total_contributions_q100 
 local fs_done 0
 
 foreach y of local outcomes {
@@ -73,7 +129,7 @@ foreach y of local outcomes {
     local pre_mean = r(mean)
 
     // ----- OLS -----
-    reghdfe `y' var3 var5 var4, absorb(user_id firm_id yh) ///
+    reghdfe `y' var3 var5 var4 [pweight = total_employees], absorb(user_id firm_id yh) ///
         vce(cluster user_id)
 		
 	local N = e(N) 
@@ -91,7 +147,7 @@ foreach y of local outcomes {
 
     // ----- IV (2nd‐stage) -----
     ivreghdfe ///
-        `y' (var3 var5 = var6 var7) var4, ///
+        `y' (var3 var5 = var6 var7) var4 [pweight = total_employees], ///
         absorb(user_id firm_id yh) vce(cluster user_id) savefirst
 		
     local rkf = e(rkf)
@@ -145,6 +201,7 @@ foreach y of local outcomes {
 		local fs_done 1
 	}
 }
+
 
 // 4) Close & export to CSV
 postclose handle

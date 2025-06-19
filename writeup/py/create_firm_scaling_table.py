@@ -307,41 +307,28 @@ def main() -> None:
     caption = f"Firm Scaling {model}"
     label = f"tab:firm_scaling_{args.model_type}"
 
-    if not INPUT_BASE.exists():
-        raise FileNotFoundError(f"Missing base CSV: {INPUT_BASE}")
     if not INPUT_ALT.exists():
         raise FileNotFoundError(f"Missing alternative FE CSV: {INPUT_ALT}")
 
-    df_base = pd.read_csv(INPUT_BASE)
-    df_alt = pd.read_csv(INPUT_ALT)
-
-    # Append initial‐spec results with a synthetic fe_tag so they can appear
-    # in Panel A alongside the alternative FE variants.
-    if INPUT_INIT.exists():
-        df_init = pd.read_csv(INPUT_INIT).copy()
-        df_init["fe_tag"] = "init"
-        df_fe = pd.concat([df_init, df_alt], ignore_index=True)
-    else:
+    if not INPUT_INIT.exists():
         raise FileNotFoundError(INPUT_INIT)
 
-    tex_lines: list[str] = []
-    tex_lines.append("% Auto-generated firm scaling table")
-    tex_lines.append("")
-    tex_lines.append(r"\begin{table}[H]")
-    tex_lines.append(r"\centering")
-    tex_lines.append(rf"\caption{{{caption}}}")
-    tex_lines.append(rf"\label{{{label}}}")
-    tex_lines.append(r"\centering")
+    df_alt = pd.read_csv(INPUT_ALT)
+    df_init = pd.read_csv(INPUT_INIT).copy()
+    df_init["fe_tag"] = "init"
+    df_fe = pd.concat([df_init, df_alt], ignore_index=True)
 
-    combined = (
-        build_panel_fe(df_fe, model, include_kp).rstrip()
-        + "\n"
-        + r"\vspace{0.75em}"
-        + "\n"
-        + build_panel_base(df_base, model, include_kp).lstrip()
-    )
-    tex_lines.append(combined)
-    tex_lines.append(r"\end{table}")
+    tex_lines = [
+        "% Auto-generated firm scaling table",
+        "",
+        r"\begin{table}[H]",
+        r"\centering",
+        rf"\caption{{{caption}}}",
+        rf"\label{{{label}}}",
+        r"\centering",
+        build_panel_fe(df_fe, model, include_kp).rstrip(),
+        r"\end{table}",
+    ]
 
     output_tex.parent.mkdir(parents=True, exist_ok=True)
     Path(output_tex).write_text("\n".join(tex_lines) + "\n")
