@@ -45,6 +45,29 @@ do "../src/globals.do"
 * 1.  Build the *full* (unfiltered) master panel
 ****************************************************************************
 
+use "$raw_data/All_Contributions_month.dta", clear
+keep if year == 2016
+gen half = ceil(month/6)
+gen yh   = yh(year, half)
+format yh %th
+
+collapse (sum) totalcontribution (sum) restrictedcontributionscount, by(user_id yh)
+
+tempfile user_yh_2016
+save     "`user_yh_2016'", replace
+
+use "$processed_data/expanded_half_years_2.dta", clear
+keep if y == 2016
+keep user_id companyname yh
+
+duplicates tag user_id yh, gen(dup_tag)
+keep if dup_tag==0
+drop dup_tag
+
+merge 1:1 user_id yh using "`user_yh_2016'", keep(3) nogen
+
+save   "`user_yh_2016'", replace
+
 *----------------------------------------------------------
 * 1.1  User-level contributions (historic)
 *----------------------------------------------------------
@@ -101,10 +124,12 @@ keep user_id companyname yh
 
 duplicates tag user_id yh, gen(dup_tag)
 keep if dup_tag==0
+drop dup_tag
 
 merge 1:1 user_id yh using "`user_yh_new'", keep(3) nogen
 
 append using "`user_yh'"
+append using "`user_yh_2016'"
 save   "`user_yh'", replace
 
 
