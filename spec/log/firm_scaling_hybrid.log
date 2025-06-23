@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_scaling_hybrid.log
   log type:  text
- opened on:  19 Jun 2025, 00:40:10
+ opened on:  19 Jun 2025, 09:05:29
 
 . 
 . local result_dir "$results/`specname'"
@@ -79,7 +79,7 @@
   6.         
 .         local N = e(N) 
   7. 
-.     foreach p in var3 var5 var4 {
+.     foreach p in `v3' `v5' var4 {
   8.         local b    = _b[`p']
   9.         local se   = _se[`p']
  10.         local t    = `b'/`se'
@@ -97,7 +97,7 @@
 .     local rkf   = e(rkf)
  16.         local N = e(N) 
  17. 
-.     foreach p in var3 var5 var4 {
+.     foreach p in `v3' `v5' var4 {
  18.         local b    = _b[`p']
  19.         local se   = _se[`p']
  20.         local t    = `b'/`se'
@@ -124,7 +124,7 @@
  33.                         local t    = `b'/`se'
  34.                         local pval = 2*ttail(e(df_r), abs(`t'))
  35. 
-.                         post handle_fs ("var3") ("`p'") ///
+.                         post handle_fs ("v3") ("`p'") ///
 >                                                         (`b') (`se') (`pval') ///
 >                                                         (`F3') (`rkf') (`N_fs')
  36.                 }
@@ -138,7 +138,7 @@
  42.                         local t    = `b'/`se'
  43.                         local pval = 2*ttail(e(df_r), abs(`t'))
  44. 
-.                         post handle_fs ("var5") ("`p'") ///
+.                         post handle_fs ("v5") ("`p'") ///
 >                                                         (`b') (`se') (`pval') ///
 >                                                         (`F5') (`rkf') (`N_fs')
  45.                 }
@@ -444,7 +444,6 @@ Absorbed degrees of freedom:
 
 . export delimited using "`result_dir'/consolidated_results.csv", ///
 >     replace delimiter(",") quote
-(file ../results/raw/firm_scaling_hybrid/consolidated_results.csv not found)
 file ../results/raw/firm_scaling_hybrid/consolidated_results.csv saved
 
 . 
@@ -455,7 +454,6 @@ file ../results/raw/firm_scaling_hybrid/consolidated_results.csv saved
 
 . export delimited using "`result_dir'/first_stage.csv", ///
 >         replace delimiter(",") quote
-(file ../results/raw/firm_scaling_hybrid/first_stage.csv not found)
 file ../results/raw/firm_scaling_hybrid/first_stage.csv saved
 
 . 
@@ -470,19 +468,38 @@ end of do-file
 
 . do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD97664.000000"
 
-. args panel_variant
-
+. /*-------------------------------------------------------------------
+> | build_user_panel.do — Generate user-level panel datasets
+> | Author : <your-name>
+> | Updated: 06 Jun 2025
+> |
+> | DESCRIPTION
+> | ----------
+> | Re-runs the *original* cleaning / merging pipeline **unchanged**, then
+> | branches into three sample variants **without touching any other
+> | logic**:
+> |   • unbalanced – full cleaned panel (default)
+> |   • balanced   – users observed in *every* half-year between the
+> |                  global min & max yh
+> |   • precovid   – users with positive pre-COVID restricted contributions
+> |
+> # NOTE ──────────────────────────────────────────────────────────────────
+> # In earlier versions the *pre-COVID* ("precovid") sample was silently
+> # duplicated to the generic legacy filenames `user_panel.dta/csv`.  This
+> # implicit fallback made it impossible to see at a glance which panel
+> # variant later specification scripts had been run on.
+> #
+> # The compatibility artefact has now been **removed**: every output file
+> # is written *only* under an explicit, self-describing filename of the
+> # form `user_panel_<variant>.dta|csv` (e.g. `user_panel_unbalanced.dta`).
+> # Down-stream code must therefore always reference the panel variant
+> # explicitly in filenames (e.g. by passing it as an argument to
+> # specification scripts).  No more silent defaults.
+> |
+> | USAGE
+> | -----
+> |   do build_user_panel.do
+> |   *Optionally* edit `local sample_types` to generate a subset.
+> *-------------------------------------------------------------------*/
 . 
-end of do-file
-
-. do "/Users/saul/Dropbox/Remote Work Startups/main/spec/user_productivity_weighted.do"
-
-. 
-. 
-. args panel_variant
-
-. if "`panel_variant'" == "" local panel_variant "precovid"
-
-. local specname user_productivity_`panel_variant'_weighted
-
 . capture log close

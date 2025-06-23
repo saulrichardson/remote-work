@@ -45,6 +45,7 @@ BUILD  := build
 FINAL  := final
 
 .PHONY: all report clean deploy deploy-mini mini-report
+.PHONY: extra-regressions
 
 
 all: clean report deploy          # Report target rebuilds paper only
@@ -142,6 +143,7 @@ mini-report:
 	@echo "[11/12] Firm mechanisms (binned lean)"
 	@$(call RUN_PYSCRIPT,create_firm_mechanisms_lean_binned_table.py,--exclude Wage)
 
+
 	# ------------------------------------------------------------------
 	#  9) Compile PDF
 	# ------------------------------------------------------------------
@@ -238,7 +240,10 @@ report:
 # -------------------------------------------------------------------------
 
 # Absolute destinations (contains spaces → wrap in quotes)
-DEST_PAPER  := "/Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current/Paper"
+# Location (inside Dropbox-synced Overleaf folder) where generated PDFs should be
+# copied.  Previously we stored them in a sub-folder named “Paper/”; this has now
+# been renamed to “reports/” to avoid confusion with the LaTeX source itself.
+DEST_PAPER  := "/Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current/reports"
 DEST_TABLES := "/Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current/Tables"
 
 # Source directory for cleaned LaTeX tables (relative to *this* Makefile)
@@ -256,3 +261,26 @@ deploy:
 	@find $(TABLE_SRC) -maxdepth 1 -type f ! -name '*_deprecated.tex' -exec cp {} $(DEST_TABLES)/ \;
 	@echo "→ PDF copied to $(DEST_PAPER)"
 	@echo "→ Tables copied to $(DEST_TABLES)"
+
+# -------------------------------------------------------------------------
+#  Extra regressions PDF (Hybrid / Full-Remote variants)
+# -------------------------------------------------------------------------
+
+extra-regressions:
+	@mkdir -p $(BUILD)
+	@echo "Generating additional regression tables (Hybrid, Full-Remote)…"
+	@$(PYTHON) ../py/create_tables_from_dirs.py --split \
+	  ../results/raw/user_productivity_precovid_weighted \
+	  ../results/raw/user_productivity_precovid_fullremote \
+	  ../results/raw/user_productivity_precovid_hybrid \
+	  ../results/raw/firm_scaling_fullremote \
+	  ../results/raw/firm_scaling_hybrid
+
+	@echo "Compiling extra-regressions PDF…"
+	@pdflatex -halt-on-error -interaction=nonstopmode \
+	  -output-directory=$(BUILD) $(SRC)/extra-regressions.tex
+	@pdflatex -halt-on-error -interaction=nonstopmode \
+	  -output-directory=$(BUILD) $(SRC)/extra-regressions.tex
+	@mkdir -p $(FINAL)
+	@cp $(BUILD)/extra-regressions.pdf $(FINAL)/
+	@echo "✓ extra-regressions.pdf written to $(FINAL)"

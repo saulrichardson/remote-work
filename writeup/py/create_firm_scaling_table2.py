@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a two-panel regression table for the Firm-Scaling discrete specification.
+"""Generate a two-panel regression table for the Firm-Scaling specification.
 
 This consolidates the OLS and IV variants. Use ``--model-type`` to select the
 underlying model (``ols`` or ``iv``). The script adjusts query filters,
@@ -20,7 +20,7 @@ import textwrap
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
 
-SPEC = "firm_scaling_discrete"
+SPEC = "firm_scaling"
 RAW_DIR = PROJECT_ROOT / "results" / "raw"
 INPUT_BASE = RAW_DIR / SPEC / "consolidated_results.csv"
 INPUT_ALT = RAW_DIR / f"{SPEC}_alternative_fe" / "consolidated_results.csv"
@@ -40,45 +40,43 @@ OUTCOME_LABEL = {
     "leave_rate_we": "Leave",
 }
 
-# For Panel B we do not want to repeat the “Growth” column already shown in
-# Panel A; drop it so Panel B only presents additional outcomes.
-OUTCOME_LABEL_B = {k: v for k, v in OUTCOME_LABEL.items() if k != "growth_rate_we"}
 
-# ---------------------------------------------------------------------------
-# Fixed-effect variants to display
-# ---------------------------------------------------------------------------
-# In addition to the four variants that were already shown (none, firm, time,
-# fyh), the alternative-FE Stata script now exports three more: industrytime,
-# hqtime, and hqindustrytime.  We append them to the existing order so the
-# first four columns remain unchanged in the PDF.
 
-# ---------------------------------------------------------------------------
-# Only display variants that include *at least* Firm + Time fixed effects.
-#  → keep: fyh, industrytime, hqtime, hqindustrytime
-#  → drop: none, firm, time
-# ---------------------------------------------------------------------------
 
 TAG_ORDER = [
-    "init",           # 0) Baseline (single instrument) spec – Firm × Time FE
-    "fyh",            # 1) Firm × Time FE with startup interaction
-    "industrytime",   # 2) + Industry × Time FE
-    "hqtime",         # 3) + HQ × Time FE
-    "hqindustrytime", # 4) + Industry × Time + HQ × Time FE
+    "init",  # 0) Baseline – Firm × Time FE
+    "fyh",   # 1) Firm × Time FE with startup interaction
 ]
 
-# Generate column labels dynamically to avoid manual bookkeeping.
-COL_LABELS = [f"({i})" for i in range(1, len(TAG_ORDER) + 1)]
+# ---------------------------------------------------------------------------
+# Column configuration for the mini-report panel
+#   (1) Growth – init FE
+#   (2) Growth – fyh FE
+#   (3) Join   – fyh FE
+#   (4) Leave  – fyh FE
+# ---------------------------------------------------------------------------
+
+COL_CONFIG = [
+    ("growth_rate_we", "init"),  # (1)
+    ("growth_rate_we", "fyh"),   # (2)
+    ("join_rate_we",   "fyh"),   # (3)
+    ("leave_rate_we",  "fyh"),   # (4)
+]
+
+# Human-readable column header text for outcomes
+OUTCOME_LABEL_MINI = {
+    "growth_rate_we": "Growth",
+    "join_rate_we":   "Join",
+    "leave_rate_we":  "Leave",
+}
+
+# Column labels "(1)…(4)"
+COL_LABELS = [f"({i})" for i in range(1, len(COL_CONFIG) + 1)]
 
 # Mapping used to place \checkmark symbols in the indicator rows.  Any tag
 # omitted from the dict defaults to ``False`` via ``dict.get`` in
 # ``indicator_row``.
-FIRM_FE_INCLUDED = {
-    "init": True,
-    "fyh": True,
-    "industrytime": True,
-    "hqtime": True,
-    "hqindustrytime": True,
-}
+FIRM_FE_INCLUDED = {tag: True for tag in TAG_ORDER}
 
 # Generic year FE (yh) only appears in `fyh` among the displayed tags.
 TIME_FE_INCLUDED = {
@@ -87,19 +85,11 @@ TIME_FE_INCLUDED = {
 }
 
 # Additional interacted FE dimensions ---------------------------------------
-# Industry × Year FE
-IND_FE_INCLUDED = {
-    "init": False,
-    "industrytime": True,
-    "hqindustrytime": True,
-}
+# Industry × Time FE indicators (none after column pruning)
+IND_FE_INCLUDED = {tag: False for tag in TAG_ORDER}
 
-# HQ × Time FE
-HQ_FE_INCLUDED = {
-    "init": False,
-    "hqtime": True,
-    "hqindustrytime": True,
-}
+# HQ × Time FE indicators
+HQ_FE_INCLUDED = {tag: False for tag in TAG_ORDER}
 
 STAR_RULES = [(0.01, "***"), (0.05, "**"), (0.10, "*")]
 
@@ -178,8 +168,8 @@ def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     # Header spanning the remaining outcome columns.  The number of columns
     # adapts automatically to ``OUTCOME_LABEL_B`` so that "Growth" can be
     # dropped without requiring manual updates.
-    dep_hdr = rf" & \multicolumn{{{len(OUTCOME_LABEL_B)}}}{{c}}{{Outcome}} \\"  # header
-    cmid = rf"\cmidrule(lr){{2-{ncols}}}"
+    dep_hdr = rf" & \multicolumn{{{len(COL_CONFIG)}}}{{c}}{{Outcome}} \\"
+    cmid    = rf"\cmidrule(lr){{2-{ncols}}}"
     sub_hdr = " & ".join(["", *[OUTCOME_LABEL_B[o] for o in OUTCOME_LABEL_B]]) + r" \\"  # outcomes
 
     rows = []
@@ -230,8 +220,116 @@ def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {bottom}
     \end{{tabular*}}""")
 
+# ---------------------------------------------------------------------------
+#  Mini-report single-panel builder (overwrites earlier draft)
+# ---------------------------------------------------------------------------
 
-def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
+# Redefine `build_panel_fe` so that it now constructs a single four-column panel
+# driven by `COL_CONFIG`.  The second definition replaces the placeholder above
+# when the module is imported / executed.
+
+
+def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:  # noqa: C901 – complexity acceptable for table builder
+    """Return a *single* LaTeX panel for the firm-scaling table.
+
+    The four displayed columns are configured via ``COL_CONFIG``.
+    Each tuple ``(outcome, tag)`` specifies both the dependent variable and
+    the fixed-effect variant to fetch from the consolidated regression output.
+    """
+
+    # ------------------------------------------------------------------
+    # Column metadata and header
+    # ------------------------------------------------------------------
+    ncols = 1 + len(COL_CONFIG)
+    tags_in_cols = [tag for _, tag in COL_CONFIG]
+
+    # Outcome super-header and individual outcome names -------------------
+    dep_hdr = rf" & \multicolumn{{{len(COL_CONFIG)}}}{{c}}{{Outcome}} \\"
+    cmid    = rf"\cmidrule(lr){{2-{ncols}}}"
+    sub_hdr = " & ".join(["", *[OUTCOME_LABEL_MINI[out] for out, _ in COL_CONFIG]]) + r" \\"  # noqa: W605
+
+    # Simple numeric column labels "(1)…(4)"
+    header = " & ".join(["", *COL_LABELS]) + r" \\"  # noqa: W605
+
+    # ------------------------------------------------------------------
+    # Coefficient rows
+    # ------------------------------------------------------------------
+    coef_lines: list[str] = []
+    for param in PARAM_ORDER:
+        row_cells = [PARAM_LABEL[param]]
+        for outcome, tag in COL_CONFIG:
+            sub = df.query(
+                "model_type==@model and outcome==@outcome and fe_tag==@tag and param==@param"
+            )
+            row_cells.append(
+                cell(*sub.iloc[0][["coef", "se", "pval"]]) if not sub.empty else ""
+            )
+        coef_lines.append(" & ".join(row_cells) + r" \\")
+    coef_block = "\n".join(coef_lines)
+
+    # ------------------------------------------------------------------
+    # Statistic rows – Observations and KP rk Wald F (IV only)
+    # ------------------------------------------------------------------
+    # Observations
+    obs_cells = ["N"]
+    for outcome, tag in COL_CONFIG:
+        sub = df.query(
+            "model_type==@model and outcome==@outcome and fe_tag==@tag"
+        ).head(1)
+        nobs = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
+        obs_cells.append(f"{nobs:,}")
+    obs_row = " & ".join(obs_cells) + r" \\"  # noqa: W605
+
+    # KP rk Wald F (IV only)
+    if include_kp:
+        kp_cells = ["KP rk Wald F"]
+        for outcome, tag in COL_CONFIG:
+            sub = df.query(
+                "model_type==@model and outcome==@outcome and fe_tag==@tag"
+            ).head(1)
+            val = sub.iloc[0]["rkf"] if not sub.empty else float("nan")
+            kp_cells.append(f"{val:.2f}" if pd.notna(val) else "")
+        kp_row = " & ".join(kp_cells) + r" \\"  # noqa: W605
+    else:
+        kp_row = ""
+
+    # ------------------------------------------------------------------
+    # Indicator rows – retain only Time and Firm FE indicators
+    # ------------------------------------------------------------------
+    indicator_lines = "\n".join(
+        [
+            indicator_row("Time FE", TIME_FE_INCLUDED, tag_order=tags_in_cols),
+            indicator_row("Firm FE", FIRM_FE_INCLUDED, tag_order=tags_in_cols),
+        ]
+    )
+
+    # ------------------------------------------------------------------
+    # Assemble table
+    # ------------------------------------------------------------------
+    col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c" * len(COL_CONFIG) + r"@{}"
+
+    bottom_rule = BOTTOM
+
+    return textwrap.dedent(rf"""
+    \begin{{tabular*}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
+    {TOP}
+    {dep_hdr}
+    {cmid}
+    {sub_hdr}
+    {header}
+    {MID}
+    {coef_block}
+    {MID}
+    {indicator_lines}
+    {MID}
+    {obs_row}
+    {kp_row}
+    {bottom_rule}
+    \end{{tabular*}}""")
+
+
+# Legacy version kept for reference – no longer used in mini-report
+def _build_panel_fe_legacy(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     ncols = 1 + len(TAG_ORDER)
     panel_row = rf"\multicolumn{{{ncols}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: Growth}}}}}}\\"
     panel_row += "\n\\addlinespace"
@@ -264,11 +362,10 @@ def build_panel_fe(df: pd.DataFrame, model: str, include_kp: bool) -> str:
         filter_expr=f"model_type=='{model}' and outcome=='growth_rate_we' and fe_tag=='{{k}}'",
     ) if include_kp else ""
 
+    # Only the core FE indicators retained for the mini report
     ind_rows = "\n".join([
         indicator_row("Time FE", TIME_FE_INCLUDED),
         indicator_row("Firm FE", FIRM_FE_INCLUDED),
-        indicator_row("Industry $\\times$ Time FE", IND_FE_INCLUDED),
-        indicator_row("HQ $\\times$ Time FE", HQ_FE_INCLUDED),
     ])
 
     col_fmt = r"@{}l@{\extracolsep{\fill}}" + "c" * len(TAG_ORDER) + r"@{}"
@@ -313,11 +410,10 @@ def main() -> None:
     if not INPUT_INIT.exists():
         raise FileNotFoundError(INPUT_INIT)
 
-    input_base = RAW_DIR / SPEC / "consolidated_results.csv"
-    if not input_base.exists():
-        raise FileNotFoundError(input_base)
-
-    df_fe = pd.read_csv(input_base)
+    df_alt = pd.read_csv(INPUT_ALT)
+    df_init = pd.read_csv(INPUT_INIT).copy()
+    df_init["fe_tag"] = "init"
+    df_fe = pd.concat([df_init, df_alt], ignore_index=True)
 
     tex_lines = [
         "% Auto-generated firm scaling table",

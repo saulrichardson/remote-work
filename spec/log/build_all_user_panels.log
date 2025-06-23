@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/build_all_user_panels.log
   log type:  text
- opened on:  19 Jun 2025, 01:12:18
+ opened on:  19 Jun 2025, 09:32:16
 
 . 
 . ****************************************************************************
@@ -549,3 +549,19 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000006 saved as .
  50. 
 .     * progress message ---------------------------------------------------
 .     di as txt "✓ Created `sample' sample (" _N " obs)"
+ 51. }
+(1,187,332 observations deleted)
+(0 observations deleted)
+file ../data/samples/user_panel_precovid.csv saved
+✓ Created precovid sample (257146 obs)
+
+. 
+. ****************************************************************************
+. * 3.  Done
+. ****************************************************************************
+. log close
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/build_all_user_panels.log
+  log type:  text
+ closed on:  19 Jun 2025, 09:36:11
+-----------------------------------------------------------------------------------------------------------------------------------------

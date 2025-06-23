@@ -19,13 +19,27 @@
 \usepackage{tabularx}
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
 
+\usepackage{tabularx}
+\usepackage[export]{adjustbox}
+\usepackage{booktabs}
+
+
+\usepackage{tabularx,array,booktabs,makecell,cellspace}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\setlength{\extrarowheight}{1.5pt}
+\setlength\cellspacetoplimit{4pt}
+\setlength\cellspacebottomlimit{4pt}
+
 % define a “centering” version of X
 \newcolumntype{C}{>{\centering\arraybackslash}X}
 
 % Base directory for cleaned LaTeX tables
-\newcommand{\cleanedresultsdir}{../results/cleaned}
+\newcommand{\cleanedresultsdir}{../../results/cleaned}
 % Base directory for figures (shared with consolidated report)
-\newcommand{\figdir}{../results/figures}
+% Figures are generated into the *project-root*/results/figures directory.
+% Because pdflatex is invoked with -output-directory=build, we need to go up
+% two levels to reach the repo root from writeup/build.
+\newcommand{\figdir}{../../results/figures}
 
 \begin{document}
 
@@ -41,20 +55,18 @@
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\textwidth]{\figdir/firm_teleworkable_remote.png}
+  \includegraphics[scale=0.4]{\figdir/firm_teleworkable_remote.png}
   \caption{Remote v. Teleworkabe Scores}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\textwidth]{\figdir/firm_age_lt100_remote.png}
+  \includegraphics[scale=0.4]{\figdir/firm_age_lt100_remote.png}
   \caption{Remote v. Firm Age}
 \end{figure}
 
 
-% -------------------------------------------------------------------------
-%  Table of Means
-% -------------------------------------------------------------------------
+
 \section{Table of Means}
 \input{\cleanedresultsdir/table_of_means.tex}%
 % -------------------------------------------------------------------------
@@ -70,6 +82,17 @@
 
 \subsection{First Stage}
 \input{\cleanedresultsdir/user_productivity_precovid_first_stage.tex}
+
+
+% \subsection{Weighted Sample}
+% \input{\cleanedresultsdir/user_productivity_precovid_weighted.tex}
+
+% Additional pre-COVID variants (commented out)
+% \subsection{Full Remote Variant}
+% \input{\cleanedresultsdir/user_productivity_precovid_fullremote.tex}
+
+% \subsection{Hybrid Variant}
+% \input{\cleanedresultsdir/user_productivity_precovid_hybrid.tex}
 
 % -------------------------------------------------------------------------
 %  Lean mechanism horse-race (Pre-COVID only)
@@ -123,6 +146,13 @@
 \subsection{First Stage}
 \input{\cleanedresultsdir/firm_scaling_first_stage.tex}
 
+% Additional firm-scaling variants omitted from mini report
+% \subsection{Hybrid Variant}
+% \input{\cleanedresultsdir/firm_scaling_hybrid.tex}
+
+% \subsection{Full Remote Variant}
+% \input{\cleanedresultsdir/firm_scaling_fullremote.tex}
+
 % Remote vs. Teleworkable first stage
 \subsection{Remote $\rightarrow$ Teleworkable: First Stage}
 \input{\cleanedresultsdir/remote_first_stage.tex}
@@ -153,5 +183,8 @@
 \subsection{Firm Mechanisms – Remote Bifurcation (Binned)}
 \input{\cleanedresultsdir/firm_mechanisms_binned.tex}
 \end{landscape}
+
+% -------------------------------------------------------------------------
+
 
 \end{document}

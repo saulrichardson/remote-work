@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_mechanisms_lean_precovid.log
   log type:  text
- opened on:  12 Jun 2025, 10:43:23
+ opened on:  19 Jun 2025, 09:19:32
 
 . 
 . 
@@ -83,7 +83,7 @@ end of do-file
 >     str40  param       ///
 >     double coef se pval pre_mean rkf nobs ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000001 not found)
 
 . 
 . 

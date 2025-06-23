@@ -122,6 +122,7 @@ postfile handle_fs ///
 local outcomes total_contributions_q100 
 local fs_done 0
 
+gen weight = 1/total_employees
 foreach y of local outcomes {
     di as text "→ Processing outcome: `y'"
 
@@ -129,7 +130,7 @@ foreach y of local outcomes {
     local pre_mean = r(mean)
 
     // ----- OLS -----
-    reghdfe `y' var3 var5 var4 [pweight = total_employees], absorb(user_id firm_id yh) ///
+    reghdfe `y' var3 var5 var4 [pweight = weight], absorb(user_id#firm_id yh) ///
         vce(cluster user_id)
 		
 	local N = e(N) 
@@ -147,8 +148,8 @@ foreach y of local outcomes {
 
     // ----- IV (2nd‐stage) -----
     ivreghdfe ///
-        `y' (var3 var5 = var6 var7) var4 [pweight = total_employees], ///
-        absorb(user_id firm_id yh) vce(cluster user_id) savefirst
+        `y' (var3 var5 = var6 var7) var4 [pweight = weight], ///
+        absorb(user_id#firm_id yh) vce(cluster user_id) savefirst
 		
     local rkf = e(rkf)
 	local N = e(N) 

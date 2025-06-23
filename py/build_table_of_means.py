@@ -247,7 +247,7 @@ def _notes_block(
     notes = rf"""
         \begin{{tablenotes}}[flushleft]
         \footnotesize
-        \item \emph{{Notes}}: Panel~A uses firm--half--year observations; ``Number of firms'' counts distinct firm\,IDs that ever appear in each category over the full sample window, so Startup and Incumbent counts need not sum to the ``All'' column.  Panel~B relies on worker--half--year observations and its bottom rows list (i) distinct firms, (ii) distinct users, and (iii) total worker--half--year observations.  Startup/Incumbent user counts are likewise distinct\,ID counts aggregated across the whole period and therefore can overlap.  {scale_sentence} \textit{{Teleworkable}} and \textit{{Remote}} scores are index values between~0 and~1.  The sample period spans {firm_span} at the firm level and {user_span} at the user level.
+        \item \emph{{Notes}}: Panel~A uses firm--half--year observations. Panel~B relies on worker--half--year observations. ``Number of firms'' counts distinct firm\,IDs that ever appear in each category over the full sample window, so Startup and Incumbent counts need not sum to the ``All'' column. {scale_sentence} \textit{{Teleworkable}} and \textit{{Remote}} scores are index values between~0 and~1.  The sample period spans {firm_span} at the firm level and {user_span} at the user level.
         \end{{tablenotes}}
     """
     return textwrap.dedent(notes).strip()

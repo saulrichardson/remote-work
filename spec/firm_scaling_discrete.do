@@ -4,7 +4,7 @@
 *============================================================*
 
 args  treat
-if "`treat'"         == "" local treat         "fullremote"
+if "`treat'"         == "" local treat         "hybrid"
 
 // 0) Setup environment
 do "../src/globals.do"
@@ -77,7 +77,7 @@ foreach y of local outcome_vars {
 	
 	local N = e(N) 
 
-    foreach p in var3 var5 var4 {
+    foreach p in `v3' `v5' var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
@@ -95,7 +95,7 @@ foreach y of local outcome_vars {
     local rkf   = e(rkf)
 	local N = e(N) 
 
-    foreach p in var3 var5 var4 {
+    foreach p in `v3' `v5' var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
@@ -122,7 +122,7 @@ foreach y of local outcome_vars {
 			local t    = `b'/`se'
 			local pval = 2*ttail(e(df_r), abs(`t'))
 
-			post handle_fs ("var3") ("`p'") ///
+			post handle_fs ("v3") ("`p'") ///
 							(`b') (`se') (`pval') ///
 							(`F3') (`rkf') (`N_fs')
 		}
@@ -136,7 +136,7 @@ foreach y of local outcome_vars {
 			local t    = `b'/`se'
 			local pval = 2*ttail(e(df_r), abs(`t'))
 
-			post handle_fs ("var5") ("`p'") ///
+			post handle_fs ("v5") ("`p'") ///
 							(`b') (`se') (`pval') ///
 							(`F5') (`rkf') (`N_fs')
 		}

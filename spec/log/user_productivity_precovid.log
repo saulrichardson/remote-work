@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_precovid.log
   log type:  text
- opened on:  12 Jun 2025, 14:08:22
+ opened on:  22 Jun 2025, 18:18:12
 
 . 
 . // 0) Setup environment
@@ -53,7 +53,7 @@ end of do-file
 >     double coef se pval pre_mean ///
 >     double rkf nobs     ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46739.000001 not found)
 
 . 
 . 
@@ -70,14 +70,15 @@ end of do-file
 >     double coef se pval       ///
 >     double partialF rkf nobs  ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46739.000002 not found)
 
 .         
 . // 3) Loop over outcomes
 . // Include percentile-rank and Winsorized versions of the contribution
 . // measures
-. local outcomes total_contributions_q100 restricted_contributions_q100 total_contributions_we restricted_contributions_we
+. local outcomes total_contributions_q100 
 
+. // restricted_contributions_q100 total_contributions_we restricted_contributions_we
 . local fs_done 0
 
 . 
@@ -161,14 +162,132 @@ end of do-file
  47.         }
  48. }
 → Processing outcome: total_contributions_q100
-(dropped 1443 singleton observations)
---Break--
-r(1);
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 77 iterations)
 
-end of do-file
+HDFE Linear regression                            Number of obs   =    245,105
+Absorbing 3 HDFE groups                           F(   3,  37156) =      12.03
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6755
+                                                  Adj R-squared   =     0.6135
+                                                  Within R-sq.    =     0.0004
+Number of clusters (user_id) =     37,157         Root MSE        =    18.6180
 
---Break--
-r(1);
+                           (Std. err. adjusted for 37,157 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -1.039558   .4851571    -2.14   0.032    -1.990479   -.0886367
+        var5 |   5.122111   1.246225     4.11   0.000     2.679475    7.564748
+        var4 |   -5.55272   1.073613    -5.17   0.000    -7.657033   -3.448408
+       _cons |   50.15585   .1413245   354.90   0.000     49.87885    50.43285
+------------------------------------------------------------------------------
 
-. clear
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     37157       37157           0    *|
+     firm_id |      2178           1        2177     |
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 77 iterations)
 
+Stored estimation results
+-------------------------
+---------------------------------------------------------------------------
+             |           Dependent  Number of        
+        Name | Command    variable     param.  Title 
+-------------+-------------------------------------------------------------
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
+---------------------------------------------------------------------------
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   37157                Number of obs =   245105
+                                                      F(  3, 37156) =     7.18
+                                                      Prob > F      =   0.0001
+Total (centered) SS     =   71347279.8                Centered R2   =  -0.0007
+Total (uncentered) SS   =   71347279.8                Uncentered R2 =  -0.0007
+Residual SS             =     71398573                Root MSE      =    17.14
+
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -5.936247   3.964144    -1.50   0.134    -13.70608    1.833587
+        var5 |   8.699744   5.457235     1.59   0.111    -1.996587    19.39608
+        var4 |  -7.623262   4.111631    -1.85   0.064    -15.68217    .4356496
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            261.887
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1914.462
+                         (Kleibergen-Paap rk Wald F statistic):        137.920
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     37157       37157           0    *|
+     firm_id |      2178           1        2177     |
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(results _ivreg2_var3 are active now)
+(results _ivreg2_var5 are active now)
+
+. 
+. // 4) Close & export to CSV
+. postclose handle
+
+. use `out', clear
+
+. export delimited using "`result_dir'/consolidated_results.csv", ///
+>     replace delimiter(",") quote
+file ../results/raw/user_productivity_precovid/consolidated_results.csv saved
+
+. 
+. * --- write first-stage CSV -----------------------------------------
+. postclose handle_fs
+
+. use `out_fs', clear
+
+. export delimited using "`result_dir'/first_stage.csv", ///
+>         replace delimiter(",") quote
+file ../results/raw/user_productivity_precovid/first_stage.csv saved
+
+. 
+. di as result "→ second-stage CSV : `result_dir'/consolidated_results.csv"
+→ second-stage CSV : ../results/raw/user_productivity_precovid/consolidated_results.csv
+
+. di as result "→ first-stage  CSV : `result_dir'/first_stage.csv"
+→ first-stage  CSV : ../results/raw/user_productivity_precovid/first_stage.csv
+
+. capture log close

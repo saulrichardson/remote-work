@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_alternative_fe_precovid.log
   log type:  text
- opened on:  12 Jun 2025, 11:11:35
+ opened on:  22 Jun 2025, 18:15:34
 
 . 
 . // 0) Setup environment
@@ -30,9 +30,19 @@ end of do-file
 . capture mkdir "`result_dir'"
 
 . 
-. local outcomes total_contributions_q100 
+. // -------------------------------------------------------------------------
+. // Outcomes to export -------------------------------------------------------
+. //   • total_contributions_q100      – Total contributions (pct. rank)
+. //   • restricted_contributions_q100 – Restricted contributions (pct. rank)
+. //   • total_contributions_we        – Total contributions (winsorised)
+. //   • restricted_contributions_we   – Restricted contributions (winsorised)
+. // -------------------------------------------------------------------------
+. 
+. local outcomes total_contributions_q100 ///
+>                 restricted_contributions_q100 ///
+>                 total_contributions_we ///
+>                 restricted_contributions_we
 
-. // restricted_contributions_q100
 . 
 . *--- main results -------------------------------------------------------------
 . tempfile out  
@@ -47,7 +57,7 @@ end of do-file
 >     double coef se pval pre_mean ///
 >     double rkf nobs            ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46739.000001 not found)
 
 . 
 . 
@@ -64,7 +74,7 @@ end of do-file
 >     double coef se pval        ///
 >     double partialF rkf nobs   ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46739.000002 not found)
 
 . 
 .         
@@ -158,39 +168,39 @@ end of do-file
 . }
 >> FE spec: (tag=fyhu)
    – outcome: total_contributions_q100
-(dropped 1443 singleton observations)
-(MWFE estimator converged in 80 iterations)
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 79 iterations)
 
-HDFE Linear regression                            Number of obs   =    229,862
-Absorbing 3 HDFE groups                           F(   3,  35788) =      11.67
+HDFE Linear regression                            Number of obs   =    245,105
+Absorbing 3 HDFE groups                           F(   3,  37156) =      12.03
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.6838
-                                                  Adj R-squared   =     0.6213
+                                                  R-squared       =     0.6755
+                                                  Adj R-squared   =     0.6135
                                                   Within R-sq.    =     0.0004
-Number of clusters (user_id) =     35,789         Root MSE        =    18.4409
+Number of clusters (user_id) =     37,157         Root MSE        =    18.6180
 
-                           (Std. err. adjusted for 35,789 clusters in user_id)
+                           (Std. err. adjusted for 37,157 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -1.032798   .4818263    -2.14   0.032    -1.977192   -.0884035
-        var5 |   5.175073   1.236242     4.19   0.000     2.752001    7.598144
-        var4 |  -5.526524   1.065824    -5.19   0.000    -7.615571   -3.437477
-       _cons |   50.13249   .1467355   341.65   0.000     49.84489     50.4201
+        var3 |  -1.039558   .4851571    -2.14   0.032    -1.990479   -.0886367
+        var5 |   5.122111   1.246225     4.11   0.000     2.679475    7.564748
+        var4 |   -5.55272   1.073613    -5.17   0.000    -7.657033   -3.448408
+       _cons |   50.15585   .1413245   354.90   0.000     49.87885    50.43285
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
 -----------------------------------------------------+
  Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------+---------------------------------------|
-     firm_id |      2151           1        2150     |
-     user_id |     35789       35789           0    *|
-          yh |        11           1          10     |
+     firm_id |      2178           1        2177     |
+     user_id |     37157       37157           0    *|
+          yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-(dropped 1443 singleton observations)
-(MWFE estimator converged in 80 iterations)
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 79 iterations)
 
 Stored estimation results
 -------------------------
@@ -208,26 +218,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   35789                Number of obs =   229862
-                                                      F(  3, 35788) =     7.03
+Number of clusters (user_id) =   37157                Number of obs =   245105
+                                                      F(  3, 37156) =     7.18
                                                       Prob > F      =   0.0001
-Total (centered) SS     =  65286353.41                Centered R2   =  -0.0014
-Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0014
-Residual SS             =  65377411.43                Root MSE      =    16.94
+Total (centered) SS     =   71347279.8                Centered R2   =  -0.0007
+Total (uncentered) SS   =   71347279.8                Uncentered R2 =  -0.0007
+Residual SS             =     71398573                Root MSE      =    17.14
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -7.151334   3.898685    -1.83   0.067    -14.79287    .4902066
-        var5 |   9.937201   5.370722     1.85   0.064    -.5895776    20.46398
-        var4 |  -8.364159    4.04877    -2.07   0.039    -16.29987    -.428447
+        var3 |  -5.936247   3.964144    -1.50   0.134    -13.70608    1.833587
+        var5 |   8.699744   5.457235     1.59   0.111    -1.996587    19.39608
+        var4 |  -7.623262   4.111631    -1.85   0.064    -15.68217    .4356496
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            266.393
+Underidentification test (Kleibergen-Paap rk LM statistic):            261.887
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1850.988
-                         (Kleibergen-Paap rk Wald F statistic):        140.597
+Weak identification test (Cragg-Donald Wald F statistic):             1914.462
+                         (Kleibergen-Paap rk Wald F statistic):        137.920
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -251,9 +261,315 @@ Absorbed degrees of freedom:
 -----------------------------------------------------+
  Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------+---------------------------------------|
-     firm_id |      2151           1        2150     |
-     user_id |     35789       35789           0    *|
-          yh |        11           1          10     |
+     firm_id |      2178           1        2177     |
+     user_id |     37157       37157           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(results _ivreg2_var3 are active now)
+(results _ivreg2_var5 are active now)
+>> FE spec: (tag=fyhu)
+   – outcome: restricted_contributions_q100
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 81 iterations)
+
+HDFE Linear regression                            Number of obs   =    245,105
+Absorbing 3 HDFE groups                           F(   3,  37156) =      19.27
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6530
+                                                  Adj R-squared   =     0.5866
+                                                  Within R-sq.    =     0.0005
+Number of clusters (user_id) =     37,157         Root MSE        =    20.3789
+
+                           (Std. err. adjusted for 37,157 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+restrict~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -1.455831   .5082906    -2.86   0.004    -2.452095   -.4595677
+        var5 |   6.464754   1.256106     5.15   0.000     4.002752    8.926755
+        var4 |  -7.026194   1.082326    -6.49   0.000    -9.147584   -4.904805
+       _cons |   48.80134   .1480546   329.62   0.000     48.51115    49.09153
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2178           1        2177     |
+     user_id |     37157       37157           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 81 iterations)
+
+Stored estimation results
+-------------------------
+---------------------------------------------------------------------------
+             |           Dependent  Number of        
+        Name | Command    variable     param.  Title 
+-------------+-------------------------------------------------------------
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
+---------------------------------------------------------------------------
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   37157                Number of obs =   245105
+                                                      F(  3, 37156) =    11.35
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  85492855.69                Centered R2   =  -0.0002
+Total (uncentered) SS   =  85492855.69                Uncentered R2 =  -0.0002
+Residual SS             =  85509934.25                Root MSE      =    18.76
+
+------------------------------------------------------------------------------
+             |               Robust
+restrict~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |   -5.72354   4.145186    -1.38   0.167    -13.84822     2.40114
+        var5 |    8.90212   5.523196     1.61   0.107    -1.923498    19.72774
+        var4 |  -8.253066   4.115777    -2.01   0.045     -16.3201    -.186029
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            261.887
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1914.462
+                         (Kleibergen-Paap rk Wald F statistic):        137.920
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2178           1        2177     |
+     user_id |     37157       37157           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(results _ivreg2_var3 are active now)
+(results _ivreg2_var5 are active now)
+>> FE spec: (tag=fyhu)
+   – outcome: total_contributions_we
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 77 iterations)
+
+HDFE Linear regression                            Number of obs   =    245,105
+Absorbing 3 HDFE groups                           F(   3,  37156) =      14.73
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6888
+                                                  Adj R-squared   =     0.6292
+                                                  Within R-sq.    =     0.0006
+Number of clusters (user_id) =     37,157         Root MSE        =   157.4595
+
+                           (Std. err. adjusted for 37,157 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_cont~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -17.48378   4.474728    -3.91   0.000    -26.25437   -8.713188
+        var5 |   52.42375   13.62907     3.85   0.000     25.71039    79.13711
+        var4 |  -56.83906   11.76216    -4.83   0.000    -79.89321    -33.7849
+       _cons |   198.8274   1.303916   152.48   0.000     196.2717    201.3831
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2178           1        2177     |
+     user_id |     37157       37157           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 77 iterations)
+
+Stored estimation results
+-------------------------
+---------------------------------------------------------------------------
+             |           Dependent  Number of        
+        Name | Command    variable     param.  Title 
+-------------+-------------------------------------------------------------
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
+---------------------------------------------------------------------------
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   37157                Number of obs =   245105
+                                                      F(  3, 37156) =    10.10
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =   5104728484                Centered R2   =  -0.0035
+Total (uncentered) SS   =   5104728484                Uncentered R2 =  -0.0035
+Residual SS             =   5122505072                Root MSE      =    145.2
+
+------------------------------------------------------------------------------
+             |               Robust
+total_cont~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -97.23456   32.72634    -2.97   0.003    -161.3791   -33.09003
+        var5 |   90.96696   54.73891     1.66   0.097    -16.32282    198.2567
+        var4 |  -73.82159   43.04006    -1.72   0.086    -158.1813    10.53812
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            261.887
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1914.462
+                         (Kleibergen-Paap rk Wald F statistic):        137.920
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2178           1        2177     |
+     user_id |     37157       37157           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(results _ivreg2_var3 are active now)
+(results _ivreg2_var5 are active now)
+>> FE spec: (tag=fyhu)
+   – outcome: restricted_contributions_we
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 77 iterations)
+
+HDFE Linear regression                            Number of obs   =    245,105
+Absorbing 3 HDFE groups                           F(   3,  37156) =      15.87
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7027
+                                                  Adj R-squared   =     0.6459
+                                                  Within R-sq.    =     0.0007
+Number of clusters (user_id) =     37,157         Root MSE        =   133.1912
+
+                           (Std. err. adjusted for 37,157 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+restricted~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -15.62166   3.756174    -4.16   0.000    -22.98386    -8.25945
+        var5 |   48.33966    12.1798     3.97   0.000     24.46692    72.21241
+        var4 |  -52.18211   10.55343    -4.94   0.000    -72.86713   -31.49708
+       _cons |   151.7858   1.094261   138.71   0.000      149.641    153.9306
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2178           1        2177     |
+     user_id |     37157       37157           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(dropped 1267 singleton observations)
+(MWFE estimator converged in 77 iterations)
+
+Stored estimation results
+-------------------------
+---------------------------------------------------------------------------
+             |           Dependent  Number of        
+        Name | Command    variable     param.  Title 
+-------------+-------------------------------------------------------------
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
+---------------------------------------------------------------------------
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   37157                Number of obs =   245105
+                                                      F(  3, 37156) =    11.53
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =   3652812118                Centered R2   =  -0.0052
+Total (uncentered) SS   =   3652812118                Uncentered R2 =  -0.0052
+Residual SS             =   3671734473                Root MSE      =    122.9
+
+------------------------------------------------------------------------------
+             |               Robust
+restricted~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -96.73137    27.2412    -3.55   0.000    -150.1249   -43.33786
+        var5 |   91.45968   48.55697     1.88   0.060    -3.713343    186.6327
+        var4 |  -72.78085   38.64439    -1.88   0.060    -148.5249     2.96322
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            261.887
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1914.462
+                         (Kleibergen-Paap rk Wald F statistic):        137.920
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2178           1        2177     |
+     user_id |     37157       37157           0    *|
+          yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (results _ivreg2_var3 are active now)
@@ -351,37 +667,37 @@ Absorbed degrees of freedom:
 . }
 >> FE spec: (tag=firmbyuseryh)
    – outcome: total_contributions_q100
-(dropped 6597 singleton observations)
+(dropped 7057 singleton observations)
 (MWFE estimator converged in 8 iterations)
 
-HDFE Linear regression                            Number of obs   =    224,708
-Absorbing 2 HDFE groups                           F(   3,  35478) =      16.65
+HDFE Linear regression                            Number of obs   =    239,315
+Absorbing 2 HDFE groups                           F(   3,  36865) =      17.34
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.7186
-                                                  Adj R-squared   =     0.6525
+                                                  R-squared       =     0.7133
+                                                  Adj R-squared   =     0.6474
                                                   Within R-sq.    =     0.0006
-Number of clusters (user_id) =     35,479         Root MSE        =    17.6444
+Number of clusters (user_id) =     36,866         Root MSE        =    17.7634
 
-                           (Std. err. adjusted for 35,479 clusters in user_id)
+                           (Std. err. adjusted for 36,866 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -1.234691   .4958927    -2.49   0.013    -2.206656   -.2627261
-        var5 |   6.208444   1.270913     4.89   0.000     3.717416    8.699472
-        var4 |  -6.711066   1.096609    -6.12   0.000    -8.860454   -4.561678
-       _cons |   50.52317   .1507992   335.04   0.000      50.2276    50.81874
+        var3 |  -1.341548   .5013465    -2.68   0.007    -2.324202   -.3588951
+        var5 |   6.360281   1.286641     4.94   0.000     3.838428    8.882134
+        var4 |  -6.877269   1.109545    -6.20   0.000     -9.05201   -4.702529
+       _cons |   50.57833    .145952   346.54   0.000     50.29226     50.8644
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
 -----------------------------------------------------------+
        Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------------+---------------------------------------|
-   firm_id#user_id |     42710       42710           0    *|
-                yh |        11           1          10     |
+   firm_id#user_id |     44740       44740           0    *|
+                yh |        12           1          11     |
 -----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-(dropped 6597 singleton observations)
+(dropped 7057 singleton observations)
 (MWFE estimator converged in 8 iterations)
 
 Stored estimation results
@@ -400,26 +716,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   35479                Number of obs =   224708
-                                                      F(  3, 35478) =    10.55
+Number of clusters (user_id) =   36866                Number of obs =   239315
+                                                      F(  3, 36865) =    10.79
                                                       Prob > F      =   0.0000
-Total (centered) SS     =  56688987.29                Centered R2   =  -0.0026
-Total (uncentered) SS   =  56688987.29                Uncentered R2 =  -0.0026
-Residual SS             =   56837758.2                Root MSE      =     15.9
+Total (centered) SS     =  61426875.62                Centered R2   =  -0.0023
+Total (uncentered) SS   =  61426875.62                Uncentered R2 =  -0.0023
+Residual SS             =  61569193.02                Root MSE      =    16.04
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -9.263295   4.013595    -2.31   0.021    -17.13006   -1.396526
-        var5 |   12.45296   5.392867     2.31   0.021     1.882779    23.02315
-        var4 |  -10.43373   4.045733    -2.58   0.010    -18.36349   -2.503968
+        var3 |  -9.154619    4.11165    -2.23   0.026    -17.21357   -1.095668
+        var5 |   12.27705   5.502212     2.23   0.026     1.492561    23.06154
+        var4 |  -10.35951   4.121706    -2.51   0.012    -18.43817   -2.280851
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            231.086
+Underidentification test (Kleibergen-Paap rk LM statistic):            222.802
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1854.151
-                         (Kleibergen-Paap rk Wald F statistic):        123.431
+Weak identification test (Cragg-Donald Wald F statistic):             1902.210
+                         (Kleibergen-Paap rk Wald F statistic):        118.654
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -443,321 +759,45 @@ Absorbed degrees of freedom:
 -----------------------------------------------------------+
        Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------------+---------------------------------------|
-   firm_id#user_id |     42710       42710           0    *|
-                yh |        11           1          10     |
+   firm_id#user_id |     44740       44740           0    *|
+                yh |        12           1          11     |
 -----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (results _ivreg2_var3 are active now)
 (results _ivreg2_var5 are active now)
+>> FE spec: (tag=firmbyuseryh)
+   – outcome: restricted_contributions_q100
+(dropped 7057 singleton observations)
+(MWFE estimator converged in 8 iterations)
 
-. 
-. 
-. 
-. 
-. //-------------------------------------------------------------
-. //  Firm + year FE ("fyh")
-. //-------------------------------------------------------------
-. local feopt "absorb(firm_id yh)"
-
-. local tag   "fyh"
-
-. 
-. foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
-  3.     display as text ">> FE spec: (tag=`tag')"
-  4.     display as text "   – outcome: `y'"
-  5.     summarize `y' if covid == 0, meanonly
-  6.     local pre_mean = r(mean)
-  7. 
-.     // OLS
-.      reghdfe `y' var3 var5 var4, ///
->         `feopt' vce(cluster user_id)
-  8.                 
-.         local N = e(N)  
-  9.         
-.     foreach p in var3 var5 var4 {
- 10.         local b    = _b[`p']
- 11.         local se   = _se[`p']
- 12.         local t    = `b'/`se'
- 13.         local pval = 2*ttail(e(df_r), abs(`t'))
- 14. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')
- 15.     }
- 16. 
-.     // IV (2nd stage)
-.      ivreghdfe ///
->         `y' (var3 var5 = var6 var7) var4, ///
->         `feopt' vce(cluster user_id) savefirst
- 17.     
-.         local rkf = e(rkf)
- 18.         local N = e(N)  
- 19.         
-.     foreach p in var3 var5 var4 {
- 20.         local b    = _b[`p']
- 21.         local se   = _se[`p']
- 22.         local t    = `b'/`se'
- 23.         local pval = 2*ttail(e(df_r), abs(`t'))
- 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')
- 25.     }
- 26.         
-.         *--- pull partial F's from the stacked matrix
-.         matrix FS = e(first)
- 27.         local F3 = FS[4,1]
- 28.         local F5 = FS[4,2]
- 29. 
-.         *========= var3 first stage ===================================================
-.         estimates restore _ivreg2_var3
- 30.         local N_fs = e(N)
- 31. 
-.         foreach p in var6 var7 var4 {
- 32.                 local b    = _b[`p']
- 33.                 local se   = _se[`p']
- 34.                 local t    = `b'/`se'
- 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 36. 
-.                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F3') (`rkf') (`N_fs')
- 37.         }
- 38. 
-.         *========= var5 first stage ===================================================
-.         estimates restore _ivreg2_var5
- 39.         local N_fs = e(N)
- 40. 
-.         foreach p in var6 var7 var4 {
- 41.                 local b    = _b[`p']
- 42.                 local se   = _se[`p']
- 43.                 local t    = `b'/`se'
- 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 45. 
-.                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F5') (`rkf') (`N_fs')
- 46.         }
- 47. 
-. }
->> FE spec: (tag=fyh)
-   – outcome: total_contributions_q100
-(dropped 71 singleton observations)
-(MWFE estimator converged in 5 iterations)
-
-HDFE Linear regression                            Number of obs   =    231,234
-Absorbing 2 HDFE groups                           F(   3,  37159) =       6.37
-Statistics robust to heteroskedasticity           Prob > F        =     0.0003
-                                                  R-squared       =     0.2466
-                                                  Adj R-squared   =     0.2395
-                                                  Within R-sq.    =     0.0001
-Number of clusters (user_id) =     37,160         Root MSE        =    26.1023
-
-                           (Std. err. adjusted for 37,160 clusters in user_id)
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -.3466863   .5191074    -0.67   0.504    -1.364151    .6707786
-        var5 |   2.772734    1.32315     2.10   0.036     .1793224    5.366145
-        var4 |  -3.637828   1.143099    -3.18   0.001    -5.878334   -1.397322
-       _cons |   49.90137    .194417   256.67   0.000      49.5203    50.28243
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      2153           0        2153     |
-          yh |        11           1          10     |
------------------------------------------------------+
-(dropped 71 singleton observations)
-(MWFE estimator converged in 5 iterations)
-
-Stored estimation results
--------------------------
----------------------------------------------------------------------------
-             |           Dependent  Number of        
-        Name | Command    variable     param.  Title 
--------------+-------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
----------------------------------------------------------------------------
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   37160                Number of obs =   231234
-                                                      F(  3, 37159) =     5.89
-                                                      Prob > F      =   0.0005
-Total (centered) SS     =  156091290.6                Centered R2   =  -0.0009
-Total (uncentered) SS   =  156091290.6                Uncentered R2 =  -0.0009
-Residual SS             =  156225377.7                Root MSE      =    26.12
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -6.617619   4.131174    -1.60   0.109    -14.71483    1.479597
-        var5 |   9.142997   5.930672     1.54   0.123    -2.481286    20.76728
-        var4 |  -7.802626   4.511079    -1.73   0.084    -16.64447    1.039215
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            354.579
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1892.832
-                         (Kleibergen-Paap rk Wald F statistic):        187.113
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      2153           0        2153     |
-          yh |        11           1          10     |
------------------------------------------------------+
-(results _ivreg2_var3 are active now)
-(results _ivreg2_var5 are active now)
-
-. 
-. 
-. 
-. local feopt "absorb(user_id yh)"
-
-. local tag   "useryh"
-
-. 
-. foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
-  3.     display as text ">> FE spec: (tag=`tag')"
-  4.     display as text "   – outcome: `y'"
-  5.     summarize `y' if covid == 0, meanonly
-  6.     local pre_mean = r(mean)
-  7. 
-.     // OLS
-.      reghdfe `y' var3 var5 var4, ///
->         `feopt' vce(cluster user_id)
-  8.                 
-.         local N = e(N)  
-  9.         
-.     foreach p in var3 var5 var4 {
- 10.         local b    = _b[`p']
- 11.         local se   = _se[`p']
- 12.         local t    = `b'/`se'
- 13.         local pval = 2*ttail(e(df_r), abs(`t'))
- 14. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')
- 15.     }
- 16. 
-.     // IV (2nd stage)
-.      ivreghdfe ///
->         `y' (var3 var5 = var6 var7) var4, ///
->         `feopt' vce(cluster user_id) savefirst
- 17.     
-.         local rkf = e(rkf)
- 18.         local N = e(N)  
- 19.         
-.     foreach p in var3 var5 var4 {
- 20.         local b    = _b[`p']
- 21.         local se   = _se[`p']
- 22.         local t    = `b'/`se'
- 23.         local pval = 2*ttail(e(df_r), abs(`t'))
- 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')
- 25.     }
- 26.         
-.         *--- pull partial F's from the stacked matrix
-.         matrix FS = e(first)
- 27.         local F3 = FS[4,1]
- 28.         local F5 = FS[4,2]
- 29. 
-.         *========= var3 first stage ===================================================
-.         estimates restore _ivreg2_var3
- 30.         local N_fs = e(N)
- 31. 
-.         foreach p in var6 var7 var4 {
- 32.                 local b    = _b[`p']
- 33.                 local se   = _se[`p']
- 34.                 local t    = `b'/`se'
- 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 36. 
-.                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F3') (`rkf') (`N_fs')
- 37.         }
- 38. 
-.         *========= var5 first stage ===================================================
-.         estimates restore _ivreg2_var5
- 39.         local N_fs = e(N)
- 40. 
-.         foreach p in var6 var7 var4 {
- 41.                 local b    = _b[`p']
- 42.                 local se   = _se[`p']
- 43.                 local t    = `b'/`se'
- 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 45. 
-.                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F5') (`rkf') (`N_fs')
- 46.         }
- 47. 
-. }
->> FE spec: (tag=useryh)
-   – outcome: total_contributions_q100
-(dropped 1392 singleton observations)
-(MWFE estimator converged in 7 iterations)
-
-HDFE Linear regression                            Number of obs   =    229,913
-Absorbing 2 HDFE groups                           F(   3,  35793) =      21.12
+HDFE Linear regression                            Number of obs   =    239,315
+Absorbing 2 HDFE groups                           F(   3,  36865) =      24.03
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.6578
-                                                  Adj R-squared   =     0.5947
-                                                  Within R-sq.    =     0.0008
-Number of clusters (user_id) =     35,794         Root MSE        =    19.0783
+                                                  R-squared       =     0.6910
+                                                  Adj R-squared   =     0.6199
+                                                  Within R-sq.    =     0.0007
+Number of clusters (user_id) =     36,866         Root MSE        =    19.5160
 
-                           (Std. err. adjusted for 35,794 clusters in user_id)
+                           (Std. err. adjusted for 36,866 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+restrict~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   1.221329   .4892801     2.50   0.013     .2623249    2.180332
-        var5 |   .4371179   1.299989     0.34   0.737    -2.110901    2.985136
-        var4 |   1.891716   1.129001     1.68   0.094    -.3211593    4.104592
-       _cons |   49.09652   .1490449   329.41   0.000     48.80439    49.38865
+        var3 |  -1.565398    .524764    -2.98   0.003    -2.593951    -.536846
+        var5 |   7.581067   1.281875     5.91   0.000     5.068556    10.09358
+        var4 |  -8.168386    1.10341    -7.40   0.000     -10.3311   -6.005672
+       _cons |   49.19511   .1527511   322.06   0.000     48.89571    49.49451
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     user_id |     35794       35794           0    *|
-          yh |        11           1          10     |
------------------------------------------------------+
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     44740       44740           0    *|
+                yh |        12           1          11     |
+-----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-(dropped 1392 singleton observations)
+(dropped 7057 singleton observations)
 (MWFE estimator converged in 8 iterations)
 
 Stored estimation results
@@ -776,26 +816,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   35794                Number of obs =   229913
-                                                      F(  3, 35793) =    22.60
+Number of clusters (user_id) =   36866                Number of obs =   239315
+                                                      F(  3, 36865) =    13.68
                                                       Prob > F      =   0.0000
-Total (centered) SS     =  70708970.56                Centered R2   =  -0.0076
-Total (uncentered) SS   =  70708970.56                Uncentered R2 =  -0.0076
-Residual SS             =  71244892.04                Root MSE      =     17.6
+Total (centered) SS     =  74152405.67                Centered R2   =  -0.0004
+Total (uncentered) SS   =  74152405.67                Uncentered R2 =  -0.0004
+Residual SS             =  74185419.24                Root MSE      =    17.61
 
 ------------------------------------------------------------------------------
              |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+restrict~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |   13.90442   3.886623     3.58   0.000     6.286521    21.52232
-        var5 |  -18.83578   5.742923    -3.28   0.001    -30.09209   -7.579481
-        var4 |   15.80588   4.431485     3.57   0.000     7.120038    24.49173
+        var3 |  -6.845203   4.284485    -1.60   0.110    -15.24292    1.552509
+        var5 |   10.79966   5.534824     1.95   0.051     -.048755    21.64807
+        var4 |   -9.85802   4.094131    -2.41   0.016    -17.88263   -1.833408
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            301.177
+Underidentification test (Kleibergen-Paap rk LM statistic):            222.802
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1931.537
-                         (Kleibergen-Paap rk Wald F statistic):        161.515
+Weak identification test (Cragg-Donald Wald F statistic):             1902.210
+                         (Kleibergen-Paap rk Wald F statistic):        118.654
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -816,701 +856,49 @@ Partialled-out:       _cons
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     user_id |     35794       35794           0    *|
-          yh |        11           1          10     |
------------------------------------------------------+
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     44740       44740           0    *|
+                yh |        12           1          11     |
+-----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (results _ivreg2_var3 are active now)
 (results _ivreg2_var5 are active now)
+>> FE spec: (tag=firmbyuseryh)
+   – outcome: total_contributions_we
+(dropped 7057 singleton observations)
+(MWFE estimator converged in 8 iterations)
 
-. 
-. 
-. //-------------------------------------------------------------
-. // Time FE ("time")
-. //-------------------------------------------------------------
-. local feopt "absorb(yh)"
-
-. local tag   "time"
-
-. 
-. foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
-  3. 
-.         gen var8 = remote * startup
-  4.         gen var9 = teleworkable*startup
-  5. 
-.     summarize `y' if covid == 0, meanonly
-  6.     local pre_mean = r(mean)
-  7.         
-.     display as text ">> FE spec: time  (tag=`tag')"
-  8.     display as text "   – outcome: `y'"
-  9. 
-.     // OLS
-.     reghdfe `y' var3 var5 var4 remote startup var8 covid, ///
->         `feopt' vce(cluster user_id)
- 10.         local N   = e(N)
- 11.         
-.     foreach p in var3 var5 var4 {
- 12.         local b    = _b[`p']
- 13.         local se   = _se[`p']
- 14.         local t    = `b'/`se'
- 15.         local pval = 2*ttail(e(df_r), abs(`t'))
- 16. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')
- 17.     }
- 18. 
-.     // IV (2nd stage)
-.      ivreghdfe ///
->         `y' (var3 var5 var8 remote = var6 var7 var9 teleworkable) var4 startup covid, ///
->         `feopt' vce(cluster user_id) savefirst
- 19.                 
-.     local rkf = e(rkf)
- 20.         local N   = e(N)
- 21.         
-.     foreach p in var3 var5 var4 {
- 22.         local b    = _b[`p']
- 23.         local se   = _se[`p']
- 24.         local t    = `b'/`se'
- 25.         local pval = 2*ttail(e(df_r), abs(`t'))
- 26.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')
- 27.     }
- 28. 
-.         *--- pull partial F's from the stacked matrix
-.         matrix FS = e(first)
- 29.         local F3 = FS[4,1]
- 30.         local F5 = FS[4,2]
- 31. 
-.         *========= var3 first stage ===================================================
-.         estimates restore _ivreg2_var3
- 32.         local N_fs = e(N)
- 33. 
-.         foreach p in var6 var7 var4 {
- 34.                 local b    = _b[`p']
- 35.                 local se   = _se[`p']
- 36.                 local t    = `b'/`se'
- 37.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 38. 
-.                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F3') (`rkf') (`N_fs')
- 39.         }
- 40. 
-.         *========= var5 first stage ===================================================
-.         estimates restore _ivreg2_var5
- 41.         local N_fs = e(N)
- 42. 
-.         foreach p in var6 var7 var4 {
- 43.                 local b    = _b[`p']
- 44.                 local se   = _se[`p']
- 45.                 local t    = `b'/`se'
- 46.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 47. 
-.                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F5') (`rkf') (`N_fs')
- 48.         }
- 49. 
-. }
-(15,194 missing values generated)
->> FE spec: time  (tag=time)
-   – outcome: total_contributions_q100
-(MWFE estimator converged in 1 iterations)
-note: covid is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
-
-HDFE Linear regression                            Number of obs   =    231,305
-Absorbing 1 HDFE group                            F(   6,  37185) =     549.59
+HDFE Linear regression                            Number of obs   =    239,315
+Absorbing 2 HDFE groups                           F(   3,  36865) =      19.80
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.0578
-                                                  Adj R-squared   =     0.0577
-                                                  Within R-sq.    =     0.0569
-Number of clusters (user_id) =     37,186         Root MSE        =    29.0548
+                                                  R-squared       =     0.7184
+                                                  Adj R-squared   =     0.6536
+                                                  Within R-sq.    =     0.0010
+Number of clusters (user_id) =     36,866         Root MSE        =   152.9566
 
-                           (Std. err. adjusted for 37,186 clusters in user_id)
+                           (Std. err. adjusted for 36,866 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+total_cont~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |    .714413   .5695163     1.25   0.210    -.4018548    1.830681
-        var5 |   2.360973   1.453712     1.62   0.104     -.488343    5.210289
-        var4 |  -3.964441   1.256937    -3.15   0.002    -6.428073    -1.50081
-      remote |   10.11765   .5510969    18.36   0.000     9.037483    11.19781
-     startup |   23.83356    1.12242    21.23   0.000     21.63358    26.03353
-        var8 |  -9.861706   1.308261    -7.54   0.000    -12.42593   -7.297478
-       covid |          0  (omitted)
-       _cons |   39.65689   .3683293   107.67   0.000     38.93495    40.37883
+        var3 |    -20.721   4.695052    -4.41   0.000    -29.92344   -11.51857
+        var5 |   60.94575   14.37575     4.24   0.000     32.76886    89.12263
+        var4 |  -67.60253    12.4211    -5.44   0.000    -91.94823   -43.25683
+       _cons |   202.4922   1.366937   148.14   0.000      199.813    205.1714
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-          yh |        11           0          11     |
------------------------------------------------------+
-(MWFE estimator converged in 1 iterations)
-
-Stored estimation results
--------------------------
------------------------------------------------------------------------------
-             |           Dependent  Number of        
-        Name | Command    variable     param.  Title 
--------------+---------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          7  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          7  First-stage regression: var5
-_ivreg2_var8 | ivreg2         var8          7  First-stage regression: var8
-_ivreg2_re~e | ivreg2       remote          7  First-stage regression: remote
------------------------------------------------------------------------------
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   35717                Number of obs =   216111
-                                                      F(  6, 35716) =   274.16
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  193199922.2                Centered R2   = -1.1e+02
-Total (uncentered) SS   =  193199922.2                Uncentered R2 = -1.1e+02
-Residual SS             =  2.06577e+10                Root MSE      =    309.2
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -180.9319   42.54185    -4.25   0.000    -264.3153   -97.54862
-        var5 |   3958.632   6209.567     0.64   0.524    -8212.307    16129.57
-        var8 |  -4059.056   6209.173    -0.65   0.513    -16229.22    8111.112
-      remote |   269.6202   42.78757     6.30   0.000     185.7552    353.4851
-        var4 |  -3340.972   5294.792    -0.63   0.528    -13718.93    7036.981
-     startup |   3425.023   5294.454     0.65   0.518    -6952.268    13802.31
-       covid |          0  (omitted)
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):              0.377
-                                                   Chi-sq(1) P-val =    0.5392
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):                1.605
-                         (Kleibergen-Paap rk Wald F statistic):          0.094
-Stock-Yogo weak ID test critical values:                       <not available>
-------------------------------------------------------------------------------
-Warning: estimated covariance matrix of moment conditions not of full rank.
-         overidentification statistic not reported, and standard errors and
-         model tests should be interpreted with caution.
-Possible causes:
-         number of clusters insufficient to calculate robust covariance matrix
-         singleton dummy variable (dummy with one 1 and N-1 0s or vice versa)
-partial option may address problem.
-------------------------------------------------------------------------------
-Collinearities detected among instruments: 1 instrument(s) dropped
-Instrumented:         var3 var5 var8 remote
-Included instruments: var4 startup covid
-Excluded instruments: var6 var7 var9 teleworkable
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-          yh |        11           0          11     |
------------------------------------------------------+
-(results _ivreg2_var3 are active now)
-(results _ivreg2_var5 are active now)
-
-. 
-. //-------------------------------------------------------------
-. // Firm FE ("firm")
-. //-------------------------------------------------------------
-. local feopt "absorb(firm_id)"
-
-. local tag   "firm"
-
-. 
-. foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
-  3. 
-.     display as text ">> FE spec: firm  (tag=`tag')"
-  4.     display as text "   – outcome: `y'"
-  5. 
-.     summarize `y' if covid == 0, meanonly
-  6.     local pre_mean = r(mean)
-  7. 
-.     // OLS
-.      reghdfe `y' var3 var5 var4 covid, ///
->         `feopt' vce(cluster user_id)
-  8.         
-.         local N   = e(N)
-  9.         
-.     foreach p in var3 var5 var4 {
- 10.         local b    = _b[`p']
- 11.         local se   = _se[`p']
- 12.         local t    = `b'/`se'
- 13.         local pval = 2*ttail(e(df_r), abs(`t'))
- 14. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')
- 15.     }
- 16. 
-.     // IV (2nd stage)
-.      ivreghdfe ///
->         `y' (var3 var5 = var6 var7) var4 covid, ///
->         `feopt' vce(cluster user_id) savefirst
- 17.                 
-.     local rkf = e(rkf)
- 18.         local N   = e(N)
- 19.         
-.     foreach p in var3 var5 var4 {
- 20.         local b    = _b[`p']
- 21.         local se   = _se[`p']
- 22.         local t    = `b'/`se'
- 23.         local pval = 2*ttail(e(df_r), abs(`t'))
- 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')
- 25.     }
- 26. 
-.         *--- pull partial F's from the stacked matrix
-.         matrix FS = e(first)
- 27.         local F3 = FS[4,1]
- 28.         local F5 = FS[4,2]
- 29. 
-.         *========= var3 first stage ===================================================
-.         estimates restore _ivreg2_var3
- 30.         local N_fs = e(N)
- 31. 
-.         foreach p in var6 var7 var4 {
- 32.                 local b    = _b[`p']
- 33.                 local se   = _se[`p']
- 34.                 local t    = `b'/`se'
- 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 36. 
-.                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F3') (`rkf') (`N_fs')
- 37.         }
- 38. 
-.         *========= var5 first stage ===================================================
-.         estimates restore _ivreg2_var5
- 39.         local N_fs = e(N)
- 40. 
-.         foreach p in var6 var7 var4 {
- 41.                 local b    = _b[`p']
- 42.                 local se   = _se[`p']
- 43.                 local t    = `b'/`se'
- 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 45. 
-.                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F5') (`rkf') (`N_fs')
- 46.         }
- 47. 
-. }
->> FE spec: firm  (tag=firm)
-   – outcome: total_contributions_q100
-(dropped 71 singleton observations)
-(MWFE estimator converged in 1 iterations)
-
-HDFE Linear regression                            Number of obs   =    231,234
-Absorbing 1 HDFE group                            F(   4,  37159) =      32.06
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.2464
-                                                  Adj R-squared   =     0.2394
-                                                  Within R-sq.    =     0.0008
-Number of clusters (user_id) =     37,160         Root MSE        =    26.1044
-
-                           (Std. err. adjusted for 37,160 clusters in user_id)
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -.3299741     .51894    -0.64   0.525    -1.347111    .6871626
-        var5 |   2.754832   1.322552     2.08   0.037      .162594     5.34707
-        var4 |  -3.599818   1.142516    -3.15   0.002    -5.839182   -1.360455
-       covid |  -.9689637   .3761478    -2.58   0.010    -1.706224   -.2317034
-       _cons |   50.33152   .1232131   408.49   0.000     50.09002    50.57303
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      2153           0        2153     |
------------------------------------------------------+
-(dropped 71 singleton observations)
-(MWFE estimator converged in 1 iterations)
-
-Stored estimation results
--------------------------
----------------------------------------------------------------------------
-             |           Dependent  Number of        
-        Name | Command    variable     param.  Title 
--------------+-------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          4  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          4  First-stage regression: var5
----------------------------------------------------------------------------
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   37160                Number of obs =   231234
-                                                      F(  4, 37159) =    31.63
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  156234472.1                Centered R2   =  -0.0001
-Total (uncentered) SS   =  156234472.1                Uncentered R2 =  -0.0001
-Residual SS             =  156253997.7                Root MSE      =    26.12
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |    -6.5573   4.128091    -1.59   0.112    -14.64847    1.533873
-        var5 |   9.116751   5.926063     1.54   0.124    -2.498498      20.732
-        var4 |  -7.765353    4.50706    -1.72   0.085    -16.59932    1.068609
-       covid |   3.082584   2.691613     1.15   0.252    -2.193052    8.358221
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            355.016
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1895.379
-                         (Kleibergen-Paap rk Wald F statistic):        187.343
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4 covid
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      2153           0        2153     |
------------------------------------------------------+
-(results _ivreg2_var3 are active now)
-(results _ivreg2_var5 are active now)
-
-. 
-. //-------------------------------------------------------------
-. // No FE ("none")
-. //-------------------------------------------------------------
-. local feopt ""
-
-. local tag   "none"
-
-. 
-. foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
-  3.         
-.         gen var8 = remote * startup
-  4.     gen var9 = teleworkable*startup
-  5. 
-.     summarize `y' if covid == 0, meanonly
-  6.     local pre_mean = r(mean)
-  7. 
-.     display as text ">> FE spec: none  (tag=`tag')"
-  8.     display as text "   – outcome: `y'"
-  9. 
-.     // OLS
-.     reghdfe `y' var3 var5 var4 remote startup var8 covid, ///
->         absorb() vce(cluster user_id)
- 10.                 
-.         local N   = e(N)
- 11.         
-.     foreach p in var3 var5 var4 {
- 12.         local b    = _b[`p']
- 13.         local se   = _se[`p']
- 14.         local t    = `b'/`se'
- 15.         local pval = 2*ttail(e(df_r), abs(`t'))
- 16. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')
- 17.     }
- 18. 
-.     // IV (2nd stage)
-.     ivreghdfe ///
->         `y' (var3 var5 var8 remote = var6 var7 var9 teleworkable) var4 startup covid, ///
->         absorb() vce(cluster user_id) savefirst
- 19.     local rkf = e(rkf)
- 20.         local N   = e(N)
- 21.         
-.     foreach p in var3 var5 var4 {
- 22.         local b    = _b[`p']
- 23.         local se   = _se[`p']
- 24.         local t    = `b'/`se'
- 25.         local pval = 2*ttail(e(df_r), abs(`t'))
- 26.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')
- 27.     }
- 28. 
-.         *--- pull partial F's from the stacked matrix
-.         matrix FS = e(first)
- 29.         local F3 = FS[4,1]
- 30.         local F5 = FS[4,2]
- 31. 
-.         *========= var3 first stage ===================================================
-.         estimates restore _ivreg2_var3
- 32.         local N_fs = e(N)
- 33. 
-.         foreach p in var6 var7 var4 {
- 34.                 local b    = _b[`p']
- 35.                 local se   = _se[`p']
- 36.                 local t    = `b'/`se'
- 37.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 38. 
-.                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F3') (`rkf') (`N_fs')
- 39.         }
- 40. 
-.         *========= var5 first stage ===================================================
-.         estimates restore _ivreg2_var5
- 41.         local N_fs = e(N)
- 42. 
-.         foreach p in var6 var7 var4 {
- 43.                 local b    = _b[`p']
- 44.                 local se   = _se[`p']
- 45.                 local t    = `b'/`se'
- 46.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 47. 
-.                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F5') (`rkf') (`N_fs')
- 48.         }
- 49. 
-. }
-(15,194 missing values generated)
->> FE spec: none  (tag=none)
-   – outcome: total_contributions_q100
-(MWFE estimator converged in 1 iterations)
-
-HDFE Linear regression                            Number of obs   =    231,305
-Absorbing 1 HDFE group                            F(   7,  37185) =     474.13
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.0571
-                                                  Adj R-squared   =     0.0571
-                                                  Within R-sq.    =     0.0571
-Number of clusters (user_id) =     37,186         Root MSE        =    29.0648
-
-                           (Std. err. adjusted for 37,186 clusters in user_id)
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |   .7602669   .5696902     1.33   0.182    -.3563416    1.876875
-        var5 |   2.307666   1.453947     1.59   0.112    -.5421111    5.157444
-        var4 |  -3.859724   1.257118    -3.07   0.002    -6.323711   -1.395737
-      remote |   10.11862   .5511843    18.36   0.000     9.038281    11.19895
-     startup |   23.81398   1.122456    21.22   0.000     21.61393    26.01403
-        var8 |  -9.849809   1.308403    -7.53   0.000    -12.41432   -7.285303
-       covid |  -1.187035   .4042193    -2.94   0.003    -1.979316   -.3947534
-       _cons |   40.17406   .3857806   104.14   0.000     39.41792     40.9302
-------------------------------------------------------------------------------
-
-Stored estimation results
--------------------------
------------------------------------------------------------------------------
-             |           Dependent  Number of        
-        Name | Command    variable     param.  Title 
--------------+---------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          8  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          8  First-stage regression: var5
-_ivreg2_var8 | ivreg2         var8          8  First-stage regression: var8
-_ivreg2_re~e | ivreg2       remote          8  First-stage regression: remote
------------------------------------------------------------------------------
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   35717                Number of obs =   216111
-                                                      F(  7, 35716) =   237.42
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  193380018.3                Centered R2   = -1.0e+02
-Total (uncentered) SS   =    729793751                Uncentered R2 = -26.9963
-Residual SS             =  2.04315e+10                Root MSE      =    307.5
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -175.4761   41.08412    -4.27   0.000    -255.9995   -94.95267
-        var5 |   3933.566   6136.028     0.64   0.521    -8092.828    15959.96
-        var8 |  -4034.159   6135.634    -0.66   0.511    -16059.78    7991.463
-      remote |   264.4083    41.3252     6.40   0.000     183.4124    345.4042
-        var4 |  -3320.368   5233.411    -0.63   0.526    -13577.67     6936.93
-     startup |   3404.559   5233.074     0.65   0.515    -6852.077    13661.19
-       covid |   112.8945    26.6408     4.24   0.000      60.6795    165.1095
-       _cons |  -124.7335   26.77917    -4.66   0.000    -177.2197   -72.24731
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):              0.381
-                                                   Chi-sq(1) P-val =    0.5371
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):                1.622
-                         (Kleibergen-Paap rk Wald F statistic):          0.095
-Stock-Yogo weak ID test critical values:                       <not available>
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5 var8 remote
-Included instruments: var4 startup covid
-Excluded instruments: var6 var7 var9 teleworkable
-------------------------------------------------------------------------------
-(results _ivreg2_var3 are active now)
-(results _ivreg2_var5 are active now)
-
-. 
-. 
-. 
-. local feopt "absorb(firm_id user_id industry_id#yh)"
-
-. local tag   "industrytime"
-
-. 
-. 
-. foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
-  3.     display as text ">> FE spec: (tag=`tag')"
-  4.     display as text "   – outcome: `y'"
-  5. 
-.     summarize `y' if covid == 0, meanonly
-  6.     local pre_mean = r(mean)
-  7. 
-.     // OLS
-.      reghdfe `y' var3 var5 var4, ///
->         `feopt' vce(cluster user_id)
-  8.                 
-.         local N = e(N)  
-  9.         
-.     foreach p in var3 var5 var4 {
- 10.         local b    = _b[`p']
- 11.         local se   = _se[`p']
- 12.         local t    = `b'/`se'
- 13.         local pval = 2*ttail(e(df_r), abs(`t'))
- 14. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')
- 15.     }
- 16. 
-.     // IV (2nd stage)
-.      ivreghdfe ///
->         `y' (var3 var5 = var6 var7) var4, ///
->         `feopt' vce(cluster user_id) savefirst
- 17.     
-.         local rkf = e(rkf)
- 18.         local N = e(N)  
- 19.         
-.     foreach p in var3 var5 var4 {
- 20.         local b    = _b[`p']
- 21.         local se   = _se[`p']
- 22.         local t    = `b'/`se'
- 23.         local pval = 2*ttail(e(df_r), abs(`t'))
- 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')
- 25.     }
- 26.         
-.         *--- pull partial F's from the stacked matrix
-.         matrix FS = e(first)
- 27.         local F3 = FS[4,1]
- 28.         local F5 = FS[4,2]
- 29. 
-.         *========= var3 first stage ===================================================
-.         estimates restore _ivreg2_var3
- 30.         local N_fs = e(N)
- 31. 
-.         foreach p in var6 var7 var4 {
- 32.                 local b    = _b[`p']
- 33.                 local se   = _se[`p']
- 34.                 local t    = `b'/`se'
- 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 36. 
-.                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F3') (`rkf') (`N_fs')
- 37.         }
- 38. 
-.         *========= var5 first stage ===================================================
-.         estimates restore _ivreg2_var5
- 39.         local N_fs = e(N)
- 40. 
-.         foreach p in var6 var7 var4 {
- 41.                 local b    = _b[`p']
- 42.                 local se   = _se[`p']
- 43.                 local t    = `b'/`se'
- 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 45. 
-.                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F5') (`rkf') (`N_fs')
- 46.         }
- 47. 
-. }
->> FE spec: (tag=industrytime)
-   – outcome: total_contributions_q100
-(dropped 1449 singleton observations)
-(MWFE estimator converged in 84 iterations)
-
-HDFE Linear regression                            Number of obs   =    227,829
-Absorbing 3 HDFE groups                           F(   3,  35527) =      10.43
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.6844
-                                                  Adj R-squared   =     0.6216
-                                                  Within R-sq.    =     0.0003
-Number of clusters (user_id) =     35,528         Root MSE        =    18.4347
-
-                           (Std. err. adjusted for 35,528 clusters in user_id)
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -.9337776     .49345    -1.89   0.058    -1.900955    .0333995
-        var5 |   5.408624   1.286843     4.20   0.000     2.886371    7.930876
-        var4 |  -5.677708   1.121153    -5.06   0.000    -7.875202   -3.480213
-       _cons |   50.00746   .1495826   334.31   0.000     49.71427    50.30065
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
-----------------------------------------------------------+
-      Absorbed FE | Categories  - Redundant  = Num. Coefs |
-------------------+---------------------------------------|
-          firm_id |      2129           1        2128     |
-          user_id |     35528       35528           0    *|
-   industry_id#yh |       198          18         180     |
-----------------------------------------------------------+
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     44740       44740           0    *|
+                yh |        12           1          11     |
+-----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-(dropped 1449 singleton observations)
-(MWFE estimator converged in 84 iterations)
+(dropped 7057 singleton observations)
+(MWFE estimator converged in 8 iterations)
 
 Stored estimation results
 -------------------------
@@ -1528,26 +916,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   35528                Number of obs =   227829
-                                                      F(  3, 35527) =     5.14
-                                                      Prob > F      =   0.0015
-Total (centered) SS     =  64587361.27                Centered R2   =  -0.0005
-Total (uncentered) SS   =  64587361.27                Uncentered R2 =  -0.0005
-Residual SS             =  64617596.79                Root MSE      =    16.93
+Number of clusters (user_id) =   36866                Number of obs =   239315
+                                                      F(  3, 36865) =    14.51
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =   4556307646                Centered R2   =  -0.0058
+Total (uncentered) SS   =   4556307646                Uncentered R2 =  -0.0058
+Residual SS             =   4582738018                Root MSE      =    138.4
 
 ------------------------------------------------------------------------------
              |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+total_cont~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -5.105247   5.271801    -0.97   0.333    -15.43814    5.227645
-        var5 |   7.666563   5.066646     1.51   0.130     -2.26422    17.59735
-        var4 |   -6.69044   3.824033    -1.75   0.080    -14.18566    .8047823
+        var3 |  -123.0047   34.62825    -3.55   0.000    -190.8771   -55.13237
+        var5 |   125.9673   56.10994     2.25   0.025      15.9902    235.9443
+        var4 |  -102.6064   43.97767    -2.33   0.020    -188.8038   -16.40887
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            210.978
+Underidentification test (Kleibergen-Paap rk LM statistic):            222.802
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1001.475
-                         (Kleibergen-Paap rk Wald F statistic):        109.157
+Weak identification test (Cragg-Donald Wald F statistic):             1902.210
+                         (Kleibergen-Paap rk Wald F statistic):        118.654
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -1568,139 +956,49 @@ Partialled-out:       _cons
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
-----------------------------------------------------------+
-      Absorbed FE | Categories  - Redundant  = Num. Coefs |
-------------------+---------------------------------------|
-          firm_id |      2129           1        2128     |
-          user_id |     35528       35528           0    *|
-   industry_id#yh |       198          18         180     |
-----------------------------------------------------------+
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     44740       44740           0    *|
+                yh |        12           1          11     |
+-----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (results _ivreg2_var3 are active now)
 (results _ivreg2_var5 are active now)
+>> FE spec: (tag=firmbyuseryh)
+   – outcome: restricted_contributions_we
+(dropped 7057 singleton observations)
+(MWFE estimator converged in 8 iterations)
 
-. 
-. 
-. local feopt "absorb(firm_id user_id msa_id#yh)"
-
-. local tag   "msatime"
-
-. 
-. 
-. foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
-  3.     display as text ">> FE spec: (tag=`tag')"
-  4.     display as text "   – outcome: `y'"
-  5. 
-.     summarize `y' if covid == 0, meanonly
-  6.     local pre_mean = r(mean)
-  7. 
-.     // OLS
-.      reghdfe `y' var3 var5 var4, ///
->         `feopt' vce(cluster user_id)
-  8.                 
-.         local N = e(N)  
-  9.         
-.     foreach p in var3 var5 var4 {
- 10.         local b    = _b[`p']
- 11.         local se   = _se[`p']
- 12.         local t    = `b'/`se'
- 13.         local pval = 2*ttail(e(df_r), abs(`t'))
- 14. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')
- 15.     }
- 16. 
-.     // IV (2nd stage)
-.      ivreghdfe ///
->         `y' (var3 var5 = var6 var7) var4, ///
->         `feopt' vce(cluster user_id) savefirst
- 17.     
-.         local rkf = e(rkf)
- 18.         local N = e(N)  
- 19.         
-.     foreach p in var3 var5 var4 {
- 20.         local b    = _b[`p']
- 21.         local se   = _se[`p']
- 22.         local t    = `b'/`se'
- 23.         local pval = 2*ttail(e(df_r), abs(`t'))
- 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')
- 25.     }
- 26.         
-.         *--- pull partial F's from the stacked matrix
-.         matrix FS = e(first)
- 27.         local F3 = FS[4,1]
- 28.         local F5 = FS[4,2]
- 29. 
-.         *========= var3 first stage ===================================================
-.         estimates restore _ivreg2_var3
- 30.         local N_fs = e(N)
- 31. 
-.         foreach p in var6 var7 var4 {
- 32.                 local b    = _b[`p']
- 33.                 local se   = _se[`p']
- 34.                 local t    = `b'/`se'
- 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 36. 
-.                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F3') (`rkf') (`N_fs')
- 37.         }
- 38. 
-.         *========= var5 first stage ===================================================
-.         estimates restore _ivreg2_var5
- 39.         local N_fs = e(N)
- 40. 
-.         foreach p in var6 var7 var4 {
- 41.                 local b    = _b[`p']
- 42.                 local se   = _se[`p']
- 43.                 local t    = `b'/`se'
- 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 45. 
-.                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F5') (`rkf') (`N_fs')
- 46.         }
- 47. 
-. }
->> FE spec: (tag=msatime)
-   – outcome: total_contributions_q100
-(dropped 2262 singleton observations)
-(MWFE estimator converged in 98 iterations)
-
-HDFE Linear regression                            Number of obs   =    229,043
-Absorbing 3 HDFE groups                           F(   3,  35716) =       7.75
+HDFE Linear regression                            Number of obs   =    239,315
+Absorbing 2 HDFE groups                           F(   3,  36865) =      21.01
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.6888
-                                                  Adj R-squared   =     0.6228
-                                                  Within R-sq.    =     0.0002
-Number of clusters (user_id) =     35,717         Root MSE        =    18.4015
+                                                  R-squared       =     0.7325
+                                                  Adj R-squared   =     0.6710
+                                                  Within R-sq.    =     0.0011
+Number of clusters (user_id) =     36,866         Root MSE        =   129.1597
 
-                           (Std. err. adjusted for 35,717 clusters in user_id)
+                           (Std. err. adjusted for 36,866 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+restricted~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -.6638063   .5041134    -1.32   0.188    -1.651884    .3242713
-        var5 |   4.838795   1.253392     3.86   0.000     2.382109    7.295481
-        var4 |  -4.953129   1.086105    -4.56   0.000    -7.081928   -2.824329
-       _cons |   49.96369   .1537545   324.96   0.000     49.66232    50.26505
+        var3 |  -17.61363    3.93192    -4.48   0.000     -25.3203   -9.906953
+        var5 |   56.80613   12.83484     4.43   0.000     31.64948    81.96277
+        var4 |  -62.86049   11.14391    -5.64   0.000    -84.70287   -41.01811
+       _cons |   154.7913   1.144066   135.30   0.000     152.5489    157.0337
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      2148           1        2147     |
-     user_id |     35717       35717           0    *|
-   msa_id#yh |      2168           1        2167     |
------------------------------------------------------+
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     44740       44740           0    *|
+                yh |        12           1          11     |
+-----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-(dropped 2262 singleton observations)
-(MWFE estimator converged in 98 iterations)
+(dropped 7057 singleton observations)
+(MWFE estimator converged in 8 iterations)
 
 Stored estimation results
 -------------------------
@@ -1718,26 +1016,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   35717                Number of obs =   229043
-                                                      F(  3, 35716) =     3.73
-                                                      Prob > F      =   0.0108
-Total (centered) SS     =  64017118.36                Centered R2   =  -0.0010
-Total (uncentered) SS   =  64017118.36                Uncentered R2 =  -0.0010
-Residual SS             =  64080715.32                Root MSE      =    16.89
+Number of clusters (user_id) =   36866                Number of obs =   239315
+                                                      F(  3, 36865) =    15.17
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =   3249317405                Centered R2   =  -0.0061
+Total (uncentered) SS   =   3249317405                Uncentered R2 =  -0.0061
+Residual SS             =   3268981894                Root MSE      =    116.9
 
 ------------------------------------------------------------------------------
              |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+restricted~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -6.048587   4.171122    -1.45   0.147    -14.22411     2.12694
-        var5 |   9.504083   5.854591     1.62   0.105    -1.971094    20.97926
-        var4 |   -7.90567   4.414345    -1.79   0.073    -16.55792    .7465797
+        var3 |  -106.2081   28.75022    -3.69   0.000    -162.5594   -49.85685
+        var5 |   109.1232   49.64217     2.20   0.028     11.82316    206.4233
+        var4 |  -89.77383   39.41548    -2.28   0.023    -167.0293   -12.51837
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            250.628
+Underidentification test (Kleibergen-Paap rk LM statistic):            222.802
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1728.410
-                         (Kleibergen-Paap rk Wald F statistic):        130.484
+Weak identification test (Cragg-Donald Wald F statistic):             1902.210
+                         (Kleibergen-Paap rk Wald F statistic):        118.654
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -1758,13 +1056,12 @@ Partialled-out:       _cons
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      2148           1        2147     |
-     user_id |     35717       35717           0    *|
-   msa_id#yh |      2168           1        2167     |
------------------------------------------------------+
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     44740       44740           0    *|
+                yh |        12           1          11     |
+-----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (results _ivreg2_var3 are active now)
 (results _ivreg2_var5 are active now)
@@ -1773,195 +1070,699 @@ Absorbed degrees of freedom:
 . 
 . 
 . 
-. local feopt "absorb(firm_id user_id msa_id#industry_id#yh)"
-
-. local tag   "msaindustrytime"
-
-. 
-. 
-. foreach y of local outcomes {
-  2.     use "$processed_data/user_panel_`panel_variant'.dta", clear
-  3.     display as text ">> FE spec: (tag=`tag')"
-  4.     display as text "   – outcome: `y'"
-  5. 
-.     summarize `y' if covid == 0, meanonly
-  6.     local pre_mean = r(mean)
-  7. 
-.     // OLS
-.      reghdfe `y' var3 var5 var4, ///
->         `feopt' vce(cluster user_id)
-  8.                 
-.         local N = e(N)  
-  9.         
-.     foreach p in var3 var5 var4 {
- 10.         local b    = _b[`p']
- 11.         local se   = _se[`p']
- 12.         local t    = `b'/`se'
- 13.         local pval = 2*ttail(e(df_r), abs(`t'))
- 14. 
-.                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')
- 15.     }
- 16. 
-.     // IV (2nd stage)
-.      ivreghdfe ///
->         `y' (var3 var5 = var6 var7) var4, ///
->         `feopt' vce(cluster user_id) savefirst
- 17.     
-.         local rkf = e(rkf)
- 18.         local N = e(N)  
- 19.         
-.     foreach p in var3 var5 var4 {
- 20.         local b    = _b[`p']
- 21.         local se   = _se[`p']
- 22.         local t    = `b'/`se'
- 23.         local pval = 2*ttail(e(df_r), abs(`t'))
- 24.                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')
- 25.     }
- 26.         
-.         *--- pull partial F's from the stacked matrix
-.         matrix FS = e(first)
- 27.         local F3 = FS[4,1]
- 28.         local F5 = FS[4,2]
- 29. 
-.         *========= var3 first stage ===================================================
-.         estimates restore _ivreg2_var3
- 30.         local N_fs = e(N)
- 31. 
-.         foreach p in var6 var7 var4 {
- 32.                 local b    = _b[`p']
- 33.                 local se   = _se[`p']
- 34.                 local t    = `b'/`se'
- 35.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 36. 
-.                 post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F3') (`rkf') (`N_fs')
- 37.         }
- 38. 
-.         *========= var5 first stage ===================================================
-.         estimates restore _ivreg2_var5
- 39.         local N_fs = e(N)
- 40. 
-.         foreach p in var6 var7 var4 {
- 41.                 local b    = _b[`p']
- 42.                 local se   = _se[`p']
- 43.                 local t    = `b'/`se'
- 44.                 local pval = 2*ttail(e(df_r), abs(`t'))
- 45. 
-.                 post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
->                                                 (`b') (`se') (`pval') ///
->                                                 (`F5') (`rkf') (`N_fs')
- 46.         }
- 47. 
-. }
->> FE spec: (tag=msaindustrytime)
-   – outcome: total_contributions_q100
-(dropped 6411 singleton observations)
-(MWFE estimator converged in 140 iterations)
-
-HDFE Linear regression                            Number of obs   =    222,867
-Absorbing 3 HDFE groups                           F(   3,  35000) =       4.76
-Statistics robust to heteroskedasticity           Prob > F        =     0.0025
-                                                  R-squared       =     0.6990
-                                                  Adj R-squared   =     0.6266
-                                                  Within R-sq.    =     0.0001
-Number of clusters (user_id) =     35,001         Root MSE        =    18.3094
-
-                           (Std. err. adjusted for 35,001 clusters in user_id)
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -.4964325   .5493515    -0.90   0.366    -1.573179    .5803138
-        var5 |   4.656526   1.383118     3.37   0.001     1.945571     7.36748
-        var4 |   -4.50797   1.207292    -3.73   0.000    -6.874301   -2.141638
-       _cons |   49.80853   .1671252   298.03   0.000     49.48096     50.1361
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
--------------------------------------------------------------------+
-               Absorbed FE | Categories  - Redundant  = Num. Coefs |
----------------------------+---------------------------------------|
-                   firm_id |      2065           1        2064     |
-                   user_id |     35001       35001           0    *|
-     msa_id#industry_id#yh |      6211          28        6183     |
--------------------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-(dropped 6411 singleton observations)
-(MWFE estimator converged in 140 iterations)
-
-Stored estimation results
--------------------------
----------------------------------------------------------------------------
-             |           Dependent  Number of        
-        Name | Command    variable     param.  Title 
--------------+-------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
----------------------------------------------------------------------------
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   35001                Number of obs =   222867
-                                                      F(  3, 35000) =     1.64
-                                                      Prob > F      =   0.1773
-Total (centered) SS     =  60221899.37                Centered R2   =  -0.0046
-Total (uncentered) SS   =  60221899.37                Uncentered R2 =  -0.0046
-Residual SS             =  60497514.46                Root MSE      =    16.79
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -11.54688   8.138701    -1.42   0.156    -27.49899    4.405235
-        var5 |    9.77675   6.682231     1.46   0.143    -3.320635    22.87413
-        var4 |  -6.570141   4.914404    -1.34   0.181    -16.20253    3.062246
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            101.404
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              494.193
-                         (Kleibergen-Paap rk Wald F statistic):         49.489
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
--------------------------------------------------------------------+
-               Absorbed FE | Categories  - Redundant  = Num. Coefs |
----------------------------+---------------------------------------|
-                   firm_id |      2065           1        2064     |
-                   user_id |     35001       35001           0    *|
-     msa_id#industry_id#yh |      6211          28        6183     |
--------------------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-(results _ivreg2_var3 are active now)
-(results _ivreg2_var5 are active now)
-
-. 
+. //-------------------------------------------------------------
+. // //  Firm + year FE ("fyh")
+. // //-------------------------------------------------------------
+. // local feopt "absorb(firm_id yh)"
+. // local tag   "fyh"
+. //
+. // foreach y of local outcomes {
+. //     use "$processed_data/user_panel_`panel_variant'.dta", clear
+. //     display as text ">> FE spec: (tag=`tag')"
+. //     display as text "   – outcome: `y'"
+. //     summarize `y' if covid == 0, meanonly
+. //     local pre_mean = r(mean)
+. //
+. //     // OLS
+. //      reghdfe `y' var3 var5 var4, ///
+. //         `feopt' vce(cluster user_id)
+. //              
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (.) (`N')
+. //     }
+. //
+. //     // IV (2nd stage)
+. //      ivreghdfe ///
+. //         `y' (var3 var5 = var6 var7) var4, ///
+. //         `feopt' vce(cluster user_id) savefirst
+. //    
+. //      local rkf = e(rkf)
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (`rkf') (`N')
+. //     }
+. //      
+. //      *--- pull partial F's from the stacked matrix
+. //      matrix FS = e(first)
+. //      local F3 = FS[4,1]
+. //      local F5 = FS[4,2]
+. //
+. //      *========= var3 first stage ===================================================
+. //      estimates restore _ivreg2_var3
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F3') (`rkf') (`N_fs')
+. //      }
+. //
+. //      *========= var5 first stage ===================================================
+. //      estimates restore _ivreg2_var5
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F5') (`rkf') (`N_fs')
+. //      }
+. //
+. // }
+. //
+. //
+. //
+. // local feopt "absorb(user_id yh)"
+. // local tag   "useryh"
+. //
+. // foreach y of local outcomes {
+. //     use "$processed_data/user_panel_`panel_variant'.dta", clear
+. //     display as text ">> FE spec: (tag=`tag')"
+. //     display as text "   – outcome: `y'"
+. //     summarize `y' if covid == 0, meanonly
+. //     local pre_mean = r(mean)
+. //
+. //     // OLS
+. //      reghdfe `y' var3 var5 var4, ///
+. //         `feopt' vce(cluster user_id)
+. //              
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (.) (`N')
+. //     }
+. //
+. //     // IV (2nd stage)
+. //      ivreghdfe ///
+. //         `y' (var3 var5 = var6 var7) var4, ///
+. //         `feopt' vce(cluster user_id) savefirst
+. //    
+. //      local rkf = e(rkf)
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (`rkf') (`N')
+. //     }
+. //      
+. //      *--- pull partial F's from the stacked matrix
+. //      matrix FS = e(first)
+. //      local F3 = FS[4,1]
+. //      local F5 = FS[4,2]
+. //
+. //      *========= var3 first stage ===================================================
+. //      estimates restore _ivreg2_var3
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F3') (`rkf') (`N_fs')
+. //      }
+. //
+. //      *========= var5 first stage ===================================================
+. //      estimates restore _ivreg2_var5
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F5') (`rkf') (`N_fs')
+. //      }
+. //
+. // }
+. //
+. //
+. // //-------------------------------------------------------------
+. // // Time FE ("time")
+. // //-------------------------------------------------------------
+. // local feopt "absorb(yh)"
+. // local tag   "time"
+. //
+. // foreach y of local outcomes {
+. //     use "$processed_data/user_panel_`panel_variant'.dta", clear
+. //
+. //         gen var8 = remote * startup
+. //         gen var9 = teleworkable*startup
+. //
+. //     summarize `y' if covid == 0, meanonly
+. //     local pre_mean = r(mean)
+. //      
+. //     display as text ">> FE spec: time  (tag=`tag')"
+. //     display as text "   – outcome: `y'"
+. //
+. //     // OLS
+. //     reghdfe `y' var3 var5 var4 remote startup var8 covid, ///
+. //         `feopt' vce(cluster user_id)
+. //      local N   = e(N)
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (.) (`N')
+. //     }
+. //
+. //     // IV (2nd stage)
+. //      ivreghdfe ///
+. //         `y' (var3 var5 var8 remote = var6 var7 var9 teleworkable) var4 startup covid, ///
+. //         `feopt' vce(cluster user_id) savefirst
+. //              
+. //     local rkf = e(rkf)
+. //      local N   = e(N)
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (`rkf') (`N')
+. //     }
+. //
+. //      *--- pull partial F's from the stacked matrix
+. //      matrix FS = e(first)
+. //      local F3 = FS[4,1]
+. //      local F5 = FS[4,2]
+. //
+. //      *========= var3 first stage ===================================================
+. //      estimates restore _ivreg2_var3
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F3') (`rkf') (`N_fs')
+. //      }
+. //
+. //      *========= var5 first stage ===================================================
+. //      estimates restore _ivreg2_var5
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F5') (`rkf') (`N_fs')
+. //      }
+. //
+. // }
+. //
+. // //-------------------------------------------------------------
+. // // Firm FE ("firm")
+. // //-------------------------------------------------------------
+. // local feopt "absorb(firm_id)"
+. // local tag   "firm"
+. //
+. // foreach y of local outcomes {
+. //     use "$processed_data/user_panel_`panel_variant'.dta", clear
+. //
+. //     display as text ">> FE spec: firm  (tag=`tag')"
+. //     display as text "   – outcome: `y'"
+. //
+. //     summarize `y' if covid == 0, meanonly
+. //     local pre_mean = r(mean)
+. //
+. //     // OLS
+. //      reghdfe `y' var3 var5 var4 covid, ///
+. //         `feopt' vce(cluster user_id)
+. //      
+. //      local N   = e(N)
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (.) (`N')
+. //     }
+. //
+. //     // IV (2nd stage)
+. //      ivreghdfe ///
+. //         `y' (var3 var5 = var6 var7) var4 covid, ///
+. //         `feopt' vce(cluster user_id) savefirst
+. //              
+. //     local rkf = e(rkf)
+. //      local N   = e(N)
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (`rkf') (`N')
+. //     }
+. //
+. //      *--- pull partial F's from the stacked matrix
+. //      matrix FS = e(first)
+. //      local F3 = FS[4,1]
+. //      local F5 = FS[4,2]
+. //
+. //      *========= var3 first stage ===================================================
+. //      estimates restore _ivreg2_var3
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F3') (`rkf') (`N_fs')
+. //      }
+. //
+. //      *========= var5 first stage ===================================================
+. //      estimates restore _ivreg2_var5
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F5') (`rkf') (`N_fs')
+. //      }
+. //
+. // }
+. //
+. // //-------------------------------------------------------------
+. // // No FE ("none")
+. // //-------------------------------------------------------------
+. // local feopt ""
+. // local tag   "none"
+. //
+. // foreach y of local outcomes {
+. //     use "$processed_data/user_panel_`panel_variant'.dta", clear
+. //      
+. //      gen var8 = remote * startup
+. //     gen var9 = teleworkable*startup
+. //
+. //     summarize `y' if covid == 0, meanonly
+. //     local pre_mean = r(mean)
+. //
+. //     display as text ">> FE spec: none  (tag=`tag')"
+. //     display as text "   – outcome: `y'"
+. //
+. //     // OLS
+. //     reghdfe `y' var3 var5 var4 remote startup var8 covid, ///
+. //         absorb() vce(cluster user_id)
+. //              
+. //      local N   = e(N)
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (.) (`N')
+. //     }
+. //
+. //     // IV (2nd stage)
+. //     ivreghdfe ///
+. //         `y' (var3 var5 var8 remote = var6 var7 var9 teleworkable) var4 startup covid, ///
+. //         absorb() vce(cluster user_id) savefirst
+. //     local rkf = e(rkf)
+. //      local N   = e(N)
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (`rkf') (`N')
+. //     }
+. //
+. //      *--- pull partial F's from the stacked matrix
+. //      matrix FS = e(first)
+. //      local F3 = FS[4,1]
+. //      local F5 = FS[4,2]
+. //
+. //      *========= var3 first stage ===================================================
+. //      estimates restore _ivreg2_var3
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F3') (`rkf') (`N_fs')
+. //      }
+. //
+. //      *========= var5 first stage ===================================================
+. //      estimates restore _ivreg2_var5
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F5') (`rkf') (`N_fs')
+. //      }
+. //
+. // }
+. //
+. //
+. //
+. // local feopt "absorb(firm_id user_id industry_id#yh)"
+. // local tag   "industrytime"
+. //
+. //
+. // foreach y of local outcomes {
+. //     use "$processed_data/user_panel_`panel_variant'.dta", clear
+. //     display as text ">> FE spec: (tag=`tag')"
+. //     display as text "   – outcome: `y'"
+. //
+. //     summarize `y' if covid == 0, meanonly
+. //     local pre_mean = r(mean)
+. //
+. //     // OLS
+. //      reghdfe `y' var3 var5 var4, ///
+. //         `feopt' vce(cluster user_id)
+. //              
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (.) (`N')
+. //     }
+. //
+. //     // IV (2nd stage)
+. //      ivreghdfe ///
+. //         `y' (var3 var5 = var6 var7) var4, ///
+. //         `feopt' vce(cluster user_id) savefirst
+. //    
+. //      local rkf = e(rkf)
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (`rkf') (`N')
+. //     }
+. //      
+. //      *--- pull partial F's from the stacked matrix
+. //      matrix FS = e(first)
+. //      local F3 = FS[4,1]
+. //      local F5 = FS[4,2]
+. //
+. //      *========= var3 first stage ===================================================
+. //      estimates restore _ivreg2_var3
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F3') (`rkf') (`N_fs')
+. //      }
+. //
+. //      *========= var5 first stage ===================================================
+. //      estimates restore _ivreg2_var5
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F5') (`rkf') (`N_fs')
+. //      }
+. //
+. // }
+. //
+. //
+. // local feopt "absorb(firm_id user_id msa_id#yh)"
+. // local tag   "msatime"
+. //
+. //
+. // foreach y of local outcomes {
+. //     use "$processed_data/user_panel_`panel_variant'.dta", clear
+. //     display as text ">> FE spec: (tag=`tag')"
+. //     display as text "   – outcome: `y'"
+. //
+. //     summarize `y' if covid == 0, meanonly
+. //     local pre_mean = r(mean)
+. //
+. //     // OLS
+. //      reghdfe `y' var3 var5 var4, ///
+. //         `feopt' vce(cluster user_id)
+. //              
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (.) (`N')
+. //     }
+. //
+. //     // IV (2nd stage)
+. //      ivreghdfe ///
+. //         `y' (var3 var5 = var6 var7) var4, ///
+. //         `feopt' vce(cluster user_id) savefirst
+. //    
+. //      local rkf = e(rkf)
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (`rkf') (`N')
+. //     }
+. //      
+. //      *--- pull partial F's from the stacked matrix
+. //      matrix FS = e(first)
+. //      local F3 = FS[4,1]
+. //      local F5 = FS[4,2]
+. //
+. //      *========= var3 first stage ===================================================
+. //      estimates restore _ivreg2_var3
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F3') (`rkf') (`N_fs')
+. //      }
+. //
+. //      *========= var5 first stage ===================================================
+. //      estimates restore _ivreg2_var5
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F5') (`rkf') (`N_fs')
+. //      }
+. //
+. // }
+. //
+. //
+. //
+. //
+. // local feopt "absorb(firm_id user_id msa_id#industry_id#yh)"
+. // local tag   "msaindustrytime"
+. //
+. //
+. // foreach y of local outcomes {
+. //     use "$processed_data/user_panel_`panel_variant'.dta", clear
+. //     display as text ">> FE spec: (tag=`tag')"
+. //     display as text "   – outcome: `y'"
+. //
+. //     summarize `y' if covid == 0, meanonly
+. //     local pre_mean = r(mean)
+. //
+. //     // OLS
+. //      reghdfe `y' var3 var5 var4, ///
+. //         `feopt' vce(cluster user_id)
+. //              
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                 post handle ("OLS") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (.) (`N')
+. //     }
+. //
+. //     // IV (2nd stage)
+. //      ivreghdfe ///
+. //         `y' (var3 var5 = var6 var7) var4, ///
+. //         `feopt' vce(cluster user_id) savefirst
+. //    
+. //      local rkf = e(rkf)
+. //      local N = e(N)  
+. //      
+. //     foreach p in var3 var5 var4 {
+. //         local b    = _b[`p']
+. //         local se   = _se[`p']
+. //         local t    = `b'/`se'
+. //         local pval = 2*ttail(e(df_r), abs(`t'))
+. //                 post handle ("IV") ("`tag'") ("`y'") ("`p'") ///
+. //                                         (`b') (`se') (`pval') (`pre_mean') ///
+. //                                         (`rkf') (`N')
+. //     }
+. //      
+. //      *--- pull partial F's from the stacked matrix
+. //      matrix FS = e(first)
+. //      local F3 = FS[4,1]
+. //      local F5 = FS[4,2]
+. //
+. //      *========= var3 first stage ===================================================
+. //      estimates restore _ivreg2_var3
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var3") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F3') (`rkf') (`N_fs')
+. //      }
+. //
+. //      *========= var5 first stage ===================================================
+. //      estimates restore _ivreg2_var5
+. //      local N_fs = e(N)
+. //
+. //      foreach p in var6 var7 var4 {
+. //              local b    = _b[`p']
+. //              local se   = _se[`p']
+. //              local t    = `b'/`se'
+. //              local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //              post handle_fs ("`tag'") ("`y'") ("var5") ("`p'") ///
+. //                                              (`b') (`se') (`pval') ///
+. //                                              (`F5') (`rkf') (`N_fs')
+. //      }
+. //
+. // }
+. //
 . 
 . 
 . 
@@ -2001,5 +1802,5 @@ file ../results/raw/user_productivity_alternative_fe_precovid/first_stage_fstats
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_alternative_fe_precovid.log
   log type:  text
- closed on:  12 Jun 2025, 11:14:15
+ closed on:  22 Jun 2025, 18:17:44
 -----------------------------------------------------------------------------------------------------------------------------------------

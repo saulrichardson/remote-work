@@ -1,29 +1,30 @@
-% Auto-generated firm scaling table
-
 \begin{table}[H]
 \centering
-\caption{Firm Scaling OLS}
-\label{tab:firm_scaling_ols}
+{\scriptsize\centering
+  \caption{Firm Scaling — OLS}
+  \label{tab:firm_scaling_ols}
+}
 \centering
+{\scriptsize%
+\setlength{\tabcolsep}{3pt}%
+\renewcommand{\arraystretch}{0.95}%
+\begin{adjustbox}{max width=\linewidth, max height=0.9\textheight, center}%
 
-    \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}ccccc@{}}
+    \begin{tabularx}{\linewidth}{l@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}}
     \toprule
-    \multicolumn{6}{@{}l}{\textbf{\uline{Panel A: Growth}}}\\
-\addlinespace
-
-
-     & (1) & (2) & (3) & (4) & (5) \\
+     & (1) & (2) & (3) & (4) \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.013**\\(0.005)} & \makecell[c]{0.003\\(0.005)} & \makecell[c]{-0.003\\(0.006)} & \makecell[c]{-0.000\\(0.007)} & \makecell[c]{-0.004\\(0.011)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{0.068***\\(0.024)} & \makecell[c]{0.075***\\(0.024)} & \makecell[c]{0.078***\\(0.027)} & \makecell[c]{0.088**\\(0.035)} \\
+     & \makecell[c]{Growth\\(wins.)} & \makecell[c]{Growth\\(wins.)} & \makecell[c]{Join\\(wins.)} & \makecell[c]{Leave\\(wins.)} \\
     \midrule
-    Time FE & $\checkmark$ & $\checkmark$ &  &  &  \\
-Firm FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-Industry $\times$ Time FE &  &  & $\checkmark$ &  & $\checkmark$ \\
-HQ $\times$ Time FE &  &  &  & $\checkmark$ & $\checkmark$ \\
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.01**\\(0.01)} & \makecell[c]{0.00\\(0.00)} & \makecell[c]{0.01**\\(0.00)} & \makecell[c]{0.02***\\(0.00)} \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{0.07***\\(0.02)} & \makecell[c]{0.05*\\(0.03)} & \makecell[c]{-0.01\\(0.01)} \\
     \midrule
-    N & 41,742 & 41,742 & 41,406 & 33,537 & 23,866 \\
+    Time FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Firm FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    \midrule
+    Pre-COVID mean & 0.11 & 0.11 & 0.25 & 0.14 \\
+    N & 41,742 & 41,742 & 41,742 & 41,742 \\
 
-    \specialrule{\lightrulewidth}{0pt}{0pt}
-    \end{tabular*}
+    \bottomrule
+    \end{tabularx}\end{adjustbox}}
 \end{table}

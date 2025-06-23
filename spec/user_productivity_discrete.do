@@ -6,7 +6,7 @@
 
 args panel_variant treat
 if "`panel_variant'" == "" local panel_variant "precovid"
-if "`treat'"         == "" local treat         "fullremote"
+if "`treat'"         == "" local treat         "hybrid"
 
 
 local specname user_productivity_`panel_variant'_`treat'
@@ -82,12 +82,12 @@ foreach y of local outcomes {
     local pre_mean = r(mean)
 
     // ----- OLS -----
-    reghdfe `y' `v3' `v5' var4, absorb(user_id firm_id yh) ///
+    reghdfe `y' `v3' `v5' var4, absorb(user_id#firm_id yh) ///
         vce(cluster user_id)
 		
 	local N = e(N) 
 	
-    foreach p in v3 v5 var4 {
+    foreach p in `v3' `v5' var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
@@ -101,12 +101,12 @@ foreach y of local outcomes {
     // ----- IV (2nd‐stage) -----
     ivreghdfe ///
          `y' (`v3' `v5' = var6 var7) var4, ///
-        absorb(user_id firm_id yh) vce(cluster user_id) savefirst
+        absorb(user_id#firm_id yh) vce(cluster user_id) savefirst
 		
     local rkf = e(rkf)
 	local N = e(N) 
 	
-    foreach p in v3 v5 var4 {
+    foreach p in `v3' `v5' var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'

@@ -8,41 +8,21 @@
 
     \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
     \toprule
-    \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: Total Contrib. (pct. rk)}}}\\
-\addlinespace
-
-
      & (1) & (2) & (3) & (4) & (5) & (6) \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{13.54***\\(1.86)} & \makecell[c]{14.89***\\(2.09)} & \makecell[c]{13.03***\\(2.13)} & \makecell[c]{17.49***\\(3.74)} & \makecell[c]{15.18***\\(2.09)} & \makecell[c]{12.48**\\(4.97)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{-10.08***\\(3.89)} & \makecell[c]{-10.64***\\(3.93)} & \makecell[c]{-10.21***\\(3.72)} & \makecell[c]{-11.50***\\(3.98)} & \makecell[c]{-7.25*\\(4.13)} \\
+     & Total & Total & Total & Restr. & Total (wins.) & Restr. (wins.) \\
     \midrule
-    Time FE & $\checkmark$ & $\checkmark$ & $\checkmark$ &  &  &  \\
-Firm FE & $\checkmark$ & $\checkmark$ &  & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-User FE & $\checkmark$ & $\checkmark$ &  & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-Firm $\times$ User FE &  &  & $\checkmark$ &  &  &  \\
-Industry $\times$ Time FE &  &  &  & $\checkmark$ &  & $\checkmark$ \\
-MSA $\times$ Time FE &  &  &  &  & $\checkmark$ & $\checkmark$ \\
+    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{13.54***\\(1.86)} & \makecell[c]{14.89***\\(2.09)} & \makecell[c]{13.03***\\(2.13)} &  &  &  \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{-10.08***\\(3.89)} & \makecell[c]{-10.64***\\(3.93)} &  &  &  \\
     \midrule
-    N & 1,226,001 & 1,226,001 & 1,209,078 & 1,218,407 & 1,225,589 & 1,208,970 \\
-KP rk Wald F & 1654.39 & 664.98 & 589.48 & 352.13 & 714.73 & 220.97 \\
-    \specialrule{\lightrulewidth}{0pt}{0pt}
-    \end{tabularx}
-
-    \begin{tabularx}{\dimexpr\textwidth + 2cm\relax}{@{}l@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{\hskip 8pt}>{\centering\arraybackslash}X@{}}
-
-    \multicolumn{4}{@{}l}{\textbf{\uline{Panel B: Additional Outcomes}}}\\
-\addlinespace
-     & \multicolumn{3}{c}{Outcome} \\
-    \cmidrule(lr){2-4}
-     & Restricted (pct. rk) & Total (wins.) & Restr. (wins.) \\
+    Time FE & $\\checkmark$ & $\\checkmark$ & $\\checkmark$ & $\\checkmark$ & $\\checkmark$ & $\\checkmark$ \\
+Firm FE & $\\checkmark$ & $\\checkmark$ &  &  &  &  \\
+User FE & $\\checkmark$ & $\\checkmark$ &  &  &  &  \\
+Firm $\times$ User FE &  &  & $\\checkmark$ & $\\checkmark$ & $\\checkmark$ & $\\checkmark$ \\
     \midrule
-    $ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.01\\(0.90)} & \makecell[c]{-0.39\\(3.58)} & \makecell[c]{-1.83\\(1.99)} \\
-$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{4.61**\\(2.13)} & \makecell[c]{12.83\\(11.74)} & \makecell[c]{14.22*\\(7.32)} \\
-    \midrule
-    Pre-COVID mean & 16.32 & 34.87 & 15.82 \\
-    N & 1,226,001 & 1,226,001 & 1,226,001 \\
-    KP rk Wald F & 664.98 & 664.98 & 664.98 \\
+    Pre-COVID mean & 38.95 & 38.95 & 38.95 &  &  &  \\
+    N & 1,226,001 & 1,226,001 & 1,209,078 &  &  &  \\
+    KP rk Wald F & 1654.39 & 664.98 & 589.48 &  &  &  \\
     \bottomrule
     \end{tabularx}
 \end{table}

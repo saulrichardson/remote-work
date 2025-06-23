@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_scaling_fullremote.log
   log type:  text
- opened on:  19 Jun 2025, 00:39:59
+ opened on:  19 Jun 2025, 09:03:22
 
 . 
 . local result_dir "$results/`specname'"
@@ -79,7 +79,7 @@
   6.         
 .         local N = e(N) 
   7. 
-.     foreach p in var3 var5 var4 {
+.     foreach p in `v3' `v5' var4 {
   8.         local b    = _b[`p']
   9.         local se   = _se[`p']
  10.         local t    = `b'/`se'
@@ -97,7 +97,7 @@
 .     local rkf   = e(rkf)
  16.         local N = e(N) 
  17. 
-.     foreach p in var3 var5 var4 {
+.     foreach p in `v3' `v5' var4 {
  18.         local b    = _b[`p']
  19.         local se   = _se[`p']
  20.         local t    = `b'/`se'
@@ -124,7 +124,7 @@
  33.                         local t    = `b'/`se'
  34.                         local pval = 2*ttail(e(df_r), abs(`t'))
  35. 
-.                         post handle_fs ("var3") ("`p'") ///
+.                         post handle_fs ("v3") ("`p'") ///
 >                                                         (`b') (`se') (`pval') ///
 >                                                         (`F3') (`rkf') (`N_fs')
  36.                 }
@@ -138,7 +138,7 @@
  42.                         local t    = `b'/`se'
  43.                         local pval = 2*ttail(e(df_r), abs(`t'))
  44. 
-.                         post handle_fs ("var5") ("`p'") ///
+.                         post handle_fs ("v5") ("`p'") ///
 >                                                         (`b') (`se') (`pval') ///
 >                                                         (`F5') (`rkf') (`N_fs')
  45.                 }
@@ -444,7 +444,6 @@ Absorbed degrees of freedom:
 
 . export delimited using "`result_dir'/consolidated_results.csv", ///
 >     replace delimiter(",") quote
-(file ../results/raw/firm_scaling_fullremote/consolidated_results.csv not found)
 file ../results/raw/firm_scaling_fullremote/consolidated_results.csv saved
 
 . 
@@ -455,7 +454,6 @@ file ../results/raw/firm_scaling_fullremote/consolidated_results.csv saved
 
 . export delimited using "`result_dir'/first_stage.csv", ///
 >         replace delimiter(",") quote
-(file ../results/raw/firm_scaling_fullremote/first_stage.csv not found)
 file ../results/raw/firm_scaling_fullremote/first_stage.csv saved
 
 . 
@@ -468,42 +466,33 @@ file ../results/raw/firm_scaling_fullremote/first_stage.csv saved
 . 
 end of do-file
 
+. do "/Users/saul/Dropbox/Remote Work Startups/main/src/build_firm_panel.do"
+
+. 
+. do "globals.do"
+file globals.do not found
+r(601);
+
+end of do-file
+
+r(601);
+
 . do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD97664.000000"
 
-. *============================================================*
-. *  do/firm_scaling_regressions.do
-. *  — Automated export of OLS, IV, and first‐stage partial F's
-. *============================================================*
 . 
-. args  treat
+. * --------------------------------------------------------------------------
+. * 0) Parse optional variant argument *before* sourcing globals --------------
+. * --------------------------------------------------------------------------
+. 
+. 
+. args panel_variant treat
+
+. if "`panel_variant'" == "" local panel_variant "precovid"
 
 . if "`treat'"         == "" local treat         "hybrid"
 
 . 
-. // 0) Setup environment
-. do "../src/globals.do"
-
-. global raw_data "../data/raw"
-
-. global processed_data  "../data/processed"
-
-. global results "../results/raw"
-
-. global clean_results "../results/cleaned"
-
 . 
-. 
-. 
-. 
-. 
-end of do-file
-
-. 
-. // 1) Load master panel
-. use "$processed_data/firm_panel.dta", clear
-
-. 
-. // 2) Prepare output dir & tempfile
-. local specname   firm_scaling_`treat'
+. local specname user_productivity_`panel_variant'_`treat'
 
 . capture log close
