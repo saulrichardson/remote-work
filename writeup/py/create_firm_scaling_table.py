@@ -173,8 +173,8 @@ def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {ind_rows}
     {MID}
     {pre_mean_row}
-    {obs_row}
     {kp_row}
+    {obs_row}
     {BOTTOM}
     \end{{{TABLE_ENV}}}""")
 

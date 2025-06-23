@@ -201,6 +201,11 @@ PREAMBLE_FLEX = r"""{\scriptsize%
 """
 POSTAMBLE_FLEX = r"""\end{adjustbox}}"""
 
+PREAMBLE_FLEX = r"""\small
+\setlength{\tabcolsep}{3pt}%
+"""
+POSTAMBLE_FLEX = ""  # no extra wrapper needed
+
 def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     """Return LaTeX code for a single‐panel table with six columns defined in
     COL_CONFIG.  Each tuple in COL_CONFIG is (outcome, fe_tag)."""
@@ -271,9 +276,9 @@ def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
 {MID}
 {ind_rows}
 {MID}
-{pre_mean_row}
-{obs_row}
-{kp_row}
+    {pre_mean_row}
+    {kp_row}
+    {obs_row}
 {BOTTOM}
 \end{{{TABLE_ENV}}}""")
 

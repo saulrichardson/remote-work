@@ -215,8 +215,8 @@ def build_panel_base(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {coef_block}
     {MID}
     {pre_mean_row}
-    {obs_row}
     {kp_row}
+    {obs_row}
     {bottom}
     \end{{tabular*}}""")
 
