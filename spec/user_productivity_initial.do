@@ -2,13 +2,13 @@
 *  user_productivity_initial.do
 *  — Baseline spec (no startup × remote interaction) for worker
 *    productivity.  Accepts *optional* first argument selecting the user
-*    panel variant (unbalanced | balanced | precovid).  Default = unbalanced.
+*    panel variant (unbalanced | balanced | precovid).  Default = precovid.
 *    Example: do user_productivity_initial.do balanced
 *============================================================*
 
 * Parse variant argument ----------------------------------------------------
 args panel_variant
-if "`panel_variant'" == "" local panel_variant "unbalanced"
+if "`panel_variant'" == "" local panel_variant "precovid"
 local specname user_productivity_initial_`panel_variant'
 capture log close
 cap mkdir "log"

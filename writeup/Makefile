@@ -166,10 +166,14 @@ mini-report:
 # -------------------------------------------------------------------------
 
 deploy-mini:
-	@echo "Syncing mini report to Overleaf Dropbox folder…"
-	@mkdir -p $(DEST_PAPER)
+	@echo "Sync mini-report PDF & tables to Overleaf Dropbox folder…"
+	@mkdir -p $(DEST_PAPER) $(DEST_TABLES)
 	@cp $(FINAL)/mini-report.pdf $(DEST_PAPER)/
+	@for t in $(MINI_TABLES); do \
+		cp $(TABLE_SRC)/$$t.tex $(DEST_TABLES)/; \
+	done
 	@echo "→ mini-report.pdf copied to $(DEST_PAPER)"
+	@echo "→ mini-report tables copied to $(DEST_TABLES)"
 
 clean:
 	@rm -rf $(BUILD) $(SRC)/_minted-README $(BUILD)/_minted-README
@@ -243,11 +247,25 @@ report:
 # Location (inside Dropbox-synced Overleaf folder) where generated PDFs should be
 # copied.  Previously we stored them in a sub-folder named “Paper/”; this has now
 # been renamed to “reports/” to avoid confusion with the LaTeX source itself.
-DEST_PAPER  := "/Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current/reports"
-DEST_TABLES := "/Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current/Tables"
+DEST_PAPER  := /Users/saul/Dropbox/Apps/Overleaf/WFH\ Startups/Current/reports
+DEST_TABLES := /Users/saul/Dropbox/Apps/Overleaf/WFH\ Startups/Current/Tables
 
 # Source directory for cleaned LaTeX tables (relative to *this* Makefile)
 TABLE_SRC   := ../results/cleaned
+
+# List of cleaned LaTeX tables used by the mini-report; only these are synced
+MINI_TABLES := table_of_means \
+               user_productivity_precovid_ols \
+               user_productivity_precovid_iv \
+               user_productivity_precovid_first_stage \
+               user_mechanisms_lean_precovid \
+               user_mechanisms_lean_binned_precovid \
+               user_mechanisms_precovid \
+               user_mechanisms_binned_precovid \
+               firm_scaling_ols \
+               firm_scaling_iv \
+               firm_scaling_first_stage \
+               remote_first_stage
 
 # Ensure report is up-to-date, then copy files.
 deploy:

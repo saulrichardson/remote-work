@@ -1,5 +1,7 @@
+* 0) Parse optional panel variant argument ----------------------------------
+*    Accepts:  unbalanced | balanced | precovid  (default = precovid)
 args panel_variant
-if "`panel_variant'" == "" local panel_variant "unbalanced"
+if "`panel_variant'" == "" local panel_variant "precovid"
 do "../src/globals.do"
 
 *---------------------------------------------------------------------------*

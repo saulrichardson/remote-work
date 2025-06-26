@@ -7,7 +7,7 @@
 capture log close
 cap mkdir "log"
 
-* 0) Optional panel variant argument (default: unbalanced) -------------
+* 0) Optional panel variant argument (default: precovid) -------------
 args panel_variant
 if "`panel_variant'" == "" local panel_variant "precovid"
 

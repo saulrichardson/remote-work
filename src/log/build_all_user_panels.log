@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_all_user_panels.log
   log type:  text
- opened on:  18 Jun 2025, 23:38:19
+ opened on:  26 Jun 2025, 11:04:31
 
 . 
 . ****************************************************************************
@@ -29,6 +29,29 @@ end of do-file
 . ****************************************************************************
 . * 1.  Build the *full* (unfiltered) master panel
 . ****************************************************************************
+. 
+. // use "$raw_data/All_Contributions_month.dta", clear
+. // keep if year == 2016
+. // gen half = ceil(month/6)
+. // gen yh   = yh(year, half)
+. // format yh %th
+. //
+. // collapse (sum) totalcontribution (sum) restrictedcontributionscount, by(user_id yh)
+. //
+. // tempfile user_yh_2016
+. // save     "`user_yh_2016'", replace
+. //
+. // use "$processed_data/expanded_half_years_2.dta", clear
+. // keep if y == 2016
+. // keep user_id companyname yh
+. //
+. // duplicates tag user_id yh, gen(dup_tag)
+. // keep if dup_tag==0
+. // drop dup_tag
+. //
+. // merge 1:1 user_id yh using "`user_yh_2016'", keep(3) nogen
+. //
+. // save   "`user_yh_2016'", replace
 . 
 . *----------------------------------------------------------
 . * 1.1  User-level contributions (historic)
@@ -69,8 +92,8 @@ end of do-file
 . tempfile user_yh
 
 . save     "`user_yh'", replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000001 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000001 saved as .dta format
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 saved as .dta format
 
 . 
 . *----------------------------------------------------------
@@ -114,8 +137,8 @@ month: all characters numeric; replaced as byte
 . tempfile user_yh_new
 
 . save     "`user_yh_new'", replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000002 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000002 saved as .dta format
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 saved as .dta format
 
 . 
 . * attach company names -----------------------------------------------------
@@ -134,6 +157,8 @@ Duplicates in terms of user_id yh
 . keep if dup_tag==0
 (13,406 observations deleted)
 
+. drop dup_tag
+
 . 
 . merge 1:1 user_id yh using "`user_yh_new'", keep(3) nogen
 
@@ -146,8 +171,9 @@ Duplicates in terms of user_id yh
 . 
 . append using "`user_yh'"
 
+. // append using "`user_yh_2016'"
 . save   "`user_yh'", replace
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000001 saved as .dta format
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 saved as .dta format
 
 . 
 . 
@@ -202,8 +228,8 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000001 saved as .
 . tempfile snapshot_clean
 
 . save     "`snapshot_clean'", replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000003 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000003 saved as .dta format
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 saved as .dta format
 
 . 
 . *----------------------------------------------------------
@@ -232,7 +258,7 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000003 saved as .
 
 . 
 . save "`snapshot_clean'", replace
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000003 saved as .dta format
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 saved as .dta format
 
 . 
 . *----------------------------------------------------------
@@ -270,8 +296,8 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000003 saved as .
 . tempfile _lease
 
 . save     "`_lease'", replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000004 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000004 saved as .dta format
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 saved as .dta format
 
 . 
 . use "`snapshot_clean'", clear
@@ -404,8 +430,8 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000004 saved as .
 . tempfile _master_panel
 
 . save     "`_master_panel'", replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000005 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000005 saved as .dta format
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 saved as .dta format
 
 . 
 . ****************************************************************************
@@ -506,5 +532,5 @@ file ../data/samples/user_panel_precovid.csv saved
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_all_user_panels.log
   log type:  text
- closed on:  18 Jun 2025, 23:41:08
+ closed on:  26 Jun 2025, 11:07:24
 -----------------------------------------------------------------------------------------------------------------------------------------

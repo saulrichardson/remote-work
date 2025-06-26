@@ -20,14 +20,11 @@ PROJECT_ROOT = HERE.parents[1]
 
 
 
-DEFAULT_VARIANT = "unbalanced"
-
-# The variant identifier is injected further below once CLI arguments have
-# been parsed.  We build the path *templates* here so that the rest of the
-# script can stay untouched.
-
 SPEC_BASE = "user_productivity"
 RAW_DIR = PROJECT_ROOT / "results" / "raw"
+
+# Default sample variant for the script (pre-covid user panel)
+DEFAULT_VARIANT = "precovid"
 
 PARAM_ORDER = ["var3", "var5"]
 PARAM_LABEL = {
@@ -186,14 +183,9 @@ OUTCOME_SHORT = {
     "restricted_contributions_we":   r"\makecell[c]{Restr.\\(wins.)}",
 }
 
-# ---------------------------------------------------------------------------
-# Panel B builder (additional outcomes) – restrict to *firm × user* FE
-# ---------------------------------------------------------------------------
-
-FIRMUSER_TAG = "firmbyuseryh"  # tag used in Stata for firm × user + year FE
-
-
-
+## ---------------------------------------------------------------------------
+## Mini-report table preamble (small font, tight spacing, adjustbox wrapper)
+## ---------------------------------------------------------------------------
 PREAMBLE_FLEX = r"""{\scriptsize%
 \setlength{\tabcolsep}{3pt}%
 \renewcommand{\arraystretch}{0.95}%
@@ -201,11 +193,9 @@ PREAMBLE_FLEX = r"""{\scriptsize%
 """
 POSTAMBLE_FLEX = r"""\end{adjustbox}}"""
 
-PREAMBLE_FLEX = r"""\small
-\setlength{\tabcolsep}{3pt}%
-"""
-POSTAMBLE_FLEX = ""  # no extra wrapper needed
-
+## ---------------------------------------------------------------------------
+## Single‐panel builder
+## ---------------------------------------------------------------------------
 def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     """Return LaTeX code for a single‐panel table with six columns defined in
     COL_CONFIG.  Each tuple in COL_CONFIG is (outcome, fe_tag)."""

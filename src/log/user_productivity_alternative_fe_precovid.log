@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_alternative_fe_precovid.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/user_productivity_alternative_fe_precovid.log
   log type:  text
- opened on:  26 Jun 2025, 10:47:52
+ opened on:  26 Jun 2025, 11:11:21
 
 . 
 . // 0) Setup environment
@@ -1800,7 +1800,7 @@ file ../results/raw/user_productivity_alternative_fe_precovid/first_stage_fstats
 . 
 . log close
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_alternative_fe_precovid.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/user_productivity_alternative_fe_precovid.log
   log type:  text
- closed on:  26 Jun 2025, 10:49:56
+ closed on:  26 Jun 2025, 11:13:22
 -----------------------------------------------------------------------------------------------------------------------------------------

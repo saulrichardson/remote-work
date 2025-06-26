@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/user_productivity_precovid.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/user_productivity_initial_precovid.log
   log type:  text
- opened on:  26 Jun 2025, 11:08:50
+ opened on:  26 Jun 2025, 11:11:01
 
 . 
 . // 0) Setup environment
@@ -30,10 +30,8 @@ end of do-file
 . 
 . // 2) Prepare output dir & reset any old postfile
 . *--------------------------------------------------------------------------*
-. * Results are now *always* written to <specname> _<panel‐variant> (e.g.,
-. *   "user_productivity_unbalanced") so the output folder unambiguously states
-. * which user‐panel sample was used.  No silent fallback for the default
-. * sample.
+. * Output directory is *always* suffixed with the panel variant so each run is
+. * explicit about the underlying sample (e.g., "user_productivity_initial_balanced").
 . *--------------------------------------------------------------------------*
 . 
 . local result_dir  "$results/`specname'"
@@ -65,8 +63,8 @@ end of do-file
 . capture postclose handle_fs
 
 . postfile handle_fs ///
->     str8   endovar            ///  var3 / var5
->     str40  param              ///  var6 / var7 / var4
+>     str8   endovar            ///
+>     str40  param              /// 
 >     double coef se pval       ///
 >     double partialF rkf nobs  ///
 >     using `out_fs', replace
@@ -74,11 +72,8 @@ end of do-file
 
 .         
 . // 3) Loop over outcomes
-. // Include percentile-rank and Winsorized versions of the contribution
-. // measures
 . local outcomes total_contributions_q100 
 
-. // restricted_contributions_q100 total_contributions_we restricted_contributions_we
 . local fs_done 0
 
 . 
@@ -89,12 +84,12 @@ end of do-file
   4.     local pre_mean = r(mean)
   5. 
 .     // ----- OLS -----
-.     reghdfe `y' var3 var5 var4, absorb(user_id firm_id yh) ///
+.     reghdfe `y' var3 var4, absorb(user_id firm_id yh) ///
 >         vce(cluster user_id)
   6.                 
 .         local N = e(N) 
   7.         
-.     foreach p in var3 var5 var4 {
+.     foreach p in var3 var4 {
   8.         local b    = _b[`p']
   9.         local se   = _se[`p']
  10.         local t    = `b'/`se'
@@ -107,13 +102,13 @@ end of do-file
  14. 
 .     // ----- IV (2nd‐stage) -----
 .     ivreghdfe ///
->         `y' (var3 var5 = var6 var7) var4, ///
+>         `y' (var3 = var6) var4, ///
 >         absorb(user_id firm_id yh) vce(cluster user_id) savefirst
  15.                 
 .     local rkf = e(rkf)
  16.         local N = e(N) 
  17.         
-.     foreach p in var3 var5 var4 {
+.     foreach p in var3 var4 {
  18.         local b    = _b[`p']
  19.         local se   = _se[`p']
  20.         local t    = `b'/`se'
@@ -128,60 +123,45 @@ end of do-file
  25.                 
 .                 matrix FS = e(first)
  26.         local F3 = FS[4,1]
- 27.         local F5 = FS[4,2]
- 28. 
+ 27. 
 .                 /* -------- var3 first stage -------------------------------- */
 .                 estimates restore _ivreg2_var3
- 29.                 local N_fs = e(N)
- 30.                 foreach p in var6 var7 var4 {
- 31.                         local b    = _b[`p']
- 32.                         local se   = _se[`p']
- 33.                         local t    = `b'/`se'
- 34.                         local pval = 2*ttail(e(df_r), abs(`t'))
- 35. 
+ 28.                 local N_fs = e(N)
+ 29.                 foreach p in var6 var4 {
+ 30.                         local b    = _b[`p']
+ 31.                         local se   = _se[`p']
+ 32.                         local t    = `b'/`se'
+ 33.                         local pval = 2*ttail(e(df_r), abs(`t'))
+ 34. 
 .                         post handle_fs ("var3") ("`p'") ///
 >                                                         (`b') (`se') (`pval') ///
 >                                                         (`F3') (`rkf') (`N_fs')
- 36.                 }
- 37. 
-.                 /* -------- var5 first stage -------------------------------- */
-.                 estimates restore _ivreg2_var5
- 38.                 local N_fs = e(N)
- 39.                 foreach p in var6 var7 var4 {
- 40.                         local b    = _b[`p']
- 41.                         local se   = _se[`p']
- 42.                         local t    = `b'/`se'
- 43.                         local pval = 2*ttail(e(df_r), abs(`t'))
- 44. 
-.                         post handle_fs ("var5") ("`p'") ///
->                                                         (`b') (`se') (`pval') ///
->                                                         (`F5') (`rkf') (`N_fs')
- 45.                 }
- 46. 
+ 35.                 }
+ 36. 
+. 
 .                 local fs_done 1
- 47.         }
- 48. }
+ 37.         }
+ 38. }
 → Processing outcome: total_contributions_q100
 (dropped 1443 singleton observations)
 (MWFE estimator converged in 80 iterations)
 
 HDFE Linear regression                            Number of obs   =    229,862
-Absorbing 3 HDFE groups                           F(   3,  35788) =      11.67
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+Absorbing 3 HDFE groups                           F(   2,  35788) =       8.83
+Statistics robust to heteroskedasticity           Prob > F        =     0.0001
                                                   R-squared       =     0.6838
                                                   Adj R-squared   =     0.6213
-                                                  Within R-sq.    =     0.0004
-Number of clusters (user_id) =     35,789         Root MSE        =    18.4409
+                                                  Within R-sq.    =     0.0002
+Number of clusters (user_id) =     35,789         Root MSE        =    18.4426
 
                            (Std. err. adjusted for 35,789 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -1.032798   .4818263    -2.14   0.032    -1.977192   -.0884035
-        var5 |   5.175073   1.236242     4.19   0.000     2.752001    7.598144
-        var4 |  -5.526524   1.065824    -5.19   0.000    -7.615571   -3.437477
-       _cons |   50.13249   .1467355   341.65   0.000     49.84489     50.4201
+        var3 |   -.277141   .4449311    -0.62   0.533    -1.149219    .5949374
+        var4 |  -1.286031     .33232    -3.87   0.000    -1.937389   -.6346741
+       _cons |   49.90842   .1359494   367.11   0.000     49.64196    50.17489
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -202,8 +182,7 @@ Stored estimation results
              |           Dependent  Number of        
         Name | Command    variable     param.  Title 
 -------------+-------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
+_ivreg2_var3 | ivreg2         var3          2  First-stage regression: var3
 ---------------------------------------------------------------------------
 
 IV (2SLS) estimation
@@ -213,38 +192,37 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   35789                Number of obs =   229862
-                                                      F(  3, 35788) =     7.03
+                                                      F(  2, 35788) =     9.48
                                                       Prob > F      =   0.0001
-Total (centered) SS     =  65286353.41                Centered R2   =  -0.0014
-Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0014
-Residual SS             =  65377411.43                Root MSE      =    16.94
+Total (centered) SS     =  65286353.41                Centered R2   =  -0.0004
+Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0004
+Residual SS             =  65313979.12                Root MSE      =    16.94
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -7.151334   3.898685    -1.83   0.067    -14.79287    .4902066
-        var5 |   9.937201   5.370722     1.85   0.064    -.5895776    20.46398
-        var4 |  -8.364159    4.04877    -2.07   0.039    -16.29987    -.428447
+        var3 |  -3.609242   2.820541    -1.28   0.201    -9.137588    1.919105
+        var4 |  -.6319906   .6427621    -0.98   0.325    -1.891824    .6278425
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            266.393
+Underidentification test (Kleibergen-Paap rk LM statistic):            485.130
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1850.988
-                         (Kleibergen-Paap rk Wald F statistic):        140.597
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
+Weak identification test (Cragg-Donald Wald F statistic):             5804.156
+                         (Kleibergen-Paap rk Wald F statistic):        543.257
+Stock-Yogo weak ID test critical values: 10% maximal IV size             16.38
+                                         15% maximal IV size              8.96
+                                         20% maximal IV size              6.66
+                                         25% maximal IV size              5.53
 Source: Stock-Yogo (2005).  Reproduced by permission.
 NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
 ------------------------------------------------------------------------------
 Hansen J statistic (overidentification test of all instruments):         0.000
                                                  (equation exactly identified)
 ------------------------------------------------------------------------------
-Instrumented:         var3 var5
+Instrumented:         var3
 Included instruments: var4
-Excluded instruments: var6 var7
+Excluded instruments: var6
 Partialled-out:       _cons
                       nb: total SS, model F and R2s are after partialling-out;
                           any small-sample adjustments include partialled-out
@@ -261,7 +239,6 @@ Absorbed degrees of freedom:
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (results _ivreg2_var3 are active now)
-(results _ivreg2_var5 are active now)
 
 . 
 . // 4) Close & export to CSV
@@ -271,7 +248,7 @@ Absorbed degrees of freedom:
 
 . export delimited using "`result_dir'/consolidated_results.csv", ///
 >     replace delimiter(",") quote
-file ../results/raw/user_productivity_precovid/consolidated_results.csv saved
+file ../results/raw/user_productivity_initial_precovid/consolidated_results.csv saved
 
 . 
 . * --- write first-stage CSV -----------------------------------------
@@ -281,13 +258,13 @@ file ../results/raw/user_productivity_precovid/consolidated_results.csv saved
 
 . export delimited using "`result_dir'/first_stage.csv", ///
 >         replace delimiter(",") quote
-file ../results/raw/user_productivity_precovid/first_stage.csv saved
+file ../results/raw/user_productivity_initial_precovid/first_stage.csv saved
 
 . 
 . di as result "→ second-stage CSV : `result_dir'/consolidated_results.csv"
-→ second-stage CSV : ../results/raw/user_productivity_precovid/consolidated_results.csv
+→ second-stage CSV : ../results/raw/user_productivity_initial_precovid/consolidated_results.csv
 
 . di as result "→ first-stage  CSV : `result_dir'/first_stage.csv"
-→ first-stage  CSV : ../results/raw/user_productivity_precovid/first_stage.csv
+→ first-stage  CSV : ../results/raw/user_productivity_initial_precovid/first_stage.csv
 
 . capture log close

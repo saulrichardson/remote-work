@@ -9,7 +9,7 @@ cap mkdir "log"
 // Canonical user mechanism regression script (wage included by default)
 *---------------------------------------------------------------------------*
 * 0) Parse optional panel variant argument ----------------------------------
-*     Accepts:  unbalanced | balanced | precovid  (default = unbalanced)
+*     Accepts:  unbalanced | balanced | precovid  (default = precovid)
 *---------------------------------------------------------------------------*
 
 args panel_variant

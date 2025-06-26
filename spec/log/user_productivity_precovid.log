@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_precovid.log
   log type:  text
- opened on:  22 Jun 2025, 18:18:12
+ opened on:  26 Jun 2025, 10:59:49
 
 . 
 . // 0) Setup environment
@@ -53,7 +53,7 @@ end of do-file
 >     double coef se pval pre_mean ///
 >     double rkf nobs     ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46739.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 not found)
 
 . 
 . 
@@ -70,7 +70,7 @@ end of do-file
 >     double coef se pval       ///
 >     double partialF rkf nobs  ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46739.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 not found)
 
 .         
 . // 3) Loop over outcomes
@@ -162,39 +162,39 @@ end of do-file
  47.         }
  48. }
 → Processing outcome: total_contributions_q100
-(dropped 1267 singleton observations)
-(MWFE estimator converged in 77 iterations)
+(dropped 967 singleton observations)
+(MWFE estimator converged in 79 iterations)
 
-HDFE Linear regression                            Number of obs   =    245,105
-Absorbing 3 HDFE groups                           F(   3,  37156) =      12.03
+HDFE Linear regression                            Number of obs   =    256,179
+Absorbing 3 HDFE groups                           F(   3,  37493) =      12.31
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.6755
-                                                  Adj R-squared   =     0.6135
+                                                  R-squared       =     0.6661
+                                                  Adj R-squared   =     0.6049
                                                   Within R-sq.    =     0.0004
-Number of clusters (user_id) =     37,157         Root MSE        =    18.6180
+Number of clusters (user_id) =     37,494         Root MSE        =    18.8228
 
-                           (Std. err. adjusted for 37,157 clusters in user_id)
+                           (Std. err. adjusted for 37,494 clusters in user_id)
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -1.039558   .4851571    -2.14   0.032    -1.990479   -.0886367
-        var5 |   5.122111   1.246225     4.11   0.000     2.679475    7.564748
-        var4 |   -5.55272   1.073613    -5.17   0.000    -7.657033   -3.448408
-       _cons |   50.15585   .1413245   354.90   0.000     49.87885    50.43285
+        var3 |  -1.058256   .4906255    -2.16   0.031    -2.019895   -.0966163
+        var5 |   5.002798   1.254804     3.99   0.000     2.543348    7.462247
+        var4 |  -5.519789   1.078884    -5.12   0.000    -7.634432   -3.405147
+       _cons |   50.12001   .1367105   366.61   0.000     49.85206    50.38797
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
 -----------------------------------------------------+
  Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------+---------------------------------------|
-     user_id |     37157       37157           0    *|
-     firm_id |      2178           1        2177     |
-          yh |        12           1          11     |
+     user_id |     37494       37494           0    *|
+     firm_id |      2193           1        2192     |
+          yh |        13           1          12     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-(dropped 1267 singleton observations)
-(MWFE estimator converged in 77 iterations)
+(dropped 967 singleton observations)
+(MWFE estimator converged in 79 iterations)
 
 Stored estimation results
 -------------------------
@@ -212,26 +212,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   37157                Number of obs =   245105
-                                                      F(  3, 37156) =     7.18
+Number of clusters (user_id) =   37494                Number of obs =   256179
+                                                      F(  3, 37493) =     7.42
                                                       Prob > F      =   0.0001
-Total (centered) SS     =   71347279.8                Centered R2   =  -0.0007
-Total (uncentered) SS   =   71347279.8                Uncentered R2 =  -0.0007
-Residual SS             =     71398573                Root MSE      =    17.14
+Total (centered) SS     =  76724807.62                Centered R2   =  -0.0003
+Total (uncentered) SS   =  76724807.62                Uncentered R2 =  -0.0003
+Residual SS             =  76746475.74                Root MSE      =    17.38
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -5.936247   3.964144    -1.50   0.134    -13.70608    1.833587
-        var5 |   8.699744   5.457235     1.59   0.111    -1.996587    19.39608
-        var4 |  -7.623262   4.111631    -1.85   0.064    -15.68217    .4356496
+        var3 |  -4.888046   4.012123    -1.22   0.223    -12.75192    2.975824
+        var5 |   7.458555   5.535452     1.35   0.178    -3.391082    18.30819
+        var4 |  -6.847162   4.171632    -1.64   0.101    -15.02367     1.32935
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            261.887
+Underidentification test (Kleibergen-Paap rk LM statistic):            258.469
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1914.462
-                         (Kleibergen-Paap rk Wald F statistic):        137.920
+Weak identification test (Cragg-Donald Wald F statistic):             1970.488
+                         (Kleibergen-Paap rk Wald F statistic):        136.028
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -255,9 +255,9 @@ Absorbed degrees of freedom:
 -----------------------------------------------------+
  Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------+---------------------------------------|
-     user_id |     37157       37157           0    *|
-     firm_id |      2178           1        2177     |
-          yh |        12           1          11     |
+     user_id |     37494       37494           0    *|
+     firm_id |      2193           1        2192     |
+          yh |        13           1          12     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (results _ivreg2_var3 are active now)

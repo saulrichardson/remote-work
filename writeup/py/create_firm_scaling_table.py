@@ -241,7 +241,7 @@ def main() -> None:
     tex_lines = [
         r"\begin{table}[H]",
         r"\centering",
-        r"{\scriptsize\centering",          # ← add \centering here
+        r"{\scriptsize\centering",
         rf"  \caption{{{caption}}}",
         rf"  \label{{{label}}}",
         r"}",
