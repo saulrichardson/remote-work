@@ -1,0 +1,35 @@
+\begin{table}[H]
+\centering
+\caption{User Productivity – Lean (Precovid, fullremote) – Part 1}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Total Contrib. (pct. rk)} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  & \checkmark &  &  & \checkmark & \checkmark &  & \checkmark \\
+HHI &  &  & \checkmark &  & \checkmark &  & \checkmark & \checkmark \\
+Seniority &  &  &  & \checkmark &  & \checkmark & \checkmark & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -0.86*** & -0.71** & -0.84*** & -0.82*** & -0.70** & -0.67** & -0.82*** & -0.68** \\
+ & (0.31) & (0.32) & (0.31) & (0.31) & (0.32) & (0.32) & (0.31) & (0.32) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 3.39*** & 2.79*** & 3.50*** & 3.35*** & 2.90*** & 2.75*** & 3.53*** & 2.91*** \\
+ & (0.71) & (0.72) & (0.72) & (0.71) & (0.72) & (0.72) & (0.73) & (0.73) \\
+\midrule
+N & 224,708 & 218,112 & 224,596 & 224,708 & 218,032 & 218,112 & 224,596 & 218,032 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -4.11** & -3.75* & -4.29** & -4.10** & -3.98** & -3.72* & -4.30** & -3.97** \\
+ & (1.77) & (1.96) & (1.72) & (1.80) & (1.92) & (2.01) & (1.77) & (2.00) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 5.61** & 4.97* & 6.74*** & 5.53** & 6.08** & 4.91* & 6.99** & 6.32** \\
+ & (2.45) & (2.68) & (2.55) & (2.51) & (2.83) & (2.74) & (2.71) & (3.00) \\
+\midrule
+N & 224,708 & 218,112 & 224,596 & 224,708 & 218,032 & 218,112 & 224,596 & 218,032 \\
+KP\,rk Wald F & 311.51 & 247.30 & 326.09 & 299.86 & 253.61 & 236.73 & 306.94 & 234.74 \\
+\bottomrule
+\end{tabular}
+\label{tab:user_productivity_lean_precovid_fullremote_1}
+\end{table}

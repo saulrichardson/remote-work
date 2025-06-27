@@ -5,3 +5,5 @@ statsmodels>=0.14
 scipy>=1.10
 patsy>=0.5
 Jinja2>=3.0
+haversine>=2.8
+tqdm>=4.66

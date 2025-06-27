@@ -47,7 +47,7 @@ postfile handle_fs ///
     double partialF rkf nobs  ///
     using `out_fs', replace
 
-	
+
 if "`treat'" == "fullremote" {
     local v3 = "var3_fullrem"
     local v5 = "var5_fullrem"

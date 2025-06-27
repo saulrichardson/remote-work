@@ -1,0 +1,512 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_lean_precovid_hybrid.log
+  log type:  text
+ opened on:  27 Jun 2025, 03:09:54
+
+. 
+. 
+. // 1) Globals + setup ---------------------------------------------------------
+. do "../src/globals.do"
+
+. global raw_data "../data/raw"
+
+. global processed_data  "../data/processed"
+
+. global results "../results/raw"
+
+. global clean_results "../results/cleaned"
+
+. 
+. 
+. 
+. 
+. 
+end of do-file
+
+. 
+. local result_dir "$results/`specname'"
+
+. capture mkdir "`result_dir'"
+
+. 
+. 
+. // 2) Load user-level panel ---------------------------------------------------
+. use "$processed_data/user_panel_`panel_variant'.dta", clear
+
+. 
+. // 2a) Overwrite var3 / var5 with requested discrete definitions -------------
+. 
+. if "`treat'" == "fullremote" {
+.     capture drop var3 var5
+.     gen var3 = var3_fullrem
+.     gen var5 = var5_fullrem
+. }
+
+. else if "`treat'" == "hybrid" {
+.     capture drop var3 var5
+.     gen var3 = var3_hybrid
+.     gen var5 = var5_hybrid
+. }
+
+. else {
+.     di as error "Unknown treat=`treat' — must be fullremote or hybrid"
+.     exit 1
+. }
+
+. 
+. 
+. // 3) Additional variables ----------------------------------------------------
+. 
+. gen seniority_4 = !inrange(seniority_levels,1,3)
+
+. 
+. // Interactions used by the lean mechanism spec (no teleworkable interactions)
+. gen var8  = covid*rent
+(6,813 missing values generated)
+
+. gen var9  = covid*rent*startup
+(6,813 missing values generated)
+
+. gen var11 = covid*hhi_1000
+(118 missing values generated)
+
+. gen var12 = covid*hhi_1000*startup
+(118 missing values generated)
+
+. gen var14 = covid*seniority_4
+
+. gen var15 = covid*seniority_4*startup
+
+. 
+. // Pick wage-dispersion mechanism
+. // (Same choices as elsewhere: sd_wage or p90_p10_gap)
+. local mech        p90_p10_gap
+
+. local mech_label  gap
+
+. 
+. gen var17 = covid*`mech'
+
+. gen var18 = covid*`mech'*startup
+
+. 
+. 
+. // 4) Postfile collector ------------------------------------------------------
+. 
+. capture postclose handle
+
+. tempfile out
+
+. postfile handle ///
+>     str8   model_type  ///
+>     str244 spec        ///
+>     str40  param       ///
+>     double coef se pval pre_mean rkf nobs ///
+>     using `out', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 not found)
+
+. 
+. 
+. // 5) Specification list ------------------------------------------------------
+. 
+. local specs ///
+>   "baseline" ///
+>   "rent" "hhi" "seniority" "`mech_label'" ///
+>   "rent_hhi" "rent_seniority" "rent_`mech_label'" "hhi_seniority" "hhi_`mech_label'" "seniority_`mech_label'" ///
+>   "rent_hhi_seniority" "rent_hhi_`mech_label'" "rent_seniority_`mech_label'" "hhi_seniority_`mech_label'" ///
+>   "rent_hhi_seniority_`mech_label'"
+
+. 
+. 
+. // 6) Build spec-specific macro lists (OLS exog, IV exog, instruments, endog)
+. 
+. global BASE_ENDO "var3 var5"
+
+. 
+. //  1) baseline
+. local spec_ols_exog1  var4
+
+. local spec_iv_exog1   var4
+
+. local spec_instr1     var6 var7
+
+. local spec_endo1      $BASE_ENDO
+
+. 
+. //  2) rent
+. local spec_ols_exog2  var4 var8 var9
+
+. local spec_iv_exog2   var4 var8 var9
+
+. local spec_instr2     var6 var7
+
+. local spec_endo2      $BASE_ENDO
+
+. 
+. //  3) hhi
+. local spec_ols_exog3  var4 var11 var12
+
+. local spec_iv_exog3   var4 var11 var12
+
+. local spec_instr3     var6 var7
+
+. local spec_endo3      $BASE_ENDO
+
+. 
+. //  4) seniority
+. local spec_ols_exog4  var4 var14 var15
+
+. local spec_iv_exog4   var4 var14 var15
+
+. local spec_instr4     var6 var7
+
+. local spec_endo4      $BASE_ENDO
+
+. 
+. //  5) `mech'
+. local spec_ols_exog5  var4 var17 var18
+
+. local spec_iv_exog5   var4 var17 var18
+
+. local spec_instr5     var6 var7
+
+. local spec_endo5      $BASE_ENDO
+
+. 
+. //  6) rent_hhi
+. local spec_ols_exog6  var4 var8 var9 var11 var12
+
+. local spec_iv_exog6   var4 var8 var9 var11 var12
+
+. local spec_instr6     var6 var7
+
+. local spec_endo6      $BASE_ENDO
+
+. 
+. //  7) rent_seniority
+. local spec_ols_exog7  var4 var8 var9 var14 var15
+
+. local spec_iv_exog7   var4 var8 var9 var14 var15
+
+. local spec_instr7     var6 var7
+
+. local spec_endo7      $BASE_ENDO
+
+. 
+. //  8) rent_`mech'
+. local spec_ols_exog8  var4 var8 var9 var17 var18
+
+. local spec_iv_exog8   var4 var8 var9 var17 var18
+
+. local spec_instr8     var6 var7
+
+. local spec_endo8      $BASE_ENDO
+
+. 
+. //  9) hhi_seniority
+. local spec_ols_exog9  var4 var11 var12 var14 var15
+
+. local spec_iv_exog9   var4 var11 var12 var14 var15
+
+. local spec_instr9     var6 var7
+
+. local spec_endo9      $BASE_ENDO
+
+. 
+. // 10) hhi_`mech'
+. local spec_ols_exog10 var4 var11 var12 var17 var18
+
+. local spec_iv_exog10  var4 var11 var12 var17 var18
+
+. local spec_instr10    var6 var7
+
+. local spec_endo10     $BASE_ENDO
+
+. 
+. // 11) `mech'_seniority
+. local spec_ols_exog11 var4 var17 var18 var14 var15
+
+. local spec_iv_exog11  var4 var17 var18 var14 var15
+
+. local spec_instr11    var6 var7
+
+. local spec_endo11     $BASE_ENDO
+
+. 
+. // 12) rent_hhi_seniority
+. local spec_ols_exog12 var4 var8 var9 var11 var12 var14 var15
+
+. local spec_iv_exog12  var4 var8 var9 var11 var12 var14 var15
+
+. local spec_instr12    var6 var7
+
+. local spec_endo12     $BASE_ENDO
+
+. 
+. // 13) rent_hhi_`mech'
+. local spec_ols_exog13 var4 var8 var9 var11 var12 var17 var18
+
+. local spec_iv_exog13  var4 var8 var9 var11 var12 var17 var18
+
+. local spec_instr13    var6 var7
+
+. local spec_endo13     $BASE_ENDO
+
+. 
+. // 14) rent_seniority_`mech'
+. local spec_ols_exog14 var4 var8 var9 var14 var15 var17 var18
+
+. local spec_iv_exog14  var4 var8 var9 var14 var15 var17 var18
+
+. local spec_instr14    var6 var7
+
+. local spec_endo14     $BASE_ENDO
+
+. 
+. // 15) hhi_seniority_`mech'
+. local spec_ols_exog15 var4 var11 var12 var14 var15 var17 var18
+
+. local spec_iv_exog15  var4 var11 var12 var14 var15 var17 var18
+
+. local spec_instr15    var6 var7
+
+. local spec_endo15     $BASE_ENDO
+
+. 
+. // 16) rent_hhi_seniority_`mech'
+. local spec_ols_exog16 var4 var8 var9 var11 var12 var14 var15 var17 var18
+
+. local spec_iv_exog16  var4 var8 var9 var11 var12 var14 var15 var17 var18
+
+. local spec_instr16    var6 var7
+
+. local spec_endo16     $BASE_ENDO
+
+. 
+. 
+. // 7) Baseline spec ----------------------------------------------------------
+. 
+. display as text "→ Spec 1: baseline (full sample)"
+→ Spec 1: baseline (full sample)
+
+. 
+. summarize total_contributions_q100 if covid == 0, meanonly
+
+. local pre_mean = r(mean)
+
+. 
+. // 7a) OLS
+. reghdfe total_contributions_q100 var3 var5 var4, ///
+>     absorb(user_id#firm_id yh) vce(cluster user_id)
+(dropped 6597 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    224,708
+Absorbing 2 HDFE groups                           F(   3,  35478) =      14.48
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7185
+                                                  Adj R-squared   =     0.6525
+                                                  Within R-sq.    =     0.0005
+Number of clusters (user_id) =     35,479         Root MSE        =    17.6450
+
+                           (Std. err. adjusted for 35,479 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |   .9989879    .301223     3.32   0.001     .4085816    1.589394
+        var5 |   -2.69069   .7149854    -3.76   0.000    -4.092083   -1.289296
+        var4 |  -.6220574   .4155595    -1.50   0.134    -1.436567    .1924521
+       _cons |   49.88963   .0855287   583.31   0.000     49.72199    50.05727
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   user_id#firm_id |     42710       42710           0    *|
+                yh |        11           1          10     |
+-----------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. local N = e(N)
+
+. foreach p in var3 var5 {
+  2.     local b    = _b[`p']
+  3.     local se   = _se[`p']
+  4.     local t    = `b'/`se'
+  5.     local pval = 2*ttail(e(df_r), abs(`t'))
+  6.     post handle ("OLS") ("baseline") ("`p'") ///
+>                 (`b') (`se') (`pval') (`pre_mean') ///
+>                 (.) (`N')
+  7. }
+
+. 
+. // 7b) IV
+. ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, ///
+>     absorb(user_id#firm_id yh) vce(cluster user_id) savefirst
+(dropped 6597 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+Stored estimation results
+-------------------------
+---------------------------------------------------------------------------
+             |           Dependent  Number of        
+        Name | Command    variable     param.  Title 
+-------------+-------------------------------------------------------------
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
+---------------------------------------------------------------------------
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   35479                Number of obs =   224708
+                                                      F(  3, 35478) =    10.56
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  56688987.29                Centered R2   =  -0.0014
+Total (uncentered) SS   =  56688987.29                Uncentered R2 =  -0.0014
+Residual SS             =   56771030.3                Root MSE      =     15.9
+
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |    4.81888   2.073762     2.32   0.020     .7542423    8.883517
+        var5 |   -6.52938     2.8373    -2.30   0.021    -12.09058   -.9681849
+        var4 |   1.610133   1.361893     1.18   0.237     -1.05922    4.279486
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            377.722
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             2538.758
+                         (Kleibergen-Paap rk Wald F statistic):        181.741
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   user_id#firm_id |     42710       42710           0    *|
+                yh |        11           1          10     |
+-----------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. local rkf = e(rkf)
+
+. local N   = e(N)
+
+. foreach p in var3 var5 {
+  2.     local b    = _b[`p']
+  3.     local se   = _se[`p']
+  4.     local t    = `b'/`se'
+  5.     local pval = 2*ttail(e(df_r), abs(`t'))
+  6.     post handle ("IV") ("baseline") ("`p'") ///
+>                 (`b') (`se') (`pval') (`pre_mean') ///
+>                 (`rkf') (`N')
+  7. }
+
+. 
+. 
+. // 8) Loop over remaining specifications ------------------------------------
+. 
+. forvalues i = 2/16 {
+  2.     local spec    : word `i' of `specs'
+  3.     local ols_exog "`spec_ols_exog`i''"
+  4.     local iv_exog  "`spec_iv_exog`i''"
+  5.     local instr    "`spec_instr`i''"
+  6.     local endo     "`spec_endo`i''"
+  7. 
+.     display as text "→ Spec `i': `spec'"
+  8. 
+.     summarize total_contributions_q100 if covid == 0, meanonly
+  9.     local pre_mean = r(mean)
+ 10. 
+.     // 8a) OLS
+.     reghdfe total_contributions_q100 var3 var5 `ols_exog', ///
+>         absorb(user_id#firm_id yh) vce(cluster user_id)
+ 11.     local N = e(N)
+ 12.     foreach p in var3 var5 {
+ 13.         local b    = _b[`p']
+ 14.         local se   = _se[`p']
+ 15.         local t    = `b'/`se'
+ 16.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 17.         post handle ("OLS") ("`spec'") ("`p'") ///
+>                     (`b') (`se') (`pval') (`pre_mean') ///
+>                     (.) (`N')
+ 18.     }
+ 19. 
+.     // 8b) IV
+.     ivreghdfe total_contributions_q100 (`endo' = `instr') `iv_exog', ///
+>         absorb(user_id#firm_id yh) vce(cluster user_id) savefirst
+ 20.     local rkf = e(rkf)
+ 21.     local N   = e(N)
+ 22.     foreach p in var3 var5 {
+ 23.         local b    = _b[`p']
+ 24.         local se   = _se[`p']
+ 25.         local t    = `b'/`se'
+ 26.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 27.         post handle ("IV") ("`spec'") ("`p'") ///
+>                     (`b') (`se') (`pval') (`pre_mean') ///
+>                     (`rkf') (`N')
+ 28.     }
+ 29. }
+→ Spec 2: rent
+(dropped 6380 singleton observations)
+--Break--
+r(1);
+
+end of do-file
+
+--Break--
+r(1);
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
+
+. *============================================================*
+. *  user_productivity_lean_discrete.do
+. *  — *Lean* user-productivity regressions with discrete Covid treatment.
+. *    • Allows switching between *full-remote* and *hybrid* definitions of
+. *      Covid treatment (var3 / var5) via a positional argument.
+. *    • Mirrors the specification structure of user_mechanisms_lean.do but
+. *      keeps the outcomes and fixed-effects set from user_productivity.do.
+. *============================================================*
+. 
+. * --------------------------------------------------------------------------
+. * 0) Parse (optional) arguments
+. *    1) panel_variant : unbalanced | balanced | precovid   (default = precovid)
+. *    2) treat         : fullremote | hybrid               (default = hybrid)
+. * --------------------------------------------------------------------------
+. 
+. args panel_variant treat
+
+. if "`panel_variant'" == "" local panel_variant "precovid"
+
+. if "`treat'"         == "" local treat         "fullremote"
+
+. 
+. local specname "user_productivity_lean_`panel_variant'_`treat'"
+
+. 
+. capture log close

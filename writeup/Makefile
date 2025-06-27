@@ -68,6 +68,8 @@ mini-report:
 	  ../results/raw/firm_mechanisms_binned \
 	  ../results/raw/firm_mechanisms_lean_binned \
 	  ../results/raw/firm_mechanisms_lean \
+	  ../results/raw/firm_mechanisms_lean_fullremote \
+	  ../results/raw/user_productivity_lean_precovid_fullremote \
 	  ../results/raw/firm_mechanisms; do \
 	    if [ ! -f $$d/consolidated_results.csv ]; then \
 	      echo "ERROR: Missing $$d/consolidated_results.csv.  Please regenerate the Stata outputs."; \
@@ -101,7 +103,8 @@ mini-report:
 	# ------------------------------------------------------------------
 	@echo "[4/12] Firm mechanisms tables"
 	@$(call RUN_PYSCRIPT,create_firm_mechanisms_table.py,--exclude Wage)
-	@$(call RUN_PYSCRIPT,create_firm_mechanisms_lean_table.py,--exclude Wage)
+	@$(call RUN_PYSCRIPT,create_firm_mechanisms_lean_table.py,--exclude Wage --treat hybrid)
+	@$(call RUN_PYSCRIPT,create_firm_mechanisms_lean_table.py,--exclude Wage --treat fullremote)
 
 	# ------------------------------------------------------------------
 	#  5) User productivity tables (OLS, IV, first-stage) – Pre-COVID
@@ -110,6 +113,13 @@ mini-report:
 	@$(call RUN_PYSCRIPT,create_user_productivity_table.py,--model-type ols --variant precovid)
 	@$(call RUN_PYSCRIPT,create_user_productivity_table.py,--model-type iv --variant precovid)
 	@$(call RUN_PYSCRIPT,create_user_productivity_first_stage_table.py,--variant precovid)
+	@$(call RUN_PYSCRIPT,create_user_productivity_lean_table.py,--variant precovid --treat fullremote --exclude Wage)
+
+	# ------------------------------------------------------------------
+	#  5b) Heterogeneity splits (modal, distance, growth)
+	# ------------------------------------------------------------------
+	@echo "[5b/12] User-productivity heterogeneity tables"
+	@$(call RUN_PYSCRIPT,create_user_productivity_heterogeneity_tables.py,)
 
 	# ------------------------------------------------------------------
 	#  6) Lean user mechanisms – Pre-COVID
@@ -265,7 +275,11 @@ MINI_TABLES := table_of_means \
                firm_scaling_ols \
                firm_scaling_iv \
                firm_scaling_first_stage \
-               remote_first_stage
+               remote_first_stage \
+               var5_modal_base \
+               var5_distance_base \
+               var5_growth_base_dynamic \
+               var5_growth_base_post
 
 # Ensure report is up-to-date, then copy files.
 deploy:

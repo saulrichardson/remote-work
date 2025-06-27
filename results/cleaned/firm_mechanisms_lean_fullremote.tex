@@ -1,0 +1,35 @@
+\begin{table}[H]
+\centering
+\caption{Firm Mechanisms – Lean (Part 1)}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{8}{c}{Growth Rate} \\
+\cmidrule(lr){2-9}
+Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+Rent &  & \checkmark &  &  & \checkmark & \checkmark &  & \checkmark \\
+HHI &  &  & \checkmark &  & \checkmark &  & \checkmark & \checkmark \\
+Seniority &  &  &  & \checkmark &  & \checkmark & \checkmark & \checkmark \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & -0.004 & -0.003 & -0.006 & -0.007* & -0.004 & -0.006 & -0.007 & -0.006 \\
+ & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.055*** & 0.050*** & 0.057*** & 0.052*** & 0.052*** & 0.047*** & 0.057*** & 0.052*** \\
+ & (0.017) & (0.018) & (0.017) & (0.017) & (0.017) & (0.017) & (0.017) & (0.017) \\
+\midrule
+N & 41,980 & 38,794 & 41,946 & 41,980 & 38,760 & 38,794 & 41,946 & 38,760 \\
+\midrule
+\multicolumn{9}{l}{\textbf{\uline{Panel B: IV}}} \\
+\addlinespace
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & 0.007 & 0.020* & 0.014 & 0.004 & 0.025** & 0.016 & 0.012 & 0.021* \\
+ & (0.011) & (0.011) & (0.010) & (0.011) & (0.011) & (0.011) & (0.010) & (0.011) \\
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & 0.182** & 0.176* & 0.124 & 0.110 & 0.107 & 0.089 & 0.112 & 0.092 \\
+ & (0.091) & (0.102) & (0.086) & (0.087) & (0.096) & (0.098) & (0.089) & (0.100) \\
+\midrule
+N & 41,980 & 38,794 & 41,946 & 41,980 & 38,760 & 38,794 & 41,946 & 38,760 \\
+KP\,rk Wald F & 14.26 & 11.74 & 13.61 & 13.37 & 11.16 & 10.92 & 12.74 & 10.37 \\
+\bottomrule
+\end{tabular}
+\label{tab:firm_mechanisms_lean_1}
+\end{table}

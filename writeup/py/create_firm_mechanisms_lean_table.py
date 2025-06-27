@@ -23,16 +23,34 @@ PROJECT_ROOT = HERE.parents[1]
 # CLI args -------------------------------------------------------
 parser = argparse.ArgumentParser(description="Create lean firm mechanisms tables")
 parser.add_argument(
+    "--treat",
+    choices=["hybrid", "fullremote"],
+    default="hybrid",
+    help="Which discrete treatment definition to load (default: %(default)s).",
+)
+parser.add_argument(
     "--exclude",
     default="",
     help="Comma-separated mechanism dimensions to exclude (e.g. Wage)",
 )
 args = parser.parse_args()
+treat = args.treat
 exclude_set = {x.strip() for x in args.exclude.split(",") if x.strip()}
 
-SPECNAME = "firm_mechanisms_lean"
+SPECNAME = f"firm_mechanisms_lean_{treat}"
 INPUT_CSV = PROJECT_ROOT / "results" / "raw" / SPECNAME / "consolidated_results.csv"
-OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / "firm_mechanisms_lean.tex"
+
+# Fallback for legacy continuous script name when hybrid requested and new
+# directory not yet built.
+if treat == "hybrid" and not INPUT_CSV.exists():
+    INPUT_CSV = PROJECT_ROOT / "results" / "raw" / "firm_mechanisms_lean" / "consolidated_results.csv"
+
+OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / f"firm_mechanisms_lean_{treat}.tex"
+if treat == "hybrid":
+    # maintain backward compatibility by also writing generic filename
+    LEGACY_TEX = PROJECT_ROOT / "results" / "cleaned" / "firm_mechanisms_lean.tex"
+else:
+    LEGACY_TEX = None
 
 # Maximum columns per table
 COLS_PER_TABLE = 8
@@ -217,7 +235,11 @@ def main() -> None:
         lines.append("")
 
     OUTPUT_TEX.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_TEX.write_text("\n".join(lines))
+    tex_content = "\n".join(lines)
+    OUTPUT_TEX.write_text(tex_content)
+
+    if LEGACY_TEX is not None:
+        LEGACY_TEX.write_text(tex_content)
 
 
 if __name__ == "__main__":

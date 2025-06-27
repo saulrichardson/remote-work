@@ -129,6 +129,30 @@ def _plot_bins_reg(
                 rf"$R^2 = {r2:.2f}$"                        # second line
             )
 
+        # Annotate β and R² for age → remote plots (full sample, no split)
+        elif x in {"age", "log_age"} and y == "remote" and split_col is None:
+            slope = model.params[x]
+            se    = model.bse[x]
+            r2    = model.rsquared
+
+            anno_text = (
+                rf"$\beta = {slope:.2f}\;({se:.2f})$" "\n"
+                rf"$R^2 = {r2:.2f}$"
+            )
+
+            # Place annotation in top-left corner
+            ax.text(
+                0.05,
+                0.95,
+                anno_text,
+                transform=ax.transAxes,
+                fontsize=11,
+                verticalalignment="top",
+                horizontalalignment="left",
+                color=colour,
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.6, edgecolor=colour),
+            )
+
             if split_col is None:
                 # pick corner with fewest nearby points
                 x_mid, y_mid = grp_valid[x].median(), grp_valid[y].median()

@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_all_user_panels.log
   log type:  text
- opened on:  26 Jun 2025, 11:04:31
+ opened on:  27 Jun 2025, 02:40:55
 
 . 
 . ****************************************************************************
@@ -171,7 +171,6 @@ Duplicates in terms of user_id yh
 . 
 . append using "`user_yh'"
 
-. // append using "`user_yh_2016'"
 . save   "`user_yh'", replace
 file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 saved as .dta format
 
@@ -261,276 +260,71 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 saved as .
 file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 saved as .dta format
 
 . 
-. *----------------------------------------------------------
-. * 1.5  Commercial real-estate rents  (keep _merge==1|3)
-. *----------------------------------------------------------
-. use "$raw_data/data_20240523_lease.dta", clear
+. import delimited "$processed_data/company_dispersion_2019.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(3 vars, 4,162 obs)
 
-. keep if !missing(execution_month, execution_year)
-(0 observations deleted)
+. tempfile disp_metrics
 
-. drop id_Lease
-
-. 
-. gen half = ceil(execution_month/6)
-
-. gen yh   = yh(execution_year, half)
-
-. format yh %th
-
-. 
-. keep if yh < yh(2020,1)
-(112,516 observations deleted)
-
-. collapse (mean) effectiverent2212usdperyear [fw=transactionsqft], by(city state)
-
-. 
-. rename city  hqcity
-
-. rename state hqstate
-
-. 
-. sort hqcity hqstate
-
-. 
-. tempfile _lease
-
-. save     "`_lease'", replace
+. save     "`disp_metrics'", replace
 (file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 not found)
 file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 saved as .dta format
 
 . 
-. use "`snapshot_clean'", clear
+. 
+. import delimited "$raw_data/linkedin_msa_with_cbsa.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(2 vars, 404 obs)
 
-. merge m:1 hqcity hqstate using "`_lease'"
-(variable hqcity was str25, now str40 to accommodate using data's values)
+. 
+. merge 1:m msa using "`snapshot_clean'"
 
     Result                      Number of obs
     -----------------------------------------
-    Not matched                        41,858
-        from master                    37,507  (_merge==1)
-        from using                      4,351  (_merge==2)
+    Not matched                            12
+        from master                        12  (_merge==1)
+        from using                          0  (_merge==2)
 
-    Matched                         1,194,147  (_merge==3)
+    Matched                         1,231,654  (_merge==3)
     -----------------------------------------
 
-. drop if _merge==2   // drop lease-only rows
-(4,351 observations deleted)
+. drop if _merge == 1
+(12 observations deleted)
 
-. rename effectiverent2212usdperyear rent
+. drop _merge
 
 . 
-. 
-. *----------------------------------------------------------
-. * 1.6  Modal roles & wages  (keep _merge==1|3)
-. *----------------------------------------------------------
-. merge m:1 companyname using "$processed_data/modal_role_per_firm.dta", keep(1 3) nogen
+. merge m:1 companyname using "`disp_metrics'"
 
     Result                      Number of obs
     -----------------------------------------
-    Not matched                            10
-        from master                        10  
-        from using                          0  
+    Not matched                         1,459
+        from master                       220  (_merge==1)
+        from using                      1,239  (_merge==2)
 
-    Matched                         1,231,644  
-    -----------------------------------------
-
-. merge m:1 user_id      using "$processed_data/worker_baseline_role",   keep(1 3) nogen
-
-    Result                      Number of obs
-    -----------------------------------------
-    Not matched                        63,358
-        from master                    63,358  
-        from using                          0  
-
-    Matched                         1,168,296  
-    -----------------------------------------
-
-. merge m:1 companyname using "$processed_data/wages_firm.dta",          keep(1 3) nogen
-
-    Result                      Number of obs
-    -----------------------------------------
-    Not matched                            10
-        from master                        10  
-        from using                          0  
-
-    Matched                         1,231,644  
+    Matched                         1,231,434  (_merge==3)
     -----------------------------------------
 
 . 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
+
+. *============================================================*
+. * do/firm_mechanisms_lean_discrete.do
+. *  — Discrete treatment version of the firm‐mechanism regressions
+. *    Allows switching between *full‐remote* and *hybrid* definitions
+. *    of Covid treatment (var3 / var5) via a positional argument.
+. *============================================================*
 . 
-. ****************************************************************************
-. * 1.7  Variable construction (unchanged)
-. ****************************************************************************
+. *---------------------------------------------------------------------------*
+. * 0) Parse optional `treat' argument (default = "hybrid")
+. *     Accepts values:  fullremote | hybrid
+. *---------------------------------------------------------------------------*
 . 
-. gen age     = 2020 - founded
+. args treat
 
-. label var age "Firm age as of 2020"
-
-. encode companyname, gen(firm_id)
-
-. encode msa,        gen(msa_id)
-
-. 
-. gen startup = age <= 10
-
-. gen covid   = yh >= 120    // 120 = 2020H1
-
-. gen remote  = flexibility_score2
-
-. 
-. gen hybrid  = (remote>0 & remote<1)
-
-. gen fullrem = (remote==1)
+. if "`treat'" == "" local treat "remote"
 
 . 
-. * For the hybrid treatment
-. gen var3_hybrid = hybrid * covid
-
-. gen var5_hybrid = hybrid * covid * startup
-
-. 
-. * For the fully-remote treatment
-. gen var3_fullrem = fullrem * covid
-
-. gen var5_fullrem = fullrem * covid * startup
-
-. 
-. 
-. rename restrictedcontributionscount restricted_contributions
-
-. rename totalcontribution            total_contributions
-
-. 
-. sort user_id yh
-
-. 
-. * pre-COVID restricted contributions -------------------------------------*
-. gen pre_covid = yh < 120
-
-. by user_id: egen pre_covid_rest = total(cond(pre_covid & !missing(restricted_contributions), ///
->                                              restricted_contributions, 0))
-
-. 
-. * interaction terms ------------------------------------------------------*
-. gen var3 = remote*covid
-
-. gen var4 = covid*startup
-
-. gen var5 = remote*covid*startup
-
-. gen var6 = covid*company_teleworkable
-(4 missing values generated)
-
-. gen var7 = startup*covid*company_teleworkable
-(4 missing values generated)
-
-. 
-. 
-. tempfile _master_panel
-
-. save     "`_master_panel'", replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 saved as .dta format
-
-. 
-. ****************************************************************************
-. * 2.  Parameterised sample creation
-. ****************************************************************************
-. 
-. local sample_types "unbalanced balanced precovid balanced_pre"
-
-. local sample_types "precovid"
-
-. 
-. foreach sample of local sample_types {
-  2. 
-.     use "`_master_panel'", clear
-  3. 
-.     /* ----------------------- variant-specific filters ---------------- */
-.     if "`sample'" == "balanced" {
-  4.         gsort user_id yh
-  5.         quietly summarize yh, meanonly
-  6.         local global_min = r(min)
-  7.         local global_max = r(max)
-  8. 
-.         by user_id: egen min_time = min(yh)
-  9.         by user_id: egen max_time = max(yh)
- 10.         by user_id: egen nobs     = count(yh)
- 11. 
-.         preserve
- 12.             contract yh, freq(count_yh)
- 13.             local total_periods = _N
- 14.         restore
- 15. 
-.         keep if min_time==`global_min' & max_time==`global_max' & nobs==`total_periods'
- 16.         drop min_time max_time nobs
- 17.     }
- 18. 
-.     if "`sample'" == "precovid" {
- 19.         keep if pre_covid_rest > 0
- 20.     }
- 21.         
-.         if "`sample'" == "balanced_pre" {
- 22.                 keep if pre_covid_rest > 0
- 23.                 
-.         gsort user_id yh
- 24.         quietly summarize yh, meanonly
- 25.         local global_min = r(min)
- 26.         local global_max = r(max)
- 27. 
-.         by user_id: egen min_time = min(yh)
- 28.         by user_id: egen max_time = max(yh)
- 29.         by user_id: egen nobs     = count(yh)
- 30. 
-.         preserve
- 31.             contract yh, freq(count_yh)
- 32.             local total_periods = _N
- 33.         restore
- 34. 
-.         keep if min_time==`global_min' & max_time==`global_max' & nobs==`total_periods'
- 35.         drop min_time max_time nobs
- 36.                 
-.     }
- 37.         
-.         * outcome transforms -----------------------------------------------------*
-.         local original_outcomes "total_contributions restricted_contributions"
- 38.         foreach var of local original_outcomes {
- 39.                 winsor2 `var', cuts(5 95) suffix(_we)
- 40.                 bysort yh: egen `var'_q100 = xtile(`var'), nq(100)
- 41.                 label var `var'_we    "`var' (Winsorised [5–95])"
- 42.                 label var `var'_q100 "`var' (Percentile rank [1–100])"
- 43.         }
- 44.         
-.         * common-sample screen ----------------------------------------------------*
-.         local keep_vars ///
->                 user_id firm_id yh covid remote startup company_teleworkable ///
->                 total_contributions_q100 restricted_contributions_q100 ///
->                 var3 var4 var5 var6 var7
- 45. 
-.         egen miss_ct = rowmiss(`keep_vars')
- 46.         keep if miss_ct==0
- 47. 
-.     /* ----------------------- output ---------------------------------- */
-.     local base   = "$processed_data/user_panel_`sample'"
- 48.     quietly save   "`base'.dta", replace
- 49.     export delimited "../data/samples/user_panel_`sample'.csv", replace
- 50. 
-.     * progress message ---------------------------------------------------
-.     di as txt "✓ Created `sample' sample (" _N " obs)"
- 51. }
-(1,000,349 observations deleted)
-(0 observations deleted)
-file ../data/samples/user_panel_precovid.csv saved
-✓ Created precovid sample (231305 obs)
-
-. 
-. ****************************************************************************
-. * 3.  Done
-. ****************************************************************************
-. log close
-      name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_all_user_panels.log
-  log type:  text
- closed on:  26 Jun 2025, 11:07:24
------------------------------------------------------------------------------------------------------------------------------------------
+. capture log close

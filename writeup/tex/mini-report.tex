@@ -59,6 +59,8 @@
   \caption{Remote v. Teleworkabe Scores}
 \end{figure}
 
+
+
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.4]{\figdir/firm_age_lt100_remote.png}
@@ -83,51 +85,125 @@
 \subsection{First Stage}
 \input{\cleanedresultsdir/user_productivity_precovid_first_stage.tex}
 
+% -------------------------------------------------------------------------
+%  Heterogeneity splits ----------------------------------------------------
+% -------------------------------------------------------------------------
+\clearpage
+\section{User Productivity – Heterogeneity Splits}
 
-% \subsection{Weighted Sample}
-% \input{\cleanedresultsdir/user_productivity_precovid_weighted.tex}
+\subsection{Modal vs. Non-Modal MSA}
+Each row is tagged as “\textbf{in modal MSA}” if the worker’s CBSA equals the
+firm’s most common CBSA.  We then re-estimate the IV separately for the three
+groups: \\textbf{1} = inside the modal market, \\textbf{0} = outside, and
+\\textbf{2} = cases where the worker’s CBSA is missing (``empty’’).
+\input{\cleanedresultsdir/var5_modal_base.tex}
 
-% Additional pre-COVID variants (commented out)
-% \subsection{Full Remote Variant}
-% \input{\cleanedresultsdir/user_productivity_precovid_fullremote.tex}
+\subsection{Distance Terciles}
+For every worker we compute her \\emph{average haversine distance} to the
+company headquarters across the panel horizon (in~km).  Firms are then sorted
+into terciles based on that firm--level mean and the code is merged back to
+the worker panel.  The regressions are re--estimated separately for the short-~
+(``1''), medium-~(``2'') and long--distance (``3'') buckets.
+\input{\cleanedresultsdir/var5_distance_base.tex}
 
-% \subsection{Hybrid Variant}
-% \input{\cleanedresultsdir/user_productivity_precovid_hybrid.tex}
+\subsection{Dynamic Labour-Growth (within half-year)}
+Using the Scoop employment time--series we calculate the semi--annual growth
+rate $g_{ft}=\tfrac{E_{ft}}{E_{f,t-1}}-1$ for every firm $f$ and half--year
+$t$.  Within each half--year we split firms into employment--growth terciles
+and assign the resulting indicator to all worker observations in that
+half--year.  Bucket ``1'' thus represents firms with below--median \\emph{concurrent}
+employment growth, bucket ``3'' the top tercile.
+\input{\cleanedresultsdir/var5_growth_base_dynamic.tex}
+
+\subsection{Pre vs. Post-COVID Labour-Growth}
+Here the growth metric compares mean headcount \\emph{before} 2020H1 with mean
+headcount \\emph{after}.  For each firm we compute
+$\tfrac{\bar E_{\text{post}}-\bar E_{\text{pre}}}{\bar E_{\text{pre}}}$, Winsorise
+it at the 1st/99th percentiles and split the cross--section of firms into
+terciles.  The variable therefore captures the medium--run adjustment of firm
+size due to the pandemic, independent of intra--year fluctuations.
+\input{\cleanedresultsdir/var5_growth_base_post.tex}
 
 % -------------------------------------------------------------------------
-%  Lean mechanism horse-race (Pre-COVID only)
+%  User-level landscape tables (all grouped to avoid blank pages)
 % -------------------------------------------------------------------------
 \clearpage
 \begin{landscape}
+
+% -------------------------------------------------------------------------
+%  Mechanism specification cheat-sheet (disabled)
+% -------------------------------------------------------------------------
+\iffalse
+Before diving into the mechanism tables we briefly recap how the four
+variants of the treatment variable are constructed.  All regressions share
+the generic form
+\begin{equation*}
+  Y_{it} = \beta_1\,\textit{Treat}_{it} + \beta_2\,\textit{Treat}_{it}\times\textit{Startup}_i + \theta X_{it} + \alpha_i + \tau_t + \varepsilon_{it},
+\end{equation*}
+where $Y_{it}$ is a productivity outcome, $X_{it}$ a block of controls, and
+$(\alpha_i,\tau_t)$ denote unit and time fixed effects.
+
+\paragraph{Treatment variants.}  Four flavours of the treatment are rotated
+throughout the mechanism tables:
+\begin{description}
+  \item[COVID bifurcation]~\\
+    \( \textit{Treat}_{it}=\text{Remote}_i\times\mathds{1}(t\ge 2020\text{H}1) \).  The
+    coefficient measures the \emph{within‐worker} change once COVID makes
+    remote working compulsory.
+
+  \item[Remote bifurcation]~\\
+    \( \textit{Treat}_{it}=\text{Remote}_i \).  A pure cross-section: remote
+    workers versus on-site workers in the same half-year.
+
+  \item[Binned remote share]  Firms are split into terciles based on their
+    pre-COVID remote share; the top tercile becomes the treated group.
+
+  \item[Remote (continuous)]  The exact remote share (0–1) enters linearly as
+    the treatment variable.
+\end{description}
+
+\paragraph{Horse-race controls.}  For every treatment variant we run a
+\emph{horse race}: start from the baseline regression and sequentially add
+three bundles of potential mechanism variables (all interacted with the
+treatment):
+
+\begin{align*}
+  &\text{Rent}_{ft} &&\text{(local price level)}\\
+  &\text{HHI}_{ft}  &&\text{(market concentration)}\\
+  &\text{Seniority}_{it} &&\text{(worker tenure distribution)}
+\end{align*}
+
+In the scripts this is implemented as:
+\begin{align*}
+  &\underbrace{\beta_1 \;\textit{Treat}_{it}}_{\text{baseline}} +
+  \underbrace{\gamma_1\,\textit{Treat}_{it}\times\text{Rent}_{ft}}_{\text{add rent}} +
+  \underbrace{\gamma_2\,\textit{Treat}_{it}\times\text{HHI}_{ft}}_{\text{add HHI}} +
+  \underbrace{\gamma_3\,\textit{Treat}_{it}\times\text{Seniority}_{it}}_{\text{add tenure}}.
+\end{align*}
+
+The tables therefore progress from column~(1) with no mechanism controls to
+column~(8) where all three bundles (or their pairwise combinations) are
+included.  Observing how $\beta_1$ attenuates/inflates across the columns
+reveals whether a given mechanism can explain the remote-work productivity
+difference.
+
+\fi
+
+\section{User Productivity – Covid Bifurcation (Full Remote, Pre-COVID Panel)}
+\input{\cleanedresultsdir/user_productivity_lean_precovid_fullremote.tex}
+
 \section{User Mechanisms – Covid Bifurcation (Continuous) – Pre-COVID Panel}
 \input{\cleanedresultsdir/user_mechanisms_lean_precovid.tex}
-\end{landscape}
 
-% -------------------------------------------------------------------------
-%  Lean Binned user mechanisms
-% -------------------------------------------------------------------------
-\clearpage
-\begin{landscape}
 \section{User Mechanisms – Covid Bifurcation (Binned) – Pre-COVID Panel}
 \input{\cleanedresultsdir/user_mechanisms_lean_binned_precovid.tex}
-\end{landscape}
 
-% -------------------------------------------------------------------------
-%  Full horse‐race mechanisms (Pre-COVID) – include both OLS & IV panels
-% -------------------------------------------------------------------------
-\clearpage
-\begin{landscape}
 \section{User Mechanisms – Remote Bifurcation (Continuous) – Pre-COVID Panel}
 \input{\cleanedresultsdir/user_mechanisms_precovid.tex}
-\end{landscape}
 
-% -------------------------------------------------------------------------
-%  Binned horse‐race mechanisms (Pre-COVID) – NEW
-% -------------------------------------------------------------------------
-\clearpage
-\begin{landscape}
 \section{User Mechanisms – Remote Bifurcation (Binned) – Pre-COVID Panel}
 \input{\cleanedresultsdir/user_mechanisms_binned_precovid.tex}
+
 \end{landscape}
 
 % -------------------------------------------------------------------------
@@ -160,28 +236,27 @@
 % Firm mechanisms ----------------------------------------------------------
 % Firm mechanisms ----------------------------------------------------------
 \clearpage
-% Covid-Bifurcation (Lean) – Continuous
+% -------------------------------------------------------------------------
+%  Firm-level landscape tables (grouped)
+% -------------------------------------------------------------------------
 \begin{landscape}
+
+% Covid-Bifurcation (Lean) – Continuous
 \subsection{Firm Mechanisms – Covid Bifurcation (Continuous)}
 \input{\cleanedresultsdir/firm_mechanisms_lean.tex}
-\end{landscape}
+
+
+% Covid-Bifurcation (Full Remote) – discrete treatment
+\subsection{Firm Mechanisms – Covid Bifurcation (Full Remote)}
+\input{\cleanedresultsdir/firm_mechanisms_lean_fullremote.tex}
 
 % Covid-Bifurcation (Lean) – Binned
-\begin{landscape}
 \subsection{Firm Mechanisms – Covid Bifurcation (Binned)}
 \input{\cleanedresultsdir/firm_mechanisms_lean_binned.tex}
-\end{landscape}
 
-% Remote-Bifurcation (Full) – Continuous
-\begin{landscape}
-\subsection{Firm Mechanisms – Remote Bifurcation (Continuous)}
-\input{\cleanedresultsdir/firm_mechanisms.tex}
-\end{landscape}
 
-% Remote-Bifurcation (Full) – Binned
-\begin{landscape}
-\subsection{Firm Mechanisms – Remote Bifurcation (Binned)}
-\input{\cleanedresultsdir/firm_mechanisms_binned.tex}
+% The pure Remote-bifurcation variants are omitted in the mini report.
+
 \end{landscape}
 
 % -------------------------------------------------------------------------

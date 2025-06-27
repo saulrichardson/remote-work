@@ -129,7 +129,6 @@ drop dup_tag
 merge 1:1 user_id yh using "`user_yh_new'", keep(3) nogen
 
 append using "`user_yh'"
-// append using "`user_yh_2016'"
 save   "`user_yh'", replace
 
 
@@ -166,6 +165,35 @@ drop _merge
 
 save "`snapshot_clean'", replace
 
+import delimited "$processed_data/company_dispersion_2019.csv", clear
+tempfile disp_metrics
+save     "`disp_metrics'", replace
+
+import delimited "$processed_data/company_top_msa_by_half.csv", clear
+gen yh = yh(year, half)
+format yh %th
+rename msa company_msa
+rename cbsacode company_cbsacode
+tempfile pop_msa
+save   "`pop_msa'", replace
+
+
+import delimited "$raw_data/linkedin_msa_with_cbsa.csv", clear
+
+merge 1:m msa using "`snapshot_clean'"
+drop if _merge == 1
+drop _merge
+
+merge m:1 companyname using "`disp_metrics'"
+drop if _merge == 2
+drop _merge
+
+merge m:1 companyname yh using "`pop_msa'"
+drop if _merge == 2
+drop _merge
+
+save "`snapshot_clean'", replace
+
 *----------------------------------------------------------
 * 1.5  Commercial real-estate rents  (keep _merge==1|3)
 *----------------------------------------------------------
@@ -194,12 +222,6 @@ drop if _merge==2   // drop lease-only rows
 rename effectiverent2212usdperyear rent
 
 
-*----------------------------------------------------------
-* 1.6  Modal roles & wages  (keep _merge==1|3)
-*----------------------------------------------------------
-merge m:1 companyname using "$processed_data/modal_role_per_firm.dta", keep(1 3) nogen
-merge m:1 user_id      using "$processed_data/worker_baseline_role",   keep(1 3) nogen
-merge m:1 companyname using "$processed_data/wages_firm.dta",          keep(1 3) nogen
 
 
 ****************************************************************************
