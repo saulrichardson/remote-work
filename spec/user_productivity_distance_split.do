@@ -2,6 +2,11 @@
 * heterogeneity_distance_base.do   —  IV split by distance tercile
 *   base controls:  var3  var4
 *-----------------------------------------------------------------------
+* ---------------------------------------------------------------------
+*  User-configurable parameters
+* ---------------------------------------------------------------------
+local nbins 3                      // ← change this single value to 2, etc.
+
 args panel_variant
 if "`panel_variant'"=="" local panel_variant "precovid"
 
@@ -11,7 +16,7 @@ use "$processed_data/user_panel_`panel_variant'.dta", clear
 preserve
     keep firm_id avgdist_km
     duplicates drop firm_id, force          // one row per firm
-    xtile gdist_tile = avgdist_km, nq(3) // 1=short  2=med  3=long
+    xtile gdist_tile = avgdist_km, nq(`nbins')
     keep firm_id gdist_tile
     tempfile dist_tiles
     save `dist_tiles'
@@ -24,7 +29,7 @@ cap mkdir "log"
 capture log close
 log using "log/het_dist_base.log", replace text
 
-local result_dir "$results/het_dist_base_`panel_variant'"
+local result_dir "$results/het_dist_base_`panel_variant'_`nbins'"
 cap mkdir "`result_dir'"
 
 
@@ -43,7 +48,7 @@ postfile handle ///
 *--------------------------------------------------------------
 * Loop over buckets
 *--------------------------------------------------------------
-foreach g in 1 2 3 {
+forvalues g = 1/`nbins' {
 
     di as text "=== Distance bucket `g' ==="
 

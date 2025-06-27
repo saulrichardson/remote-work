@@ -1,19 +1,15 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_dist_base.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/post_het_growth_base.log
   log type:  text
- opened on:  27 Jun 2025, 08:53:32
+ opened on:  27 Jun 2025, 08:57:52
 
 . 
-. local result_dir "$results/het_dist_base_`panel_variant'_`nbins'"
+. local result_dir "$results/post_growth_base_`panel_variant'_`nbins'"
 
 . cap mkdir "`result_dir'"
 
 . 
-. 
-. *--------------------------------------------------------------
-. * Open postfile
-. *--------------------------------------------------------------
 . tempfile out
 
 . capture postclose handle
@@ -24,19 +20,19 @@
 >     double coef5 se5 pval5   /// var5 stats
 >     double rkf nobs          /// first‐stage F and N
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 not found)
 
 . 
-. *--------------------------------------------------------------
-. * Loop over buckets
-. *--------------------------------------------------------------
+. *--------------------------------------------------------------*
+. *  Loop over growth buckets, run base-spec IV                  *
+. *--------------------------------------------------------------*
 . forvalues g = 1/`nbins' {
   2. 
-.     di as text "=== Distance bucket `g' ==="
+.     di as text "=== growth bucket `g' ==="
   3. 
-.     ivreghdfe total_contributions_q100 ///
->         (var3 var5 = var6 var7)  var4 ///
->         if gdist_tile == `g', ///
+.     ivreghdfe total_contributions_q100                 ///
+>         (var3 var5 = var6 var7) var4                  ///
+>         if lg_tile == `g',                             ///
 >         absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
   4. 
 .     // compute stats for var3
@@ -55,8 +51,8 @@
 >         (e(rkf)) (e(N))
  11. 
 . }
-=== Distance bucket 1 ===
-(dropped 1260 singleton observations)
+=== growth bucket 1 ===
+(dropped 3123 singleton observations)
 (MWFE estimator converged in 8 iterations)
 
 Stored estimation results
@@ -75,26 +71,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =    8270                Number of obs =    46715
-                                                      F(  3,  8269) =     5.40
-                                                      Prob > F      =   0.0010
-Total (centered) SS     =  11382877.32                Centered R2   =  -0.1811
-Total (uncentered) SS   =  11382877.32                Uncentered R2 =  -0.1811
-Residual SS             =  13444605.99                Root MSE      =    16.97
+Number of clusters (user_id) =   18259                Number of obs =   100696
+                                                      F(  3, 18258) =     9.80
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  26505014.91                Centered R2   =  -0.0106
+Total (uncentered) SS   =  26505014.91                Uncentered R2 =  -0.0106
+Residual SS             =  26786328.27                Root MSE      =    16.31
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -50.54144   20.55894    -2.46   0.014    -90.84211   -10.24077
-        var5 |   59.87408   26.92737     2.22   0.026     7.089679    112.6585
-        var4 |  -42.45006   20.12698    -2.11   0.035    -81.90398   -2.996138
+        var3 |  -16.32197   8.601855    -1.90   0.058    -33.18242     .538472
+        var5 |   23.08218   10.25182     2.25   0.024     2.987654    43.17671
+        var4 |  -18.47214   6.796825    -2.72   0.007    -31.79455   -5.149721
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             11.123
-                                                   Chi-sq(1) P-val =    0.0009
+Underidentification test (Kleibergen-Paap rk LM statistic):             53.074
+                                                   Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              104.089
-                         (Kleibergen-Paap rk Wald F statistic):          5.987
+Weak identification test (Cragg-Donald Wald F statistic):              402.344
+                         (Kleibergen-Paap rk Wald F statistic):         27.371
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -118,12 +114,12 @@ Absorbed degrees of freedom:
 -----------------------------------------------------------+
        Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------------+---------------------------------------|
-   firm_id#user_id |      8666        8666           0    *|
+   firm_id#user_id |     19767       19767           0    *|
                 yh |        11           1          10     |
 -----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-=== Distance bucket 2 ===
-(dropped 5336 singleton observations)
+=== growth bucket 2 ===
+(dropped 3474 singleton observations)
 (MWFE estimator converged in 8 iterations)
 
 Stored estimation results
@@ -142,26 +138,26 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   29194                Number of obs =   177907
-                                                      F(  3, 29193) =     4.36
-                                                      Prob > F      =   0.0045
-Total (centered) SS     =  45267342.46                Centered R2   =   0.0002
-Total (uncentered) SS   =  45267342.46                Uncentered R2 =   0.0002
-Residual SS             =  45256094.97                Root MSE      =    15.95
+Number of clusters (user_id) =   20524                Number of obs =   124012
+                                                      F(  3, 20523) =     0.99
+                                                      Prob > F      =   0.3970
+Total (centered) SS     =  30125116.48                Centered R2   =  -0.0011
+Total (uncentered) SS   =  30125116.48                Uncentered R2 =  -0.0011
+Residual SS             =  30157217.78                Root MSE      =     15.6
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -3.090965   4.002761    -0.77   0.440    -10.93656    4.754628
-        var5 |    7.21714   5.491233     1.31   0.189    -3.545926    17.98021
-        var4 |  -6.812537   4.104401    -1.66   0.097    -14.85735    1.232274
+        var3 |   3.823043   5.461927     0.70   0.484    -6.882767    14.52885
+        var5 |  -5.647152   8.115971    -0.70   0.487     -21.5551     10.2608
+        var4 |   3.646156   6.482455     0.56   0.574    -9.059972    16.35228
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            275.520
+Underidentification test (Kleibergen-Paap rk LM statistic):            145.236
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             2053.220
-                         (Kleibergen-Paap rk Wald F statistic):        145.017
+Weak identification test (Cragg-Donald Wald F statistic):             1032.957
+                         (Kleibergen-Paap rk Wald F statistic):         79.712
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -185,7 +181,7 @@ Absorbed degrees of freedom:
 -----------------------------------------------------------+
        Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------------+---------------------------------------|
-   firm_id#user_id |     34029       34029           0    *|
+   firm_id#user_id |     22943       22943           0    *|
                 yh |        11           1          10     |
 -----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
@@ -195,13 +191,14 @@ Absorbed degrees of freedom:
 
 . use `out', clear
 
-. export delimited using "`result_dir'/var5_distance_base.csv", replace
-(file ../results/raw/het_dist_base_precovid_2/var5_distance_base.csv not found)
-file ../results/raw/het_dist_base_precovid_2/var5_distance_base.csv saved
+. export delimited using "`result_dir'/var5_growth_base.csv", replace
+(file ../results/raw/post_growth_base_precovid_2/var5_growth_base.csv not found)
+file ../results/raw/post_growth_base_precovid_2/var5_growth_base.csv saved
 
+. 
 . log close
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_dist_base.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/post_het_growth_base.log
   log type:  text
- closed on:  27 Jun 2025, 08:53:45
+ closed on:  27 Jun 2025, 08:58:04
 -----------------------------------------------------------------------------------------------------------------------------------------

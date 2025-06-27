@@ -24,6 +24,14 @@ PROJECT_ROOT = HERE.parents[1]
 PY = sys.executable or "python"
 
 # ---------------------------------------------------------------------------
+#  Configure number of bins used for the heterogeneity splits
+# ---------------------------------------------------------------------------
+# Change this single constant to 2 to switch to a two-way split.  All input
+# paths will adjust automatically (they expect the bin count as a suffix).
+
+NBINS = 3  # default
+
+# ---------------------------------------------------------------------------
 #  Four heterogeneity result files → cleaned LaTeX names
 # ---------------------------------------------------------------------------
 
@@ -32,25 +40,25 @@ CLEANED_DIR = PROJECT_ROOT / "results" / "cleaned"
 
 TASKS = [
     {
-        "csv": RAW_BASE / "het_modal_base_precovid" / "var5_modal_base.csv",
+        "csv": RAW_BASE / f"het_modal_base_precovid_{NBINS}" / "var5_modal_base.csv",
         "out": CLEANED_DIR / "var5_modal_base.tex",
         "caption": "Modal MSA heterogeneity",
         "label": "tab:modal_msa",
     },
     {
-        "csv": RAW_BASE / "het_dist_base_precovid" / "var5_distance_base.csv",
+        "csv": RAW_BASE / f"het_dist_base_precovid_{NBINS}" / "var5_distance_base.csv",
         "out": CLEANED_DIR / "var5_distance_base.tex",
         "caption": "Distance heterogeneity",
         "label": "tab:distance",
     },
     {
-        "csv": RAW_BASE / "dynamic_growth_base_precovid" / "var5_growth_base.csv",
+        "csv": RAW_BASE / f"dynamic_growth_base_precovid_{NBINS}" / "var5_growth_base.csv",
         "out": CLEANED_DIR / "var5_growth_base_dynamic.tex",
         "caption": "Dynamic growth heterogeneity",
         "label": "tab:dynamic_growth",
     },
     {
-        "csv": RAW_BASE / "post_growth_base_precovid" / "var5_growth_base.csv",
+        "csv": RAW_BASE / f"post_growth_base_precovid_{NBINS}" / "var5_growth_base.csv",
         "out": CLEANED_DIR / "var5_growth_base_post.tex",
         "caption": "Post-COVID growth heterogeneity",
         "label": "tab:post_growth",

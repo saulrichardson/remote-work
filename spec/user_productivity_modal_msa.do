@@ -2,6 +2,11 @@
 * heterogeneity_modal_base.do  — IV split by modal-MSA status
 *   base controls:  var3  var4
 *----------------------------------------------------------------------
+* ---------------------------------------------------------------------
+*  User-configurable parameters
+* ---------------------------------------------------------------------
+local nbins 3                      // number of distance buckets for naming
+
 args panel_variant
 if "`panel_variant'"=="" local panel_variant "precovid"
 
@@ -28,7 +33,7 @@ cap mkdir "log"
 capture log close
 log using "log/het_modal_base.log", replace text
 
-local result_dir "$results/het_modal_base_`panel_variant'"
+local result_dir "$results/het_modal_base_`panel_variant'_`nbins'"
 cap mkdir "`result_dir'"
 
 tempfile out

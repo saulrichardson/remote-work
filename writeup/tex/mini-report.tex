@@ -92,36 +92,29 @@
 \section{User Productivity – Heterogeneity Splits}
 
 \subsection{Modal vs. Non-Modal MSA}
-Each row is tagged as “\textbf{in modal MSA}” if the worker’s CBSA equals the
-firm’s most common CBSA.  We then re-estimate the IV separately for the three
-groups: \\textbf{1} = inside the modal market, \\textbf{0} = outside, and
-\\textbf{2} = cases where the worker’s CBSA is missing (``empty’’).
+Define an indicator based on the worker’s CBSA: \textbf{1} if it matches the
+firm’s modal (most frequent) CBSA, \textbf{0} if it differs, and \textbf{2}
+if the worker’s CBSA is missing.
 \input{\cleanedresultsdir/var5_modal_base.tex}
 
 \subsection{Distance Terciles}
-For every worker we compute her \\emph{average haversine distance} to the
-company headquarters across the panel horizon (in~km).  Firms are then sorted
-into terciles based on that firm--level mean and the code is merged back to
-the worker panel.  The regressions are re--estimated separately for the short-~
-(``1''), medium-~(``2'') and long--distance (``3'') buckets.
+Compute each worker’s average great-circle distance to the firm headquarters
+(km).  Sort firms into distance terciles and tag observations as
+\textbf{1}=short, \textbf{2}=medium or \textbf{3}=long distance.
 \input{\cleanedresultsdir/var5_distance_base.tex}
 
 \subsection{Dynamic Labour-Growth (within half-year)}
-Using the Scoop employment time--series we calculate the semi--annual growth
-rate $g_{ft}=\tfrac{E_{ft}}{E_{f,t-1}}-1$ for every firm $f$ and half--year
-$t$.  Within each half--year we split firms into employment--growth terciles
-and assign the resulting indicator to all worker observations in that
-half--year.  Bucket ``1'' thus represents firms with below--median \\emph{concurrent}
 employment growth, bucket ``3'' the top tercile.
+For every half-year, compute each firm’s employment growth rate
+$g_{ft}=\tfrac{E_{ft}}{E_{f,t-1}}-1$ and place firms into terciles within that
+half-year: \textbf{1}=low, \textbf{2}=mid, \textbf{3}=high growth.
 \input{\cleanedresultsdir/var5_growth_base_dynamic.tex}
 
 \subsection{Pre vs. Post-COVID Labour-Growth}
-Here the growth metric compares mean headcount \\emph{before} 2020H1 with mean
-headcount \\emph{after}.  For each firm we compute
-$\tfrac{\bar E_{\text{post}}-\bar E_{\text{pre}}}{\bar E_{\text{pre}}}$, Winsorise
-it at the 1st/99th percentiles and split the cross--section of firms into
-terciles.  The variable therefore captures the medium--run adjustment of firm
-size due to the pandemic, independent of intra--year fluctuations.
+Compute for each firm the percentage change in mean headcount from the
+pre-COVID period (before 2020H1) to the post-COVID period, Winsorise at the
+1st/99th percentiles, and assign tercile codes \textbf{1}=low, \textbf{2}=mid,
+\textbf{3}=high medium-run growth.
 \input{\cleanedresultsdir/var5_growth_base_post.tex}
 
 % -------------------------------------------------------------------------

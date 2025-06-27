@@ -124,9 +124,21 @@ def _plot_bins_reg(
             # Keep each line fully inside its own $…$ block; this avoids
             # mathtext errors in newer Matplotlib versions.
             anno_text = (
-                rf"$\beta = {slope:.2f}\;({se:.2f})$"  # first line
-                "\n"
-                rf"$R^2 = {r2:.2f}$"                        # second line
+                rf"$\beta = {slope:.2f}\;({se:.2f})$" "\n"
+                rf"$R^2 = {r2:.2f}$"
+            )
+
+            # Add annotation box (top-left)
+            ax.text(
+                0.05,
+                0.95,
+                anno_text,
+                transform=ax.transAxes,
+                fontsize=11,
+                verticalalignment="top",
+                horizontalalignment="left",
+                color=colour,
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.6, edgecolor=colour),
             )
 
         # Annotate β and R² for age → remote plots (full sample, no split)

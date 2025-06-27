@@ -2,6 +2,11 @@
 * heterogeneity_growth_base.do  —  IV split by post-shock labor-growth
 *   base controls: var3  var4
 *----------------------------------------------------------------------
+* ---------------------------------------------------------------------
+*  User-configurable parameters
+* ---------------------------------------------------------------------
+local nbins 3                      // number of growth buckets (e.g., 2 or 3)
+
 args panel_variant
 if "`panel_variant'"=="" local panel_variant "precovid"
 
@@ -83,7 +88,7 @@ preserve
     bys yh: egen _r = rank(growth_yh)                // 1 … _N inside yh
 
     * 2) turn rank into tercile -------------------------------
-    bys yh: gen  lg_tile = ceil(3 * _r / _N)         // 1 = low, 3 = high
+    bys yh: gen  lg_tile = ceil(`nbins' * _r / _N)
     drop _r
 
     keep companyname yh lg_tile
@@ -105,7 +110,7 @@ cap mkdir "log"
 capture log close
 log using "log/dynamic_het_growth_base.log", replace text
 
-local result_dir "$results/dynamic_growth_base_`panel_variant'"
+local result_dir "$results/dynamic_growth_base_`panel_variant'_`nbins'"
 cap mkdir "`result_dir'"
 
 tempfile out
@@ -120,7 +125,7 @@ postfile handle ///
 *--------------------------------------------------------------*
 *  Loop over growth buckets, run base-spec IV                  *
 *--------------------------------------------------------------*
-foreach g in 1 2 3{
+forvalues g = 1/`nbins' {
 
     di as text "=== growth bucket `g' ==="
 
