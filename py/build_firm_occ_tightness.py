@@ -50,6 +50,8 @@ OUT_DIR_RES = ROOT / "results"
 HEADS_OUT = OUT_DIR_PROC / "firm_occ_msa_heads_2019H2.parquet"
 TIGHT_LKUP_OUT = OUT_DIR_PROC / "tight_wavg_lookup.parquet"
 ENRICHED_OUT = OUT_DIR_PROC / "firm_occ_panel_enriched.parquet"
+# Also write a CSV for downstream Stata import
+ENRICHED_CSV = OUT_DIR_PROC / "firm_occ_panel_enriched.csv"
 
 QA_LOG = OUT_DIR_RES / "qa_tight_wavg.log"
 
@@ -293,8 +295,17 @@ def build_enriched_panel(min_heads_per_metro: int = DEFAULT_MIN_HEADS, *, fallba
 
     con.execute(f"COPY panel_enriched TO '{ENRICHED_OUT.as_posix()}' (FORMAT 'parquet');")
 
+    # Optionally also write CSV for Stata / other tools
+    try:
+        con.execute(
+            f"COPY panel_enriched TO '{ENRICHED_CSV.as_posix()}' (HEADER, DELIMITER ',');"
+        )
+    except Exception as exc:  # pragma: no cover – just warn
+        _log(f"⚠ Could not write CSV version ({exc}) – continuing.")
+
     _log(
-        f"  ✓ {ENRICHED_OUT.name} written ({con.execute('SELECT COUNT(*) FROM panel_enriched').fetchone()[0]:,} rows)"
+        f"  ✓ firm_occ_panel_enriched written → .parquet & .csv  ("
+        f"{con.execute('SELECT COUNT(*) FROM panel_enriched').fetchone()[0]:,} rows)"
     )
 
     # ------------------------------------------------------------------
