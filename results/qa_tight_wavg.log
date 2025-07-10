@@ -1,0 +1,10 @@
+
+===================== QA ‑ tight_wavg =====================
+Rows in enriched panel      : 3,532,735
+Rows with missing tightness : 337,344  (9.55%)
+
+tight_wavg distribution (non-missing):
+    min    = 0.0272
+    median = 1.0234
+    max    = 58.2251
+===========================================================
