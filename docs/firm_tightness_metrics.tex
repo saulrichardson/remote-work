@@ -128,16 +128,8 @@ several metros the figure lands somewhere in between.
 \]
 
 \subsection*{Step 2.3\; Collapse to firm level}
-We now pool together all metros and simply ask: 
-“How many employees does the firm have in each occupation, regardless of location?”
-Call this total $H_{f,o}$ for occupation~$o$.
-
-The firm still employs many different occupations and some are far
-larger than others.  To reflect this we convert the raw counts
-$H_{f,o}$ into shares of the total workforce—larger job families should
-carry more weight when we collapse to a single firm number.  We obtain
-these shares by dividing each occupation’s head-count by the firm’s
 overall head-count; these are the occupation weights
+Pooling across metros, we count how many employees the firm has in each occupation—call this total $H_{f,o}$—and immediately turn these counts into shares of the full workforce so that larger job families carry more weight; dividing each $H_{f,o}$ by the firm’s overall head-count yields the occupation weights
 \[
   \beta_{f,o}=\frac{H_{f,o}}{\sum_k H_{f,k}}, \qquad \textstyle\sum_o \beta_{f,o}=1.
 \]
