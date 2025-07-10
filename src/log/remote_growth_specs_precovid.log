@@ -1,0 +1,684 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/remote_growth_specs_precovid.log
+  log type:  text
+ opened on:   1 Jul 2025, 08:32:03
+
+. 
+. *--------------------------------------------------------------------*
+. * 1) Globals & result folder ---------------------------------------*
+. *--------------------------------------------------------------------*
+. do "../src/globals.do"                     // defines $processed_data, $results
+
+. global raw_data "../data/raw"
+
+. global processed_data  "../data/processed"
+
+. global results "../results/raw"
+
+. global clean_results "../results/cleaned"
+
+. 
+. 
+. 
+. 
+. 
+end of do-file
+
+. local result_dir "$results/`specname'"
+
+. cap mkdir "`result_dir'"
+
+. 
+. *--------------------------------------------------------------------*
+. * 2) Load user panel once ------------------------------------------*
+. *--------------------------------------------------------------------*
+. use "$processed_data/user_panel_`panel_variant'.dta", clear
+
+. tempfile userpanel
+
+. save `userpanel', replace                     // keep a pristine copy
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 saved as .dta format
+
+. 
+. *--------------------------------------------------------------------*
+. * 3) Create company-level Covid-period growth -----------------------*
+. *--------------------------------------------------------------------*
+. tempfile industries industry_growth company_growth firm_growth
+
+. 
+. * 3a. map companies → industry & MSA
+. preserve
+
+.     collapse (last) industry (last) company_msa, by(companyname)
+
+.     keep companyname industry company_msa
+
+.     save `industries', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 saved as .dta format
+
+. restore
+
+. 
+. * 3b. bring in Scoop head-count file once
+. import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(6 vars, 323,675 obs)
+
+. drop v1
+
+. gen date_numeric = date(date, "YMD")
+
+. drop date
+
+. rename date_numeric date
+
+. format date %td
+
+. 
+. gen yh = hofd(date)
+
+. gen year = yofd(date)
+
+. format yh %th
+
+. 
+. gen byte covid = yh >= 120                 // 2020-H1 and after
+
+. 
+. *--------------------------------------------------------------------*
+. * 3c. INDUSTRY-level Covid growth  – create both variants            *
+. *--------------------------------------------------------------------*
+. preserve
+
+. 
+.     merge m:1 companyname using `industries', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       153,494
+        from master                   153,494  
+        from using                          0  
+
+    Matched                           170,181  
+    -----------------------------------------
+
+.     collapse (last) total_employees covid industry, by(yh companyname)
+
+.     encode companyname, gen(comp_id)
+
+.     xtset comp_id yh
+
+Panel variable: comp_id (unbalanced)
+ Time variable: yh, 2016h1 to 2022h1, but with gaps
+         Delta: 1 halfyear
+
+.     sort  comp_id yh
+
+.     gen fg = (total_employees/L.total_employees) - 1 if _n>1
+(4,415 missing values generated)
+
+.     winsor2 fg, cuts(1 99) suffix(_we)
+
+.     collapse (mean) fg_we if covid, by(industry)
+
+.     rename  fg_we ind_growth_favg
+
+. 
+.     
+. 
+.     save `industry_growth', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 saved as .dta format
+
+. restore
+
+. 
+. 
+. *--------------------------------------------------------------------*
+. * 3d. COMPANY-level Covid growth ------------------------------------*
+. *--------------------------------------------------------------------*
+. preserve
+
+.     merge m:1 companyname using `industries', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       153,494
+        from master                   153,494  
+        from using                          0  
+
+    Matched                           170,181  
+    -----------------------------------------
+
+.     collapse (last) total_employees covid, by(yh companyname)
+
+.     encode companyname, gen(comp_id)
+
+.     xtset comp_id yh
+
+Panel variable: comp_id (unbalanced)
+ Time variable: yh, 2016h1 to 2022h1, but with gaps
+         Delta: 1 halfyear
+
+.     sort  comp_id yh
+
+.     gen growth = (total_employees/L.total_employees) - 1 if _n>1
+(4,416 missing values generated)
+
+.     winsor2 growth, cuts(1 99) suffix(_we)
+
+.     collapse (mean) growth_we if covid, by(companyname)
+
+.     rename  growth_we growth_rate_we_post_c
+
+.     save `company_growth', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 saved as .dta format
+
+. restore
+
+. 
+. *--------------------------------------------------------------------*
+. * 3e. Combine for leave-out means & growth bins ---------------------*
+. *--------------------------------------------------------------------*
+. use `company_growth', clear                    // one row per firm
+
+. merge m:1 companyname using `industries', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         2,129
+        from master                     2,129  
+        from using                          0  
+
+    Matched                             2,224  
+    -----------------------------------------
+
+. merge m:1 industry      using `industry_growth', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                             0
+    Matched                             4,353  
+    -----------------------------------------
+
+. 
+. *--------------------------------------------------------------------
+. * Jackknife (leave-one-out) group means for instruments
+. *--------------------------------------------------------------------
+. 
+. * ------------ Jackknife means: FIRM-AVG --------------------------
+. bysort industry : egen ind_sum_favg = total(ind_growth_favg)
+
+. bysort industry : egen ind_n_favg   = count(ind_growth_favg)
+
+. gen     avg_ind_favg_lo = (ind_sum_favg - ind_growth_favg)/(ind_n_favg - 1) if ind_n_favg>1
+
+. 
+. 
+. * jackknife leave-one-out MSA mean
+. bysort company_msa : egen msa_sum = total(growth_rate_we_post_c)
+
+. bysort company_msa : egen msa_n   = count(growth_rate_we_post_c)
+
+. gen   avg_msa_lo = (msa_sum - growth_rate_we_post_c) / (msa_n - 1) if msa_n>1
+(63 missing values generated)
+
+. drop  msa_sum msa_n
+
+. 
+. 
+. 
+. capture drop ind_sum_raw ind_n_raw ind_sum_favg ind_n_favg
+
+. 
+. *--- CREATE the series you'll use in the tile regression -------------
+. gen   avg_ind = avg_ind_favg_lo                     
+
+. 
+.                 
+. 
+. // keep companyname growth_rate_we_post_c avg_ind avg_ind_favg_lo avg_msa 
+. 
+. save `firm_growth', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 saved as .dta format
+
+. 
+. *--------------------------------------------------------------------*
+. * 4) Merge growth info back to user panel  +  build emp_pre ---------*
+. *--------------------------------------------------------------------*
+. use `userpanel', clear                           // reload pristine panel
+
+. merge m:1 companyname using `firm_growth', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         2,129
+        from master                         0  
+        from using                      2,129  
+
+    Matched                           231,305  
+    -----------------------------------------
+
+. 
+. *--------------------------------------------------------------------*
+. * 4a. Create pre-Covid firm size (emp_pre) on the fly ---------------*
+. *--------------------------------------------------------------------*
+. tempfile preemp
+
+. preserve
+
+.     import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(6 vars, 323,675 obs)
+
+.     drop v1
+
+.         gen date_numeric = date(date, "YMD")
+
+.         drop date
+
+.         rename date_numeric date
+
+.         format date %td
+
+. 
+.         gen yh = hofd(date)
+
+.         gen year = yofd(date)
+
+.         format yh %th
+
+.     keep if yh <= 119                               // 2019-H2 and earlier
+(129,457 observations deleted)
+
+.     collapse (mean) total_employees, by(companyname)
+
+.     rename total_employees emp_pre
+
+.     save `preemp', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000009 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000009 saved as .dta format
+
+. restore
+
+. 
+. merge m:1 companyname using `preemp', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           133
+        from master                       115  
+        from using                         18  
+
+    Matched                           233,319  
+    -----------------------------------------
+
+. 
+. 
+. 
+. *--------------------------------------------------------------------*
+. * 5) Bin all continuous COVID-period variables into low/high (no if)*
+. *--------------------------------------------------------------------*
+. * Note: growth_rate_we_post_c, avg_ind_favg_lo, avg_msa_lo are missing pre-COVID,
+. *       so xtile automatically ignores those and only bins actual post-COVID obs.
+. 
+. xtile growth_bin = growth_rate_we_post_c, nq(2)
+
+. xtile emp_bin    = emp_pre,                nq(2)
+
+. xtile ind_bin    = avg_ind_favg_lo,        nq(2)
+
+. xtile msa_bin    = avg_msa_lo,             nq(2)
+
+. 
+. *--------------------------------------------------------------------*
+. * 6) Build binned regressors & instruments -------------------------*
+. *--------------------------------------------------------------------*
+. * postgrow and startup interaction
+. gen postgrow            = growth_bin
+(22 missing values generated)
+
+. gen postgrow_startup    = growth_bin * startup
+(2,147 missing values generated)
+
+. 
+. * size control
+. gen size_covid          = emp_bin
+(115 missing values generated)
+
+. gen size_covid_startup  = emp_bin * startup
+(2,147 missing values generated)
+
+. 
+. * industry leave-out instrument
+. gen ind_mean            = ind_bin
+(18 missing values generated)
+
+. gen ind_mean_startup    = ind_bin * startup
+(2,147 missing values generated)
+
+. 
+. * MSA leave-out instrument
+. gen msa_mean            = msa_bin
+(2,670 missing values generated)
+
+. gen msa_mean_startup    = msa_bin * startup
+(4,795 missing values generated)
+
+. 
+. 
+. *--------------------------------------------------------------------*
+. * 6) Macro scaffolding for 6 IV columns -----------------------------*
+. *--------------------------------------------------------------------*
+. * Endogenous bundles
+. local endo1 "var3 var5"
+
+. local endo2 "`endo1'"
+
+. local endo3 "`endo1'"
+
+. local endo4 "`endo1' postgrow postgrow_startup"
+
+. local endo5 "`endo4'"
+
+. local endo6 "`endo4'"
+
+. 
+. * Exogenous controls
+. local exog1 "var4"
+
+. local exog2 "`exog1' postgrow postgrow_startup"
+
+. local exog3 "`exog2' size_covid size_covid_startup"
+
+. local exog4 "`exog1' size_covid size_covid_startup"
+
+. local exog5 "`exog4'"
+
+. local exog6 "`exog4'"
+
+. 
+. * Instruments
+. local zbase "var6 var7"
+
+. local zind  "ind_mean ind_mean_startup"
+
+. local zmsa  "msa_mean msa_mean_startup"
+
+. 
+. local instr1 "`zbase'"
+
+. local instr2 "`zbase'"
+
+. local instr3 "`zbase'"
+
+. local instr4 "`zbase' `zind'"
+
+. local instr5 "`zbase' `zmsa'"
+
+. local instr6 "`zbase' `zind' `zmsa'"
+
+. 
+. *--------------------------------------------------------------------*
+. * 7) Estimation loop  ----------------------------------------------*
+. *--------------------------------------------------------------------*
+. tempfile results
+
+. capture postclose handle
+
+. postfile handle ///
+>     str6   col ///
+>         str20  param ///
+>     double coef se pval rkf nobs ///
+>     using `results', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.00000b not found)
+
+. 
+. forvalues c = 1/6 {
+  2.     di as text "→ Column `c'"
+  3.          local endo  `endo`c''
+  4.          local exog  `exog`c''
+  5.          local instr `instr`c''
+  6.     ivreghdfe total_contributions_q100 ///
+>         (`endo' = `instr') `exog', ///
+>         absorb(firm_id user_id yh) ///
+>         vce(cluster user_id) 
+  7. 
+.     local rkf = e(rkf)
+  8.     local N   = e(N)
+  9. 
+.     * record baseline coefficients
+.     foreach v of varlist var3 var5 {
+ 10.         post handle ("IV`c'") ("`v'") ///
+>             (_b[`v']) (_se[`v']) ///
+>             (2*ttail(e(df_r),abs(_b[`v']/_se[`v']))) ///
+>             (`rkf') (`N')
+ 11.     }
+ 12. 
+.     * record growth coefficients for columns 4–6
+. //     if inlist(`c',4,5,6) {
+. //         foreach v of varlist postgrow postgrow_startup {
+. //             post handle ("IV`c'") ("`v'") ///
+. //                 (_b[`v']) (_se[`v']) ///
+. //                 (2*ttail(e(df_r),abs(_b[`v']/_se[`v']))) ///
+. //                 (`rkf') (`N')
+. //         }
+. //     }
+. }
+→ Column 1
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 80 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   35789                Number of obs =   229862
+                                                      F(  3, 35788) =     7.03
+                                                      Prob > F      =   0.0001
+Total (centered) SS     =  65286353.41                Centered R2   =  -0.0014
+Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0014
+Residual SS             =  65377411.43                Root MSE      =    16.94
+
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -7.151334   3.898685    -1.83   0.067    -14.79287    .4902066
+        var5 |   9.937201   5.370722     1.85   0.064    -.5895776    20.46398
+        var4 |  -8.364159    4.04877    -2.07   0.039    -16.29987    -.428447
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            266.393
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1850.988
+                         (Kleibergen-Paap rk Wald F statistic):        140.597
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2151           1        2150     |
+     user_id |     35789       35789           0    *|
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+→ Column 2
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 80 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   35789                Number of obs =   229862
+                                                      F(  3, 35788) =     7.03
+                                                      Prob > F      =   0.0001
+Total (centered) SS     =  65286353.41                Centered R2   =  -0.0014
+Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0014
+Residual SS             =  65377411.43                Root MSE      =    16.94
+
+----------------------------------------------------------------------------------
+                 |               Robust
+total_contri~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-----------------+----------------------------------------------------------------
+            var3 |  -7.151334   3.898685    -1.83   0.067    -14.79287    .4902066
+            var5 |   9.937201   5.370722     1.85   0.064    -.5895776    20.46398
+            var4 |  -8.364159    4.04877    -2.07   0.039    -16.29987    -.428447
+        postgrow |          0  (omitted)
+postgrow_startup |          0  (omitted)
+----------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            266.393
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1850.972
+                         (Kleibergen-Paap rk Wald F statistic):        140.595
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Warning: estimated covariance matrix of moment conditions not of full rank.
+         overidentification statistic not reported, and standard errors and
+         model tests should be interpreted with caution.
+Possible causes:
+         number of clusters insufficient to calculate robust covariance matrix
+         singleton dummy variable (dummy with one 1 and N-1 0s or vice versa)
+partial option may address problem.
+------------------------------------------------------------------------------
+Collinearities detected among instruments: 2 instrument(s) dropped
+Instrumented:         var3 var5
+Included instruments: var4 postgrow postgrow_startup
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2151           1        2150     |
+     user_id |     35789       35789           0    *|
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+→ Column 3
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 80 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   35789                Number of obs =   229862
+                                                      F(  3, 35788) =     7.03
+                                                      Prob > F      =   0.0001
+Total (centered) SS     =  65286353.41                Centered R2   =  -0.0014
+Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0014
+Residual SS             =  65377411.43                Root MSE      =    16.94
+
+------------------------------------------------------------------------------------
+                   |               Robust
+total_contribu~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------------+----------------------------------------------------------------
+              var3 |  -7.151334   3.898685    -1.83   0.067    -14.79287    .4902066
+              var5 |   9.937201   5.370722     1.85   0.064    -.5895776    20.46398
+              var4 |  -8.364159    4.04877    -2.07   0.039    -16.29987    -.428447
+          postgrow |          0  (omitted)
+  postgrow_startup |          0  (omitted)
+        size_covid |          0  (omitted)
+size_covid_startup |          0  (omitted)
+------------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            266.393
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1850.956
+                         (Kleibergen-Paap rk Wald F statistic):        140.594
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Warning: estimated covariance matrix of moment conditions not of full rank.
+         overidentification statistic not reported, and standard errors and
+         model tests should be interpreted with caution.
+Possible causes:
+         number of clusters insufficient to calculate robust covariance matrix
+         singleton dummy variable (dummy with one 1 and N-1 0s or vice versa)
+partial option may address problem.
+------------------------------------------------------------------------------
+Collinearities detected among instruments: 4 instrument(s) dropped
+Instrumented:         var3 var5
+Included instruments: var4 postgrow postgrow_startup size_covid
+                      size_covid_startup
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2151           1        2150     |
+     user_id |     35789       35789           0    *|
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+→ Column 4
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 80 iterations)
+conformability error
+r(503);
+
+end of do-file
+
+r(503);
+
+. do "/Users/saul/Dropbox/Remote Work Startups/main/spec/user_mechanisms_lean.do"
+
+. *============================================================*
+. * do/user_mechanisms_regressions.do
+. *  — Automated export of OLS, IV & first-stage F's
+. *    across 8 specification columns
+. *============================================================*
+. 
+. capture log close

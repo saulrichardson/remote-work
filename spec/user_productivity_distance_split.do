@@ -5,7 +5,7 @@
 * ---------------------------------------------------------------------
 *  User-configurable parameters
 * ---------------------------------------------------------------------
-local nbins 3                      // ← change this single value to 2, etc.
+local nbins 2                      // ← change this single value to 2, etc.
 
 args panel_variant
 if "`panel_variant'"=="" local panel_variant "precovid"

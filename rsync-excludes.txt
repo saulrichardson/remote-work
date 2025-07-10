@@ -1,0 +1,20 @@
+# Git
+.git/
+.gitignore
+
+# Node
+node_modules/
+
+# Python envs
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Jupyter & logs
+.ipynb_checkpoints/
+*.log
+
+# macOS cruft
+.DS_Store

@@ -5,7 +5,8 @@
 #SBATCH --time=01:00:00
 #SBATCH --mem=10G
 #SBATCH --job-name=build_user_panels
-#SBATCH --output=build_user_panels_%j.out
+#SBATCH --output=build_user_panels.out
+#SBATCH --error=build_user_panels.err
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=sxr203@nyu.edu
 

@@ -5,7 +5,8 @@
 #SBATCH --time=24:00:00
 #SBATCH --mem=80G
 #SBATCH --job-name=firm_tele_scores
-#SBATCH --output=build_firm_teleworkable_scores_%j.out
+#SBATCH --output=build_firm_teleworkable_scores.out
+#SBATCH --error=build_firm_teleworkable_scores.err
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=sxr203@nyu.edu
 

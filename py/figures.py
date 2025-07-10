@@ -128,15 +128,15 @@ def _plot_bins_reg(
                 rf"$R^2 = {r2:.2f}$"
             )
 
-            # Add annotation box (top-left)
+        # Add annotation box (top-right)
             ax.text(
-                0.05,
+                0.95,
                 0.95,
                 anno_text,
                 transform=ax.transAxes,
                 fontsize=11,
                 verticalalignment="top",
-                horizontalalignment="left",
+                horizontalalignment="right",
                 color=colour,
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.6, edgecolor=colour),
             )
@@ -152,15 +152,15 @@ def _plot_bins_reg(
                 rf"$R^2 = {r2:.2f}$"
             )
 
-            # Place annotation in top-left corner
+            # Place annotation in top-right corner
             ax.text(
-                0.05,
+                0.95,
                 0.95,
                 anno_text,
                 transform=ax.transAxes,
                 fontsize=11,
                 verticalalignment="top",
-                horizontalalignment="left",
+                horizontalalignment="right",
                 color=colour,
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.6, edgecolor=colour),
             )
@@ -176,9 +176,9 @@ def _plot_bins_reg(
                 }
                 corner = min(counts, key=counts.get)
                 corners = {
-                    "tl": (0.05, 0.95, "left", "top"),
+                    "tl": (0.95, 0.95, "right", "top"),
                     "tr": (0.95, 0.95, "right", "top"),
-                    "bl": (0.05, 0.05, "left", "bottom"),
+                    "bl": (0.95, 0.05, "right", "bottom"),
                     "br": (0.95, 0.05, "right", "bottom"),
                 }
                 base_x, base_y, ha, va = corners[corner]

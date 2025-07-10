@@ -33,28 +33,191 @@ capture mkdir "`result_dir'"
 use "$processed_data/user_panel_`panel_variant'.dta", clear
 gen seniority_4 = !inrange(seniority_levels,1,3)
 
+
+
+
+
+preserve
+
+
+args panel_variant
+if "`panel_variant'" == "" local panel_variant "precovid"
+
+
+use "$processed_data/user_panel_`panel_variant'.dta", clear
+collapse (last) industry (last) company_msa (last) hqcity (last) hqstate, by(companyname)
+keep companyname industry company_msa
+tempfile industries
+save `industries', replace
+
+
+
+import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+drop v1
+
+gen date_numeric = date(date, "YMD")
+drop date
+rename date_numeric date
+format date %td
+
+gen yh = hofd(date)
+gen year = yofd(date)
+format yh %th
+
+
+drop if date == 22797
+gen byte covid = yh >= 120     
+
+merge m:1 companyname using `industries', nogenerate   
+
+
+
+collapse (last) total_employees date (sum) join leave (last) covid, by(yh industry)
+
+
+
+encode companyname, gen(company_numeric)
+xtset company_numeric yh
+// sort company_numeric yh
+
+encode industry, gen(industry_numeric)
+xtset industry_numeric yh
+sort industry_numeric yh
+
+gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
+
+
+winsor2 growth_rate, cuts(1 99) suffix(_we)
+drop growth_rate
+
+collapse growth_rate_we, by(industry covid)
+drop if covid == 0
+
+rename growth_rate_we growth_rate_we_ind
+drop covid 
+
+tempfile industry_growth
+save `industry_growth', replace
+
+
+
+import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+drop v1
+
+gen date_numeric = date(date, "YMD")
+drop date
+rename date_numeric date
+format date %td
+
+gen yh = hofd(date)
+gen year = yofd(date)
+format yh %th
+
+
+drop if date == 22797
+gen byte covid = yh >= 120     
+
+
+
+
+collapse (last) total_employees date (sum) join leave (last) covid, by(yh companyname)
+
+
+
+encode companyname, gen(company_numeric)
+xtset company_numeric yh
+sort company_numeric yh
+
+
+
+gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
+
+
+winsor2 growth_rate, cuts(1 99) suffix(_we)
+drop growth_rate
+
+collapse growth_rate_we, by(companyname covid)
+drop if covid == 0
+
+rename growth_rate_we growth_rate_we_post_c
+
+drop covid 
+
+merge m:1 companyname using `industries', nogenerate   
+
+tempfile company_post_growth
+save `company_post_growth', replace
+
+
+
+merge m:1 industry using `industry_growth'
+drop if industry == ""
+
+
+bysort company_msa : egen avg_msa = mean(growth_rate_we_post_c)
+bysort industry : egen avg_ind = mean(growth_rate_we_post_c)
+
+regress growth_rate_we_post_c avg_ind avg_msa
+
+predict yhat
+sum yhat
+
+xtile lg_tile = yhat, nq(2)
+
+
+
+tempfile firm_growth          // temp filename macro
+save `firm_growth', replace   // dataset lives only this session
+
+
+restore
+
+
+
+merge m:1 companyname using `firm_growth', nogenerate   
+
+
+
+
+gen var17 = covid*lg_tile
+gen var18 = covid*lg_tile*startup
+
+
+// ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, ///
+//     absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
+	
+ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4 var17 var18, ///
+    absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
+	
+	
+
+
+
 // interactions
 gen var8  = covid*rent
 gen var9 = covid*rent*startup
-gen var11  = covid*hhi_1000
-gen var12 = covid*hhi_1000*startup
-gen var14  = covid*seniority_4
-gen var15 = covid*seniority_4*startup
+// gen var11  = covid*hhi_1000
+// gen var12 = covid*hhi_1000*startup
+gen var11  = covid*lg_tile
+gen var12 = covid*lg_tile*startup
+// gen var14  = covid*seniority_4
+// gen var15 = covid*seniority_4*startup
+
+gen var14  = covid*emp_pre
+gen var15 = covid*emp_pre*startup
 
 
 // pick your mechanism here
 // local mech    sd_wage
 // local mech_label  sdw 
 
-// local mech    p90_p10_gap
-// local mech_label  gap
+local mech    p90_p10_gap
+local mech_label  gap
 
+gen p90_p10_gap = 1
 // generate interactions
-// gen var17 = covid*`mech'
-// gen var18 = covid*`mech'*startup
-
-gen var17 = covid*1
-gen var18 = covid*1
+gen var17 = covid*`mech'
+gen var18 = covid*`mech'*startup
 
 
 
@@ -224,7 +387,7 @@ foreach p in var3 var5 {
 
 
 // 4) Loop
-forvalues i = 2/16 {
+forvalues i = 2/8 {
     // 1) pick the spec name
     local spec    : word `i' of `specs'
 

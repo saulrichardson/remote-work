@@ -1,0 +1,710 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/remote_growth_specs_precovid.log
+  log type:  text
+ opened on:   3 Jul 2025, 14:00:01
+
+. 
+. *--------------------------------------------------------------------*
+. * 1) Globals & result folder ---------------------------------------*
+. *--------------------------------------------------------------------*
+. do "../src/globals.do"                     // defines $processed_data, $results
+
+. global raw_data "../data/raw"
+
+. global processed_data  "../data/processed"
+
+. global results "../results/raw"
+
+. global clean_results "../results/cleaned"
+
+. 
+. 
+. 
+. 
+. 
+end of do-file
+
+. local result_dir "$results/`specname'"
+
+. cap mkdir "`result_dir'"
+
+. 
+. *--------------------------------------------------------------------*
+. * 2) Load user panel once ------------------------------------------*
+. *--------------------------------------------------------------------*
+. use "$processed_data/user_panel_`panel_variant'.dta", clear
+
+. tempfile userpanel
+
+. save `userpanel', replace                     // keep a pristine copy
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000001 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000001 saved as .dta format
+
+. 
+. *--------------------------------------------------------------------*
+. * 3) Create company-level Covid-period growth -----------------------*
+. *--------------------------------------------------------------------*
+. tempfile industries industry_growth company_growth firm_growth
+
+. 
+. * 3a. map companies → industry & MSA
+. preserve
+
+.     collapse (last) industry (last) company_msa, by(companyname)
+
+.     keep companyname industry company_msa
+
+.     save `industries', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000002 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000002 saved as .dta format
+
+. restore
+
+. 
+. * 3b. bring in Scoop head-count file once
+. import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(6 vars, 323,675 obs)
+
+. drop v1
+
+. gen date_numeric = date(date, "YMD")
+
+. drop date
+
+. rename date_numeric date
+
+. format date %td
+
+. 
+. gen yh = hofd(date)
+
+. gen year = yofd(date)
+
+. format yh %th
+
+. 
+. gen byte covid = yh >= 120                 // 2020-H1 and after
+
+. 
+. *--------------------------------------------------------------------*
+. * 3c. INDUSTRY-level Covid growth  – create both variants            *
+. *--------------------------------------------------------------------*
+. preserve
+
+. 
+.     merge m:1 companyname using `industries', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       153,494
+        from master                   153,494  
+        from using                          0  
+
+    Matched                           170,181  
+    -----------------------------------------
+
+.     collapse (last) total_employees covid industry, by(yh companyname)
+
+.     encode companyname, gen(comp_id)
+
+.     xtset comp_id yh
+
+Panel variable: comp_id (unbalanced)
+ Time variable: yh, 2016h1 to 2022h1, but with gaps
+         Delta: 1 halfyear
+
+.     sort  comp_id yh
+
+.     gen fg = (total_employees/L.total_employees) - 1 if _n>1
+(4,421 missing values generated)
+
+.     winsor2 fg, cuts(1 99) suffix(_we)
+
+.     collapse (mean) fg_we if covid, by(industry)
+
+.     rename  fg_we ind_growth_favg
+
+. 
+.     
+. 
+.     save `industry_growth', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000003 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000003 saved as .dta format
+
+. restore
+
+. 
+. 
+. *--------------------------------------------------------------------*
+. * 3d. COMPANY-level Covid growth ------------------------------------*
+. *--------------------------------------------------------------------*
+. preserve
+
+.     merge m:1 companyname using `industries', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       153,494
+        from master                   153,494  
+        from using                          0  
+
+    Matched                           170,181  
+    -----------------------------------------
+
+.     collapse (last) total_employees covid, by(yh companyname)
+
+.     encode companyname, gen(comp_id)
+
+.     xtset comp_id yh
+
+Panel variable: comp_id (unbalanced)
+ Time variable: yh, 2016h1 to 2022h1, but with gaps
+         Delta: 1 halfyear
+
+.     sort  comp_id yh
+
+.     gen growth = (total_employees/L.total_employees) - 1 if _n>1
+(4,418 missing values generated)
+
+.     winsor2 growth, cuts(1 99) suffix(_we)
+
+.     collapse (mean) growth_we if covid, by(companyname)
+
+.     rename  growth_we growth_rate_we_post_c
+
+.     save `company_growth', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000004 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000004 saved as .dta format
+
+. restore
+
+. 
+. *--------------------------------------------------------------------*
+. * 3e. Combine for leave-out means & growth bins ---------------------*
+. *--------------------------------------------------------------------*
+. use `company_growth', clear                    // one row per firm
+
+. merge m:1 companyname using `industries', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         2,129
+        from master                     2,129  
+        from using                          0  
+
+    Matched                             2,224  
+    -----------------------------------------
+
+. merge m:1 industry      using `industry_growth', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                             0
+    Matched                             4,353  
+    -----------------------------------------
+
+. 
+. *--------------------------------------------------------------------
+. * Jackknife (leave-one-out) group means for instruments
+. *--------------------------------------------------------------------
+. 
+. * ------------ Jackknife means: FIRM-AVG --------------------------
+. bysort industry : egen ind_sum_favg = total(ind_growth_favg)
+
+. bysort industry : egen ind_n_favg   = count(ind_growth_favg)
+
+. gen     avg_ind_favg_lo = (ind_sum_favg - ind_growth_favg)/(ind_n_favg - 1) if ind_n_favg>1
+
+. 
+. 
+. * jackknife leave-one-out MSA mean
+. bysort company_msa : egen msa_sum = total(growth_rate_we_post_c)
+
+. bysort company_msa : egen msa_n   = count(growth_rate_we_post_c)
+
+. gen   avg_msa_lo = (msa_sum - growth_rate_we_post_c) / (msa_n - 1) if msa_n>1
+(63 missing values generated)
+
+. drop  msa_sum msa_n
+
+. 
+. 
+. 
+. capture drop ind_sum_raw ind_n_raw ind_sum_favg ind_n_favg
+
+. 
+. *--- CREATE the series you'll use in the tile regression -------------
+. gen   avg_ind = avg_ind_favg_lo                     
+
+. 
+.                 
+. 
+. // keep companyname growth_rate_we_post_c avg_ind avg_ind_favg_lo avg_msa 
+. 
+. save `firm_growth', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000005 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000005 saved as .dta format
+
+. 
+. *--------------------------------------------------------------------*
+. * 4) Merge growth info back to user panel  +  build emp_pre ---------*
+. *--------------------------------------------------------------------*
+. use `userpanel', clear                           // reload pristine panel
+
+. merge m:1 companyname using `firm_growth', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         2,129
+        from master                         0  
+        from using                      2,129  
+
+    Matched                           231,305  
+    -----------------------------------------
+
+. 
+. *--------------------------------------------------------------------*
+. * 4a. Create pre-Covid firm size (emp_pre) on the fly ---------------*
+. *--------------------------------------------------------------------*
+. tempfile preemp
+
+. preserve
+
+.     import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(6 vars, 323,675 obs)
+
+.     drop v1
+
+.         gen date_numeric = date(date, "YMD")
+
+.         drop date
+
+.         rename date_numeric date
+
+.         format date %td
+
+. 
+.         gen yh = hofd(date)
+
+.         gen year = yofd(date)
+
+.         format yh %th
+
+.     keep if yh <= 119                               // 2019-H2 and earlier
+(129,457 observations deleted)
+
+.     collapse (mean) total_employees, by(companyname)
+
+.     rename total_employees emp_pre
+
+.     save `preemp', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000009 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10466.000009 saved as .dta format
+
+. restore
+
+. 
+. merge m:1 companyname using `preemp', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           133
+        from master                       115  
+        from using                         18  
+
+    Matched                           233,319  
+    -----------------------------------------
+
+. 
+. 
+. 
+. *--------------------------------------------------------------------*
+. * 5) Bin all continuous COVID-period variables into low/high (no if)*
+. *--------------------------------------------------------------------*
+. * Note: growth_rate_we_post_c, avg_ind_favg_lo, avg_msa_lo are missing pre-COVID,
+. *       so xtile automatically ignores those and only bins actual post-COVID obs.
+. 
+. xtile growth_bin = growth_rate_we_post_c, nq(2)
+
+. xtile emp_bin    = emp_pre,                nq(2)
+
+. xtile ind_bin    = avg_ind_favg_lo,        nq(2)
+
+. xtile msa_bin    = avg_msa_lo,             nq(2)
+
+. 
+. *--------------------------------------------------------------------*
+. * 6) Build binned regressors & instruments -------------------------*
+. *--------------------------------------------------------------------*
+. * postgrow and startup interaction
+. gen postgrow            = growth_bin
+(22 missing values generated)
+
+. gen postgrow_startup    = growth_bin * startup
+(2,147 missing values generated)
+
+. 
+. * size control
+. gen size_covid          = emp_bin
+(115 missing values generated)
+
+. gen size_covid_startup  = emp_bin * startup
+(2,147 missing values generated)
+
+. 
+. * industry leave-out instrument
+. gen ind_mean            = ind_bin
+(18 missing values generated)
+
+. gen ind_mean_startup    = ind_bin * startup
+(2,147 missing values generated)
+
+. 
+. * MSA leave-out instrument
+. gen msa_mean            = msa_bin
+(2,670 missing values generated)
+
+. gen msa_mean_startup    = msa_bin * startup
+(4,795 missing values generated)
+
+. 
+end of do-file
+
+. sum growth_rate_we_post_c 
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+growth_rat~c |    233,430    .0190264    .1282975         -1        1.8
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. reghdfe  total_contributions_q100 growth_rate_we_post_c
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =    231,305
+Absorbing 1 HDFE group                            F(   1, 231303) =    4468.50
+                                                  Prob > F        =     0.0000
+                                                  R-squared       =     0.0190
+                                                  Adj R-squared   =     0.0189
+                                                  Within R-sq.    =     0.0190
+                                                  Root MSE        =    29.6470
+
+---------------------------------------------------------------------------------------
+total_contributio~100 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+growth_rate_we_post_c |   32.56585    .487171    66.85   0.000     31.61101    33.52069
+                _cons |   49.06417   .0623028   787.51   0.000     48.94206    49.18628
+---------------------------------------------------------------------------------------
+
+. 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. reghdfe  total_contributions_q100 growth_rate_we_post_c, absorb(user_id)
+(dropped 1392 singleton observations)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =    229,913
+Absorbing 1 HDFE group                            F(   1, 194118) =     432.76
+                                                  Prob > F        =     0.0000
+                                                  R-squared       =     0.6560
+                                                  Adj R-squared   =     0.5926
+                                                  Within R-sq.    =     0.0022
+                                                  Root MSE        =    19.1281
+
+---------------------------------------------------------------------------------------
+total_contributio~100 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+growth_rate_we_post_c |   16.20846    .779143    20.80   0.000     14.68136    17.73556
+                _cons |    49.3938   .0424511  1163.54   0.000      49.3106      49.477
+---------------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     35794           0       35794     |
+-----------------------------------------------------+
+
+. 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. reghdfe  total_contributions_q100 growth_rate_we_post_c, absorb(user_id industry_id)
+(dropped 1390 singleton observations)
+(MWFE estimator converged in 10 iterations)
+
+HDFE Linear regression                            Number of obs   =    227,888
+Absorbing 2 HDFE groups                           F(   1, 192335) =     415.88
+                                                  Prob > F        =     0.0000
+                                                  R-squared       =     0.6567
+                                                  Adj R-squared   =     0.5932
+                                                  Within R-sq.    =     0.0022
+                                                  Root MSE        =    19.1135
+
+---------------------------------------------------------------------------------------
+total_contributio~100 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+growth_rate_we_post_c |    16.2411   .7964013    20.39   0.000     14.68017    17.80203
+                _cons |   49.30971   .0426328  1156.61   0.000     49.22615    49.39327
+---------------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     35534           0       35534     |
+ industry_id |        19           1          18     |
+-----------------------------------------------------+
+
+. 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. reghdfe  total_contributions_q100 growth_rate_we_post_c, absorb(user_id industry_id yh)
+(dropped 1390 singleton observations)
+(MWFE estimator converged in 18 iterations)
+
+HDFE Linear regression                            Number of obs   =    227,888
+Absorbing 3 HDFE groups                           F(   1, 192325) =     590.67
+                                                  Prob > F        =     0.0000
+                                                  R-squared       =     0.6593
+                                                  Adj R-squared   =     0.5963
+                                                  Within R-sq.    =     0.0031
+                                                  Root MSE        =    19.0406
+
+---------------------------------------------------------------------------------------
+total_contributio~100 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+growth_rate_we_post_c |   19.54706   .8042817    24.30   0.000     17.97069    21.12343
+                _cons |   49.24892   .0425397  1157.72   0.000     49.16555     49.3323
+---------------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     35534           0       35534     |
+ industry_id |        19           1          18     |
+          yh |        11           1          10    ?|
+-----------------------------------------------------+
+? = number of redundant parameters may be higher
+
+. 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. reghdfe  total_contributions_q100 growth_rate_we_post_c, absorb(user_id industry_id yh) vce(cluster user_id)    
+(dropped 1390 singleton observations)
+(MWFE estimator converged in 18 iterations)
+
+HDFE Linear regression                            Number of obs   =    227,888
+Absorbing 3 HDFE groups                           F(   1,  35533) =     155.69
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6593
+                                                  Adj R-squared   =     0.5963
+                                                  Within R-sq.    =     0.0031
+Number of clusters (user_id) =     35,534         Root MSE        =    19.0406
+
+                                    (Std. err. adjusted for 35,534 clusters in user_id)
+---------------------------------------------------------------------------------------
+                      |               Robust
+total_contributio~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+growth_rate_we_post_c |   19.54706    1.56656    12.48   0.000     16.47655    22.61756
+                _cons |   49.24892   .0288068  1709.63   0.000     49.19246    49.30538
+---------------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     35534       35534           0    *|
+ industry_id |        19           1          18     |
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. reghdfe  total_contributions_q100 growth_rate_we_post_c,  vce(cluster user_id)  
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =    231,305
+Absorbing 1 HDFE group                            F(   1,  37185) =     964.28
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.0190
+                                                  Adj R-squared   =     0.0189
+                                                  Within R-sq.    =     0.0190
+Number of clusters (user_id) =     37,186         Root MSE        =    29.6470
+
+                                    (Std. err. adjusted for 37,186 clusters in user_id)
+---------------------------------------------------------------------------------------
+                      |               Robust
+total_contributio~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+growth_rate_we_post_c |   32.56585   1.048726    31.05   0.000     30.51032    34.62138
+                _cons |   49.06417   .1387388   353.64   0.000     48.79224     49.3361
+---------------------------------------------------------------------------------------
+
+. 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. use "/Users/saul/Dropbox/Remote Work Startups/main/data/processed/user_panel_precovid.dta"
+no; dataset in memory has changed since last saved
+r(4);
+
+end of do-file
+
+r(4);
+
+. ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, absorb(user_id firm_id yh) vce(cluster firm_id user_id)
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 80 iterations)
+--Break--
+r(1);
+
+. clear
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. use "/Users/saul/Dropbox/Remote Work Startups/main/data/processed/user_panel_precovid.dta"
+
+. 
+end of do-file
+
+. ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, absorb(user_id firm_id yh) vce(cluster firm_id user_id)
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 80 iterations)
+warning: -ranktest- error in calculating weak identification test statistics;
+         may be caused by collinearities
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on firm_id and user_id
+
+Number of clusters (firm_id) =    2151                Number of obs =   229862
+Number of clusters (user_id) =   35789                F(  3,  2150) =     3.38
+                                                      Prob > F      =   0.0177
+Total (centered) SS     =  65286353.41                Centered R2   =  -0.0014
+Total (uncentered) SS   =  65286353.41                Uncentered R2 =  -0.0014
+Residual SS             =  65377411.43                Root MSE      =    16.87
+
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -7.151334   5.752924    -1.24   0.214    -18.43321     4.13054
+        var5 |   9.937201   7.002133     1.42   0.156    -3.794457    23.66886
+        var4 |  -8.364159   5.054528    -1.65   0.098    -18.27643    1.548114
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):              4.439
+                                                   Chi-sq(1) P-val =    0.0351
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1868.466
+                         (Kleibergen-Paap rk Wald F statistic):              .
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     35789       35789           0    *|
+     firm_id |      2151        2151           0    *|
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. 
+. do "globals.do"
+file globals.do not found
+r(601);
+
+end of do-file
+
+r(601);
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. 
+. do "globals.do"
+file globals.do not found
+r(601);
+
+end of do-file
+
+r(601);
+
+. cd ..
+/Users/saul/Dropbox/Remote Work Startups/New
+
+. cd ..
+/Users/saul/Dropbox/Remote Work Startups
+
+. cd main
+/Users/saul/Dropbox/Remote Work Startups/main
+
+. cd spec
+/Users/saul/Dropbox/Remote Work Startups/main/spec
+
+. cd ..
+/Users/saul/Dropbox/Remote Work Startups/main
+
+. cd src
+/Users/saul/Dropbox/Remote Work Startups/main/src
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10466.000000"
+
+. 
+. do "globals.do"
+
+. global raw_data "../data/raw"
+
+. global processed_data  "../data/processed"
+
+. global results "../results/raw"
+
+. global clean_results "../results/cleaned"
+
+. 
+. 
+. 
+. 
+. 
+end of do-file
+
+. 
+. capture log close
