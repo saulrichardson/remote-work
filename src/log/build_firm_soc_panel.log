@@ -1,0 +1,289 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_firm_soc_panel.log
+  log type:  text
+ opened on:  10 Jul 2025, 08:03:27
+
+. 
+. // ---------------------------------------------------------------------------
+. // 1) Load occupation-level panel (CSV) -----------------------------------
+. // ---------------------------------------------------------------------------
+. 
+. import delimited "$processed_data/firm_occ_panel_enriched.csv", ///
+>         varnames(1) clear stringcols(_all)
+(encoding automatically selected: ISO-8859-1)
+(7 vars, 3,532,735 obs)
+
+.                 
+. 
+. * Convert headcount, its lag, joins, and leaves to numeric (non-numeric chars → missing)
+. destring headcount joins leaves yh, replace force
+headcount: all characters numeric; replaced as long
+joins: all characters numeric; replaced as int
+leaves: all characters numeric; replaced as long
+yh: all characters numeric; replaced as int
+
+. 
+. 
+. * 1) recover calendar year and half‐flag
+. gen int  cy   = floor(yh/2)        // 4038→2019, 4039→2019, 4040→2020
+
+. gen byte half = mod(yh,2) + 1      // 0→1 (H1), 1→2 (H2)
+
+. 
+. * 2) build a native %th date
+. gen hdate = yh(cy, half)      // Stata's yh(year, half) function
+
+. 
+. * 3) format & swap in place
+. format hdate %th                   // displays "2019h1", "2019h2", …
+
+. drop cy half yh
+
+. rename hdate yh
+
+. 
+. 
+. ** 1) make numeric IDs
+. encode companyname, gen(firm_id)
+
+. encode soc4,        gen(soc_id)
+
+. 
+. * 2) build one panel ID (no labels)
+. egen panel_id = group(firm_id soc_id)
+
+. 
+. 
+. * 3) declare your panel
+. xtset panel_id yh
+
+Panel variable: panel_id (unbalanced)
+ Time variable: yh, 1959h1 to 2022h1, but with gaps
+         Delta: 1 halfyear
+
+. 
+. * 4) you can now use time‐series lags
+. gen headcount_lag = L.headcount
+(153,585 missing values generated)
+
+. 
+. 
+. gen growth_rate = (headcount/headcount_lag) - 1   if headcount_lag < .
+(153,585 missing values generated)
+
+. gen join_rate   = joins/ headcount_lag           if headcount_lag < .
+(153,585 missing values generated)
+
+. gen leave_rate  = leaves/ headcount_lag           if headcount_lag < .
+(153,585 missing values generated)
+
+. * 6) winsorise your rates at the 1st and 99th percentiles
+. winsor2 growth_rate join_rate leave_rate, cuts(1 99) suffix(_we)
+
+. 
+. 
+. 
+. *--------------------------------------------------------------*
+. *  1. Teleworkable scores                                      *
+. *--------------------------------------------------------------*
+. preserve
+
+.         use "$processed_data/scoop_firm_tele_2.dta", clear
+
+.         replace companyname = lower(companyname)
+(4,207 real changes made)
+
+.         tempfile teleclean
+
+.         save    `teleclean'
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000002 saved as .dta format
+
+. restore
+
+. merge m:1 companyname using `teleclean'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                        18,200
+        from master                    18,147  (_merge==1)
+        from using                         53  (_merge==2)
+
+    Matched                         3,514,588  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2
+(53 observations deleted)
+
+. drop _merge
+
+. 
+. *--------------------------------------------------------------*
+. *  2. Remote-flexibility score                                 *
+. *--------------------------------------------------------------*
+. preserve
+
+.         use "$raw_data/Scoop_clean_public.dta", clear
+
+.         keep companyname flexibility_score2
+
+.         replace companyname = lower(companyname)
+(4,829 real changes made)
+
+.         tempfile flexclean
+
+.         save    `flexclean'
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000004 saved as .dta format
+
+. restore
+
+. merge m:1 companyname using `flexclean'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       582,825
+        from master                   581,862  (_merge==1)
+        from using                        963  (_merge==2)
+
+    Matched                         2,950,873  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2
+(963 observations deleted)
+
+. drop _merge
+
+. rename flexibility_score2 remote
+
+. 
+. *--------------------------------------------------------------*
+. *  3. Company founding year                                    *
+. *--------------------------------------------------------------*
+. preserve
+
+.         use "$raw_data/Scoop_founding.dta", clear
+
+.         keep companyname founded
+
+.         replace companyname = lower(companyname)
+(4,370 real changes made)
+
+.         tempfile foundclean
+
+.         save    `foundclean'
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000006 saved as .dta format
+
+. restore
+
+. merge m:1 companyname using `foundclean'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                        16,608
+        from master                    16,500  (_merge==1)
+        from using                        108  (_merge==2)
+
+    Matched                         3,516,235  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2
+(108 observations deleted)
+
+. drop _merge
+
+. 
+. 
+. // ---------------------------------------------------------------------------
+. // 4) Derived dummies & interaction terms ---------------------------------
+. // ---------------------------------------------------------------------------
+. 
+. gen age     = 2020 - founded
+(16,500 missing values generated)
+
+. gen startup = age <= 10
+
+. 
+. gen covid   = yh >= 120       // 2020-H1 == yh(2020,1) = 120
+
+. 
+. gen var3 = remote * covid
+(581,862 missing values generated)
+
+. gen var4 = covid  * startup
+
+. gen var5 = remote * covid * startup
+(581,862 missing values generated)
+
+. gen var6 = covid * teleworkable
+(18,353 missing values generated)
+
+. gen var7 = startup * covid * teleworkable
+(18,353 missing values generated)
+
+. 
+. 
+. gen var3_t = remote * covid * tight_wavg
+(3,478,141 missing values generated)
+
+. gen var4_t = covid  * startup * tight_wavg
+(3,516,805 missing values generated)
+
+. gen var5_t = remote * covid * startup * tight_wavg
+(3,523,183 missing values generated)
+
+. gen var6_t = covid * teleworkable * tight_wavg
+(3,532,675 missing values generated)
+
+. gen var7_t = startup * covid * teleworkable * tight_wavg
+(3,532,710 missing values generated)
+
+. 
+. 
+. 
+. // ---------------------------------------------------------------------------
+. // 5) Drop observations with missing core regressors ----------------------
+. // ---------------------------------------------------------------------------
+. 
+. local keep_vars ///
+>     firm_id soc4 yh covid remote startup teleworkable ///
+>     growth_rate_we join_rate_we leave_rate_we ///
+>     var3 var4 var5 var6 var7
+
+. 
+. egen miss_ct = rowmiss(`keep_vars')
+
+. gen byte complete = (miss_ct == 0)
+
+. count if complete == 0
+  722,745
+
+. di as error "Dropping " r(N) " incomplete row(s)."
+Dropping 722745 incomplete row(s).
+
+. 
+. keep if complete
+(722,745 observations deleted)
+
+. drop miss_ct complete
+
+. 
+. // ---------------------------------------------------------------------------
+. // 6) Save panel -----------------------------------------------------------
+. // ---------------------------------------------------------------------------
+. 
+. sort companyname soc4 yh
+
+. 
+. save "$processed_data/firm_soc_panel.dta", replace
+file ../data/processed/firm_soc_panel.dta saved
+
+. export delimited "../data/samples/firm_soc_panel.csv", replace
+file ../data/samples/firm_soc_panel.csv saved
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_firm_soc_panel.log
+  log type:  text
+ closed on:  10 Jul 2025, 08:04:42
+-----------------------------------------------------------------------------------------------------------------------------------------

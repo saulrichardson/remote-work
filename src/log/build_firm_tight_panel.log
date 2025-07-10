@@ -1,0 +1,803 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_firm_tight_panel.log
+  log type:  text
+ opened on:  10 Jul 2025, 11:53:49
+
+. 
+. // ----------------------------------------------------------
+. 
+. 
+. import delimited "$raw_data/Scoop_alt.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(6 vars, 323,593 obs)
+
+. 
+. gen date_numeric = date(date, "YMD")
+
+. drop date
+
+. rename date_numeric date
+
+. format date %td
+
+. 
+. gen yh = hofd(date)
+
+. gen year = yofd(date)
+
+. format yh %th
+
+. 
+. collapse (last) date (sum) join leave, by(companyname yh)
+
+. 
+. 
+. keep companyname yh join leave
+
+. tempfile join_leave
+
+. save `join_leave'
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000001 saved as .dta format
+
+. 
+. 
+. import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(6 vars, 323,675 obs)
+
+. drop v1
+
+. 
+. 
+. 
+. gen date_numeric = date(date, "YMD")
+
+. drop date
+
+. rename date_numeric date
+
+. format date %td
+
+. 
+. gen yh = hofd(date)
+
+. gen year = yofd(date)
+
+. format yh %th
+
+. 
+. // Drop one-off observations in June 2022
+. drop if date == 22797
+(4,345 observations deleted)
+
+. 
+. 
+. // Collapse to have one observation per firm-half-year, and calculate growth & rates:
+. collapse (last) total_employees date (sum) join leave, by(companyname yh)
+
+. 
+. drop join leave
+
+. merge 1:1 companyname yh using `join_leave'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                            16
+        from master                        14  (_merge==1)
+        from using                          2  (_merge==2)
+
+    Matched                            54,161  (_merge==3)
+    -----------------------------------------
+
+. drop _merge
+
+. 
+. encode companyname, gen(company_numeric)
+
+. xtset company_numeric yh
+
+Panel variable: company_numeric (unbalanced)
+ Time variable: yh, 2016h1 to 2022h1, but with gaps
+         Delta: 1 halfyear
+
+. sort company_numeric yh
+
+. 
+. // gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
+. // gen join_rate = join / L.total_employees if _n > 1
+. // gen leave_rate = leave / L.total_employees if _n > 1
+. 
+. gen headcount_lag = L.total_employees
+(4,405 missing values generated)
+
+. 
+. 
+. gen growth_rate = (total_employees/ headcount_lag) - 1   if headcount_lag < .
+(4,422 missing values generated)
+
+. gen join_rate   = join / headcount_lag           if headcount_lag < .
+(4,427 missing values generated)
+
+. gen leave_rate  = leave / headcount_lag           if headcount_lag < .
+(4,427 missing values generated)
+
+. 
+. xtset, clear
+
+. 
+. winsor2 growth_rate join_rate leave_rate, cuts(1 99) suffix(_we)
+
+. label variable growth_rate_we "Winsorized growth rate [1,99]"
+
+. label variable join_rate_we "Winsorized join rate [1,99]"
+
+. label variable leave_rate_we "Winsorized leave rate [1,99]"
+
+. 
+. drop growth_rate join_rate leave_rate company_numeric
+
+. 
+. 
+. gen companyname_c = lower(companyname)  
+
+. 
+. preserve
+
+. import delimited "$processed_data/firm_tightness_static.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(2 vars, 3,412 obs)
+
+. rename companyname companyname_c
+
+. tempfile tight
+
+. save    `tight'
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000003 saved as .dta format
+
+. restore
+
+. 
+. merge m:1 companyname_c using `tight'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                        10,323
+        from master                    10,308  (_merge==1)
+        from using                         15  (_merge==2)
+
+    Matched                            43,869  (_merge==3)
+    -----------------------------------------
+
+. drop _merge 
+
+. 
+. preserve
+
+. import delimited "$processed_data/firm_tightness_hq.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(2 vars, 2,392 obs)
+
+. rename companyname companyname_c
+
+. tempfile tight
+
+. save    `tight'
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000005 saved as .dta format
+
+. restore
+
+. 
+. merge m:1 companyname_c using `tight'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                        23,357
+        from master                    23,357  (_merge==1)
+        from using                          0  (_merge==2)
+
+    Matched                            30,835  (_merge==3)
+    -----------------------------------------
+
+. drop _merge companyname_c
+
+. 
+. 
+. 
+. 
+. /*************************************************************************
+>  * 4) Merge firm-level characteristics into worker-level data
+>  *************************************************************************/
+. 
+. // Merge teleworkable data:
+. merge m:1 companyname using "$processed_data/scoop_firm_tele_2.dta"
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           533
+        from master                       532  (_merge==1)
+        from using                          1  (_merge==2)
+
+    Matched                            53,660  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2
+(1 observation deleted)
+
+. drop _merge
+
+. 
+. // Merge with flexibility measures (e.g., remote/flexibility scores):
+. merge m:1 companyname using "$raw_data/Scoop_clean_public.dta"
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         5,802
+        from master                     4,904  (_merge==1)
+        from using                        898  (_merge==2)
+
+    Matched                            49,288  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2
+(898 observations deleted)
+
+. drop _merge
+
+. 
+. // Merge with founding year data:
+. merge m:1 companyname using "$raw_data/Scoop_founding.dta"
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                            52
+        from master                        15  (_merge==1)
+        from using                         37  (_merge==2)
+
+    Matched                            54,177  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2
+(37 observations deleted)
+
+. drop _merge
+
+. 
+. tempfile snapshot_clean
+
+. save `snapshot_clean', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000006 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000006 saved as .dta format
+
+. 
+. 
+. * Merge Hierarchy Data (Centrality/HHI Analysis)
+. use "$processed_data/Firm_role_level.dta", clear
+
+. 
+. keep companyname hhi_1000 seniority_levels
+
+. 
+. merge 1:m companyname using `snapshot_clean'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           973
+        from master                         0  (_merge==1)
+        from using                        973  (_merge==2)
+
+    Matched                            53,219  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 1 
+(0 observations deleted)
+
+. drop _merge
+
+. 
+. save `snapshot_clean', replace
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000006 saved as .dta format
+
+. 
+. 
+. * Merge Rent Data 
+. use "$raw_data/data_20240523_lease.dta", clear
+
+. drop id_Lease
+
+. 
+. gen half = ceil(execution_month/6)
+
+. gen yh  = yh(execution_year, half)
+
+. format yh %th
+
+. 
+. 
+. keep if yh < yh(2020, 1)
+(112,516 observations deleted)
+
+. collapse (mean) effectiverent2212usdperyear [fweight=transactionsqft], by(city state)
+
+. 
+. 
+. gen hqcity  = strtrim(city)
+
+. gen hqstate = strtrim(state)
+
+. sort hqcity hqstate
+
+. egen hqID = group(hqcity hqstate), label
+
+. label var hqID "Unique numeric ID of HQ city & state"
+
+. 
+. tempfile _lease
+
+. save `_lease', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000007 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000007 saved as .dta format
+
+. 
+. 
+. use `snapshot_clean', clear 
+
+. 
+. merge m:1 hqcity hqstate using `_lease'
+(variable hqcity was str25, now str40 to accommodate using data's values)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                        12,485
+        from master                     8,322  (_merge==1)
+        from using                      4,163  (_merge==2)
+
+    Matched                            45,870  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2          
+(4,163 observations deleted)
+
+. drop _merge                  
+
+. 
+. rename effectiverent2212usdperyear rent
+
+. 
+. 
+. * Merge firm modal role 
+. merge m:1 companyname using "$processed_data/modal_role_per_firm.dta"
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           605
+        from master                       604  (_merge==1)
+        from using                          1  (_merge==2)
+
+    Matched                            53,588  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2   
+(1 observation deleted)
+
+. drop _merge
+
+. 
+. 
+. * Merge Wage dispersion 
+. merge m:1 companyname using "$processed_data/wages_firm.dta"
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           605
+        from master                       604  (_merge==1)
+        from using                          1  (_merge==2)
+
+    Matched                            53,588  (_merge==3)
+    -----------------------------------------
+
+. drop if _merge == 2    // drop observations that only exist in using data
+(1 observation deleted)
+
+. drop _merge
+
+. 
+. 
+. gen age = 2020 - founded
+(15 missing values generated)
+
+. label var age "Firm age as of 2020"
+
+. encode companyname, gen(firm_id)
+
+. 
+. 
+. gen startup = (age <= 10)
+
+. gen covid = yh >= 120
+
+. 
+. 
+. rename flexibility_score2 remote
+
+. 
+. gen hybrid  = (remote>0 & remote<1)
+
+. gen fullrem = (remote==1)
+
+. 
+. * For the hybrid treatment
+. gen var3_hybrid = hybrid * covid
+
+. gen var5_hybrid = hybrid * covid * startup
+
+. 
+. * For the fully-remote treatment
+. gen var3_fullrem = fullrem * covid
+
+. gen var5_fullrem = fullrem * covid * startup
+
+. 
+. 
+. summarize yh
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+          yh |     54,177     118.138    3.727565        112        124
+
+. local global_min = r(min)
+
+. bys firm_id: egen min_time = min(yh)
+(15 missing values generated)
+
+. 
+. preserve
+
+.     contract yh, freq(count_yh)
+
+.     local total_periods = _N
+
+. restore
+
+. 
+. keep if min_time == `global_min'
+(3,805 observations deleted)
+
+. drop min_time
+
+. 
+. gen var3 = remote * covid
+(4,783 missing values generated)
+
+. gen var4 = covid  * startup
+
+. gen var5 = remote * covid * startup
+(4,783 missing values generated)
+
+. gen var6 = covid * teleworkable
+(95 missing values generated)
+
+. gen var7 = startup * covid * teleworkable
+(95 missing values generated)
+
+. 
+. 
+. gen var3_t = remote * covid * tight_wavg
+(14,771 missing values generated)
+
+. gen var4_t = covid  * startup * tight_wavg
+(10,676 missing values generated)
+
+. gen var5_t = remote * covid * startup * tight_wavg
+(14,771 missing values generated)
+
+. gen var6_t = covid * teleworkable * tight_wavg
+(10,689 missing values generated)
+
+. gen var7_t = startup * covid * teleworkable * tight_wavg
+(10,689 missing values generated)
+
+. 
+. gen var3_thq = remote * covid * tight_hq
+(27,159 missing values generated)
+
+. gen var4_thq = covid  * startup * tight_hq
+(23,948 missing values generated)
+
+. gen var5_thq = remote * covid * startup * tight_hq
+(27,159 missing values generated)
+
+. gen var6_thq = covid * teleworkable * tight_wavg
+(10,689 missing values generated)
+
+. gen var7_thq = startup * covid * teleworkable * tight_hq
+(23,961 missing values generated)
+
+. 
+. 
+. 
+. local keep_vars ///
+>     firm_id yh covid remote startup teleworkable ///
+>     growth_rate_we leave_rate_we join_rate_we ///
+>     var3 var4 var5 var6 var7
+
+. 
+. * Count how many of those variables are missing in each row
+. egen miss_ct = rowmiss(`keep_vars')
+
+. 
+. * Keep rows with zero missing values
+. gen  byte common_sample = (miss_ct == 0)   // 1 = complete row
+
+. count if common_sample == 0
+  8,407
+
+. di as error "Dropping " r(N) " observation(s) with missing values for variables: `keep_vars'"
+Dropping 8407 observation(s) with missing values for variables: firm_id yh covid remote startup teleworkable     growth_rate_we leave_rat
+> e_we join_rate_we     var3 var4 var5 var6 var7
+
+. 
+. keep if common_sample == 1
+(8,407 observations deleted)
+
+. drop miss_ct common_sample    
+
+. 
+. save "$processed_data/firm_tight_panel.dta", replace
+file ../data/processed/firm_tight_panel.dta saved
+
+. export delimited "../data/samples/firm_tight_panel.csv", replace
+file ../data/samples/firm_tight_panel.csv saved
+
+. 
+. 
+. // local suf = "_t"    // tight_wavg
+. local suf = "_thq"  // tight_hq  
+
+. 
+. 
+. 
+. ivreghdfe growth_rate_we ///
+>    (var3 var5 = var6 var7) ///
+>    var4, ///
+>    absorb(firm_id yh) ///
+>    vce(cluster firm_id)
+(MWFE estimator converged in 4 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on firm_id
+
+Number of clusters (firm_id) =    3508                Number of obs =    41980
+                                                      F(  3,  3507) =    22.94
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =   1327.10484                Centered R2   =   0.0022
+Total (uncentered) SS   =   1327.10484                Uncentered R2 =   0.0022
+Residual SS             =  1324.192664                Root MSE      =    .1776
+
+------------------------------------------------------------------------------
+             |               Robust
+growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |   .0057809   .0093488     0.62   0.536    -.0125488    .0241105
+        var5 |   .2088021   .1017564     2.05   0.040     .0092944    .4083098
+        var4 |   -.236576   .0865024    -2.73   0.006     -.406176    -.066976
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):             25.467
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1388.072
+                         (Kleibergen-Paap rk Wald F statistic):         16.530
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      3508        3508           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+.    
+. 
+.  ivreghdfe growth_rate_we ///
+>    (var3 var5 var5`suf' = var6 var7 var7`suf') ///
+>    var4, ///
+>    absorb(firm_id yh) ///
+>    vce(cluster firm_id)
+(MWFE estimator converged in 3 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on firm_id
+
+Number of clusters (firm_id) =    1786                Number of obs =    21424
+                                                      F(  4,  1785) =    21.07
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  450.7670788                Centered R2   =  -0.0023
+Total (uncentered) SS   =  450.7670788                Uncentered R2 =  -0.0023
+Residual SS             =  451.7836138                Root MSE      =    .1453
+
+------------------------------------------------------------------------------
+             |               Robust
+growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -.0087078   .0118405    -0.74   0.462    -.0319305    .0145149
+        var5 |   .3858113    .207021     1.86   0.063    -.0202177    .7918403
+    var5_thq |  -.0329439   .0196814    -1.67   0.094    -.0715449    .0056572
+        var4 |  -.3829904   .1734629    -2.21   0.027    -.7232021   -.0427786
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):              6.159
+                                                   Chi-sq(1) P-val =    0.0131
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):              254.246
+                         (Kleibergen-Paap rk Wald F statistic):          2.495
+Stock-Yogo weak ID test critical values:                       <not available>
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5 var5_thq
+Included instruments: var4
+Excluded instruments: var6 var7 var7_thq
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      1786        1786           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+.    
+.    
+. ivreghdfe growth_rate_we ///
+>    (var3 var5 var3`suf' var5`suf' = var6 var7 var6`suf' var7`suf') ///
+>    var4, ///
+>    absorb(firm_id yh) ///
+>    vce(cluster firm_id)
+(MWFE estimator converged in 3 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on firm_id
+
+Number of clusters (firm_id) =    1786                Number of obs =    21424
+                                                      F(  5,  1785) =    16.85
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  450.7670788                Centered R2   =  -0.0023
+Total (uncentered) SS   =  450.7670788                Uncentered R2 =  -0.0023
+Residual SS             =  451.7934295                Root MSE      =    .1453
+
+------------------------------------------------------------------------------
+             |               Robust
+growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |    -.00554   .0161083    -0.34   0.731    -.0371332    .0260531
+        var5 |   .3826435   .2061533     1.86   0.064    -.0216837    .7869707
+    var3_thq |  -.0034765   .0121331    -0.29   0.775    -.0272731    .0203201
+    var5_thq |  -.0294674   .0231152    -1.27   0.203    -.0748031    .0158684
+        var4 |  -.3831217   .1735159    -2.21   0.027    -.7234373   -.0428061
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):              6.158
+                                                   Chi-sq(1) P-val =    0.0131
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):              190.662
+                         (Kleibergen-Paap rk Wald F statistic):          1.871
+Stock-Yogo weak ID test critical values:                       <not available>
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5 var3_thq var5_thq
+Included instruments: var4
+Excluded instruments: var6 var7 var6_thq var7_thq
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      1786        1786           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+.    
+.    
+. ivreghdfe growth_rate_we ///
+>    (var3 var5 var3`suf' var5`suf' = var6 var7 var6`suf' var7`suf') ///
+>    var4 var4`suf', ///
+>    absorb(firm_id yh) ///
+>    vce(cluster firm_id)  
+(MWFE estimator converged in 3 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on firm_id
+
+Number of clusters (firm_id) =    1786                Number of obs =    21424
+                                                      F(  6,  1785) =     0.50
+                                                      Prob > F      =   0.8058
+Total (centered) SS     =  450.7670788                Centered R2   =  -6.0847
+Total (uncentered) SS   =  450.7670788                Uncentered R2 =  -6.0847
+Residual SS             =  3193.536926                Root MSE      =    .3862
+
+------------------------------------------------------------------------------
+             |               Robust
+growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |   .0083153   .3118966     0.03   0.979    -.6034056    .6200363
+        var5 |  -15.16191   363.9675    -0.04   0.967    -729.0091    698.6853
+    var3_thq |  -.0186821    .342052    -0.05   0.956    -.6895465    .6521823
+    var5_thq |   14.57361   342.6337     0.04   0.966    -657.4317    686.5789
+        var4 |   13.41563   322.6798     0.04   0.967    -619.4543    646.2856
+    var4_thq |  -13.01505   304.8716    -0.04   0.966    -610.9579    584.9278
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):              0.002
+                                                   Chi-sq(1) P-val =    0.9653
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):                0.176
+                         (Kleibergen-Paap rk Wald F statistic):          0.000
+Stock-Yogo weak ID test critical values:                       <not available>
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5 var3_thq var5_thq
+Included instruments: var4 var4_thq
+Excluded instruments: var6 var7 var6_thq var7_thq
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      1786        1786           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+end of do-file
+

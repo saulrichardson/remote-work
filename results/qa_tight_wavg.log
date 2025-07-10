@@ -1,10 +1,10 @@
 
-===================== QA ‑ tight_wavg =====================
-Rows in enriched panel      : 3,532,735
-Rows with missing tightness : 337,344  (9.55%)
+================= QA – tight_wavg (CSV build) =================
+Rows in panel              : 3,532,735
+Rows with missing tightness: 1,432,386  (40.55%)
 
 tight_wavg distribution (non-missing):
-    min    = 0.0272
-    median = 1.0234
-    max    = 58.2251
-===========================================================
+    min    = 0.0658    
+    median = 0.9998
+    max    = 38.4918
+==============================================================

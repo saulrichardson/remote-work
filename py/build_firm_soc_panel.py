@@ -41,16 +41,18 @@ PROC = ROOT / "data" / "processed"
 RAW = ROOT / "data" / "raw"
 
 # Input occupation panel (already enriched with tightness)
-PANEL_OCC = PROC / "firm_occ_panel_enriched.parquet"
+# The build_firm_occ_tightness.py script now writes only CSV.  We first look
+# for the CSV file; if it is absent we fall back to the legacy Parquet path.
+PANEL_OCC_CSV = PROC / "firm_occ_panel_enriched.csv"
+PANEL_OCC_PARQ = PROC / "firm_occ_panel_enriched.parquet"
 
 # Static firm attributes
 PATH_TELE = PROC / "scoop_firm_tele_2.dta"
 PATH_REMOTE = RAW / "Scoop_clean_public.dta"
 PATH_FOUND = RAW / "Scoop_founding.dta"
 
-# Outputs
-OUT_PARQ = PROC / "firm_soc_panel_enriched.parquet"
-OUT_DTA = PROC / "firm_soc_panel_enriched.dta"
+# Output
+OUT_CSV = PROC / "firm_soc_panel_enriched.csv"
 
 
 # ---------------------------------------------------------------------------
@@ -58,14 +60,30 @@ OUT_DTA = PROC / "firm_soc_panel_enriched.dta"
 # ---------------------------------------------------------------------------
 
 
-def _read_parquet(path: Path) -> pd.DataFrame:
-    """Read parquet via pandas (pyarrow) or fallback to DuckDB."""
+# ---------------------------------------------------------------------------
+# IO helpers
+# ---------------------------------------------------------------------------
 
-    try:
-        return pd.read_parquet(path)
-    except Exception:  # pyarrow missing → duckdb fallback
-        con = dk.connect()
-        return con.execute(f"SELECT * FROM parquet_scan('{path.as_posix()}')").fetchdf()
+
+def _read_occ_panel() -> pd.DataFrame:
+    """Load the occupation panel regardless of whether it is stored as CSV or Parquet."""
+
+    if PANEL_OCC_CSV.exists():
+        return pd.read_csv(PANEL_OCC_CSV)
+
+    if PANEL_OCC_PARQ.exists():
+        # Parquet via pandas first, fallback to DuckDB if pyarrow missing
+        try:
+            return pd.read_parquet(PANEL_OCC_PARQ)
+        except Exception:
+            con = dk.connect()
+            return con.execute(
+                f"SELECT * FROM parquet_scan('{PANEL_OCC_PARQ.as_posix()}')"
+            ).fetch_df()
+
+    raise FileNotFoundError(
+        "Occupation panel not found – expected CSV or Parquet in data/processed."
+    )
 
 
 def _winsor(s: pd.Series, p: float = 0.01) -> pd.Series:
@@ -85,7 +103,7 @@ def _prep_static(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
 
 
 def build() -> None:  # noqa: C901
-    occ = _read_parquet(PANEL_OCC)
+    occ = _read_occ_panel()
     occ["companyname"] = occ["companyname"].str.lower()
 
     # --- Year & lagged headcount within firm-SOC --------------------------
@@ -151,18 +169,11 @@ def build() -> None:  # noqa: C901
     panel = panel.dropna(subset=keep_vars)
 
     # Persist --------------------------------------------------------------
-    try:
-        panel.to_parquet(OUT_PARQ, index=False)
-    except Exception:
-        con = dk.connect(); con.register("_tmp", panel)
-        con.execute(f"COPY _tmp TO '{OUT_PARQ.as_posix()}' (FORMAT 'parquet')")
+    panel.to_csv(OUT_CSV, index=False)
 
-    try:
-        panel.to_stata(OUT_DTA, write_index=False, version=117)
-    except Exception:
-        pass
-
-    print(f"✓ firm_soc_panel_enriched written → {OUT_PARQ.name}\n  rows: {len(panel):,}")
+    print(
+        f"✓ firm_soc_panel_enriched written → {OUT_CSV.name}\n  rows: {len(panel):,}"
+    )
 
 
 if __name__ == "__main__":

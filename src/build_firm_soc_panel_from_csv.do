@@ -8,7 +8,7 @@
 // 0) Globals & log setup
 // ---------------------------------------------------------------------------
 
-do "../src/globals.do"
+do "globals.do"
 
 capture log close
 cap mkdir "log"
@@ -20,39 +20,90 @@ log using "log/build_firm_soc_panel.log", replace text
 
 import delimited "$processed_data/firm_occ_panel_enriched.csv", ///
         varnames(1) clear stringcols(_all)
+		
 
-// ---------------------------------------------------------------------------
-// 2) Within-group time-series vars (firm × SOC) ---------------------------
-// ---------------------------------------------------------------------------
+* Convert headcount, its lag, joins, and leaves to numeric (non-numeric chars → missing)
+destring headcount joins leaves yh, replace force
 
-encode companyname, gen(firm_id)    // numeric firm id for FE / clusters
-encode soc4,        gen(soc_id)     // numeric SOC id
 
-sort companyname soc4 yh
-by companyname soc4: gen headcount_lag = headcount[_n-1]
+* 1) recover calendar year and half‐flag
+gen int  cy   = floor(yh/2)        // 4038→2019, 4039→2019, 4040→2020
+gen byte half = mod(yh,2) + 1      // 0→1 (H1), 1→2 (H2)
 
-gen growth_rate = (headcount / headcount_lag) - 1  if headcount_lag > 0
-gen join_rate   = joins / headcount_lag            if headcount_lag > 0
-gen leave_rate  = leaves / headcount_lag           if headcount_lag > 0
+* 2) build a native %th date
+gen hdate = yh(cy, half)      // Stata's yh(year, half) function
 
-* Winsorise to 1–99 pct (same as winsor2 default)
+* 3) format & swap in place
+format hdate %th                   // displays "2019h1", "2019h2", …
+drop cy half yh
+rename hdate yh
+
+
+** 1) make numeric IDs
+encode companyname, gen(firm_id)
+encode soc4,        gen(soc_id)
+
+* 2) build one panel ID (no labels)
+egen panel_id = group(firm_id soc_id)
+
+
+* 3) declare your panel
+xtset panel_id yh
+
+* 4) you can now use time‐series lags
+gen headcount_lag = L.headcount
+
+
+gen growth_rate = (headcount/headcount_lag) - 1   if headcount_lag < .
+gen join_rate   = joins/ headcount_lag           if headcount_lag < .
+gen leave_rate  = leaves/ headcount_lag           if headcount_lag < .
+* 6) winsorise your rates at the 1st and 99th percentiles
 winsor2 growth_rate join_rate leave_rate, cuts(1 99) suffix(_we)
 
-// ---------------------------------------------------------------------------
-// 3) Merge static firm attributes ----------------------------------------
-// ---------------------------------------------------------------------------
 
-merge m:1 companyname using "$processed_data/scoop_firm_tele_2.dta", keep(match master)
+
+*--------------------------------------------------------------*
+*  1. Teleworkable scores                                      *
+*--------------------------------------------------------------*
+preserve
+	use "$processed_data/scoop_firm_tele_2.dta", clear
+	replace companyname = lower(companyname)
+	tempfile teleclean
+	save    `teleclean'
+restore
+merge m:1 companyname using `teleclean'
+drop if _merge == 2
 drop _merge
 
-merge m:1 companyname using "$raw_data/Scoop_clean_public.dta", ///
-      keepusing(flexibility_score2) keep(match master)
+*--------------------------------------------------------------*
+*  2. Remote-flexibility score                                 *
+*--------------------------------------------------------------*
+preserve
+	use "$raw_data/Scoop_clean_public.dta", clear
+	keep companyname flexibility_score2
+	replace companyname = lower(companyname)
+	tempfile flexclean
+	save    `flexclean'
+restore
+merge m:1 companyname using `flexclean'
+drop if _merge == 2
 drop _merge
 rename flexibility_score2 remote
 
-merge m:1 companyname using "$raw_data/Scoop_founding.dta", ///
-      keepusing(founded) keep(match master)
+*--------------------------------------------------------------*
+*  3. Company founding year                                    *
+*--------------------------------------------------------------*
+preserve
+	use "$raw_data/Scoop_founding.dta", clear
+	keep companyname founded
+	replace companyname = lower(companyname)
+	tempfile foundclean
+	save    `foundclean'
+restore
+merge m:1 companyname using `foundclean'
+drop if _merge == 2
 drop _merge
+
 
 // ---------------------------------------------------------------------------
 // 4) Derived dummies & interaction terms ---------------------------------
@@ -89,6 +140,8 @@ drop miss_ct complete
 // ---------------------------------------------------------------------------
 // 6) Save panel -----------------------------------------------------------
 // ---------------------------------------------------------------------------
+
+sort companyname soc4 yh
 
 save "$processed_data/firm_soc_panel.dta", replace
 export delimited "../data/samples/firm_soc_panel.csv", replace

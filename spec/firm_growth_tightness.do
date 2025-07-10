@@ -3,7 +3,9 @@ do "globals.do"
 
 capture log close
 cap mkdir "log"
-log using "log/build_firm_panel.log", replace text
+log using "log/build_firm_tight_panel.log", replace text
+
+// ----------------------------------------------------------
 
 
 import delimited "$raw_data/Scoop_alt.csv", clear
@@ -27,6 +29,8 @@ save `join_leave'
 
 import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
 drop v1
+
+
 
 gen date_numeric = date(date, "YMD")
 drop date
@@ -56,12 +60,12 @@ sort company_numeric yh
 // gen join_rate = join / L.total_employees if _n > 1
 // gen leave_rate = leave / L.total_employees if _n > 1
 
-gen headcount_lag = L.headcount
+gen headcount_lag = L.total_employees
 
 
-gen growth_rate = (headcount/headcount_lag) - 1   if headcount_lag < .
-gen join_rate   = joins/ headcount_lag           if headcount_lag < .
-gen leave_rate  = leaves/ headcount_lag           if headcount_lag < .
+gen growth_rate = (total_employees/ headcount_lag) - 1   if headcount_lag < .
+gen join_rate   = join / headcount_lag           if headcount_lag < .
+gen leave_rate  = leave / headcount_lag           if headcount_lag < .
 
 xtset, clear
 
@@ -71,6 +75,31 @@ label variable join_rate_we "Winsorized join rate [1,99]"
 label variable leave_rate_we "Winsorized leave rate [1,99]"
 
 drop growth_rate join_rate leave_rate company_numeric
+
+
+gen companyname_c = lower(companyname)	
+
+preserve
+import delimited "$processed_data/firm_tightness_static.csv", clear
+rename companyname companyname_c
+tempfile tight
+save    `tight'
+restore
+
+merge m:1 companyname_c using `tight'
+drop _merge 
+
+preserve
+import delimited "$processed_data/firm_tightness_hq.csv", clear
+rename companyname companyname_c
+tempfile tight
+save    `tight'
+restore
+
+merge m:1 companyname_c using `tight'
+drop _merge companyname_c
+
+
 
 
 /*************************************************************************
@@ -187,12 +216,25 @@ restore
 keep if min_time == `global_min'
 drop min_time
 
-// Generate key interactions:
 gen var3 = remote * covid
-gen var4 = covid * startup
+gen var4 = covid  * startup
 gen var5 = remote * covid * startup
 gen var6 = covid * teleworkable
 gen var7 = startup * covid * teleworkable
+
+
+gen var3_t = remote * covid * tight_wavg
+gen var4_t = covid  * startup * tight_wavg
+gen var5_t = remote * covid * startup * tight_wavg
+gen var6_t = covid * teleworkable * tight_wavg
+gen var7_t = startup * covid * teleworkable * tight_wavg
+
+gen var3_thq = remote * covid * tight_hq
+gen var4_thq = covid  * startup * tight_hq
+gen var5_thq = remote * covid * startup * tight_hq
+gen var6_thq = covid * teleworkable * tight_wavg
+gen var7_thq = startup * covid * teleworkable * tight_hq
+
 
 
 local keep_vars ///
@@ -211,7 +253,43 @@ di as error "Dropping " r(N) " observation(s) with missing values for variables:
 keep if common_sample == 1
 drop miss_ct common_sample    
 
-save "$processed_data/firm_panel.dta", replace
-export delimited "../data/samples/firm_panel.csv", replace
+save "$processed_data/firm_tight_panel.dta", replace
+export delimited "../data/samples/firm_tight_panel.csv", replace
 
-log close
+
+// local suf = "_t"    // tight_wavg
+// local suf = "_thq"  // tight_hq  
+
+
+
+ivreghdfe growth_rate_we ///
+   (var3 var5 = var6 var7) ///
+   var4, ///
+   absorb(firm_id yh) ///
+   vce(cluster firm_id)
+   
+
+ ivreghdfe growth_rate_we ///
+   (var3 var5 var5`suf' = var6 var7 var7`suf') ///
+   var4, ///
+   absorb(firm_id yh) ///
+   vce(cluster firm_id)
+   
+   
+ivreghdfe growth_rate_we ///
+   (var3 var5 var3`suf' var5`suf' = var6 var7 var6`suf' var7`suf') ///
+   var4, ///
+   absorb(firm_id yh) ///
+   vce(cluster firm_id)
+   
+   
+ivreghdfe growth_rate_we ///
+   (var3 var5 var3`suf' var5`suf' = var6 var7 var6`suf' var7`suf') ///
+   var4 var4`suf', ///
+   absorb(firm_id yh) ///
+   vce(cluster firm_id)  
+
+
+
+
+   

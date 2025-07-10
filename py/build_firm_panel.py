@@ -18,26 +18,19 @@ Key steps
      • teleworkable            (processed/scoop_firm_tele_2.dta)
      • flexibility_score2      (raw/Scoop_clean_public.dta → renamed → remote)
      • founding year           (raw/Scoop_founding.dta)  → age / startup
-4. Build COVID / interaction dummies exactly as in the Stata script, but with
-   our own `yh` convention (year*2 + half):
-       covid    = (year >= 2020)
-       startup  = (age  <= 10)   where age is as of 2020
-       var3     = remote * covid
-       var4     = covid  * startup
-       var5     = remote * covid * startup
-       var6     = covid * teleworkable
-       var7     = startup * covid * teleworkable
-5. Winsorise growth_rate / join_rate / leave_rate to the [1,99] percentiles
+4. Winsorise growth_rate / join_rate / leave_rate to the [1,99] percentiles
    (suffix *_we*) to match Stata's `winsor2` defaults.
 
-The script writes
+The script **does not merge** any Scoop attributes (teleworkable, remote,
+founding year).  Those merges—and any derived interaction dummies—can be
+replicated in Stata, matching the original workflow.
 
-    data/processed/firm_panel_enriched.dta  (Stata-13)
-    data/processed/firm_panel_enriched.parquet
+Output
+------
 
-so downstream Stata do-files can simply replace the earlier `use` command with
+    data/processed/firm_panel_enriched.csv
 
-    use "$processed_data/firm_panel_enriched.dta", clear
+ready for `import delimited` in Stata.
 
 Implementation notes
 --------------------
@@ -64,7 +57,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PROC = ROOT / "data" / "processed"
 RAW = ROOT / "data" / "raw"
 
-PANEL_OCC_PATH = PROC / "firm_occ_panel_enriched.parquet"
+# Occupation-level panel (CSV produced by build_firm_occ_tightness.py)
+PANEL_OCC_CSV = PROC / "firm_occ_panel_enriched.csv"
 
 # Static firm attributes
 PATH_TELE = PROC / "scoop_firm_tele_2.dta"
@@ -72,9 +66,10 @@ PATH_REMOTE = RAW / "Scoop_clean_public.dta"
 PATH_FOUND = RAW / "Scoop_founding.dta"
 
 
-# Output
-OUT_PARQUET = PROC / "firm_panel_enriched.parquet"
-OUT_DTA = PROC / "firm_panel_enriched.dta"
+# Output (CSV only)
+OUT_CSV = PROC / "firm_panel_enriched.csv"
+# Also output the static firm-level tightness (2019-H2 weights)
+TIGHT_STATIC_CSV = PROC / "firm_tightness_static.csv"
 
 
 # ---------------------------------------------------------------------------
@@ -93,13 +88,13 @@ def _winsorise_series(s: pd.Series, lower: float = 0.01, upper: float = 0.99) ->
 
 
 def build() -> None:  # noqa: C901 – procedural
-    # 1) Load occupation-level panel ------------------------------------------------
-    try:
-        df_occ = pd.read_parquet(PANEL_OCC_PATH)
-    except Exception:
-        # fallback via DuckDB's parquet reader (no pyarrow dependency)
-        con = dk.connect()
-        df_occ = con.execute(f"SELECT * FROM parquet_scan('{PANEL_OCC_PATH.as_posix()}')").fetchdf()
+    # 1) Load occupation-level panel (CSV) ----------------------------------------
+    if PANEL_OCC_CSV.exists():
+        df_occ = pd.read_csv(PANEL_OCC_CSV)
+    else:
+        raise FileNotFoundError(
+            "Occupation-level panel CSV not found. Run build_firm_occ_tightness.py first."
+        )
 
     # company names to lower-case for robust merges
     df_occ["companyname"] = df_occ["companyname"].str.lower()
@@ -108,6 +103,10 @@ def build() -> None:  # noqa: C901 – procedural
     df_occ["year"] = (df_occ["yh"] // 2).astype(int)
 
     # Head-count weighted tightness so that firm-level panel retains the info
+    # ------------------------------------------------------------------
+    # 1) Aggregate flows & headcounts to firm × yh
+    # ------------------------------------------------------------------
+
     grouped = (
         df_occ
         .groupby(["companyname", "yh"], as_index=False)
@@ -117,12 +116,39 @@ def build() -> None:  # noqa: C901 – procedural
                     "headcount": g["headcount"].sum(),
                     "joins": g["joins"].sum(),
                     "leaves": g["leaves"].sum(),
-                    "tight_wavg": np.average(g["tight_wavg"], weights=g["headcount"],) if g["tight_wavg"].notna().any() else np.nan,
                 }
             )
         )
         .reset_index()
     )
+
+    # ------------------------------------------------------------------
+    # 2) Firm-level tightness – fixed at 2019-H2 occupational mix
+    # ------------------------------------------------------------------
+
+    YH_2019H2 = 4039  # 2019 second half (used in build_firm_occ_tightness)
+
+    base = (
+        df_occ[df_occ["yh"] == YH_2019H2]
+        .groupby("companyname")
+        .apply(
+            lambda g: (
+                np.average(
+                    g.loc[g["tight_wavg"].notna(), "tight_wavg"],
+                    weights=g.loc[g["tight_wavg"].notna(), "headcount"],
+                )
+                if g["tight_wavg"].notna().any()
+                else np.nan
+            )
+        )
+        .reset_index(name="tight_wavg")
+    )
+
+    # Persist the static firm-level tightness for downstream merges
+    base.to_csv(TIGHT_STATIC_CSV, index=False)
+    print(f"✓ firm_tightness_static written → {TIGHT_STATIC_CSV.name}\n  rows: {len(base):,}")
+
+    grouped = grouped.merge(base, on="companyname", how="left")
 
     # Drop artefact columns that groupby.apply may create ("level_0" / "index")
     for col in ("level_0", "index"):
@@ -144,78 +170,10 @@ def build() -> None:  # noqa: C901 – procedural
     for var in ("growth_rate", "join_rate", "leave_rate"):
         grouped[f"{var}_we"] = _winsorise_series(grouped[var])
 
-    # 3) Merge static firm attributes ---------------------------------------------
-    def _prep(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-        return df[cols].drop_duplicates().assign(companyname=lambda d: d["companyname"].str.lower())
+    # 3) Persist – CSV only -------------------------------------------------------
+    grouped.to_csv(OUT_CSV, index=False)
 
-    tele = _prep(pd.read_stata(PATH_TELE), ["companyname", "teleworkable"])
-    remote = _prep(pd.read_stata(PATH_REMOTE), ["companyname", "flexibility_score2"]).rename(
-        columns={"flexibility_score2": "remote"}
-    )
-    founding = _prep(pd.read_stata(PATH_FOUND), ["companyname", "founded"])
-
-    panel = grouped.merge(tele, on="companyname", how="left").merge(remote, on="companyname", how="left").merge(
-        founding, on="companyname", how="left"
-    )
-
-    # 4) Derived firm-level dummies -------------------------------------------------
-    panel["age"] = 2020 - panel["founded"]
-    panel["startup"] = panel["age"] <= 10
-
-    panel["covid"] = panel["year"] >= 2020
-
-    # remote  ∈ [0,1]  → hybrid / full remote dummies if needed later
-    panel["hybrid"] = (panel["remote"] > 0) & (panel["remote"] < 1)
-    panel["fullrem"] = panel["remote"] == 1
-
-    # interactions exactly as in Stata
-    panel["var3"] = panel["remote"] * panel["covid"]
-    panel["var4"] = panel["covid"] * panel["startup"]
-    panel["var5"] = panel["remote"] * panel["covid"] * panel["startup"]
-    panel["var6"] = panel["covid"] * panel["teleworkable"]
-    panel["var7"] = panel["startup"] * panel["covid"] * panel["teleworkable"]
-
-    # firm_id (numeric)
-    panel = panel.sort_values(["companyname", "yh"]).reset_index(drop=True)
-    panel["firm_id"] = pd.factorize(panel["companyname"])[0] + 1  # 1-based like Stata encode
-
-    # 5) Drop rows with missing core vars to mimic Stata filtering ---------------
-    keep_vars = [
-        "firm_id",
-        "yh",
-        "covid",
-        "remote",
-        "startup",
-        "teleworkable",
-        "growth_rate_we",
-        "leave_rate_we",
-        "join_rate_we",
-        "var3",
-        "var4",
-        "var5",
-        "var6",
-        "var7",
-    ]
-    panel = panel.dropna(subset=keep_vars)
-
-    # 6) Persist ---------------------------------------------------------------
-    # Persist: If pyarrow not present, fall back to DuckDB for parquet write
-    try:
-        panel.to_parquet(OUT_PARQUET, index=False)
-    except Exception as exc:
-        try:
-            con = dk.connect()
-            con.register("_tmp_df", panel)
-            con.execute(f"COPY _tmp_df TO '{OUT_PARQUET.as_posix()}' (FORMAT 'parquet');")
-        except Exception as exc2:  # pragma: no cover
-            print("⚠ Failed to write parquet via pandas & duckdb:", exc, exc2)
-
-    try:
-        panel.to_stata(OUT_DTA, write_index=False, version=117)
-    except Exception as exc:  # pragma: no cover
-        print("⚠ Could not write .dta (", exc, ") – continuing.")
-
-    print(f"✓ firm_panel_enriched written → {OUT_PARQUET.name} & .dta\n  rows: {len(panel):,}")
+    print(f"✓ firm_panel_enriched written → {OUT_CSV.name}\n  rows: {len(grouped):,}")
 
 
 if __name__ == "__main__":

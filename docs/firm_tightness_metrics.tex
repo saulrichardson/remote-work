@@ -1,0 +1,216 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\title{Two Firm--Level Labour--Market Tightness Metrics}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Objective.}  Produce a single firm--level variable that
+captures labour–market tightness while recognising two facts:
+\begin{enumerate}
+  \item Tightness differs across metros.
+  \item Occupations contribute unequally to a firm’s head-count.
+\end{enumerate}
+Below we document two weighting schemes that address (1)–(2).
+
+\begin{itemize}
+  \item \textbf{\texttt{tight\_wavg}}\,: \emph{all} metros, weighted by
+        where each occupation is employed and by its size in the firm’s
+        overall workforce.
+  \item \textbf{\texttt{tight\_hq}}\,: the \emph{single} headquarters metro,
+        weighted by the occupations actually staffed at HQ.
+\end{itemize}
+
+The metrics below relying the same underlying data from  OEWS. But since we can either try to account for all locations or just look at the HQ (which is the most popular MSA in this case), we'll create two versions of the tightness metric. 
+
+\section*{1\quad OEWS building block \;(occupation--metro tightness)}
+
+OEWS gives raw employment counts
+\begin{center}
+\begin{tabular}{@{}ll@{\quad}l@{}}
+\(\text{EMP}_{o,m}\) & -- & employees in occupation $o$ and metro $m$ \\
+\(\text{EMP}_{m}\)   & -- & total employment in metro $m$  \(=\sum_k \text{EMP}_{k,m}\) \\
+\(\text{EMP}^{US}_{o}\) & -- & national employment in occupation $o$  \\
+\(\text{EMP}^{US}\) & -- & total US employment  \(=\sum_k \text{EMP}^{US}_{k}\)\;.
+\end{tabular}
+\end{center}
+
+\paragraph{Step 1: local versus national shares}
+\begin{align*}
+\text{share}_{o,m}      &\;\equiv\; \frac{\text{EMP}_{o,m}}{\text{EMP}_{m}}        && \text{(occupation's share in metro)}\\[4pt]
+\text{share}^{US}_{o}   &\;\equiv\; \frac{\text{EMP}^{US}_{o}}{\text{EMP}^{US}} && \text{(occupation's share nationally).}
+\end{align*}
+
+\paragraph{Step 2: location quotient}
+\[
+  \text{LQ}_{o,m} \;=\; \frac{\text{share}_{o,m}}{\text{share}^{US}_{o}}.
+\]
+When \(\text{LQ}_{o,m}<1\), the occupation is \emph{under--represented}
+locally compared with its national prevalence.
+
+\paragraph{Step 3: tightness index}
+Taking the inverse turns scarcity into a measure that rises with hiring
+difficulty:
+\[
+  T_{o,m} \;=\; \frac{1}{\text{LQ}_{o,m}} \;=\;
+  \frac{\text{share}^{US}_{o}}{\text{share}_{o,m}}.
+\]
+Thus \(T_{o,m}>1\) signals thinner local supply (tighter market), while
+\(T_{o,m}<1\) indicates a looser labour market for that occupation.
+
+\smallskip
+Put differently, the index simply contrasts the occupation’s \emph{local}
+employment share with its \emph{national} share—values above one mean the
+occupation is less prevalent (scarcer) in that metro than in the country as a
+whole.
+
+\medskip
+
+The next sections combine these OEWS metro values into firm-level
+indices.
+
+\section*{2\quad Metric \texttt{tight\_wavg}: all metros, firm--wide mix}
+
+\textbf{Goal.}\;Deliver one scalar that reflects how tight labour markets
+were for the firm’s 2019 workforce \emph{across all its sites and
+occupations}.  A useful metric must account simultaneously for
+\begin{itemize}
+  \item \emph{where} each occupation is based (otherwise we blur San
+        Francisco with Omaha), and
+  \item \emph{how many} employees the firm has in that occupation
+        (otherwise a lone intern could dominate the average).
+\end{itemize}
+The two–stage weighting scheme below meets both needs.
+
+In practice we perform two passes:
+\begin{enumerate}
+  \item \textbf{Across metros within each occupation}.  We pool the
+        tightness numbers of every city where the occupation is present,
+        weighting by how many of the firm’s employees in that occupation
+        sit in each place.
+  \item \textbf{Across occupations within the firm}.  We then pool those
+        occupation averages into one firm number, weighting by the size
+        of each occupation in the overall head-count.
+\end{enumerate}
+The sub-steps below implement these two passes.
+
+\subsection*{Step 2.1\; Count heads by metro}
+For every firm $f$, occupation $o$ and metro $m$ we first count how many
+employees fall into that cell during 2019--H2:
+\[
+  h_{f,o,m} \;=\; \text{LinkedIn heads}(f, o, m; 2019\text{--H2}).
+\]
+In words: “\emph{How many software engineers (for example) does the firm
+employ in San~Francisco, how many in Chicago, and so on?}”
+
+\subsection*{Step 2.2\; Firm–occupation tightness}
+The same occupation is often present in several cities.  To roll the
+metro–level tightness figures into a single number we ask \emph{where}
+the people in that occupation actually sit—the more heads a metro hosts,
+the larger its influence on the average.  We formalise this by turning
+head-counts into shares:
+\[
+  \alpha_{f,o,m} \;=\; \frac{h_{f,o,m}}{\sum_k h_{f,o,k}}, \qquad
+  \sum_m \alpha_{f,o,m}=1.
+\]
+
+Each $\alpha_{f,o,m}$ is the share of the firm’s occupation\,$o$ staff
+that works in metro\,$m$.  We simply take a weighted average of the
+metro-level tightness numbers using these shares: if everyone is in one
+city the result is that city’s $T_{o,m}$; if staff are spread across
+several metros the figure lands somewhere in between.
+\[
+  \widehat T_{f,o}\;=\;\sum_m \alpha_{f,o,m}\,T_{o,m}. \tag{A1}
+\]
+
+\subsection*{Step 2.3\; Collapse to firm level}
+We now pool together all metros and simply ask: 
+“How many employees does the firm have in each occupation, regardless of location?”
+Call this total $H_{f,o}$ for occupation~$o$.
+
+The firm still employs many different occupations and some are far
+larger than others.  To reflect this we convert the raw counts
+$H_{f,o}$ into shares of the total workforce—larger job families should
+carry more weight when we collapse to a single firm number.  We obtain
+these shares by dividing each occupation’s head-count by the firm’s
+overall head-count; these are the occupation weights
+\[
+  \beta_{f,o}=\frac{H_{f,o}}{\sum_k H_{f,k}}, \qquad \textstyle\sum_o \beta_{f,o}=1.
+\]
+The final static metric is then
+\[
+  \boxed{\text{tight\_wavg}_f\;=\;\sum_o \beta_{f,o}\,\widehat T_{f,o}.} \tag{A2}
+\]
+
+In plain terms, \texttt{tight\_wavg} answers a simple question: 
+\emph{“If the firm had to fill every single role it had in 2019, drawing
+workers from the same cities, how difficult would that be given the
+local supply of each occupation?”}
+
+\paragraph{Interpretation.}  Equations (A1)--(A2) give a direct answer:
+\emph{“How tight were the labour markets that supported the firm’s full
+2019 workforce, considering every metro where those employees were
+based?”}
+
+\section*{3\quad Metric \texttt{tight\_hq}: headquarters metro, HQ mix}
+
+
+\textbf{Goal.}\;Gauge hiring difficulty in the headquarters city.  We use a
+\emph{single} metro (HQ($f$)) and average OEWS tightness across
+occupations with weights given by their head-counts at HQ.
+
+\subsection*{Step 3.1\; Pick one metro}
+For each firm, the Stata routine assigns a \emph{head--quarters metro}
+\[\text{HQ}(f)=\underset{m}{\arg\max}\;\text{LinkedIn spells in }m.\]
+
+\subsection*{Step 3.2\; Heads located in HQ}\vspace{-0.3em}
+\[
+  h_{f,o,\text{HQ}} = \text{LinkedIn heads}(f, o, \text{HQ}(f); 2019\text{--H2}).
+\]
+That is, employees who both belong to occupation $o$ \emph{and} sit in
+the headquarters metro.
+
+\subsection*{Step 3.3\; Turn counts into weights}
+From these HQ head-counts we form occupation shares so the numbers sum to
+one and can be used as averaging weights:
+\[
+  w_{f,o}=\frac{h_{f,o,\text{HQ}}}{\sum_k h_{f,k,\text{HQ}}}, \qquad \textstyle\sum_o w_{f,o}=1.
+\]
+Each $w_{f,o}$ is therefore the fraction of the HQ workforce in
+occupation~$o$.  Using these shares—as opposed to equal weights—prevents
+an occupation staffed by only a handful of employees from overtaking the
+signal coming from much larger functions.
+
+\subsection*{Step 3.4\; Combine OEWS values with the HQ mix}
+Finally, we take the metro-specific tightness numbers for the
+headquarters city, \(T_{o,\text{HQ}(f)}\), and average them using the
+weights from the previous step:
+\[
+  \boxed{\text{tight\_hq}_f=\sum_o w_{f,o}\,T_{o,\text{HQ}(f)}.}\tag{B1}
+\]
+
+\paragraph{Interpretation.}  Equation (B1) tells us: \emph{“Given the
+occupations the firm actually employs in its headquarters city, how
+tight is that single local labour market?”}
+
+\section*{4\quad Summary of differences}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Metric           & Geography entering average        & Weights come from               \\
+\midrule
+\texttt{tight\_wavg} & All metros with firm heads (2019--H2) & Entire 2019 firm workforce       \\
+\texttt{tight\_hq}   & Single metro: HQ(f)                   & Heads located in HQ(f)           \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Both variables are \textbf{time–invariant}: the occupational and metro
+weights are frozen at 2019--H2.
+
+\end{document}
