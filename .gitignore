@@ -1,10 +1,17 @@
-# Data and generated results
+# Data directories and generated results
+# Ignore ALL content under any directory named "data" to avoid pushing large datasets.
+# If you need to keep a small illustrative sample under version control, place it
+# somewhere outside a folder named exactly "data" (or adjust this rule locally).
 data/
+data/**
+# Also catch nested "data" folders at any depth (e.g. src/project/data/)
+**/data/
+**/data/**
 
 # Build artifacts
 writeup/build/
 
-# System files
+# System files (declare once)
 .DS_Store
 
 # Python bytecode
@@ -23,7 +30,6 @@ archive/
 
 # Local folders for old scripts
 **/bin/
-.DS_Store
 
 # HPC generated files
 hpc/sbatch/

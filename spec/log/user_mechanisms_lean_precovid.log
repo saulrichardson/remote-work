@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_mechanisms_lean_precovid.log
   log type:  text
- opened on:  27 Jun 2025, 09:32:15
+ opened on:  18 Jul 2025, 11:56:51
 
 . 
 . 
@@ -39,8 +39,31 @@ end of do-file
 . 
 . 
 . 
+. 
+. 
 . preserve
 
+. 
+. 
+. args panel_variant
+
+. if "`panel_variant'" == "" local panel_variant "precovid"
+
+. 
+. 
+. use "$processed_data/user_panel_`panel_variant'.dta", clear
+
+. collapse (last) industry (last) company_msa (last) hqcity (last) hqstate, by(companyname)
+
+. keep companyname industry company_msa
+
+. tempfile industries
+
+. save `industries', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_58965.000003 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_58965.000003 saved as .dta format
+
+. 
 . 
 . 
 . import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
@@ -66,75 +89,265 @@ end of do-file
 . format yh %th
 
 . 
-. // Drop one-off observations in June 2022
+. 
 . drop if date == 22797
 (4,345 observations deleted)
 
-. 
-. gen byte covid = yh >= 120     // 1 = post-COVID (2020H1+), 0 = pre
+. gen byte covid = yh >= 120     
 
 . 
-. collapse (mean) total_employees, by(companyname covid)
+. merge m:1 companyname using `industries', nogenerate   
 
-. 
-. 
-. reshape wide total_employees, i(companyname) j(covid)
-(j = 0 1)
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       151,372
+        from master                   151,372  
+        from using                          0  
 
-Data                               Long   ->   Wide
------------------------------------------------------------------------------
-Number of observations            8,609   ->   4,371       
-Number of variables                   3   ->   3           
-j variable (2 values)             covid   ->   (dropped)
-xij variables:
-                        total_employees   ->   total_employees0 total_employees1
------------------------------------------------------------------------------
-
-. 
-. rename total_employees0 emp_pre        // average employees pre-COVID
-
-. rename total_employees1 emp_post       // average employees post-COVID
-
-. 
-. /**************************************************************************
-> *  4.  Compute growth measures
-> **************************************************************************/
-. gen growth_abs  = emp_post - emp_pre                     // absolute change
-(133 missing values generated)
-
-. gen post_covid_growth  = (emp_post - emp_pre) / emp_pre  if !missing(emp_pre, emp_post) // percent change
-(133 missing values generated)
+    Matched                           167,958  
+    -----------------------------------------
 
 . 
 . 
 . 
-. winsor2 post_covid_growth, cuts(1 99) suffix(_we)
+. collapse (last) total_employees date (sum) join leave (last) covid, by(yh industry)
 
 . 
-. keep companyname post_covid_growth_we emp_pre
+. 
+. // encode companyname, gen(company_numeric)
+. // xtset company_numeric yh
+. // sort company_numeric yh
+. 
+. 
+. encode industry, gen(industry_numeric)
 
-. rename post_covid_growth_we post_covid_growth
+. xtset industry_numeric yh
 
-. label var post_covid_growth ///
->       "Winsorised firm growth: mean post-COVID ÷ mean pre-COVID – 1  (1-99 %)"
+Panel variable: industry_numeric (weakly balanced)
+ Time variable: yh, 2016h1 to 2022h1
+         Delta: 1 halfyear
+
+. sort industry_numeric yh
 
 . 
-. *──────── 4.  Save to a tempfile for later merge ───────────────────────*
+. gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
+(20 missing values generated)
+
+. 
+. 
+. winsor2 growth_rate, cuts(1 99) suffix(_we)
+
+. drop growth_rate
+
+. 
+. collapse growth_rate_we, by(industry covid)
+
+. drop if covid == 0
+(20 observations deleted)
+
+. 
+. rename growth_rate_we growth_rate_we_ind
+
+. drop covid 
+
+. 
+. tempfile industry_growth
+
+. save `industry_growth', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_58965.000004 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_58965.000004 saved as .dta format
+
+. 
+. 
+. 
+. import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(6 vars, 323,675 obs)
+
+. drop v1
+
+. 
+. gen date_numeric = date(date, "YMD")
+
+. drop date
+
+. rename date_numeric date
+
+. format date %td
+
+. 
+. gen yh = hofd(date)
+
+. gen year = yofd(date)
+
+. format yh %th
+
+. 
+. 
+. drop if date == 22797
+(4,345 observations deleted)
+
+. gen byte covid = yh >= 120     
+
+. 
+. 
+. 
+. 
+. collapse (last) total_employees date (sum) join leave (last) covid, by(yh companyname)
+
+. 
+. 
+. 
+. encode companyname, gen(company_numeric)
+
+. xtset company_numeric yh
+
+Panel variable: company_numeric (unbalanced)
+ Time variable: yh, 2016h1 to 2022h1, but with gaps
+         Delta: 1 halfyear
+
+. sort company_numeric yh
+
+. 
+. 
+. 
+. gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
+(4,420 missing values generated)
+
+. 
+. 
+. winsor2 growth_rate, cuts(1 99) suffix(_we)
+
+. drop growth_rate
+
+. 
+. collapse growth_rate_we, by(companyname covid)
+
+. drop if covid == 0
+(4,256 observations deleted)
+
+. 
+. rename growth_rate_we growth_rate_we_post_c
+
+. 
+. drop covid 
+
+. 
+. merge m:1 companyname using `industries', nogenerate   
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         2,129
+        from master                     2,129  
+        from using                          0  
+
+    Matched                             2,224  
+    -----------------------------------------
+
+. 
+. tempfile company_post_growth
+
+. save `company_post_growth', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_58965.000005 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_58965.000005 saved as .dta format
+
+. 
+. 
+. 
+. merge m:1 industry using `industry_growth'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                             0
+    Matched                             4,353  (_merge==3)
+    -----------------------------------------
+
+. drop if industry == ""
+(2,149 observations deleted)
+
+. 
+. 
+. bysort company_msa : egen avg_msa = mean(growth_rate_we_post_c)
+
+. bysort industry : egen avg_ind = mean(growth_rate_we_post_c)
+
+. 
+. merge m:1 companyname using `extra', nogenerate   
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           313
+        from master                       293  
+        from using                         20  
+
+    Matched                             1,911  
+    -----------------------------------------
+
+. drop _merge
+
+. 
+. merge m:1 companyname using jackknife.dta 
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         2,147
+        from master                         0  (_merge==1)
+        from using                      2,147  (_merge==2)
+
+    Matched                             2,224  (_merge==3)
+    -----------------------------------------
+
+. regress growth_rate_we_post_c rent hhi_1000 avg_ind_yh avg_msa_yh
+
+      Source |       SS           df       MS      Number of obs   =     1,757
+-------------+----------------------------------   F(4, 1752)      =    140.84
+       Model |    8.628132         4    2.157033   Prob > F        =    0.0000
+    Residual |  26.8331549     1,752  .015315728   R-squared       =    0.2433
+-------------+----------------------------------   Adj R-squared   =    0.2416
+       Total |  35.4612869     1,756  .020194355   Root MSE        =    .12376
+
+------------------------------------------------------------------------------
+growth_rat~c | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        rent |   .0006863    .000165     4.16   0.000     .0003625      .00101
+    hhi_1000 |    .000046   3.13e-06    14.70   0.000     .0000399    .0000522
+  avg_ind_yh |   .6007312   .0641818     9.36   0.000     .4748502    .7266121
+  avg_msa_yh |   .4463367   .0663762     6.72   0.000     .3161518    .5765216
+       _cons |  -.0452005   .0079248    -5.70   0.000    -.0607436   -.0296574
+------------------------------------------------------------------------------
+
+. 
+. predict yhat
+(option xb assumed; fitted values)
+(2,596 missing values generated)
+
+. sum yhat
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        yhat |      1,775     .090516     .069813  -.1173552   .5916239
+
+. 
+. xtile lg_tile = growth_rate_we_post_c, nq(2)
+
+. 
+. 
 . tempfile firm_growth          // temp filename macro
 
 . save `firm_growth', replace   // dataset lives only this session
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 saved as .dta format
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_58965.000006 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_58965.000006 saved as .dta format
 
+. 
+. 
 . 
 . restore
 
 . 
 . 
-. *--------------------------------------------------------------*
-. *  Merge firm-level growth into the user panel in memory       *
-. *--------------------------------------------------------------*
-. merge m:1 companyname using `firm_growth', nogenerate   // adds post_covid_growth
+. 
+. merge m:1 companyname using `firm_growth', nogenerate   
+(label _merge already defined)
 
     Result                      Number of obs
     -----------------------------------------
@@ -148,289 +361,28 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 saved as .
 . 
 . 
 . 
-. *--------------------------------------------------------------*
-. *  Build growth terciles (1 = low, 3 = high)                   *
-. *--------------------------------------------------------------*
-. preserve
-
-.     keep companyname post_covid_growth
-
-.     duplicates drop companyname, force
-
-Duplicates in terms of companyname
-
-(229,081 observations deleted)
-
-.     xtile lg_tile = post_covid_growth, nq(2)
-
-.     keep companyname lg_tile
-
-.     tempfile gtiles
-
-.     save `gtiles'
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 saved as .dta format
-
-. restore
-
-. 
-. merge m:1 companyname using `gtiles', nogenerate       // attach lg_tile to every row
-
-    Result                      Number of obs
-    -----------------------------------------
-    Not matched                             0
-    Matched                           233,452  
-    -----------------------------------------
-
+. // xtile lg_tile = growth_rate_we_post_c, nq(2)
 . 
 . 
+. gen var17 = covid*lg_tile
+(4,174 missing values generated)
+
+. gen var18 = covid*lg_tile*startup
+(4,174 missing values generated)
+
+. // drop var17 var18
 . 
 . 
+. // gen var17 = covid*growth_rate_we_post_c
+. // gen var18 = covid*growth_rate_we_post_c*startup
 . 
 . 
-. 
-. 
-. // interactions
-. gen var8  = covid*rent
-(8,960 missing values generated)
-
-. gen var9 = covid*rent*startup
-(8,960 missing values generated)
-
-. gen var11  = covid*hhi_1000
-(2,265 missing values generated)
-
-. gen var12 = covid*hhi_1000*startup
-(2,265 missing values generated)
-
-. // gen var14  = covid*seniority_4
-. // gen var15 = covid*seniority_4*startup
-. 
-. gen var14  = covid*emp_pre
-(2,147 missing values generated)
-
-. gen var15 = covid*emp_pre*startup
-(2,147 missing values generated)
-
-. 
-. 
-. // pick your mechanism here
-. // local mech    sd_wage
-. // local mech_label  sdw 
-. 
-. local mech    p90_p10_gap
-
-. local mech_label  gap
-
-. 
-. gen p90_p10_gap = 1
-
-. // generate interactions
-. gen var17 = covid*`mech'
-(2,147 missing values generated)
-
-. gen var18 = covid*`mech'*startup
-(2,147 missing values generated)
-
-. 
-. 
-. 
-. 
-. 
-. capture postclose handle
-
-. tempfile out
-
-. postfile handle ///
->     str8   model_type  /// 
->     str244 spec        ///
->     str40  param       ///
->     double coef se pval pre_mean rkf nobs ///
->     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 not found)
-
-. 
-. 
-. 
-. local specs ///
->   "baseline" ///
->   "rent" "hhi" "seniority" "`mech_label'" ///
->   "rent_hhi" "rent_seniority" "rent_`mech_label'" "hhi_seniority" "hhi_`mech_label'" "seniority_`mech_label'" ///
->   "rent_hhi_seniority" "rent_hhi_`mech_label'" "rent_seniority_`mech_label'" "hhi_seniority_`mech_label'" ///
->   "rent_hhi_seniority_`mech_label'"
-
-. 
-. 
-.   
-. * ────────────────────────────────────────────────────────
-. * 3) Define spec_… locals for OLS exog, IV exog, instruments & endogenous
-. *    (indices correspond to word positions in `specs`)
-. * ────────────────────────────────────────────────────────
-. 
-. //  1) baseline
-. local spec_ols_exog1  var4
-
-. local spec_iv_exog1   var4
-
-. local spec_instr1     var6 var7
-
-. local spec_endo1      var3 var5
-
-. 
-. //  2) rent
-. local spec_ols_exog2  var4 var8 var9  
-
-. local spec_iv_exog2   var4 var8 var9
-
-. local spec_instr2     var6 var7 
-
-. local spec_endo2      var3 var5 
-
-. 
-. //  3) hhi
-. local spec_ols_exog3  var4 var11 var12 
-
-. local spec_iv_exog3   var4 var11 var12
-
-. local spec_instr3     var6 var7 
-
-. local spec_endo3      var3 var5 
-
-. 
-. //  4) seniority
-. local spec_ols_exog4  var4 var14 var15 
-
-. local spec_iv_exog4   var4 var14 var15
-
-. local spec_instr4     var6 var7 
-
-. local spec_endo4      var3 var5 
-
-. 
-. //  5) `mech'
-. local spec_ols_exog5  var4 var17 var18 
-
-. local spec_iv_exog5   var4 var17 var18
-
-. local spec_instr5     var6 var7 
-
-. local spec_endo5      var3 var5 
-
-. 
-. //  6) rent_hhi
-. local spec_ols_exog6  var4 var8 var9  var11 var12 
-
-. local spec_iv_exog6   var4 var8 var9 var11 var12
-
-. local spec_instr6     var6 var7  
-
-. local spec_endo6      var3 var5  
-
-. 
-. //  7) rent_seniority
-. local spec_ols_exog7  var4 var8 var9  var14 var15 
-
-. local spec_iv_exog7   var4 var8 var9 var14 var15
-
-. local spec_instr7     var6 var7  
-
-. local spec_endo7      var3 var5  
-
-. 
-. //  8) rent_`mech'
-. local spec_ols_exog8  var4 var8 var9  var17 var18 
-
-. local spec_iv_exog8   var4 var8 var9 var17 var18
-
-. local spec_instr8     var6 var7  
-
-. local spec_endo8      var3 var5  
-
-. 
-. //  9) hhi_seniority
-. local spec_ols_exog9  var4 var11 var12  var14 var15 
-
-. local spec_iv_exog9   var4 var11 var12 var14 var15
-
-. local spec_instr9     var6 var7  
-
-. local spec_endo9      var3 var5  
-
-. 
-. // 10) hhi_`mech'
-. local spec_ols_exog10 var4 var11 var12  var17 var18 
-
-. local spec_iv_exog10  var4 var11 var12 var17 var18
-
-. local spec_instr10    var6 var7  
-
-. local spec_endo10     var3 var5  
-
-. 
-. // 11) `mech'_seniority
-. local spec_ols_exog11 var4 var17 var18  var14 var15 
-
-. local spec_iv_exog11  var4 var17 var18 var14 var15
-
-. local spec_instr11    var6 var7  
-
-. local spec_endo11     var3 var5  
-
-. 
-. // 12) rent_hhi_seniority
-. local spec_ols_exog12 var4 var8 var9  var11 var12  var14 var15 
-
-. local spec_iv_exog12  var4 var8 var9 var11 var12 var14 var15
-
-. local spec_instr12    var6 var7   
-
-. local spec_endo12     var3 var5   
-
-. 
-. // 13) rent_hhi_`mech'
-. local spec_ols_exog13 var4 var8 var9  var11 var12  var17 var18 
-
-. local spec_iv_exog13  var4 var8 var9 var11 var12 var17 var18
-
-. local spec_instr13    var6 var7   
-
-. local spec_endo13     var3 var5   
-
-. 
-. // 14) rent_seniority_`mech'
-. local spec_ols_exog14 var4 var8 var9  var14 var15  var17 var18 
-
-. local spec_iv_exog14  var4 var8 var9 var14 var15 var17 var18
-
-. local spec_instr14    var6 var7   
-
-. local spec_endo14     var3 var5   
-
-. 
-. // 15) hhi_seniority_`mech'
-. local spec_ols_exog15 var4 var11 var12  var14 var15  var17 var18 
-
-. local spec_iv_exog15  var4 var11 var12 var14 var15 var17 var18
-
-. local spec_instr15    var6 var7   
-
-. local spec_endo15     var3 var5   
-
-. 
-. // 16) rent_hhi_seniority_`mech'
-. local spec_ols_exog16 var4 var8 var9  var11 var12  var14 var15  var17 var18 
-
-. local spec_iv_exog16  var4 var8 var9 var11 var12 var14 var15 var17 var18
-
-. local spec_instr16    var6 var7    
-
-. local spec_endo16     var3 var5    
-
-. 
-end of do-file
-
-.  ivreghdfe total_contributions_q100 (var3 var5  = var6 var7) var4 var14 var15, absorb(firm_id#user_id yh) vce(cluster user_id) savefirs
-> t
-(dropped 6597 singleton observations)
+. // ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, ///
+. //     absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
+.         
+. ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4 var17 var18, ///
+>     absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
+(dropped 6557 singleton observations)
 (MWFE estimator converged in 8 iterations)
 
 Stored estimation results
@@ -449,28 +401,28 @@ IV (2SLS) estimation
 Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
-Number of clusters (user_id) =   35479                Number of obs =   224708
-                                                      F(  5, 35478) =     7.25
+Number of clusters (user_id) =   35221                Number of obs =   222721
+                                                      F(  5, 35220) =    13.24
                                                       Prob > F      =   0.0000
-Total (centered) SS     =  56688987.29                Centered R2   =  -0.0073
-Total (uncentered) SS   =  56688987.29                Uncentered R2 =  -0.0073
-Residual SS             =  57105252.64                Root MSE      =    15.94
+Total (centered) SS     =  56209829.19                Centered R2   =  -0.0005
+Total (uncentered) SS   =  56209829.19                Uncentered R2 =  -0.0005
+Residual SS             =   56238969.5                Root MSE      =    15.89
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var3 |  -13.82164   7.797779    -1.77   0.076    -29.10553    1.462247
-        var5 |   26.13563   10.09845     2.59   0.010     6.342351    45.92892
-        var4 |  -22.08459   7.871691    -2.81   0.005    -37.51334    -6.65583
-       var14 |  -.0000174   .0000158    -1.11   0.269    -.0000483    .0000135
-       var15 |   .0003856   .0001775     2.17   0.030     .0000376    .0007336
+        var3 |  -6.522202   4.813701    -1.35   0.175    -15.95721    2.912803
+        var5 |   11.54615    6.38924     1.81   0.071    -.9769621    24.06926
+        var4 |  -10.01598    3.82911    -2.62   0.009    -17.52115     -2.5108
+       var17 |  -1.241986   .5727815    -2.17   0.030    -2.364656   -.1193168
+       var18 |   .1312476   1.007144     0.13   0.896    -1.842786    2.105282
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             58.224
+Underidentification test (Kleibergen-Paap rk LM statistic):            167.639
                                                    Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              526.310
-                         (Kleibergen-Paap rk Wald F statistic):         30.709
+Weak identification test (Cragg-Donald Wald F statistic):             1306.252
+                         (Kleibergen-Paap rk Wald F statistic):         87.771
 Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
                                          15% maximal IV size              4.58
                                          20% maximal IV size              3.95
@@ -482,7 +434,7 @@ Hansen J statistic (overidentification test of all instruments):         0.000
                                                  (equation exactly identified)
 ------------------------------------------------------------------------------
 Instrumented:         var3 var5
-Included instruments: var4 var14 var15
+Included instruments: var4 var17 var18
 Excluded instruments: var6 var7
 Partialled-out:       _cons
                       nb: total SS, model F and R2s are after partialling-out;
@@ -494,336 +446,13 @@ Absorbed degrees of freedom:
 -----------------------------------------------------------+
        Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------------+---------------------------------------|
-   firm_id#user_id |     42710       42710           0    *|
+   firm_id#user_id |     42378       42378           0    *|
                 yh |        11           1          10     |
 -----------------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
-
-. gen var11  = covid*post_covid_growth
-variable var11 already defined
-r(110);
-
-end of do-file
-
-r(110);
-
-. drop var11 var12
-
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
-
-. gen var11  = covid*post_covid_growth
-(2,147 missing values generated)
-
-. gen var12 = covid*post_covid_growth*startup
-(2,147 missing values generated)
-
+.         
+.         
 . 
 end of do-file
-
-.  ivreghdfe total_contributions_q100 (var3 var5  = var6 var7) var4 var14 var15 var11 var12, absorb(firm_id#user_id yh) vce(cluster user_
-> id) savefirst
-(dropped 6597 singleton observations)
-(MWFE estimator converged in 8 iterations)
-
-Stored estimation results
--------------------------
----------------------------------------------------------------------------
-             |           Dependent  Number of        
-        Name | Command    variable     param.  Title 
--------------+-------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          7  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          7  First-stage regression: var5
----------------------------------------------------------------------------
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   35479                Number of obs =   224708
-                                                      F(  7, 35478) =     7.51
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  56688987.29                Centered R2   =  -0.0068
-Total (uncentered) SS   =  56688987.29                Uncentered R2 =  -0.0068
-Residual SS             =  57076185.06                Root MSE      =    15.94
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -13.42291   8.194907    -1.64   0.101    -29.48518    2.639361
-        var5 |   25.64852   10.47805     2.45   0.014     5.111227    46.18581
-        var4 |  -21.84597   8.078456    -2.70   0.007       -37.68   -6.011949
-       var14 |   -.000018   .0000152    -1.18   0.237    -.0000478    .0000118
-       var15 |   .0003799   .0001863     2.04   0.041     .0000147    .0007452
-       var11 |  -.2545912   .3125296    -0.81   0.415    -.8671589    .3579765
-       var12 |   .2281434   .3588338     0.64   0.525    -.4751819    .9314687
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             53.605
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              480.358
-                         (Kleibergen-Paap rk Wald F statistic):         28.130
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4 var14 var15 var11 var12
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------------+
-       Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------------+---------------------------------------|
-   firm_id#user_id |     42710       42710           0    *|
-                yh |        11           1          10     |
------------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-.  ivreghdfe total_contributions_q100 (var3 var5  = var6 var7) var4 var11 var12, absorb(firm_id#user_id yh) vce(cluster user_id) savefirs
-> t
-(dropped 6597 singleton observations)
-(MWFE estimator converged in 8 iterations)
-
-Stored estimation results
--------------------------
----------------------------------------------------------------------------
-             |           Dependent  Number of        
-        Name | Command    variable     param.  Title 
--------------+-------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          5  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          5  First-stage regression: var5
----------------------------------------------------------------------------
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   35479                Number of obs =   224708
-                                                      F(  5, 35478) =     9.92
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  56688987.29                Centered R2   =  -0.0020
-Total (uncentered) SS   =  56688987.29                Uncentered R2 =  -0.0020
-Residual SS             =  56800339.17                Root MSE      =     15.9
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -8.496849   4.389907    -1.94   0.053     -17.1012    .1075034
-        var5 |   12.03827    5.68438     2.12   0.034     .8967044    23.17983
-        var4 |  -10.16997   4.140547    -2.46   0.014    -18.28557   -2.054368
-       var11 |  -.3586565   .2485651    -1.44   0.149    -.8458518    .1285388
-       var12 |   .2163468   .3015798     0.72   0.473     -.374759    .8074526
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            195.849
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1572.640
-                         (Kleibergen-Paap rk Wald F statistic):        103.592
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4 var11 var12
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------------+
-       Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------------+---------------------------------------|
-   firm_id#user_id |     42710       42710           0    *|
-                yh |        11           1          10     |
------------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-. drop var11 var12
-
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
-
-. gen var11  = covid*lg_tile
-(2,147 missing values generated)
-
-. gen var12 = covid*lg_tile*startup
-(2,147 missing values generated)
-
-. 
-end of do-file
-
-.  ivreghdfe total_contributions_q100 (var3 var5  = var6 var7) var4 var11 var12, absorb(firm_id#user_id yh) vce(cluster user_id)
-(dropped 6597 singleton observations)
-(MWFE estimator converged in 8 iterations)
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   35479                Number of obs =   224708
-                                                      F(  5, 35478) =    14.14
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  56688987.29                Centered R2   =  -0.0002
-Total (uncentered) SS   =  56688987.29                Uncentered R2 =  -0.0002
-Residual SS             =   56701375.8                Root MSE      =    15.89
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -5.730106   4.939959    -1.16   0.246    -15.41258    3.952367
-        var5 |   7.351957   6.500152     1.13   0.258    -5.388541    20.09245
-        var4 |   -10.5798   4.016912    -2.63   0.008    -18.45307   -2.706533
-       var11 |  -1.424412   .5098858    -2.79   0.005    -2.423804   -.4250199
-       var12 |    2.32597   1.012907     2.30   0.022     .3406407      4.3113
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            160.070
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1225.397
-                         (Kleibergen-Paap rk Wald F statistic):         83.755
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4 var11 var12
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------------+
-       Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------------+---------------------------------------|
-   firm_id#user_id |     42710       42710           0    *|
-                yh |        11           1          10     |
------------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
-
-. gen var14  = covid*emp_pre
-variable var14 already defined
-r(110);
-
-end of do-file
-
-r(110);
-
-. drop var14
-
-. drop var15
-
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
-
-. gen var14  = covid*emp_pre
-(2,147 missing values generated)
-
-. gen var15 = covid*emp_pre*startup
-(2,147 missing values generated)
-
-. 
-end of do-file
-
-.  ivreghdfe total_contributions_q100 (var3 var5  = var6 var7) var4 var11 var12 var14 var15, absorb(firm_id#user_id yh) vce(cluster user_
-> id)
-(dropped 6597 singleton observations)
-(MWFE estimator converged in 8 iterations)
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   35479                Number of obs =   224708
-                                                      F(  7, 35478) =    11.31
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  56688987.29                Centered R2   =  -0.0031
-Total (uncentered) SS   =  56688987.29                Uncentered R2 =  -0.0031
-Residual SS             =  56863261.68                Root MSE      =    15.91
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -9.866774   9.310259    -1.06   0.289    -28.11517     8.38162
-        var5 |   22.25292   11.29613     1.97   0.049     .1121511    44.39368
-        var4 |  -24.96753   7.933098    -3.15   0.002    -40.51665   -9.418415
-       var11 |  -1.292675   .6262828    -2.06   0.039    -2.520209   -.0651415
-       var12 |   3.128198   1.084593     2.88   0.004     1.002362    5.254034
-       var14 |  -.0000146   .0000167    -0.87   0.382    -.0000473    .0000181
-       var15 |   .0005144    .000177     2.91   0.004     .0001674    .0008614
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             42.463
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              363.248
-                         (Kleibergen-Paap rk Wald F statistic):         22.057
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4 var11 var12 var14 var15
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------------+
-       Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------------+---------------------------------------|
-   firm_id#user_id |     42710       42710           0    *|
-                yh |        11           1          10     |
------------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
 

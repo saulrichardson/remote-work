@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/user_mechanisms_lean_precovid.log
   log type:  text
- opened on:  30 Jun 2025, 14:11:35
+ opened on:  11 Jul 2025, 11:43:08
 
 . 
 . 
@@ -58,8 +58,8 @@ end of do-file
 . tempfile industries
 
 . save `industries', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 saved as .dta format
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000002 not found)
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000002 saved as .dta format
 
 . 
 . 
@@ -113,320 +113,20 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 saved as .
 . 
 . 
 . 
-. // encode companyname, gen(company_numeric)
-. // xtset company_numeric yh
-. // sort company_numeric yh
-. 
-. encode industry, gen(industry_numeric)
-
-. xtset industry_numeric yh
-
-Panel variable: industry_numeric (weakly balanced)
- Time variable: yh, 2016h1 to 2022h1
-         Delta: 1 halfyear
-
-. sort industry_numeric yh
-
-. 
-. gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
-(20 missing values generated)
-
-. 
-. 
-. winsor2 growth_rate, cuts(1 99) suffix(_we)
-
-. drop growth_rate
-
-. 
-. collapse growth_rate_we, by(industry covid)
-
-. drop if covid == 0
-(20 observations deleted)
-
-. 
-. rename growth_rate_we growth_rate_we_ind
-
-. drop covid 
-
-. 
-. tempfile industry_growth
-
-. save `industry_growth', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 saved as .dta format
-
-. 
-. 
-. 
-. import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
-(encoding automatically selected: ISO-8859-1)
-(6 vars, 323,675 obs)
-
-. drop v1
-
-. 
-. gen date_numeric = date(date, "YMD")
-
-. drop date
-
-. rename date_numeric date
-
-. format date %td
-
-. 
-. gen yh = hofd(date)
-
-. gen year = yofd(date)
-
-. format yh %th
-
-. 
-. 
-. drop if date == 22797
-(4,345 observations deleted)
-
-. gen byte covid = yh >= 120     
-
-. 
-. 
-. 
-. 
-. collapse (last) total_employees date (sum) join leave (last) covid, by(yh companyname)
-
-. 
-. 
-. 
 . encode companyname, gen(company_numeric)
+variable companyname not found
+r(111);
 
-. xtset company_numeric yh
-
-Panel variable: company_numeric (unbalanced)
- Time variable: yh, 2016h1 to 2022h1, but with gaps
-         Delta: 1 halfyear
-
-. sort company_numeric yh
-
-. 
-. 
-. 
-. gen growth_rate = (total_employees / L.total_employees) - 1 if _n > 1
-(4,420 missing values generated)
-
-. 
-. 
-. winsor2 growth_rate, cuts(1 99) suffix(_we)
-
-. drop growth_rate
-
-. 
-. collapse growth_rate_we, by(companyname covid)
-
-. drop if covid == 0
-(4,256 observations deleted)
-
-. 
-. rename growth_rate_we growth_rate_we_post_c
-
-. 
-. drop covid 
-
-. 
-. merge m:1 companyname using `industries', nogenerate   
-
-    Result                      Number of obs
-    -----------------------------------------
-    Not matched                         2,129
-        from master                     2,129  
-        from using                          0  
-
-    Matched                             2,224  
-    -----------------------------------------
-
-. 
-. tempfile company_post_growth
-
-. save `company_post_growth', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000004 saved as .dta format
-
-. 
-. 
-. 
-. merge m:1 industry using `industry_growth'
-
-    Result                      Number of obs
-    -----------------------------------------
-    Not matched                             0
-    Matched                             4,353  (_merge==3)
-    -----------------------------------------
-
-. drop if industry == ""
-(2,149 observations deleted)
-
-. 
-. 
-. bysort company_msa : egen avg_msa = mean(growth_rate_we_post_c)
-
-. bysort industry : egen avg_ind = mean(growth_rate_we_post_c)
-
-. 
-. regress growth_rate_we_post_c avg_ind avg_msa
-
-      Source |       SS           df       MS      Number of obs   =     2,204
--------------+----------------------------------   F(2, 2201)      =    213.60
-       Model |  8.77591639         2  4.38795819   Prob > F        =    0.0000
-    Residual |  45.2144244     2,201  .020542674   R-squared       =    0.1625
--------------+----------------------------------   Adj R-squared   =    0.1618
-       Total |  53.9903408     2,203  .024507644   Root MSE        =    .14333
-
-------------------------------------------------------------------------------
-growth_rat~c | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-     avg_ind |   .7770987   .0640169    12.14   0.000     .6515587    .9026386
-     avg_msa |   .7947606   .0621225    12.79   0.000     .6729357    .9165855
-       _cons |  -.0545987   .0078819    -6.93   0.000    -.0700554   -.0391419
-------------------------------------------------------------------------------
-
-. 
-. predict yhat
-(option xb assumed; fitted values)
-
-. sum yhat
-
-    Variable |        Obs        Mean    Std. dev.       Min        Max
--------------+---------------------------------------------------------
-        yhat |      2,204    .0954757    .0631159   -.088636   .2919309
-
-. 
-. xtile lg_tile = yhat, nq(2)
-
-. 
-. 
-. 
-. tempfile firm_growth          // temp filename macro
-
-. save `firm_growth', replace   // dataset lives only this session
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 not found)
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000005 saved as .dta format
-
-. 
-. 
-. restore
-
-. 
-. 
-. 
-. merge m:1 companyname using `firm_growth', nogenerate   
-(label _merge already defined)
-
-    Result                      Number of obs
-    -----------------------------------------
-    Not matched                         2,027
-        from master                     2,027  
-        from using                          0  
-
-    Matched                           229,278  
-    -----------------------------------------
-
-. 
-. 
-. 
-. 
-. gen var17 = covid*lg_tile
-(2,027 missing values generated)
-
-. gen var18 = covid*lg_tile*startup
-(2,027 missing values generated)
-
-. 
-. 
-. // ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, ///
-. //     absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
-.         
-. ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4 var17 var18, ///
->     absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
-(dropped 6557 singleton observations)
-(MWFE estimator converged in 8 iterations)
-
-Stored estimation results
--------------------------
----------------------------------------------------------------------------
-             |           Dependent  Number of        
-        Name | Command    variable     param.  Title 
--------------+-------------------------------------------------------------
-_ivreg2_var3 | ivreg2         var3          5  First-stage regression: var3
-_ivreg2_var5 | ivreg2         var5          5  First-stage regression: var5
----------------------------------------------------------------------------
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on user_id
-
-Number of clusters (user_id) =   35221                Number of obs =   222721
-                                                      F(  5, 35220) =    12.30
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  56209829.19                Centered R2   =  -0.0001
-Total (uncentered) SS   =  56209829.19                Uncentered R2 =  -0.0001
-Residual SS             =  56213788.95                Root MSE      =    15.89
-
-------------------------------------------------------------------------------
-             |               Robust
-total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -5.559304   4.590788    -1.21   0.226    -14.55739    3.438783
-        var5 |   8.566049   5.878003     1.46   0.145     -2.95502    20.08712
-        var4 |  -10.60215   3.914328    -2.71   0.007    -18.27435   -2.929941
-       var17 |  -1.461033   .4565897    -3.20   0.001    -2.355963   -.5661028
-       var18 |   1.698852   .8375179     2.03   0.043     .0572912    3.340414
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            176.829
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1405.326
-                         (Kleibergen-Paap rk Wald F statistic):         91.547
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4 var17 var18
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------------+
-       Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------------+---------------------------------------|
-   firm_id#user_id |     42378       42378           0    *|
-                yh |        11           1          10     |
------------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-.         
-.         
-. 
 end of do-file
 
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
+r(111);
 
-. *======================================================================
-. *  do/user_remote_growth_specs.do
-. *     Six IV specifications for "remote × startup" with growth controls
-. *======================================================================
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD20662.000000"
+
+. *============================================================*
+. * do/user_mechanisms_regressions.do
+. *  — Automated export of OLS, IV & first-stage F's
+. *    across 8 specification columns
+. *============================================================*
 . 
-. *----------------------------------------------------------------------
-. * 0) Parse optional panel variant
-. *----------------------------------------------------------------------
 . capture log close

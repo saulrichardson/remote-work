@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/build_firm_tight_panel.log
   log type:  text
- opened on:  10 Jul 2025, 11:53:49
+ opened on:  11 Jul 2025, 11:32:13
 
 . 
 . // ----------------------------------------------------------
@@ -533,8 +533,8 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000007 saved as .
   8,407
 
 . di as error "Dropping " r(N) " observation(s) with missing values for variables: `keep_vars'"
-Dropping 8407 observation(s) with missing values for variables: firm_id yh covid remote startup teleworkable     growth_rate_we leave_rat
-> e_we join_rate_we     var3 var4 var5 var6 var7
+Dropping 8407 observation(s) with missing values for variables: firm_id yh covid remote startup teleworkable     growth_rate_we l
+> eave_rate_we join_rate_we     var3 var4 var5 var6 var7
 
 . 
 . keep if common_sample == 1
@@ -547,257 +547,104 @@ Dropping 8407 observation(s) with missing values for variables: firm_id yh covid
 file ../data/processed/firm_tight_panel.dta saved
 
 . export delimited "../data/samples/firm_tight_panel.csv", replace
+(file ../data/samples/firm_tight_panel.csv not found)
 file ../data/samples/firm_tight_panel.csv saved
 
 . 
 . 
 . // local suf = "_t"    // tight_wavg
-. local suf = "_thq"  // tight_hq  
+. // local suf = "_thq"  // tight_hq  
+. 
+. // local suf = "_t"    // tight_wavg
+. 
+. // gen companyname_c = lower(companyname)
+. 
+. // preserve 
+. // // import delimited using "/Users/saul/Dropbox/Remote Work Startups/main/data/processed/firm_occ_msa_heads_2019H2.csv", clea
+> r
+. // gen count = 1
+. // collapse (sum) count, by (companyname)
+. // rename companyname companyname_c
+. // tempfile teleclean
+. // save    `teleclean'
+. //
+. // restore
+. 
+. 
+. // merge m:1 companyname_c using  `teleclean'
+. 
+. 
+. // preserve 
+. // import delimited using "/Users/saul/Downloads/Skills_match_k7.csv", clear
+. // tempfile teleclean1
+. // save    `teleclean1'
+. // restore
+. //
+. // merge m:1 companyname using  `teleclean1'
+. // drop _merge
+. //
+. //
+. // preserve 
+. // import delimited using "/Users/saul/Downloads/Skills_match_k1000.csv", clear
+. // tempfile teleclean2
+. // save    `teleclean2'
+. // restore
+. // merge m:1 companyname using  `teleclean2'
+. // drop _merge
+. 
+. gen companyname_c = lower(companyname)
+
+. preserve
+
+.     import delimited "$processed_data/firm_hhi_msa.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(2 vars, 3,412 obs)
+
+.     rename companyname companyname_c     // lower-case key
+
+. tempfile hhi
+
+. save    `hhi'
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.00000a saved as .dta format
 
 . 
 . 
+. restore
+
 . 
-. ivreghdfe growth_rate_we ///
->    (var3 var5 = var6 var7) ///
->    var4, ///
->    absorb(firm_id yh) ///
->    vce(cluster firm_id)
-(MWFE estimator converged in 4 iterations)
+. merge m:1 companyname_c using `hhi', keep(match) nogen
+(variable companyname_c was str52, now str72 to accommodate using data's values)
 
-IV (2SLS) estimation
---------------------
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                             0
+    Matched                            35,577  
+    -----------------------------------------
 
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on firm_id
-
-Number of clusters (firm_id) =    3508                Number of obs =    41980
-                                                      F(  3,  3507) =    22.94
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =   1327.10484                Centered R2   =   0.0022
-Total (uncentered) SS   =   1327.10484                Uncentered R2 =   0.0022
-Residual SS             =  1324.192664                Root MSE      =    .1776
-
-------------------------------------------------------------------------------
-             |               Robust
-growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |   .0057809   .0093488     0.62   0.536    -.0125488    .0241105
-        var5 |   .2088021   .1017564     2.05   0.040     .0092944    .4083098
-        var4 |   -.236576   .0865024    -2.73   0.006     -.406176    -.066976
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             25.467
-                                                   Chi-sq(1) P-val =    0.0000
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             1388.072
-                         (Kleibergen-Paap rk Wald F statistic):         16.530
-Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
-                                         15% maximal IV size              4.58
-                                         20% maximal IV size              3.95
-                                         25% maximal IV size              3.63
-Source: Stock-Yogo (2005).  Reproduced by permission.
-NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5
-Included instruments: var4
-Excluded instruments: var6 var7
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      3508        3508           0    *|
-          yh |        12           1          11     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-.    
-. 
-.  ivreghdfe growth_rate_we ///
->    (var3 var5 var5`suf' = var6 var7 var7`suf') ///
->    var4, ///
->    absorb(firm_id yh) ///
->    vce(cluster firm_id)
-(MWFE estimator converged in 3 iterations)
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on firm_id
-
-Number of clusters (firm_id) =    1786                Number of obs =    21424
-                                                      F(  4,  1785) =    21.07
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  450.7670788                Centered R2   =  -0.0023
-Total (uncentered) SS   =  450.7670788                Uncentered R2 =  -0.0023
-Residual SS             =  451.7836138                Root MSE      =    .1453
-
-------------------------------------------------------------------------------
-             |               Robust
-growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |  -.0087078   .0118405    -0.74   0.462    -.0319305    .0145149
-        var5 |   .3858113    .207021     1.86   0.063    -.0202177    .7918403
-    var5_thq |  -.0329439   .0196814    -1.67   0.094    -.0715449    .0056572
-        var4 |  -.3829904   .1734629    -2.21   0.027    -.7232021   -.0427786
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):              6.159
-                                                   Chi-sq(1) P-val =    0.0131
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              254.246
-                         (Kleibergen-Paap rk Wald F statistic):          2.495
-Stock-Yogo weak ID test critical values:                       <not available>
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5 var5_thq
-Included instruments: var4
-Excluded instruments: var6 var7 var7_thq
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      1786        1786           0    *|
-          yh |        12           1          11     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-.    
-.    
-. ivreghdfe growth_rate_we ///
->    (var3 var5 var3`suf' var5`suf' = var6 var7 var6`suf' var7`suf') ///
->    var4, ///
->    absorb(firm_id yh) ///
->    vce(cluster firm_id)
-(MWFE estimator converged in 3 iterations)
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on firm_id
-
-Number of clusters (firm_id) =    1786                Number of obs =    21424
-                                                      F(  5,  1785) =    16.85
-                                                      Prob > F      =   0.0000
-Total (centered) SS     =  450.7670788                Centered R2   =  -0.0023
-Total (uncentered) SS   =  450.7670788                Uncentered R2 =  -0.0023
-Residual SS             =  451.7934295                Root MSE      =    .1453
-
-------------------------------------------------------------------------------
-             |               Robust
-growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |    -.00554   .0161083    -0.34   0.731    -.0371332    .0260531
-        var5 |   .3826435   .2061533     1.86   0.064    -.0216837    .7869707
-    var3_thq |  -.0034765   .0121331    -0.29   0.775    -.0272731    .0203201
-    var5_thq |  -.0294674   .0231152    -1.27   0.203    -.0748031    .0158684
-        var4 |  -.3831217   .1735159    -2.21   0.027    -.7234373   -.0428061
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):              6.158
-                                                   Chi-sq(1) P-val =    0.0131
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              190.662
-                         (Kleibergen-Paap rk Wald F statistic):          1.871
-Stock-Yogo weak ID test critical values:                       <not available>
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5 var3_thq var5_thq
-Included instruments: var4
-Excluded instruments: var6 var7 var6_thq var7_thq
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      1786        1786           0    *|
-          yh |        12           1          11     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-.    
-.    
-. ivreghdfe growth_rate_we ///
->    (var3 var5 var3`suf' var5`suf' = var6 var7 var6`suf' var7`suf') ///
->    var4 var4`suf', ///
->    absorb(firm_id yh) ///
->    vce(cluster firm_id)  
-(MWFE estimator converged in 3 iterations)
-
-IV (2SLS) estimation
---------------------
-
-Estimates efficient for homoskedasticity only
-Statistics robust to heteroskedasticity and clustering on firm_id
-
-Number of clusters (firm_id) =    1786                Number of obs =    21424
-                                                      F(  6,  1785) =     0.50
-                                                      Prob > F      =   0.8058
-Total (centered) SS     =  450.7670788                Centered R2   =  -6.0847
-Total (uncentered) SS   =  450.7670788                Uncentered R2 =  -6.0847
-Residual SS             =  3193.536926                Root MSE      =    .3862
-
-------------------------------------------------------------------------------
-             |               Robust
-growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        var3 |   .0083153   .3118966     0.03   0.979    -.6034056    .6200363
-        var5 |  -15.16191   363.9675    -0.04   0.967    -729.0091    698.6853
-    var3_thq |  -.0186821    .342052    -0.05   0.956    -.6895465    .6521823
-    var5_thq |   14.57361   342.6337     0.04   0.966    -657.4317    686.5789
-        var4 |   13.41563   322.6798     0.04   0.967    -619.4543    646.2856
-    var4_thq |  -13.01505   304.8716    -0.04   0.966    -610.9579    584.9278
-------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):              0.002
-                                                   Chi-sq(1) P-val =    0.9653
-------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):                0.176
-                         (Kleibergen-Paap rk Wald F statistic):          0.000
-Stock-Yogo weak ID test critical values:                       <not available>
-------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.000
-                                                 (equation exactly identified)
-------------------------------------------------------------------------------
-Instrumented:         var3 var5 var3_thq var5_thq
-Included instruments: var4 var4_thq
-Excluded instruments: var6 var7 var6_thq var7_thq
-Partialled-out:       _cons
-                      nb: total SS, model F and R2s are after partialling-out;
-                          any small-sample adjustments include partialled-out
-                          variables in regressor count K
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     firm_id |      1786        1786           0    *|
-          yh |        12           1          11     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
+.         
 . 
 end of do-file
 
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD20662.000000"
+
+. *============================================================*
+. *  user_productivity.do
+. *  — Export OLS, IV and first‐stage results for worker productivity
+. *    OUTCOME.  The *first* (optional) command-line argument selects the user
+. *    panel variant:  unbalanced | balanced | precovid  (default = unbalanced)
+. *    This avoids reliance on pre-existing globals and makes driver scripts
+. *    more robust.
+. *    Example:   do user_productivity.do balanced
+. *============================================================*
+. 
+. * --------------------------------------------------------------------------
+. * 0) Parse optional variant argument *before* sourcing globals --------------
+. * --------------------------------------------------------------------------
+. 
+. args panel_variant
+
+. if "`panel_variant'" == "" local panel_variant "precovid"
+
+. local specname user_productivity_`panel_variant'
+
+. capture log close

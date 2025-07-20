@@ -14,6 +14,17 @@ cap mkdir "log"
 
 args panel_variant
 if "`panel_variant'" == "" local panel_variant "precovid"
+use "$processed_data/user_panel_`panel_variant'.dta", clear
+gen seniority_4 = !inrange(seniority_levels,1,3)
+keep if yh == yh(2019,2)
+collapse hhi_1000 rent, by(companyname)
+keep companyname hhi_1000 rent
+
+tempfile extra
+save `extra'
+
+args panel_variant
+if "`panel_variant'" == "" local panel_variant "precovid"
 
 *---------------------------------------------------------------------------*
 * Ensure the panel variant is explicitly part of every identifier so that
@@ -32,6 +43,8 @@ capture mkdir "`result_dir'"
 // 1) Load & prepare once
 use "$processed_data/user_panel_`panel_variant'.dta", clear
 gen seniority_4 = !inrange(seniority_levels,1,3)
+
+
 
 
 
@@ -75,10 +88,10 @@ merge m:1 companyname using `industries', nogenerate
 collapse (last) total_employees date (sum) join leave (last) covid, by(yh industry)
 
 
-
-encode companyname, gen(company_numeric)
-xtset company_numeric yh
+// encode companyname, gen(company_numeric)
+// xtset company_numeric yh
 // sort company_numeric yh
+
 
 encode industry, gen(industry_numeric)
 xtset industry_numeric yh
@@ -157,17 +170,21 @@ drop if industry == ""
 bysort company_msa : egen avg_msa = mean(growth_rate_we_post_c)
 bysort industry : egen avg_ind = mean(growth_rate_we_post_c)
 
-regress growth_rate_we_post_c avg_ind avg_msa
+merge m:1 companyname using `extra', nogenerate   
+drop _merge
+
+merge m:1 companyname using jackknife.dta 
+regress growth_rate_we_post_c rent hhi_1000 avg_ind_yh avg_msa_yh
 
 predict yhat
 sum yhat
 
-xtile lg_tile = yhat, nq(2)
-
+xtile lg_tile = growth_rate_we_post_c, nq(2)
 
 
 tempfile firm_growth          // temp filename macro
 save `firm_growth', replace   // dataset lives only this session
+
 
 
 restore
@@ -178,9 +195,16 @@ merge m:1 companyname using `firm_growth', nogenerate
 
 
 
+// xtile lg_tile = growth_rate_we_post_c, nq(2)
+
 
 gen var17 = covid*lg_tile
 gen var18 = covid*lg_tile*startup
+// drop var17 var18
+
+
+// gen var17 = covid*growth_rate_we_post_c
+// gen var18 = covid*growth_rate_we_post_c*startup
 
 
 // ivreghdfe total_contributions_q100 (var3 var5 = var6 var7) var4, ///

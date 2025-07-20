@@ -260,8 +260,66 @@ export delimited "../data/samples/firm_tight_panel.csv", replace
 // local suf = "_t"    // tight_wavg
 // local suf = "_thq"  // tight_hq  
 
+// local suf = "_t"    // tight_wavg
+
+// gen companyname_c = lower(companyname)
+
+// preserve 
+// // import delimited using "/Users/saul/Dropbox/Remote Work Startups/main/data/processed/firm_occ_msa_heads_2019H2.csv", clear
+// gen count = 1
+// collapse (sum) count, by (companyname)
+// rename companyname companyname_c
+// tempfile teleclean
+// save    `teleclean'
+//
+// restore
 
 
+// merge m:1 companyname_c using  `teleclean'
+
+
+// preserve 
+// import delimited using "/Users/saul/Downloads/Skills_match_k7.csv", clear
+// tempfile teleclean1
+// save    `teleclean1'
+// restore
+//
+// merge m:1 companyname using  `teleclean1'
+// drop _merge
+//
+//
+// preserve 
+// import delimited using "/Users/saul/Downloads/Skills_match_k1000.csv", clear
+// tempfile teleclean2
+// save    `teleclean2'
+// restore
+// merge m:1 companyname using  `teleclean2'
+// drop _merge
+
+gen companyname_c = lower(companyname)
+preserve
+    import delimited "$processed_data/firm_hhi_msa.csv", clear
+    rename companyname companyname_c     // lower-case key
+tempfile hhi
+save    `hhi'
+
+
+restore
+
+merge m:1 companyname_c using `hhi', keep(match) nogen
+	
+	
+
+
+xtile lg_metric1_k7 = metric1_k7, nq(2)
+xtile lg_metric2_k7 = metric2_k7, nq(2)
+xtile lg_metric1_k1000 = metric1_k1000, nq(2)
+xtile lg_metric2_k1000 = metric2_k1000, nq(2)
+
+
+
+
+local suf = "_thq"  // tight_hq  
 ivreghdfe growth_rate_we ///
    (var3 var5 = var6 var7) ///
    var4, ///
@@ -269,13 +327,15 @@ ivreghdfe growth_rate_we ///
    vce(cluster firm_id)
    
 
+local suf = "_thq"  // tight_hq  
  ivreghdfe growth_rate_we ///
    (var3 var5 var5`suf' = var6 var7 var7`suf') ///
    var4, ///
    absorb(firm_id yh) ///
    vce(cluster firm_id)
    
-   
+  
+  
 ivreghdfe growth_rate_we ///
    (var3 var5 var3`suf' var5`suf' = var6 var7 var6`suf' var7`suf') ///
    var4, ///

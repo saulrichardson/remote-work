@@ -154,6 +154,8 @@ egen size_bin_yh   = xtile(emp_yh),                    by(yh) nq(2)
 
 
 
+collapse (mean) avg_ind_yh avg_msa_yh, by(companyname)
+
 // capture drop ind_sum_raw ind_n_raw ind_sum_favg ind_n_favg
 
 *--- CREATE the series you'll use in the tile regression -------------
@@ -164,6 +166,8 @@ egen size_bin_yh   = xtile(emp_yh),                    by(yh) nq(2)
 // keep companyname growth_rate_we_post_c avg_ind avg_ind_favg_lo avg_msa 
 
 save `firm_growth', replace
+
+
 
 *--------------------------------------------------------------------*
 * 4) Merge growth info back to user panel    build emp_pre ---------*

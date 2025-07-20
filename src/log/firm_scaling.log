@@ -1,36 +1,16 @@
 ---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/user_productivity_precovid.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/src/log/firm_scaling.log
   log type:  text
- opened on:  11 Jul 2025, 11:37:50
+ opened on:  11 Jul 2025, 11:38:23
 
 . 
-. // 0) Setup environment
-. do "../src/globals.do"
+. local result_dir "$results/`specname'"
 
-. global raw_data "../data/raw"
-
-. global processed_data  "../data/processed"
-
-. global results "../results/raw"
-
-. global clean_results "../results/cleaned"
+. capture mkdir "`result_dir'"
 
 . 
 . 
-. 
-. 
-. 
-end of do-file
-
-. 
-. // 1) Load worker‐level panel
-. use "$processed_data/user_panel_`panel_variant'.dta", clear
-
-. 
-. 
-. drop _merge
-
 . 
 . 
 . gen companyname_c = lower(companyname)
@@ -59,43 +39,19 @@ file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_20662.000002 saved as .
     Result                      Number of obs
     -----------------------------------------
     Not matched                             0
-    Matched                           226,825  
+    Matched                            35,577  
     -----------------------------------------
 
+. 
 . 
 end of do-file
 
 . do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD20662.000000"
 
 . *============================================================*
-. *  do/firm_scaling_regressions.do
-. *  — Automated export of OLS, IV, and first‐stage partial F's
+. * do/user_mechanisms_regressions.do
+. *  — Automated export of OLS, IV & first-stage F's
+. *    across 8 specification columns
 . *============================================================*
 . 
-. // 0) Setup environment
-. do "../src/globals.do"
-
-. global raw_data "../data/raw"
-
-. global processed_data  "../data/processed"
-
-. global results "../results/raw"
-
-. global clean_results "../results/cleaned"
-
-. 
-. 
-. 
-. 
-. 
-end of do-file
-
-. 
-. // 1) Load master panel
-. use "$processed_data/firm_panel.dta", clear
-
-. 
-. // 2) Prepare output dir & tempfile
-. local specname   "firm_scaling"
-
 . capture log close

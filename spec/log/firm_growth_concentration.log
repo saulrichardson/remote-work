@@ -1,0 +1,295 @@
+---------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_growth_concentration.log
+  log type:  text
+ opened on:  16 Jul 2025, 14:29:43
+
+. 
+. // 1. Load baseline firm panel ------------------------------------------
+. 
+. use "$processed_data/firm_panel.dta", clear
+
+. // use "$processed_data/user_panel_precovid.dta", clear
+. 
+. gen companyname_c = lower(companyname)
+
+. 
+. preserve
+
+. // 2. Merge firm-level concentration measures ---------------------------
+. 
+. 
+. 
+. import delimited "$processed_data/firm_hq_concentration.csv", ///
+>     clear stringcols(_all)
+(encoding automatically selected: ISO-8859-1)
+(8 vars, 2,875 obs)
+
+. rename companyname companyname_c
+
+. 
+. tempfile hhi
+
+. save `hhi'
+file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_10927.000002 saved as .dta format
+
+. 
+. restore
+
+. 
+. merge m:1 companyname_c using `hhi', keep(1 3) nogen
+(variable companyname_c was str52, now str72 to accommodate using data's values)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                        14,104
+        from master                    14,104  
+        from using                          0  
+
+    Matched                            27,876  
+    -----------------------------------------
+
+. 
+. destring hhi_hq_fw_lg hhi_hq_hq_lg hhi_hq_eq_lg hhi_fwavg_lg, replace 
+hhi_hq_fw_lg: all characters numeric; replaced as double
+(18278 missing values generated)
+hhi_hq_hq_lg: all characters numeric; replaced as double
+(18398 missing values generated)
+hhi_hq_eq_lg: all characters numeric; replaced as double
+(15100 missing values generated)
+hhi_fwavg_lg: all characters numeric; replaced as double
+(17714 missing values generated)
+
+. 
+. // 3. Build interaction variables ---------------------------------------
+. 
+. // Baseline index: hhi_hq_fw (HQ metro, firm-wide weights)
+. 
+. local v hhi_fwavg_lg
+
+. gen var3_hhi = var3 * hhi_fwavg_lg
+(17,714 missing values generated)
+
+. gen var5_hhi = var5 * hhi_fwavg_lg
+(17,714 missing values generated)
+
+. gen var6_hhi = var6 * hhi_fwavg_lg
+(17,714 missing values generated)
+
+. gen var7_hhi = var7 * hhi_fwavg_lg
+(17,714 missing values generated)
+
+. 
+. 
+. 
+. // 5. Baseline IV regression -------------------------------------------
+. 
+. ivreghdfe growth_rate_we ///
+>     (var3 var5 = var6 var7) ///
+>     var4, absorb(firm_id yh) vce(cluster firm_id)
+(MWFE estimator converged in 4 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on firm_id
+
+Number of clusters (firm_id) =    3508                Number of obs =    41980
+                                                      F(  3,  3507) =    22.94
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =   1327.10484                Centered R2   =   0.0022
+Total (uncentered) SS   =   1327.10484                Uncentered R2 =   0.0022
+Residual SS             =  1324.192664                Root MSE      =    .1776
+
+------------------------------------------------------------------------------
+             |               Robust
+growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |   .0057809   .0093488     0.62   0.536    -.0125488    .0241105
+        var5 |   .2088021   .1017564     2.05   0.040     .0092944    .4083098
+        var4 |   -.236576   .0865024    -2.73   0.006     -.406176    -.066976
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):             25.467
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             1388.072
+                         (Kleibergen-Paap rk Wald F statistic):         16.530
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5
+Included instruments: var4
+Excluded instruments: var6 var7
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      3508        3508           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+end of do-file
+
+. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD10927.000000"
+
+. ivreghdfe growth_rate_we ///
+>     (var3 var5 var3_hhi var5_hhi = var6 var7 var6_hhi var7_hhi) ///
+>     var4, absorb(firm_id yh) vce(cluster firm_id)
+(MWFE estimator converged in 4 iterations)
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on firm_id
+
+Number of clusters (firm_id) =    2023                Number of obs =    24266
+                                                      F(  5,  2022) =    20.73
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  559.9157469                Centered R2   =   0.0010
+Total (uncentered) SS   =  559.9157469                Uncentered R2 =   0.0010
+Residual SS             =  559.3820033                Root MSE      =    .1519
+
+------------------------------------------------------------------------------
+             |               Robust
+growth_rat~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -.0237677   .0111679    -2.13   0.033    -.0456695   -.0018658
+        var5 |   .3080841   .1633137     1.89   0.059    -.0121966    .6283649
+    var3_hhi |    .000016   4.24e-06     3.76   0.000     7.64e-06    .0000243
+    var5_hhi |  -5.75e-06   .0000144    -0.40   0.691    -.0000341    .0000226
+        var4 |  -.3293881   .1429194    -2.30   0.021    -.6096728   -.0491034
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):              8.584
+                                                   Chi-sq(1) P-val =    0.0034
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):              245.030
+                         (Kleibergen-Paap rk Wald F statistic):          2.680
+Stock-Yogo weak ID test critical values:                       <not available>
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3 var5 var3_hhi var5_hhi
+Included instruments: var4
+Excluded instruments: var6 var7 var6_hhi var7_hhi
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     firm_id |      2023        2023           0    *|
+          yh |        12           1          11     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+end of do-file
+
+. regress growth_rate_we var3_hhi
+
+      Source |       SS           df       MS      Number of obs   =    24,266
+-------------+----------------------------------   F(1, 24264)     =    143.61
+       Model |  5.42817873         1  5.42817873   Prob > F        =    0.0000
+    Residual |  917.110308    24,264  .037797161   R-squared       =    0.0059
+-------------+----------------------------------   Adj R-squared   =    0.0058
+       Total |  922.538487    24,265  .038019307   Root MSE        =    .19441
+
+------------------------------------------------------------------------------
+growth_rat~e | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+    var3_hhi |  -.0000234   1.95e-06   -11.98   0.000    -.0000272   -.0000195
+       _cons |   .0948419   .0013926    68.11   0.000     .0921124    .0975714
+------------------------------------------------------------------------------
+
+. gen var1 = remote * covid * hhi_fwavg_lg
+(17,714 missing values generated)
+
+. regress growth_rate_we var1
+
+      Source |       SS           df       MS      Number of obs   =    24,266
+-------------+----------------------------------   F(1, 24264)     =    143.61
+       Model |  5.42817873         1  5.42817873   Prob > F        =    0.0000
+    Residual |  917.110308    24,264  .037797161   R-squared       =    0.0059
+-------------+----------------------------------   Adj R-squared   =    0.0058
+       Total |  922.538487    24,265  .038019307   Root MSE        =    .19441
+
+------------------------------------------------------------------------------
+growth_rat~e | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var1 |  -.0000234   1.95e-06   -11.98   0.000    -.0000272   -.0000195
+       _cons |   .0948419   .0013926    68.11   0.000     .0921124    .0975714
+------------------------------------------------------------------------------
+
+. regress growth_rate_we hhi_hq_fw_lg
+
+      Source |       SS           df       MS      Number of obs   =    23,702
+-------------+----------------------------------   F(1, 23700)     =    344.68
+       Model |  13.0963146         1  13.0963146   Prob > F        =    0.0000
+    Residual |  900.496493    23,700  .037995633   R-squared       =    0.0143
+-------------+----------------------------------   Adj R-squared   =    0.0143
+       Total |  913.592808    23,701  .038546593   Root MSE        =    .19492
+
+------------------------------------------------------------------------------
+growth_rat~e | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+hhi_hq_fw_lg |   -.000022   1.18e-06   -18.57   0.000    -.0000243   -.0000197
+       _cons |   .1181896   .0020549    57.52   0.000     .1141619    .1222172
+------------------------------------------------------------------------------
+
+. regress growth_rate_we hhi_hq_hq_lg
+
+      Source |       SS           df       MS      Number of obs   =    23,582
+-------------+----------------------------------   F(1, 23580)     =    302.12
+       Model |  11.4685824         1  11.4685824   Prob > F        =    0.0000
+    Residual |  895.099892    23,580  .037960131   R-squared       =    0.0127
+-------------+----------------------------------   Adj R-squared   =    0.0126
+       Total |  906.568474    23,581   .03844487   Root MSE        =    .19483
+
+------------------------------------------------------------------------------
+growth_rat~e | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+hhi_hq_hq_lg |  -.0000209   1.20e-06   -17.38   0.000    -.0000233   -.0000186
+       _cons |   .1163015   .0020582    56.51   0.000     .1122674    .1203357
+------------------------------------------------------------------------------
+
+. regress growth_rate_we hhi_hq_eq_lg
+
+      Source |       SS           df       MS      Number of obs   =    26,880
+-------------+----------------------------------   F(1, 26878)     =     83.21
+       Model |  3.88821445         1  3.88821445   Prob > F        =    0.0000
+    Residual |  1255.92867    26,878  .046727013   R-squared       =    0.0031
+-------------+----------------------------------   Adj R-squared   =    0.0030
+       Total |  1259.81688    26,879  .046869931   Root MSE        =    .21616
+
+------------------------------------------------------------------------------
+growth_rat~e | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+hhi_hq_eq_lg |  -.0000134   1.47e-06    -9.12   0.000    -.0000163   -.0000105
+       _cons |   .1277243   .0040824    31.29   0.000     .1197225    .1357261
+------------------------------------------------------------------------------
+
+. clear
+
+. exit

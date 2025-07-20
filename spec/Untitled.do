@@ -10,7 +10,7 @@ do "../src/globals.do"
 use  "$processed_data/firm_soc_panel.dta", replace
 
 // 2) Prepare output dir & tempfile
-local specname   "firm_scaling"
+local specname   "firm_soc"
 capture log close
 cap mkdir "log"
 log using "log/`specname'.log", replace text

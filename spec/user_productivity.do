@@ -25,6 +25,51 @@ do "../src/globals.do"
 // 1) Load worker‐level panel
 use "$processed_data/user_panel_`panel_variant'.dta", clear
 
+
+drop _merge
+
+
+gen companyname_c = lower(companyname)
+preserve
+    import delimited "$processed_data/firm_hhi_msa.csv", clear
+    rename companyname companyname_c     // lower-case key
+tempfile hhi
+save    `hhi'
+
+
+restore
+
+merge m:1 companyname_c using `hhi', keep(match) nogen
+
+
+
+// preserve 
+// import delimited using "/Users/saul/Downloads/Skills_match_k7.csv", clear
+// tempfile teleclean1
+// save    `teleclean1'
+// restore
+//
+// merge m:1 companyname using  `teleclean1'
+// drop _merge
+//
+//
+// preserve 
+// import delimited using "/Users/saul/Downloads/Skills_match_k1000.csv", clear
+// tempfile teleclean2
+// save    `teleclean2'
+// restore
+// merge m:1 companyname using  `teleclean2', force
+// drop _merge
+
+
+
+xtile lg_metric1_k7 = metric1_k7, nq(2)
+xtile lg_metric2_k7 = metric2_k7, nq(2)
+xtile lg_metric1_k1000 = metric1_k1000, nq(2)
+xtile lg_metric2_k1000 = metric2_k1000, nq(2)
+
+
+
 // 2) Prepare output dir & reset any old postfile
 *--------------------------------------------------------------------------*
 * Results are now *always* written to <specname> _<panel‐variant> (e.g.,
