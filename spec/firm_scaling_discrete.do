@@ -51,13 +51,56 @@ postfile handle_fs ///
 if "`treat'" == "fullremote" {
     local v3 = "var3_fullrem"
     local v5 = "var5_fullrem"
+    // Ensure required interactions exist even if not present in panel
+    capture confirm variable var3_fullrem
+    if _rc {
+        gen byte fullrem = (remote==1)
+        gen var3_fullrem = fullrem * covid
+        gen var5_fullrem = fullrem * covid * startup
+    }
 }
 else if "`treat'" == "hybrid" {
     local v3 = "var3_hybrid"
     local v5 = "var5_hybrid"
+    capture confirm variable var3_hybrid
+    if _rc {
+        gen byte hybrid = (remote>0 & remote<1)
+        gen var3_hybrid = hybrid * covid
+        gen var5_hybrid = hybrid * covid * startup
+    }
+}
+else if "`treat'" == "inperson" {
+    local v3 = "var3_inperson"
+    local v5 = "var5_inperson"
+    capture confirm variable var3_inperson
+    if _rc {
+        gen byte inperson = (remote==0)
+        gen var3_inperson = inperson * covid
+        gen var5_inperson = inperson * covid * startup
+    }
+}
+else if "`treat'" == "anyremote" {
+    local v3 = "var3_anyremote"
+    local v5 = "var5_anyremote"
+    capture confirm variable var3_anyremote
+    if _rc {
+        gen byte anyremote = (remote>0)
+        gen var3_anyremote = anyremote * covid
+        gen var5_anyremote = anyremote * covid * startup
+    }
+}
+else if "`treat'" == "nonremote" {
+    local v3 = "var3_nonrem"
+    local v5 = "var5_nonrem"
+    capture confirm variable var3_nonrem
+    if _rc {
+        gen byte nonrem = (remote==0)
+        gen var3_nonrem = nonrem * covid
+        gen var5_nonrem = nonrem * covid * startup
+    }
 }
 else {
-    di as error "Unknown treat=`treat'—must be remote or hybrid"
+    di as error "Unknown treat=`treat'—must be fullremote, hybrid, inperson, anyremote, or nonremote"
     exit 1
 }
 
@@ -107,42 +150,42 @@ foreach y of local outcome_vars {
     }
 
     // --- FIRST STAGE: only once on first loop pass ---
-	if !`fs_done' {
+// 	if !`fs_done' {
 		
-		matrix FS = e(first)
-        local F3 = FS[4,1]
-        local F5 = FS[4,2]
+// 		matrix FS = e(first)
+//         local F3 = FS[4,1]
+//         local F5 = FS[4,2]
+//
+// 		/* -------- var3 first stage -------------------------------- */
+// 		estimates restore _ivreg2_var3
+// 		local N_fs = e(N)
+// 		foreach p in var6 var7 var4 {
+// 			local b    = _b[`p']
+// 			local se   = _se[`p']
+// 			local t    = `b'/`se'
+// 			local pval = 2*ttail(e(df_r), abs(`t'))
+//
+// 			post handle_fs ("v3") ("`p'") ///
+// 							(`b') (`se') (`pval') ///
+// 							(`F3') (`rkf') (`N_fs')
+// 		}
+//
+// 		/* -------- var5 first stage -------------------------------- */
+// 		estimates restore _ivreg2_var5
+// 		local N_fs = e(N)
+// 		foreach p in var6 var7 var4 {
+// 			local b    = _b[`p']
+// 			local se   = _se[`p']
+// 			local t    = `b'/`se'
+// 			local pval = 2*ttail(e(df_r), abs(`t'))
+//
+// 			post handle_fs ("v5") ("`p'") ///
+// 							(`b') (`se') (`pval') ///
+// 							(`F5') (`rkf') (`N_fs')
+// 		}
 
-		/* -------- var3 first stage -------------------------------- */
-		estimates restore _ivreg2_var3
-		local N_fs = e(N)
-		foreach p in var6 var7 var4 {
-			local b    = _b[`p']
-			local se   = _se[`p']
-			local t    = `b'/`se'
-			local pval = 2*ttail(e(df_r), abs(`t'))
-
-			post handle_fs ("v3") ("`p'") ///
-							(`b') (`se') (`pval') ///
-							(`F3') (`rkf') (`N_fs')
-		}
-
-		/* -------- var5 first stage -------------------------------- */
-		estimates restore _ivreg2_var5
-		local N_fs = e(N)
-		foreach p in var6 var7 var4 {
-			local b    = _b[`p']
-			local se   = _se[`p']
-			local t    = `b'/`se'
-			local pval = 2*ttail(e(df_r), abs(`t'))
-
-			post handle_fs ("v5") ("`p'") ///
-							(`b') (`se') (`pval') ///
-							(`F5') (`rkf') (`N_fs')
-		}
-
-		local fs_done 1
-	}
+// 		local fs_done 1
+// 	}
 
 }
 

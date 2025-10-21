@@ -116,7 +116,7 @@ foreach outcome of local transformed_vars {
 		matrix escoef1[`i',3] = _b[rem_start_`i'] + _se[rem_start_`i']*1.96
 	}
 
-	local ylab: variable label `outcome'
+	local ylab "Rank for contributions"
 
 	coefplot (matrix(escoef1[,1]), ci((escoef1[,2] escoef1[,3])) ciopts(lc(navy*.5))) , ///
 		drop(*.year* _cons) vertical yline(0, lc(gs13) lw(thin)) ///
@@ -149,7 +149,7 @@ foreach outcome of local transformed_vars {
 		matrix escoef1[`i',3] = _b[rem_start_`i'] + _se[rem_start_`i']*1.96
 	}
 
-	local ylab: variable label `outcome'
+	local ylab "Rank for contributions"
 
 	coefplot (matrix(escoef1[,1]), ci((escoef1[,2] escoef1[,3])) ciopts(lc(navy*.5))) , ///
 		drop(*.year* _cons) vertical yline(0, lc(gs13) lw(thin)) ///

@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-"""Generate a two-panel regression table for the User-Productivity specification.
-
-Use ``--model-type`` to choose between OLS and IV variants. Query filters,
-caption text and optional Kleibergen--Paap rows are adjusted accordingly.
-"""
+"""Generate the combined OLS + IV regression table for the User-Productivity
+specification."""
 
 from __future__ import annotations
 
@@ -31,19 +28,6 @@ PARAM_LABEL = {
     "var3": r"$ \text{Remote} \times \mathds{1}(\text{Post}) $",
     "var5": r"$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $",
 }
-
-
-OUTCOME_LABEL = {
-    "total_contributions_q100":      "Total Contrib. (pct. rk)",
-    "restricted_contributions_q100": "Restricted (pct. rk)",
-    "total_contributions_we":        "Total (wins.)",
-    "restricted_contributions_we":   "Restr. (wins.)",
-}
-
-# Panel B should omit the “Total” column because Total Contributions are
-# already displayed in Panel A.
-OUTCOME_LABEL_B = {k: v for k, v in OUTCOME_LABEL.items() if k != "total_contributions_q100"}
-
 
 
 TAG_ORDER = [
@@ -100,7 +84,7 @@ TOP = r"\toprule"
 MID = r"\midrule"
 BOTTOM = r"\bottomrule"
 TABLE_WIDTH = r"\linewidth"
-TABLE_ENV = "tabularx"
+TABLE_ENV = "tabular*"
 
 
 
@@ -120,45 +104,9 @@ def cell(coef: float, se: float, p: float) -> str:
     return rf"\makecell[c]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
 
-
-
-
-def build_obs_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
-    cells = ["N"]
-    for k in keys:
-        sub = df.query(filter_expr.format(k=k)).head(1)
-        n = int(sub.iloc[0]["nobs"]) if not sub.empty else 0
-        cells.append(f"{n:,}")
-    return " & ".join(cells) + r" \\"
-
-
-def build_pre_mean_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
-    """Return a row of pre-COVID means."""
-
-    cells = ["Pre-COVID mean"]
-    for k in keys:
-        sub = df.query(filter_expr.format(k=k)).head(1)
-        val = sub.iloc[0]["pre_mean"] if "pre_mean" in sub.columns and not sub.empty else float("nan")
-        cells.append(f"{val:.2f}" if pd.notna(val) else "")
-    return " & ".join(cells) + r" \\"
-
-
-def build_kp_row(df: pd.DataFrame, keys: list[str], *, filter_expr: str) -> str:
-    cells = ["KP rk Wald F"]
-    for k in keys:
-        sub = df.query(filter_expr.format(k=k)).head(1)
-        val = sub.iloc[0]["rkf"] if not sub.empty else float("nan")
-        cells.append(f"{val:.2f}" if pd.notna(val) else "")
-    return " & ".join(cells) + r" \\"
-
-
-
-
 def column_format(n_numeric: int) -> str:
-    # one label column, then each X gets 4pt of padding on left & right
-    pad = r"@{\hspace{4pt}}"
-    body = (pad + r">{\centering\arraybackslash}X" + pad) * n_numeric
-    return "l" + body
+    # one label column + evenly spaced numeric columns
+    return r"@{}l" + (r"@{\extracolsep{\fill}}c" * n_numeric) + r"@{}"
 # ---------------------------------------------------------------------------
 # Panel builders
 # ---------------------------------------------------------------------------
@@ -167,113 +115,291 @@ def column_format(n_numeric: int) -> str:
 # Column configuration for the desired single‐panel layout
 # ---------------------------------------------------------------------------
 
-COL_CONFIG: list[tuple[str, str]] = [
-    ("total_contributions_q100", "init"),
-    ("total_contributions_q100", "fyhu"),
-    ("total_contributions_q100", "firmbyuseryh"),
-    ("restricted_contributions_q100", "firmbyuseryh"),
-    ("total_contributions_we", "firmbyuseryh"),
-    ("restricted_contributions_we", "firmbyuseryh"),
-]
-
-OUTCOME_SHORT = {
-    "total_contributions_q100":      r"\makecell[c]{Total\\(pct.\ rk.)}",
-    "restricted_contributions_q100": r"\makecell[c]{Restr.\\(pct.\ rk.)}",
-    "total_contributions_we":        r"\makecell[c]{Total\\(wins.)}",
-    "restricted_contributions_we":   r"\makecell[c]{Restr.\\(wins.)}",
+OUTCOME_SETS: dict[str, dict[str, object]] = {
+    "total": {
+        "columns": [
+            ("total_contributions_q100", "init"),
+            ("total_contributions_q100", "fyhu"),
+            ("total_contributions_q100", "firmbyuseryh"),
+            ("total_contributions_we", "firmbyuseryh"),
+        ],
+        "headers": {
+            "total_contributions_q100": r"Rank",
+            "total_contributions_we": r"Total",
+        },
+        "caption_suffix": "",
+        "label_suffix": "",
+        "filename_suffix": "",
+    },
+    "restricted": {
+        "columns": [
+            ("restricted_contributions_q100", "init"),
+            ("restricted_contributions_q100", "fyhu"),
+            ("restricted_contributions_q100", "firmbyuseryh"),
+            ("restricted_contributions_we", "firmbyuseryh"),
+        ],
+        "headers": {
+            "restricted_contributions_q100": r"Rank",
+            "restricted_contributions_we": r"Total",
+        },
+        "caption_suffix": " (Restricted)",
+        "label_suffix": "_restricted",
+        "filename_suffix": "_restricted",
+    },
 }
 
 ## ---------------------------------------------------------------------------
-## Mini-report table preamble (small font, tight spacing, adjustbox wrapper)
+## Mini-report table preamble (small font, tight spacing, centering wrapper)
 ## ---------------------------------------------------------------------------
-PREAMBLE_FLEX = r"""{\scriptsize%
-\setlength{\tabcolsep}{3pt}%
-\renewcommand{\arraystretch}{0.95}%
-\begin{adjustbox}{max width=\linewidth, max height=0.9\textheight, center}%
-"""
-POSTAMBLE_FLEX = r"""\end{adjustbox}}"""
+PREAMBLE_FLEX = "\\centering\n"
+POSTAMBLE_FLEX = ""
 
 ## ---------------------------------------------------------------------------
-## Single‐panel builder
+## Helper builders for the combined table
 ## ---------------------------------------------------------------------------
-def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
-    """Return LaTeX code for a single‐panel table with six columns defined in
-    COL_CONFIG.  Each tuple in COL_CONFIG is (outcome, fe_tag)."""
 
-    column_tags = [tag for _, tag in COL_CONFIG]
-    col_nums = [f"({i})" for i in range(1, len(COL_CONFIG) + 1)]
-    header_nums = " & ".join(["", *col_nums]) + r" \\"
-    sub_hdr = " & ".join(["", *[OUTCOME_SHORT[o] for o, _ in COL_CONFIG]]) + r" \\"
 
-    # build rows of coefficients + standard errors
-    rows = []
+def _build_headers(columns: list[tuple[str, str]], header_map: dict[str, str]) -> tuple[str, str, str]:
+    col_nums = [f"({i})" for i in range(1, len(columns) + 1)]
+    header_nums = " & " + " & ".join(col_nums) + r" \\"  
+
+    groups: list[tuple[str, int]] = []
+    idx = 0
+    while idx < len(columns):
+        outcome, _ = columns[idx]
+        span = 1
+        while idx + span < len(columns) and columns[idx + span][0] == outcome:
+            span += 1
+        groups.append((outcome, span))
+        idx += span
+
+    header_groups = " & " + " & ".join(
+        rf"\multicolumn{{{span}}}{{c}}{{{header_map[outcome]}}}"
+        for outcome, span in groups
+    ) + r" \\"  
+
+    cmidrules = []
+    col_start = 2
+    for _, span in groups:
+        col_end = col_start + span - 1
+        cmidrules.append(rf"\cmidrule(lr){{{col_start}-{col_end}}}")
+        col_start = col_end + 1
+    cmidrule_line = "\n".join(cmidrules)
+    return header_nums, header_groups, cmidrule_line
+
+
+def _stat_row(
+    df: pd.DataFrame,
+    model: str,
+    columns: list[tuple[str, str]],
+    label: str,
+    field: str,
+    fmt: str,
+) -> str:
+    cells: list[str] = []
+    for outcome, tag in columns:
+        sub = df[
+            (df["model_type"] == model)
+            & (df["outcome"] == outcome)
+            & (df["fe_tag"] == tag)
+        ].head(1)
+        if sub.empty:
+            cells.append("")
+            continue
+        value = sub.iloc[0].get(field)
+        if pd.isna(value):
+            cells.append("")
+        else:
+            cells.append(fmt.format(value))
+    return " & ".join([label, *cells]) + r" \\"
+
+
+def _panel_rows(
+    df: pd.DataFrame,
+    model: str,
+    *,
+    columns: list[tuple[str, str]],
+    column_tags: list[str],
+    panel_label: str | None,
+    include_kp: bool,
+    trailing_midrule: bool,
+    include_pre_mean: bool,
+) -> list[str]:
+    lines: list[str] = []
+    if panel_label is not None:
+        lines.append(
+            rf"\multicolumn{{{len(column_tags)+1}}}{{@{{}}l}}{{\textbf{{\uline{{Panel {panel_label}: {model}}}}}}} \\"
+        )
+        lines.append(r"\addlinespace[2pt]")
+
+    INDENT = r"\hspace{1em}"
     for param in PARAM_ORDER:
-        cells = [PARAM_LABEL[param]]
-        for outcome, tag in COL_CONFIG:
-            sub = df.query(
-                "model_type==@model and outcome==@outcome and fe_tag==@tag and param==@param"
-            )
-            if not sub.empty:
-                coef, se, pval = sub.iloc[0][["coef", "se", "pval"]]
-                cells.append(f"\\makecell[c]{{{coef:.2f}{stars(pval)}\\\\({se:.2f})}}")
+        row = [INDENT + PARAM_LABEL[param]]
+        for outcome, tag in columns:
+            sub = df[
+                (df["model_type"] == model)
+                & (df["outcome"] == outcome)
+                & (df["fe_tag"] == tag)
+                & (df["param"] == param)
+            ].head(1)
+            if sub.empty:
+                row.append("")
             else:
-                cells.append("")
-        rows.append(" & ".join(cells) + r" \\")
-    coef_block = "\n".join(rows)
+                coef, se, pval = sub.iloc[0][["coef", "se", "pval"]]
+                row.append(cell(coef, se, pval))
+        lines.append(" & ".join(row) + r" \\")
 
-    # build indicator rows
-    def ind_row(label, mapping):
-        marks = [r"$\checkmark$" if mapping.get(t, False) else "" for t in column_tags]
-        return " & ".join([label] + marks) + r" \\"
+    def ind_row(label: str, mapping: dict[str, bool]) -> str:
+        marks = [r"$\checkmark$" if mapping.get(tag, False) else "" for tag in column_tags]
+        return " & ".join([label, *marks]) + r" \\"
 
-    ind_rows = "\n".join([
+    lines.append(MID)
+    lines.extend(
+        [
+            ind_row("Time FE", TIME_FE_INCLUDED),
+            ind_row("Firm FE", FIRM_FE_INCLUDED),
+            ind_row("User FE", USER_FE_INCLUDED),
+            ind_row(r"Firm $\times$ User FE", FIRMUSER_FE_INCLUDED),
+        ]
+    )
+
+    lines.append(MID)
+    if include_pre_mean:
+        lines.append(_stat_row(df, model, columns, "Pre-Covid Mean", "pre_mean", "{:.2f}"))
+    if include_kp:
+        lines.append(_stat_row(df, model, columns, "KP rk Wald F", "rkf", "{:.2f}"))
+    lines.append(_stat_row(df, model, columns, "N", "nobs", "{:,}"))
+
+    if trailing_midrule:
+        lines.append(MID)
+
+    return lines
+
+
+def build_panel_fe(
+    df: pd.DataFrame,
+    model: str,
+    include_kp: bool,
+    *,
+    columns: list[tuple[str, str]] | None = None,
+    headers: dict[str, str] | None = None,
+) -> str:
+    """Legacy helper that keeps compatibility with csv2panel_user."""
+
+    if columns is None or headers is None:
+        columns = OUTCOME_SETS["total"]["columns"]
+        headers = OUTCOME_SETS["total"]["headers"]
+
+    column_tags = [tag for _, tag in columns]
+    header_nums, header_groups, cmidrule_line = _build_headers(columns, headers)
+    col_fmt = column_format(len(columns))
+
+    body_lines = _panel_rows(
+        df,
+        model,
+        columns=columns,
+        column_tags=column_tags,
+        panel_label=None,
+        include_kp=include_kp,
+        trailing_midrule=False,
+        include_pre_mean=True,
+    )
+
+    lines = [
+        rf"\begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}",
+        TOP,
+        header_groups,
+        cmidrule_line,
+        header_nums,
+        MID,
+        *body_lines,
+        BOTTOM,
+        rf"\end{{{TABLE_ENV}}}",
+    ]
+    return "\n".join(lines)
+
+
+def build_combined_table(
+    df: pd.DataFrame,
+    *,
+    columns: list[tuple[str, str]],
+    headers: dict[str, str],
+) -> str:
+    column_tags = [tag for _, tag in columns]
+    header_nums, header_groups, cmidrule_line = _build_headers(columns, headers)
+    col_fmt = column_format(len(columns))
+
+    def _strip_fe_rows(rows: list[str]) -> list[str]:
+        killers = (
+            "Time FE ",
+            "Firm FE ",
+            "User FE ",
+            "Firm $\\times$ User FE ",
+        )
+        out: list[str] = []
+        for r in rows:
+            if any(r.lstrip().startswith(k) for k in killers):
+                continue
+            if out and out[-1].strip() == MID and r.strip() == MID:
+                # collapse duplicate midrules left after removing FE block
+                continue
+            out.append(r)
+        return out
+
+    panel_ols = _panel_rows(
+        df,
+        "OLS",
+        columns=columns,
+        column_tags=column_tags,
+        panel_label="A",
+        include_kp=False,
+        trailing_midrule=True,
+        include_pre_mean=True,
+    )
+    panel_ols = _strip_fe_rows(panel_ols)
+
+    panel_iv = _panel_rows(
+        df,
+        "IV",
+        columns=columns,
+        column_tags=column_tags,
+        panel_label="B",
+        include_kp=True,
+        trailing_midrule=False,
+        include_pre_mean=False,
+    )
+    panel_iv = _strip_fe_rows(panel_iv)
+
+    # FE rows at bottom only once
+    INDENT = r"\hspace{1em}"
+    def ind_row(label: str, mapping: dict[str, bool]) -> str:
+        marks = [r"$\checkmark$" if mapping.get(tag, False) else "" for tag in column_tags]
+        return " & ".join([INDENT + label, *marks]) + r" \\" 
+
+    fe_header = r"\textbf{Fixed Effects} & " + " & ".join([""] * len(column_tags)) + r" \\" 
+    fe_block = [
+        fe_header,
         ind_row("Time FE", TIME_FE_INCLUDED),
         ind_row("Firm FE", FIRM_FE_INCLUDED),
         ind_row("User FE", USER_FE_INCLUDED),
-        ind_row("Firm $\\times$ User FE", FIRMUSER_FE_INCLUDED),
-    ])
+        ind_row(r"Firm $\times$ User FE", FIRMUSER_FE_INCLUDED),
+    ]
 
-    # build summary rows
-    def stat_row(label, field, fmt=None):
-        vals = []
-        for outcome, tag in COL_CONFIG:
-            sub = df[
-                (df["model_type"] == model) &
-                (df["outcome"] == outcome) &
-                (df["fe_tag"] == tag)
-            ].head(1)
-            if sub.empty or pd.isna(sub.iloc[0].get(field, None)):
-                vals.append("")
-            else:
-                v = sub.iloc[0][field]
-                vals.append(fmt.format(v) if fmt else str(v))
-        return " & ".join([label] + vals) + r" \\"
-
-    pre_mean_row = stat_row("Pre-COVID mean", "pre_mean", "{:.2f}")
-    obs_row      = stat_row("N",           "nobs",    "{:,}")
-    kp_row       = stat_row("KP rk Wald F", "rkf",    "{:.2f}") if include_kp else ""
-
-    # assemble the tabularx block
-    col_fmt = column_format(len(COL_CONFIG))
-    tabular = textwrap.dedent(rf"""
-\begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}
-{TOP}
-{header_nums}
-{MID}
-{sub_hdr}
-{MID}
-{coef_block}
-{MID}
-{ind_rows}
-{MID}
-    {pre_mean_row}
-    {kp_row}
-    {obs_row}
-{BOTTOM}
-\end{{{TABLE_ENV}}}""")
-
-    # wrap in adjustbox + spacing tweaks + small font
-    return PREAMBLE_FLEX + tabular + POSTAMBLE_FLEX
+    lines = [
+        rf"\begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}",
+        TOP,
+        header_groups,
+        cmidrule_line,
+        header_nums,
+        MID,
+        *panel_ols,
+        *panel_iv,
+        MID,
+        *fe_block,
+        BOTTOM,
+        rf"\end{{{TABLE_ENV}}}",
+    ]
+    return PREAMBLE_FLEX + "\n".join(lines) + POSTAMBLE_FLEX
 
 
 
@@ -283,17 +409,19 @@ def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Create user productivity regression table")
-    parser.add_argument("--model-type", choices=["ols", "iv"], default="ols")
     parser.add_argument(
         "--variant",
         choices=["unbalanced", "balanced", "precovid", "balanced_pre"],
         default=DEFAULT_VARIANT,
         help="Which user_panel sample variant to load (default: %(default)s)",
     )
+    parser.add_argument(
+        "--outcome-set",
+        choices=list(OUTCOME_SETS.keys()),
+        default="total",
+        help="Which outcome set to display (default: %(default)s)",
+    )
     args = parser.parse_args()
-
-    model = "IV" if args.model_type.lower() == "iv" else "OLS"
-    include_kp = model == "IV"
 
     # ------------------------------------------------------------------
     # Construct variant-aware input/output paths
@@ -305,16 +433,15 @@ def main() -> None:
     input_alt = RAW_DIR / dir_alt / "consolidated_results.csv"
     input_init = RAW_DIR / dir_init / "consolidated_results.csv"
 
-    tex_stub = f"{SPEC_BASE}_{args.variant}_{args.model_type}"
-    tex_label_stub = f"user_productivity_{args.variant}_{args.model_type}"
-
-    output_tex = PROJECT_ROOT / "results" / "cleaned" / f"{tex_stub}.tex"
-    caption = f"User Productivity -- {model}"
-    label = f"tab:{tex_label_stub}"
+    config = OUTCOME_SETS[args.outcome_set]
+    if args.variant == "precovid" and not config["filename_suffix"]:
+        filename = "user_productivity_precovid_total.tex"
+    else:
+        filename = f"{SPEC_BASE}_{args.variant}{config['filename_suffix']}.tex"
+    output_tex = PROJECT_ROOT / "results" / "cleaned" / filename
 
     # ------------------------------------------------------------------
     # Load regression outputs
-    #   • input_base  – baseline specification (includes extra outcomes)
     #   • input_init  – baseline FE variant (Total contrib. only)
     #   • input_alt   – alternative FE variants (Total contrib. only)
     # ------------------------------------------------------------------
@@ -325,33 +452,46 @@ def main() -> None:
     df_init = pd.read_csv(input_init).copy()
     df_init["fe_tag"] = "init"
 
-    df_alt = pd.read_csv(input_alt)
+    df_alt = pd.read_csv(input_alt).copy()
+    if "fe_tag" not in df_alt.columns:
+        raise SystemExit("Expected 'fe_tag' column in alternative FE results")
 
-    # Combine FE variants (Panel A) ------------------------------------
     df_fe = pd.concat([df_init, df_alt], ignore_index=True, sort=False)
 
-    # ------------------------------------------------------------------
-    # Build single‐panel table (custom column configuration)
-    # ------------------------------------------------------------------
+    columns = config["columns"]  # type: ignore[assignment]
+    headers = config["headers"]  # type: ignore[assignment]
 
-    panel_single = build_panel_single(df_fe, model, include_kp).rstrip()
+    table_body = build_combined_table(df_fe, columns=columns, headers=headers).rstrip()
 
-    tex_body = [panel_single]
-
-    tex_lines = [
-        r"\begin{table}[H]",
-        r"\centering",
-        r"{\scriptsize\centering",          # ← add \centering here
-        rf"  \caption{{{caption}}}",
-        rf"  \label{{{label}}}",
-        r"}",
-        r"\centering",
-        *tex_body,
-        r"\end{table}",
-    ]
+    tex_lines = [table_body]
 
     output_tex.parent.mkdir(parents=True, exist_ok=True)
     output_tex.write_text("\n".join(tex_lines) + "\n")
+
+    legacy_files = [
+        output_tex.with_name(f"{SPEC_BASE}_{args.variant}_ols.tex"),
+        output_tex.with_name(f"{SPEC_BASE}_{args.variant}_iv.tex"),
+    ]
+    if args.variant == "precovid" and not config["filename_suffix"]:
+        legacy_files.extend(
+            [
+                output_tex.with_name("user_productivity_precovid.tex"),
+                output_tex.with_name("user_productivity_precovid_table.tex"),
+                output_tex.with_name("user_productivity_precovid_double_panel.tex"),
+            ]
+        )
+    if config["filename_suffix"]:
+        # clean up historical suffixed variants if they exist
+        legacy_files.extend(
+            [
+                output_tex.with_name(f"{SPEC_BASE}_{args.variant}_ols{config['filename_suffix']}.tex"),
+                output_tex.with_name(f"{SPEC_BASE}_{args.variant}_iv{config['filename_suffix']}.tex"),
+            ]
+        )
+    for old in legacy_files:
+        if old.exists():
+            old.unlink()
+
     print(f"Wrote LaTeX table to {output_tex.resolve()}")
 
 

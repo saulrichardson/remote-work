@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_scaling_fullremote.log
   log type:  text
- opened on:  19 Jun 2025, 09:03:22
+ opened on:  17 Sep 2025, 05:13:06
 
 . 
 . local result_dir "$results/`specname'"
@@ -24,7 +24,7 @@
 >     double coef se pval pre_mean ///
 >     double rkf nobs     ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46937.000001 not found)
 
 . 
 . 
@@ -41,22 +41,68 @@
 >     double coef se pval       ///
 >     double partialF rkf nobs  ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_97664.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46937.000002 not found)
 
 . 
-.         
+. 
 . if "`treat'" == "fullremote" {
 .     local v3 = "var3_fullrem"
 .     local v5 = "var5_fullrem"
+.     // Ensure required interactions exist even if not present in panel
+.     capture confirm variable var3_fullrem
+.     if _rc {
+.         gen byte fullrem = (remote==1)
+.         gen var3_fullrem = fullrem * covid
+.         gen var5_fullrem = fullrem * covid * startup
+.     }
 . }
 
 . else if "`treat'" == "hybrid" {
 .     local v3 = "var3_hybrid"
 .     local v5 = "var5_hybrid"
+.     capture confirm variable var3_hybrid
+.     if _rc {
+.         gen byte hybrid = (remote>0 & remote<1)
+.         gen var3_hybrid = hybrid * covid
+.         gen var5_hybrid = hybrid * covid * startup
+.     }
+. }
+
+. else if "`treat'" == "inperson" {
+.     local v3 = "var3_inperson"
+.     local v5 = "var5_inperson"
+.     capture confirm variable var3_inperson
+.     if _rc {
+.         gen byte inperson = (remote==0)
+.         gen var3_inperson = inperson * covid
+.         gen var5_inperson = inperson * covid * startup
+.     }
+. }
+
+. else if "`treat'" == "anyremote" {
+.     local v3 = "var3_anyremote"
+.     local v5 = "var5_anyremote"
+.     capture confirm variable var3_anyremote
+.     if _rc {
+.         gen byte anyremote = (remote>0)
+.         gen var3_anyremote = anyremote * covid
+.         gen var5_anyremote = anyremote * covid * startup
+.     }
+. }
+
+. else if "`treat'" == "nonremote" {
+.     local v3 = "var3_nonrem"
+.     local v5 = "var5_nonrem"
+.     capture confirm variable var3_nonrem
+.     if _rc {
+.         gen byte nonrem = (remote==0)
+.         gen var3_nonrem = nonrem * covid
+.         gen var5_nonrem = nonrem * covid * startup
+.     }
 . }
 
 . else {
-.     di as error "Unknown treat=`treat'—must be remote or hybrid"
+.     di as error "Unknown treat=`treat'—must be fullremote, hybrid, inperson, anyremote, or nonremote"
 .     exit 1
 . }
 
@@ -109,43 +155,43 @@
  23.     }
  24. 
 .     // --- FIRST STAGE: only once on first loop pass ---
-.         if !`fs_done' {
- 25.                 
-.                 matrix FS = e(first)
- 26.         local F3 = FS[4,1]
- 27.         local F5 = FS[4,2]
- 28. 
-.                 /* -------- var3 first stage -------------------------------- */
-.                 estimates restore _ivreg2_var3
- 29.                 local N_fs = e(N)
- 30.                 foreach p in var6 var7 var4 {
- 31.                         local b    = _b[`p']
- 32.                         local se   = _se[`p']
- 33.                         local t    = `b'/`se'
- 34.                         local pval = 2*ttail(e(df_r), abs(`t'))
- 35. 
-.                         post handle_fs ("v3") ("`p'") ///
->                                                         (`b') (`se') (`pval') ///
->                                                         (`F3') (`rkf') (`N_fs')
- 36.                 }
- 37. 
-.                 /* -------- var5 first stage -------------------------------- */
-.                 estimates restore _ivreg2_var5
- 38.                 local N_fs = e(N)
- 39.                 foreach p in var6 var7 var4 {
- 40.                         local b    = _b[`p']
- 41.                         local se   = _se[`p']
- 42.                         local t    = `b'/`se'
- 43.                         local pval = 2*ttail(e(df_r), abs(`t'))
- 44. 
-.                         post handle_fs ("v5") ("`p'") ///
->                                                         (`b') (`se') (`pval') ///
->                                                         (`F5') (`rkf') (`N_fs')
- 45.                 }
- 46. 
-.                 local fs_done 1
- 47.         }
- 48. 
+. //      if !`fs_done' {
+.                 
+. //              matrix FS = e(first)
+. //         local F3 = FS[4,1]
+. //         local F5 = FS[4,2]
+. //
+. //              /* -------- var3 first stage -------------------------------- */
+. //              estimates restore _ivreg2_var3
+. //              local N_fs = e(N)
+. //              foreach p in var6 var7 var4 {
+. //                      local b    = _b[`p']
+. //                      local se   = _se[`p']
+. //                      local t    = `b'/`se'
+. //                      local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                      post handle_fs ("v3") ("`p'") ///
+. //                                                      (`b') (`se') (`pval') ///
+. //                                                      (`F3') (`rkf') (`N_fs')
+. //              }
+. //
+. //              /* -------- var5 first stage -------------------------------- */
+. //              estimates restore _ivreg2_var5
+. //              local N_fs = e(N)
+. //              foreach p in var6 var7 var4 {
+. //                      local b    = _b[`p']
+. //                      local se   = _se[`p']
+. //                      local t    = `b'/`se'
+. //                      local pval = 2*ttail(e(df_r), abs(`t'))
+. //
+. //                      post handle_fs ("v5") ("`p'") ///
+. //                                                      (`b') (`se') (`pval') ///
+. //                                                      (`F5') (`rkf') (`N_fs')
+. //              }
+. 
+. //              local fs_done 1
+. //      }
+. 
 . }
 → Processing growth_rate_we
 (MWFE estimator converged in 4 iterations)
@@ -242,8 +288,6 @@ Absorbed degrees of freedom:
           yh |        12           1          11     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-(results _ivreg2_var3 are active now)
-(results _ivreg2_var5 are active now)
 → Processing join_rate_we
 (MWFE estimator converged in 4 iterations)
 
@@ -465,34 +509,3 @@ file ../results/raw/firm_scaling_fullremote/first_stage.csv saved
 
 . 
 end of do-file
-
-. do "/Users/saul/Dropbox/Remote Work Startups/main/src/build_firm_panel.do"
-
-. 
-. do "globals.do"
-file globals.do not found
-r(601);
-
-end of do-file
-
-r(601);
-
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD97664.000000"
-
-. 
-. * --------------------------------------------------------------------------
-. * 0) Parse optional variant argument *before* sourcing globals --------------
-. * --------------------------------------------------------------------------
-. 
-. 
-. args panel_variant treat
-
-. if "`panel_variant'" == "" local panel_variant "precovid"
-
-. if "`treat'"         == "" local treat         "hybrid"
-
-. 
-. 
-. local specname user_productivity_`panel_variant'_`treat'
-
-. capture log close

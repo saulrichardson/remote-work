@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Generate LaTeX tables for the *Lean‐period* user‐productivity regressions
-with discrete Covid treatment (hybrid vs. full-remote).
+with a binary Covid treatment (fully remote = 1 vs. hybrid / in-person < 1).
 
 The script mirrors the structure of *create_user_mechanisms_lean_table.py*
 but points to the results produced by
@@ -34,8 +34,8 @@ parser.add_argument(
 )
 parser.add_argument(
     "--treat",
-    choices=["hybrid", "fullremote"],
-    default="hybrid",
+    choices=["remote", "nonremote"],
+    default="remote",
     help="Discrete treatment definition (default: %(default)s)",
 )
 parser.add_argument(
@@ -59,24 +59,29 @@ SPECNAME = f"user_productivity_lean_{variant}_{treat}"
 RAW_DIR = PROJECT_ROOT / "results" / "raw"
 INPUT_CSV = RAW_DIR / SPECNAME / "consolidated_results.csv"
 
-# Fallback for legacy non-discrete directory when hybrid requested
-if treat == "hybrid" and not INPUT_CSV.exists():
-    INPUT_CSV = RAW_DIR / f"user_productivity_lean_{variant}" / "consolidated_results.csv"
-
 OUTPUT_TEX = PROJECT_ROOT / "results" / "cleaned" / f"user_productivity_lean_{variant}_{treat}.tex"
 
-# Write generic filename for backward compatibility when hybrid
 LEGACY_TEX = None
-if treat == "hybrid":
-    LEGACY_TEX = OUTPUT_TEX.with_name(f"user_productivity_lean_{variant}.tex")
 
 # Table layout parameters ----------------------------------------------------
 COLS_PER_TABLE = 8  # same as mechanisms tables
 
-PARAM_LABELS = {
-    "var3": r"$ \text{Remote} \times \mathds{1}(\text{Post}) $",
-    "var5": r"$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $",
+TREAT_BASE_LABEL = {
+    "remote": r"\text{Fully Remote}",
+    "nonremote": r"\text{Hybrid / In-Person}",
 }
+
+label_stub = TREAT_BASE_LABEL.get(treat, r"\text{Remote}")
+PARAM_LABELS = {
+    "var3": fr"$ {label_stub} \times \mathds{{1}}(\text{{Post}}) $",
+    "var5": fr"$ {label_stub} \times \mathds{{1}}(\text{{Post}}) \times \text{{Startup}} $",
+}
+
+TREAT_DISPLAY = {
+    "remote": "Fully Remote",
+    "nonremote": "Hybrid / In-Person",
+}
+CAPTION_TREAT = TREAT_DISPLAY.get(treat, treat)
 
 DIMS = [
     "Rent",
@@ -168,7 +173,8 @@ def make_table(df_iv: pd.DataFrame, df_ols: pd.DataFrame, specs: list[str], idx:
     lines.append(r"\begin{table}[H]")
     lines.append(r"\centering")
     cap_variant = variant.capitalize().replace("_", r"\_")
-    lines.append(rf"\caption{{User Productivity – Lean ({cap_variant}, {treat}) – Part {idx}}}")
+    cap_treat = CAPTION_TREAT.replace("-", r"\-").replace(" ", "~")
+    lines.append(rf"\caption{{User Productivity – Lean ({cap_variant}, {cap_treat}) – Part {idx}}}")
     lines.append(r"\begin{tabular}{l" + "c" * len(specs) + "}")
     lines.append(r"\toprule")
 

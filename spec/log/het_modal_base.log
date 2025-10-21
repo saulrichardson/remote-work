@@ -1,23 +1,30 @@
------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_modal_base.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_modal_b
+> ase.log
   log type:  text
- opened on:  27 Jun 2025, 06:01:28
+ opened on:  27 Aug 2025, 00:51:33
 
 . 
-. local result_dir "$results/het_modal_base_`panel_variant'"
+. local result_dir "$results/het_modal_base_`panel_variant'_`nbins'"
 
 . cap mkdir "`result_dir'"
 
 . 
 . tempfile out
 
-. postfile handle ///
->     str8 bucket  ///
->     double coef se pval rkf nobs ///
->     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000001 not found)
+. capture postclose handle
 
+. postfile handle ///
+>     str8   bucket       ///  1, 2, 3
+>     double coef3 se3 pval3   /// var3 stats
+>     double coef5 se5 pval5   /// var5 stats
+>     double rkf nobs          /// first‐stage F and N
+>     using `out', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//St47692.000001 not
+    found)
+
+. 
 . 
 . *----------------------------------------------------------------------
 . * 2.  Loop over the three modal buckets
@@ -27,15 +34,26 @@
 .     di as text "=== modal_cat `g'  (0=out,1=in,2=unk) ==="
   3. 
 .     ivreghdfe total_contributions_q100                       ///
->         (var5 = var6 var7)  var3 var4                       ///
+>         (var3 var5 = var6 var7)  var4                       ///
 >         if modal_cat == `g',                                ///
 >         absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
   4. 
+.     // compute stats for var3
+.     local b3   = _b[var3]
+  5.     local se3  = _se[var3]
+  6.     local p3   = 2*ttail(e(df_r), abs(`b3'/`se3'))
+  7. 
+.     // compute stats for var5
+.     local b5   = _b[var5]
+  8.     local se5  = _se[var5]
+  9.     local p5   = 2*ttail(e(df_r), abs(`b5'/`se5'))
+ 10. 
 .     post handle ("`g'") ///
->         (_b[var5]) (_se[var5]) ///
->         (2*ttail(e(df_r), abs(_b[var5]/_se[var5]))) ///
+>         (`b3') (`se3') (`p3') ///
+>         (`b5') (`se5') (`p5') ///
 >         (e(rkf)) (e(N))
-  5. }
+ 11. 
+. }
 === modal_cat 0  (0=out,1=in,2=unk) ===
 (dropped 3208 singleton observations)
 (MWFE estimator converged in 9 iterations)
@@ -46,7 +64,8 @@ Stored estimation results
              |           Dependent  Number of        
         Name | Command    variable     param.  Title 
 -------------+-------------------------------------------------------------
-_ivreg2_var5 | ivreg2         var5          4  First-stage regression: var5
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
 ---------------------------------------------------------------------------
 
 IV (2SLS) estimation
@@ -56,37 +75,37 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   13851                Number of obs =    72334
-                                                      F(  3, 13850) =     2.32
-                                                      Prob > F      =   0.0729
-Total (centered) SS     =  17855976.09                Centered R2   =   0.0003
-Total (uncentered) SS   =  17855976.09                Uncentered R2 =   0.0003
-Residual SS             =  17850254.39                Root MSE      =    15.71
+                                                      F(  3, 13850) =     2.52
+                                                      Prob > F      =   0.0559
+Total (centered) SS     =  17855976.09                Centered R2   =  -0.0008
+Total (uncentered) SS   =  17855976.09                Uncentered R2 =  -0.0008
+Residual SS             =  17870932.71                Root MSE      =    15.72
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var5 |   15.29587   6.356355     2.41   0.016     2.836554    27.75519
-        var3 |  -.8919881   1.019224    -0.88   0.381    -2.889805    1.105828
-        var4 |  -13.73733   5.456948    -2.52   0.012    -24.43369   -3.040975
+        var3 |  -5.396864   4.536467    -1.19   0.234    -14.28895    3.495225
+        var5 |      18.97   7.396385     2.56   0.010     4.472088    33.46792
+        var4 |  -15.89191   5.906559    -2.69   0.007    -27.46957   -4.314257
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            131.187
-                                                   Chi-sq(2) P-val =    0.0000
+Underidentification test (Kleibergen-Paap rk LM statistic):            176.206
+                                                   Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             7747.746
-                         (Kleibergen-Paap rk Wald F statistic):        119.864
-Stock-Yogo weak ID test critical values: 10% maximal IV size             19.93
-                                         15% maximal IV size             11.59
-                                         20% maximal IV size              8.75
-                                         25% maximal IV size              7.25
+Weak identification test (Cragg-Donald Wald F statistic):             1550.581
+                         (Kleibergen-Paap rk Wald F statistic):        102.352
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
 Source: Stock-Yogo (2005).  Reproduced by permission.
 NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
 ------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         1.050
-                                                   Chi-sq(1) P-val =    0.3056
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
 ------------------------------------------------------------------------------
-Instrumented:         var5
-Included instruments: var3 var4
+Instrumented:         var3 var5
+Included instruments: var4
 Excluded instruments: var6 var7
 Partialled-out:       _cons
                       nb: total SS, model F and R2s are after partialling-out;
@@ -112,7 +131,8 @@ Stored estimation results
              |           Dependent  Number of        
         Name | Command    variable     param.  Title 
 -------------+-------------------------------------------------------------
-_ivreg2_var5 | ivreg2         var5          4  First-stage regression: var5
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
 ---------------------------------------------------------------------------
 
 IV (2SLS) estimation
@@ -122,37 +142,37 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   17506                Number of obs =    95685
-                                                      F(  3, 17505) =     9.14
+                                                      F(  3, 17505) =     9.09
                                                       Prob > F      =   0.0000
-Total (centered) SS     =  23622005.38                Centered R2   =   0.0011
-Total (uncentered) SS   =  23622005.38                Uncentered R2 =   0.0011
-Residual SS             =  23596090.71                Root MSE      =     15.7
+Total (centered) SS     =  23622005.38                Centered R2   =  -0.0068
+Total (uncentered) SS   =  23622005.38                Uncentered R2 =  -0.0068
+Residual SS             =  23781775.53                Root MSE      =    15.77
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var5 |   6.102213   13.68497     0.45   0.656    -20.72169    32.92611
-        var3 |   -1.85794   2.394807    -0.78   0.438       -6.552    2.836121
-        var4 |  -7.380047   11.10391    -0.66   0.506    -29.14482    14.38473
+        var3 |  -14.68513   12.46053    -1.18   0.239    -39.10901    9.738741
+        var5 |   16.13478   16.99753     0.95   0.343    -17.18207    49.45163
+        var4 |  -13.20101    12.6053    -1.05   0.295    -37.90864    11.50663
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):             50.908
-                                                   Chi-sq(2) P-val =    0.0000
+Underidentification test (Kleibergen-Paap rk LM statistic):             25.796
+                                                   Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):              838.371
-                         (Kleibergen-Paap rk Wald F statistic):         31.187
-Stock-Yogo weak ID test critical values: 10% maximal IV size             19.93
-                                         15% maximal IV size             11.59
-                                         20% maximal IV size              8.75
-                                         25% maximal IV size              7.25
+Weak identification test (Cragg-Donald Wald F statistic):              208.653
+                         (Kleibergen-Paap rk Wald F statistic):         13.292
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
 Source: Stock-Yogo (2005).  Reproduced by permission.
 NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
 ------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         1.183
-                                                   Chi-sq(1) P-val =    0.2768
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
 ------------------------------------------------------------------------------
-Instrumented:         var5
-Included instruments: var3 var4
+Instrumented:         var3 var5
+Included instruments: var4
 Excluded instruments: var6 var7
 Partialled-out:       _cons
                       nb: total SS, model F and R2s are after partialling-out;
@@ -178,7 +198,8 @@ Stored estimation results
              |           Dependent  Number of        
         Name | Command    variable     param.  Title 
 -------------+-------------------------------------------------------------
-_ivreg2_var5 | ivreg2         var5          4  First-stage regression: var5
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
 ---------------------------------------------------------------------------
 
 IV (2SLS) estimation
@@ -188,37 +209,37 @@ Estimates efficient for homoskedasticity only
 Statistics robust to heteroskedasticity and clustering on user_id
 
 Number of clusters (user_id) =   10222                Number of obs =    54895
-                                                      F(  3, 10221) =     0.92
-                                                      Prob > F      =   0.4313
-Total (centered) SS     =  12897235.12                Centered R2   =   0.0003
-Total (uncentered) SS   =  12897235.12                Uncentered R2 =   0.0003
-Residual SS             =  12893153.75                Root MSE      =    15.33
+                                                      F(  3, 10221) =     1.18
+                                                      Prob > F      =   0.3167
+Total (centered) SS     =  12897235.12                Centered R2   =  -0.0022
+Total (uncentered) SS   =  12897235.12                Uncentered R2 =  -0.0022
+Residual SS             =  12925448.41                Root MSE      =    15.35
 
 ------------------------------------------------------------------------------
              |               Robust
 total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-        var5 |   4.500577   6.578922     0.68   0.494      -8.3954    17.39655
-        var3 |  -.9038287   1.479643    -0.61   0.541    -3.804219    1.996561
-        var4 |  -4.612241   5.460385    -0.84   0.398    -15.31567    6.091185
+        var3 |  -8.417552   8.151432    -1.03   0.302    -24.39596    7.560854
+        var5 |   11.19846   9.863044     1.14   0.256    -8.135039    30.53196
+        var4 |  -9.147346   7.419146    -1.23   0.218    -23.69033    5.395634
 ------------------------------------------------------------------------------
-Underidentification test (Kleibergen-Paap rk LM statistic):            133.243
-                                                   Chi-sq(2) P-val =    0.0000
+Underidentification test (Kleibergen-Paap rk LM statistic):             54.340
+                                                   Chi-sq(1) P-val =    0.0000
 ------------------------------------------------------------------------------
-Weak identification test (Cragg-Donald Wald F statistic):             3748.418
-                         (Kleibergen-Paap rk Wald F statistic):         94.492
-Stock-Yogo weak ID test critical values: 10% maximal IV size             19.93
-                                         15% maximal IV size             11.59
-                                         20% maximal IV size              8.75
-                                         25% maximal IV size              7.25
+Weak identification test (Cragg-Donald Wald F statistic):              482.238
+                         (Kleibergen-Paap rk Wald F statistic):         28.088
+Stock-Yogo weak ID test critical values: 10% maximal IV size              7.03
+                                         15% maximal IV size              4.58
+                                         20% maximal IV size              3.95
+                                         25% maximal IV size              3.63
 Source: Stock-Yogo (2005).  Reproduced by permission.
 NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
 ------------------------------------------------------------------------------
-Hansen J statistic (overidentification test of all instruments):         0.911
-                                                   Chi-sq(1) P-val =    0.3399
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
 ------------------------------------------------------------------------------
-Instrumented:         var5
-Included instruments: var3 var4
+Instrumented:         var3 var5
+Included instruments: var4
 Excluded instruments: var6 var7
 Partialled-out:       _cons
                       nb: total SS, model F and R2s are after partialling-out;
@@ -238,16 +259,171 @@ Absorbed degrees of freedom:
 . 
 . postclose handle
 
+. preserve
+
 . use `out', clear
 
 . export delimited using "`result_dir'/var5_modal_base.csv", replace
-(file ../results/raw/het_modal_base_precovid/var5_modal_base.csv not found)
-file ../results/raw/het_modal_base_precovid/var5_modal_base.csv saved
+file ../results/raw/het_modal_base_precovid_3/var5_modal_base.csv saved
+
+. restore
+
+. 
+. 
+. *----------------------------------------------------------------------
+. * 3.  OLS version (parallel output)
+. *----------------------------------------------------------------------
+. tempfile out_ols
+
+. capture postclose handle_ols
+
+. postfile handle_ols ///
+>     str8   bucket       ///  0, 1, 2
+>     double coef3 se3 pval3   /// var3 stats
+>     double coef5 se5 pval5   /// var5 stats
+>     double rkf nobs          /// placeholder for consistency; rkf missing for
+>  OLS
+>     using `out_ols', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//St47692.000003 not
+    found)
+
+. 
+. foreach g in 0 1 2 {
+  2. 
+.     di as text "=== OLS: modal_cat `g'  (0=out,1=in,2=unk) ==="
+  3. 
+.     reghdfe total_contributions_q100 ///
+>         var3 var5  var4              ///
+>         if modal_cat == `g',         ///
+>         absorb(firm_id#user_id yh) vce(cluster user_id)
+  4. 
+.     // compute stats for var3
+.     local b3   = _b[var3]
+  5.     local se3  = _se[var3]
+  6.     local p3   = 2*ttail(e(df_r), abs(`b3'/`se3'))
+  7. 
+.     // compute stats for var5
+.     local b5   = _b[var5]
+  8.     local se5  = _se[var5]
+  9.     local p5   = 2*ttail(e(df_r), abs(`b5'/`se5'))
+ 10. 
+.     post handle_ols ("`g'") ///
+>         (`b3') (`se3') (`p3') ///
+>         (`b5') (`se5') (`p5') ///
+>         (.) (e(N))
+ 11. 
+. }
+=== OLS: modal_cat 0  (0=out,1=in,2=unk) ===
+(dropped 3208 singleton observations)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     72,334
+Absorbing 2 HDFE groups                           F(   3,  13850) =       3.93
+Statistics robust to heteroskedasticity           Prob > F        =     0.0082
+                                                  R-squared       =     0.7188
+                                                  Adj R-squared   =     0.6454
+                                                  Within R-sq.    =     0.0005
+Number of clusters (user_id) =     13,851         Root MSE        =    17.6407
+
+                           (Std. err. adjusted for 13,851 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -.3572854   .8680587    -0.41   0.681    -2.058798    1.344227
+        var5 |   9.586211   2.924579     3.28   0.001      3.85364    15.31878
+        var4 |   -8.93405   2.614992    -3.42   0.001    -14.05979   -3.808312
+       _cons |   48.84539   .2736423   178.50   0.000     48.30902    49.38177
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     14969       14969           0    *|
+                yh |        11           1          10     |
+-----------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+=== OLS: modal_cat 1  (0=out,1=in,2=unk) ===
+(dropped 3134 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     95,685
+Absorbing 2 HDFE groups                           F(   3,  17505) =      13.09
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7278
+                                                  Adj R-squared   =     0.6604
+                                                  Within R-sq.    =     0.0011
+Number of clusters (user_id) =     17,506         Root MSE        =    17.5412
+
+                           (Std. err. adjusted for 17,506 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -1.922888   .8005204    -2.40   0.016    -3.491988   -.3537881
+        var5 |   6.494076    1.85442     3.50   0.000     2.859228    10.12892
+        var4 |  -7.696799   1.583701    -4.86   0.000    -10.80101   -4.592588
+       _cons |   51.06009   .2313039   220.75   0.000     50.60671    51.51347
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     18985       18985           0    *|
+                yh |        11           1          10     |
+-----------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+=== OLS: modal_cat 2  (0=out,1=in,2=unk) ===
+(dropped 2049 singleton observations)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     54,895
+Absorbing 2 HDFE groups                           F(   3,  10221) =       2.22
+Statistics robust to heteroskedasticity           Prob > F        =     0.0838
+                                                  R-squared       =     0.7371
+                                                  Adj R-squared   =     0.6696
+                                                  Within R-sq.    =     0.0003
+Number of clusters (user_id) =     10,222         Root MSE        =    17.1809
+
+                           (Std. err. adjusted for 10,222 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |   -1.04197   1.014822    -1.03   0.305     -3.03122     .947281
+        var5 |   5.303122    2.51162     2.11   0.035     .3798537    10.22639
+        var4 |  -5.280829   2.177927    -2.42   0.015    -9.549993   -1.011664
+       _cons |   52.00928   .3224822   161.28   0.000     51.37715    52.64141
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     11204       11204           0    *|
+                yh |        11           1          10     |
+-----------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. postclose handle_ols
+
+. preserve
+
+. use `out_ols', clear
+
+. export delimited using "`result_dir'/var5_modal_base_ols.csv", replace
+file ../results/raw/het_modal_base_precovid_3/var5_modal_base_ols.csv saved
+
+. restore
 
 . 
 . log close
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_modal_base.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_modal_b
+> ase.log
   log type:  text
- closed on:  27 Jun 2025, 06:01:43
------------------------------------------------------------------------------------------------------------------------------------------
+ closed on:  27 Aug 2025, 00:51:51
+-------------------------------------------------------------------------------

@@ -1,24 +1,21 @@
-\begin{table}[H]
+\begin{threeparttable}
         \centering
-        \begin{threeparttable}
-        \caption{Table of Means}
-        \label{tab:means}
         \begin{tabular}{lcc@{\hspace{6pt}}c}
         \toprule
          & Startup & Incumbent & All Firms \\
         \midrule
         \addlinespace
         \multicolumn{4}{l}{\textbf{\uline{Panel A: Firm-level}}}\\[0.3em]
-        Growth & \makecell{0.20 \\ (0.31)} & \makecell{0.06 \\ (0.16)} & \makecell{0.09 \\ (0.22)} \\
-Leave & \makecell{0.26 \\ (0.31)} & \makecell{0.21 \\ (0.28)} & \makecell{0.22 \\ (0.29)} \\
-Join & \makecell{0.35 \\ (0.32)} & \makecell{0.17 \\ (0.18)} & \makecell{0.22 \\ (0.24)} \\
-Teleworkable Score \,(0--1) & \makecell{0.67 \\ (0.18)} & \makecell{0.54 \\ (0.25)} & \makecell{0.57 \\ (0.24)} \\
-Remote Score \,(0--1) & \makecell{0.85 \\ (0.30)} & \makecell{0.57 \\ (0.41)} & \makecell{0.64 \\ (0.40)} \\
-Employees (Count) & \makecell{271 \\ (1432)} & \makecell{2740 \\ (9555)} & \makecell{2126 \\ (8380)} \\
-Age & \makecell{7 \\ (2)} & \makecell{43 \\ (34)} & \makecell{34 \\ (33)} \\
-Rent (\textdollar/sq ft) & \makecell{49 \\ (21)} & \makecell{37 \\ (19)} & \makecell{40 \\ (20)} \\
-Centrality Score & \makecell{1419 \\ (1830)} & \makecell{949 \\ (1309)} & \makecell{1066 \\ (1470)} \\
-Seniority Levels (Count) & \makecell{3.62 \\ (0.77)} & \makecell{3.86 \\ (0.50)} & \makecell{3.80 \\ (0.59)} \\
+        \hspace{1em}Growth & \makecell{0.20 \\ (0.31)} & \makecell{0.06 \\ (0.16)} & \makecell{0.09 \\ (0.22)} \\
+\hspace{1em}Leave & \makecell{0.26 \\ (0.31)} & \makecell{0.21 \\ (0.28)} & \makecell{0.22 \\ (0.29)} \\
+\hspace{1em}Join & \makecell{0.35 \\ (0.32)} & \makecell{0.17 \\ (0.18)} & \makecell{0.22 \\ (0.24)} \\
+\hspace{1em}Teleworkable Score \,(0--1) & \makecell{0.67 \\ (0.18)} & \makecell{0.54 \\ (0.25)} & \makecell{0.57 \\ (0.24)} \\
+\hspace{1em}Remote Score \,(0--1) & \makecell{0.85 \\ (0.30)} & \makecell{0.57 \\ (0.41)} & \makecell{0.64 \\ (0.40)} \\
+\hspace{1em}Employees (Count) & \makecell{271 \\ (1432)} & \makecell{2740 \\ (9555)} & \makecell{2126 \\ (8380)} \\
+\hspace{1em}Age & \makecell{7 \\ (2)} & \makecell{43 \\ (34)} & \makecell{34 \\ (33)} \\
+\hspace{1em}Rent (\textdollar/sq ft) & \makecell{49 \\ (21)} & \makecell{37 \\ (19)} & \makecell{40 \\ (20)} \\
+\hspace{1em}Centrality Score & \makecell{1419 \\ (1830)} & \makecell{949 \\ (1309)} & \makecell{1066 \\ (1470)} \\
+\hspace{1em}Seniority Levels (Count) & \makecell{3.62 \\ (0.77)} & \makecell{3.86 \\ (0.50)} & \makecell{3.80 \\ (0.59)} \\
 \addlinespace
 \midrule
 Number of firms & 878 & 2630 & 3508 \\
@@ -27,8 +24,8 @@ Observations & 10450 & 31530 & 41980 \\
         \midrule
         \addlinespace
         \multicolumn{4}{l}{\textbf{\uline{Panel B: User-level}}}\\[0.3em]
-        Total Contributions & \makecell{362.95 \\ (817.44)} & \makecell{192.73 \\ (522.28)} & \makecell{225.70 \\ (594.89)} \\
-Restricted Contributions & \makecell{320.05 \\ (746.65)} & \makecell{139.96 \\ (359.56)} & \makecell{174.84 \\ (466.14)} \\
+        \hspace{1em}Total Contributions & \makecell{362.95 \\ (817.44)} & \makecell{192.73 \\ (522.28)} & \makecell{225.70 \\ (594.89)} \\
+\hspace{1em}Restricted Contributions & \makecell{320.05 \\ (746.65)} & \makecell{139.96 \\ (359.56)} & \makecell{174.84 \\ (466.14)} \\
 \addlinespace
 \midrule
 Number of firms & 721 & 1503 & 2224 \\
@@ -41,4 +38,3 @@ Observations & 44801 & 186504 & 231305 \\
 \item \emph{Notes}: Panel~A uses firm--half--year observations. Panel~B relies on worker--half--year observations. ``Number of firms'' counts distinct firm\,IDs that ever appear in each category over the full sample window, so Startup and Incumbent counts need not sum to the ``All'' column. \textit{Growth}, \textit{Leave}, and \textit{Join} rates are fractions between 0 and 1. \textit{Teleworkable} and \textit{Remote} scores are index values between~0 and~1.  The sample period spans 2016 H2–2022 H1 at the firm level and 2017 H1–2022 H1 at the user level.
 \end{tablenotes}
         \end{threeparttable}
-        \end{table}

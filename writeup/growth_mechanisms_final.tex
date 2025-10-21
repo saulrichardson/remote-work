@@ -1,0 +1,174 @@
+\documentclass[11pt]{article}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{adjustbox}
+\usepackage{threeparttable}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{float}
+
+\title{Growth Mechanisms Analysis}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Growth Mechanisms Analysis}
+
+This analysis examines how firm growth moderates the remote work productivity effect. Define:
+\begin{itemize}
+\item var3 = Remote$_i$ × Post$_t$
+\item var4 = Post$_t$ × Startup$_i$
+\item var5 = Remote$_i$ × Post$_t$ × Startup$_i$
+\end{itemize}
+
+We estimate three specifications:
+
+\textbf{Baseline:} The standard remote work effect without growth interactions:
+\begin{equation}
+y_{it} = \beta_1 \text{var3}_{it} + \beta_2 \text{var4}_{it} + \beta_3 \text{var5}_{it} + \alpha_{i,j} + \delta_t + \varepsilon_{it}
+\end{equation}
+
+\textbf{Endogenous Growth:} Adds controls for high-growth firms (above median growth):
+\begin{equation}
+\begin{aligned}
+y_{it} = &\beta_1 \text{var3}_{it} + \beta_2 \text{var4}_{it} + \beta_3 \text{var5}_{it} \\
+&+ \beta_4 \text{Post}_t \times \text{HighGrowth}_j + \beta_5 \text{Post}_t \times \text{HighGrowth}_j \times \text{Startup}_i \\
+&+ \alpha_{i,j} + \delta_t + \varepsilon_{it}
+\end{aligned}
+\end{equation}
+
+\textbf{Exogenous Growth:} Uses growth residualized on industry/MSA trends, rent, and market concentration:
+\begin{equation}
+\text{Growth}_j = \pi_1 \text{IndGrowth}_{-j} + \pi_2 \text{MSAGrowth}_{-j} + \pi_3 \text{Rent}_j + \pi_4 \text{HHI}_j + \nu_j
+\end{equation}
+Then adds controls for high residualized growth ($\hat{\nu}_j > \text{median}$) in the same form as endogenous growth.
+
+The analysis compares two fixed effects specifications: (1) worker-firm interacted fixed effects ($\alpha_{i,j}$) that absorb time-invariant match quality, and (2) separate worker ($\alpha_i$) and firm ($\alpha_j$) fixed effects that allow estimation of firm-level heterogeneity.
+
+\section{First-Stage: Growth Residualization}
+
+\begin{table}[H]
+\centering
+\caption{First-Stage Regression: Firm Growth Residualization}
+\begin{tabular}{lc}
+\toprule
+ & Dep Var: \\
+ & Firm Growth Rate \\
+\midrule
+Industry growth (leave-one-out) & 0.635*** \\
+                               & (0.057) \\
+MSA growth (leave-one-out)     & 0.314*** \\
+                               & (0.064) \\
+High rent (above median)       & 0.045*** \\
+                               & (0.005) \\
+High HHI (above median)        & 0.034*** \\
+                               & (0.004) \\
+Constant                       & -0.143*** \\
+                               & (0.011) \\
+\midrule
+Observations                   & 3,189 \\
+R-squared                      & 0.124 \\
+\bottomrule
+\multicolumn{2}{l}{\footnotesize \textit{Notes:} Growth rate is average post-COVID employment growth.} \\
+\multicolumn{2}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.10} \\
+\end{tabular}
+\end{table}
+
+\section{Worker-Firm Fixed Effects}
+
+\begin{table}[H]
+\centering
+\caption{Worker-Firm Fixed Effects}
+\begin{tabular}{lccc}
+\toprule
+ & \multicolumn{3}{c}{Dep Var: Total Productivity} \\
+\cmidrule{2-4}
+ & (1) & (2) & (3) \\
+\midrule
+\multicolumn{4}{l}{\textbf{Panel A: OLS}} \\
+\addlinespace
+Remote $\times$ Post & -1.23** & -1.21** & -0.64 \\
+ & (0.50) & (0.50) & (0.52) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 6.21*** & 6.24*** & 3.58*** \\
+ & (1.27) & (1.29) & (1.27) \\
+\midrule
+N & 224,708 & 224,708 & 214,151 \\
+\midrule
+\multicolumn{4}{l}{\textbf{Panel B: IV}} \\
+\addlinespace
+Remote $\times$ Post & -9.26** & -3.68 & -9.64* \\
+ & (4.01) & (3.88) & (5.02) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 12.45** & 6.88 & 10.87* \\
+ & (5.39) & (5.65) & (6.46) \\
+\midrule
+N & 224,708 & 224,708 & 214,151 \\
+KP rk Wald F & 123.43 & 134.89 & 78.08 \\
+\midrule
+Endogenous growth & & \checkmark & \\
+Exogenous growth & & & \checkmark \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Worker-firm interacted fixed effects with time FE. 
+Raw firm growth is the average post-COVID employment growth rate (above/below median). 
+Residualized growth is predicted by industry/MSA trends, rent, and HHI.
+Standard errors clustered by user in parentheses. 
+* p$<$0.10, ** p$<$0.05, *** p$<$0.01.
+\end{tablenotes}
+\end{table}
+
+\section{Separate Fixed Effects}
+
+\begin{table}[H]
+\centering
+\caption{Separate Fixed Effects}
+\begin{tabular}{lccc}
+\toprule
+ & \multicolumn{3}{c}{Dep Var: Total Productivity} \\
+\cmidrule{2-4}
+ & (1) & (2) & (3) \\
+\midrule
+\multicolumn{4}{l}{\textbf{Panel A: OLS}} \\
+\addlinespace
+Remote $\times$ Post & -1.03** & -1.01** & -0.50 \\
+ & (0.48) & (0.48) & (0.51) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 5.18*** & 5.17*** & 2.51** \\
+ & (1.24) & (1.25) & (1.24) \\
+\midrule
+N & 229,862 & 229,862 & 218,909 \\
+\midrule
+\multicolumn{4}{l}{\textbf{Panel B: IV}} \\
+\addlinespace
+Remote $\times$ Post & -7.15* & -2.08 & -6.92 \\
+ & (3.90) & (3.79) & (4.80) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 9.94* & 4.63 & 7.42 \\
+ & (5.37) & (5.67) & (6.39) \\
+\midrule
+N & 229,862 & 229,862 & 218,909 \\
+KP rk Wald F & 140.60 & 153.28 & 91.62 \\
+\midrule
+Endogenous growth & & \checkmark & \\
+Exogenous growth & & & \checkmark \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Separate user, firm, and time fixed effects. 
+Raw firm growth is the average post-COVID employment growth rate (above/below median). 
+Residualized growth is predicted by industry/MSA trends, rent, and HHI.
+Standard errors clustered by user in parentheses. 
+* p$<$0.10, ** p$<$0.05, *** p$<$0.01.
+\end{tablenotes}
+\end{table}
+
+\end{document}

@@ -145,6 +145,7 @@ def starify(p: float) -> str:
 
 def load_df() -> pd.DataFrame:
     df = pd.read_csv(INPUT_CSV)
+    df = df[df["spec"].notna()].copy()
     # Pretty coefficient / SE strings -------------------------------------------------
     df["coef_str"] = df.apply(
         lambda r: f"{r.coef:.2f}{starify(r.pval)}" if r.param in ("var3", "var5") else f"{r.coef:.0f}",

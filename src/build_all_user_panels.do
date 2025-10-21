@@ -177,6 +177,28 @@ rename cbsacode company_cbsacode
 tempfile pop_msa
 save   "`pop_msa'", replace
 
+local have_core_msas 0
+tempfile core_msas
+preserve
+  cap confirm file "$raw_data/company_core_msas_by_half.csv"
+  if _rc == 0 {
+      import delimited using "$raw_data/company_core_msas_by_half.csv", clear varnames(1)
+      drop if missing(companyname, year, half, cbsa)
+      gen yh = yh(year, half)
+      format yh %th
+      destring cbsa, replace
+      rename cbsa core_cbsa
+      rename msa  core_msa
+      rename spell_count core_spell_count
+      rename spell_share core_spell_share
+      gen double cbsacode = core_cbsa
+      keep companyname yh core_cbsa core_msa core_spell_count core_spell_share cbsacode
+      duplicates drop companyname yh cbsacode, force
+      save `core_msas'
+      local have_core_msas 1
+  }
+restore
+
 
 import delimited "$raw_data/linkedin_msa_with_cbsa.csv", clear
 
@@ -191,6 +213,18 @@ drop _merge
 merge m:1 companyname yh using "`pop_msa'"
 drop if _merge == 2
 drop _merge
+
+capture destring cbsacode, replace
+if `have_core_msas' {
+    capture drop in_core_multi
+    merge m:1 companyname yh cbsacode using `core_msas', keep(master match) nogen
+    gen byte in_core_multi = !missing(core_cbsa)
+    replace in_core_multi = 0 if missing(in_core_multi)
+}
+else {
+    capture drop in_core_multi
+    gen byte in_core_multi = 0
+}
 
 save "`snapshot_clean'", replace
 
@@ -220,10 +254,47 @@ use "`snapshot_clean'", clear
 merge m:1 hqcity hqstate using "`_lease'"
 drop if _merge==2   // drop lease-only rows
 rename effectiverent2212usdperyear rent
+drop _merge
+
+ 
+merge m:1 user_id using "$processed_data/user_location_lookup_precovid.dta"
+drop if _merge == 2
+drop _merge
 
 
+// tostring cbsacode, replace format(%05.0f)
+// destring cbsa, replace 
+// replace cbsacode = string(cbsa, "%05.0f") if cbsacode == "" & cbsa < .
+// replace cbsacode = string(cbsa, "%05.0f") if missing(cbsacode) & !missing(cbsa)
+	  
+// replace msa = cbsa_title if missing(msa) & !missing(cbsa_title)
+// gen byte msa_from_lookup = missing(company_msa) & !missing(cbsa_title)
 
 
+// rename (cbsa cbsa_title state_assigned latitude longitude) (user_cbsa user_cbsa_title user_state_assigned user_latitude user_longitude)
+
+
+preserve
+  import delimited using "$processed_data/enriched_msa.csv", clear varnames(1)
+  destring cbsacode, replace
+  drop if missing(cbsacode)
+  duplicates drop cbsacode, force
+
+  rename cbsacode company_cbsacode
+  rename lat      company_lat
+  rename lon      company_lon
+
+  tempfile msa_centroids
+  save `msa_centroids'
+
+restore 
+
+
+destring company_cbsacode, replace
+merge m:1 company_cbsacode using `msa_centroids'
+drop if _merge == 2
+  
+  
 ****************************************************************************
 * 1.7  Variable construction (unchanged)
 ****************************************************************************
@@ -237,8 +308,11 @@ gen startup = age <= 10
 gen covid   = yh >= 120    // 120 = 2020H1
 gen remote  = flexibility_score2
 
-gen hybrid  = (remote>0 & remote<1)
-gen fullrem = (remote==1)
+gen byte hybrid    = (remote>0 & remote<1)
+gen byte fullrem   = (remote==1)
+gen byte inperson  = (remote==0)
+gen byte nonrem    = inperson
+gen byte anyremote = (remote>0)
 
 * For the hybrid treatment
 gen var3_hybrid = hybrid * covid
@@ -247,6 +321,18 @@ gen var5_hybrid = hybrid * covid * startup
 * For the fully-remote treatment
 gen var3_fullrem = fullrem * covid
 gen var5_fullrem = fullrem * covid * startup
+
+* For the in-person treatment (remote == 0)
+gen var3_inperson = inperson * covid
+gen var5_inperson = inperson * covid * startup
+
+* For the legacy non-remote definition (synonym for in-person)
+gen var3_nonrem = inperson * covid
+gen var5_nonrem = inperson * covid * startup
+
+* For any remote exposure (full-remote or hybrid)
+gen var3_anyremote = anyremote * covid
+gen var5_anyremote = anyremote * covid * startup
 
 
 rename restrictedcontributionscount restricted_contributions
@@ -353,9 +439,3 @@ foreach sample of local sample_types {
     * progress message ---------------------------------------------------
     di as txt "✓ Created `sample' sample (" _N " obs)"
 }
-
-****************************************************************************
-* 3.  Done
-****************************************************************************
-log close
-exit, clear

@@ -54,7 +54,7 @@ postfile handle_fs ///
     using `out_fs', replace
 	
 // 3) Loop over outcomes
-local outcomes total_contributions_q100 
+local outcomes total_contributions_q100 restricted_contributions_q100 
 local fs_done 0
 
 foreach y of local outcomes {

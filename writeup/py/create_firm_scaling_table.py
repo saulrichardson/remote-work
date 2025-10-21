@@ -97,12 +97,11 @@ def column_format(n_numeric: int) -> str:
 
 
 
-PREAMBLE_FLEX = r"""{\scriptsize%
+PREAMBLE_FLEX = r"""\centering\scriptsize
 \setlength{\tabcolsep}{3pt}%
 \renewcommand{\arraystretch}{0.95}%
-\begin{adjustbox}{max width=\linewidth, max height=0.9\textheight, center}%
 """
-POSTAMBLE_FLEX = r"""\end{adjustbox}}"""
+POSTAMBLE_FLEX = r""""""
 
 def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     """Return LaTeX code for a single‐panel table with six columns defined in
@@ -155,7 +154,7 @@ def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
                 vals.append(fmt.format(v) if fmt else str(v))
         return " & ".join([label] + vals) + r" \\"
 
-    pre_mean_row = stat_row("Pre-COVID mean", "pre_mean", "{:.2f}")
+    pre_mean_row = stat_row("Pre-Covid Mean", "pre_mean", "{:.2f}")
     obs_row      = stat_row("N",           "nobs",    "{:,}")
     kp_row       = stat_row("KP rk Wald F", "rkf",    "{:.2f}") if include_kp else ""
 
@@ -178,7 +177,7 @@ def build_panel_single(df: pd.DataFrame, model: str, include_kp: bool) -> str:
     {BOTTOM}
     \end{{{TABLE_ENV}}}""")
 
-    # wrap in adjustbox + spacing tweaks + small font
+    # wrap in centering + spacing tweaks + small font
     return PREAMBLE_FLEX + tabular + POSTAMBLE_FLEX
 
 

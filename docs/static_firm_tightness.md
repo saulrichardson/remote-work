@@ -8,13 +8,13 @@ This note documents how the dataset `data/processed/firm_tightness_static.csv` i
 
 | Data file | Description |
 |-----------|-------------|
-| `data/processed/linkedin_panel.parquet` | Half-year spells of LinkedIn workers (built by `py/build_linkedin_panel_duckdb.py`). |
+| `data/processed/linkedin_panel.parquet` | Half-year spells of LinkedIn workers (built by `scripts/build_linkedin_panel_duckdb.py`). |
 | `data/raw/oews/processed_data/tight_occ_msa_y.csv` | OEWS occupation-by-CBSA tightness metric for 2019. |
 
 --------------------------------------------------------------------
 2  Firm × SOC tightness lookup
 --------------------------------------------------------------------
-Script: **`py/build_firm_occ_tightness.py`**
+Script: **`scripts/build_firm_occ_tightness.py`**
 
 1. Collapse LinkedIn to 2019-H2 `company × SOC-4 × CBSA`, keep metros with ≥ 3 heads.  → `firm_occ_msa_heads_2019H2.csv`.
 2. Head-count-weighted average of OEWS tightness across the remaining metros.  → `tight_wavg_lookup.csv` (company × SOC).
@@ -23,7 +23,7 @@ Script: **`py/build_firm_occ_tightness.py`**
 --------------------------------------------------------------------
 3  Static firm-level tightness
 --------------------------------------------------------------------
-Script: **`py/build_firm_panel.py`** (2025-07 revision)
+Script: **`scripts/build_firm_panel.py`** (2025-07 revision)
 
 1. Filter the occupation panel to `yh == 4039` (2019-H2).
 2. For each company, compute a head-count-weighted mean of `tight_wavg` across SOCs (ignoring NaNs):
@@ -41,10 +41,10 @@ np.average(tight, weights=heads)
 
 ```bash
 # Build occupation-level panel and lookup (only if inputs changed)
-python py/build_firm_occ_tightness.py
+python scripts/build_firm_occ_tightness.py
 
 # Build firm-level panel *and* the static tightness CSV
-python py/build_firm_panel.py   # writes firm_tightness_static.csv
+python scripts/build_firm_panel.py   # writes firm_tightness_static.csv
 ```
 
 --------------------------------------------------------------------

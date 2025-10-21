@@ -21,19 +21,6 @@ capture mkdir "`result_dir'"
 
 
 
-gen companyname_c = lower(companyname)
-preserve
-    import delimited "$processed_data/firm_hhi_msa.csv", clear
-    rename companyname companyname_c     // lower-case key
-tempfile hhi
-save    `hhi'
-
-
-restore
-
-merge m:1 companyname_c using `hhi', keep(match) nogen
-
-
 
 
 capture postclose handle

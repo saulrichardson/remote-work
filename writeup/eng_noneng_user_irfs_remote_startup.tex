@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{amsmath}
+
+\title{Engineer vs Non-Engineer IRFs by Remote\,\texttimes\,Startup (Legacy)}
+\date{\vspace{-1.5em}}
+
+\begin{document}
+\maketitle
+
+\section*{Legacy Note}
+This document summarizes an earlier Remote\,\texttimes\,Startup split. The
+figures pull from archived outputs under
+\texttt{results/user	extunderscore irfs	extunderscore eng	extunderscore vs	extunderscore noneng	extunderscore by	extunderscore remote	extunderscore startup/}.
+Current production workflows focus on Remote-first vs Hybrid splits (see
+\texttt{plot	extunderscore user	extunderscore irfs	extunderscore eng	extunderscore noneng	extunderscore remote.py}).
+
+\section*{Empirical Setup}
+Local projections estimate the effect of Engineer vs Non-Engineer growth on individual productivity, with user\,\texttimes\,firm and time fixed effects and firm-clustered SEs:
+\begin{equation*}
+  F_h(\text{prod}_{i,f,t}) \;=\; \beta_{\text{Eng},h}\, g_{\text{Eng},f,t}\; +\; \beta_{\text{NonEng},h}\, g_{\text{NonEng},f,t}\; +\; \alpha_{i\times f}\; +\; \tau_t\; +\; \varepsilon_{i,f,t,h},
+\end{equation*}
+where $g_{\text{Eng},f,t}$ is Engineer pct growth from the role file (role\_k7=Engineer), and $g_{\text{NonEng},f,t}$ is Non-Engineer pct growth recomputed from summed levels: $(\sum_{r\neq E}\text{emp}_{r} - \sum_{r\neq E}\text{prev}_{r})/\sum_{r\neq E}\text{prev}_{r}$. We run $h\in\{0,1,2,3,4\}$ and split by Remote$\times$Startup.
+
+\section*{IRFs (Absolute)}
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/user_irfs_eng_vs_noneng_by_remote_startup/remote0_startup0/irf_plot_absolute.png}
+    \caption{Non-Remote, Non-Startup}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/user_irfs_eng_vs_noneng_by_remote_startup/remote1_startup0/irf_plot_absolute.png}
+    \caption{Remote, Non-Startup}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/user_irfs_eng_vs_noneng_by_remote_startup/remote0_startup1/irf_plot_absolute.png}
+    \caption{Non-Remote, Startup}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/user_irfs_eng_vs_noneng_by_remote_startup/remote1_startup1/irf_plot_absolute.png}
+    \caption{Remote, Startup}
+  \end{subfigure}
+  \caption{Engineer vs Non-Engineer IRFs (absolute) by Remote\,\texttimes\,Startup}
+\end{figure}
+
+\section*{IRFs (Rebased)}
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/user_irfs_eng_vs_noneng_by_remote_startup/remote0_startup0/irf_plot_rebased.png}
+    \caption{Non-Remote, Non-Startup}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/user_irfs_eng_vs_noneng_by_remote_startup/remote1_startup0/irf_plot_rebased.png}
+    \caption{Remote, Non-Startup}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/user_irfs_eng_vs_noneng_by_remote_startup/remote0_startup1/irf_plot_rebased.png}
+    \caption{Non-Remote, Startup}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/user_irfs_eng_vs_noneng_by_remote_startup/remote1_startup1/irf_plot_rebased.png}
+    \caption{Remote, Startup}
+  \end{subfigure}
+  \caption{Engineer vs Non-Engineer IRFs (rebased to $h{=}0$) by Remote\,\texttimes\,Startup}
+\end{figure}
+
+\end{document}

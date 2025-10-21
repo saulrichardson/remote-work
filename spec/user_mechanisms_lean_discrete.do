@@ -15,7 +15,7 @@
 
 args panel_variant treat
 if "`panel_variant'" == "" local panel_variant "precovid"
-if "`treat'"         == "" local treat         "fullremote"
+if "`treat'"         == "" local treat         "remote"
 
 local specname "user_productivity_lean_`panel_variant'_`treat'"
 
@@ -36,18 +36,21 @@ use "$processed_data/user_panel_`panel_variant'.dta", clear
 
 // 2a) Overwrite var3 / var5 with requested discrete definitions -------------
 
-if "`treat'" == "fullremote" {
+tempvar treat_flag
+if "`treat'" == "remote" {
     capture drop var3 var5
-    gen var3 = var3_fullrem
-    gen var5 = var5_fullrem
+    gen byte `treat_flag' = remote == 1
+    gen var3 = `treat_flag' * covid
+    gen var5 = `treat_flag' * covid * startup
 }
-else if "`treat'" == "hybrid" {
+else if "`treat'" == "nonremote" {
     capture drop var3 var5
-    gen var3 = var3_hybrid
-    gen var5 = var5_hybrid
+    gen byte `treat_flag' = remote < 1
+    gen var3 = `treat_flag' * covid
+    gen var5 = `treat_flag' * covid * startup
 }
 else {
-    di as error "Unknown treat=`treat' — must be fullremote or hybrid"
+    di as error "Unknown treat=`treat' — must be remote or nonremote"
     exit 1
 }
 

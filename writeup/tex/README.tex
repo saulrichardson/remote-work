@@ -64,7 +64,7 @@ folder hierarchy and how each directory feeds into the others.
         runs a model, and exports both tidy tables and raw diagnostics into
         \code{results/}.
 
-  \item[\code{py/}] Small Python utilities that post-process Stata
+  \item[\code{scripts/}] Small Python utilities that post-process Stata
         results. They merge standard errors, generate figures, and tidy
         output before it reaches the paper.
 
@@ -90,7 +90,7 @@ The directories form a linear pipeline:
         panels stored in \code{data/processed}.
   \item Empirical models in \code{spec/} read the processed panels and
         write their outputs to \code{results/}.
-  \item Python helpers in \code{py/} further clean these outputs so that
+  \item Python helpers in \code{scripts/} further clean these outputs so that
         the \code{writeup/} build can include them directly.
   \item The \LaTeX{} sources within \code{writeup/} assemble the final
         report using the cleaned tables and generated figures.

@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{adjustbox}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{amsmath}
+\begin{document}
+\begin{table}[H]
+\centering
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabularx}{\linewidth}{l@{\hspace{6pt}}>{\centering\arraybackslash}X@{\hspace{6pt}}>{\centering\arraybackslash}X@{\hspace{6pt}}>{\centering\arraybackslash}X@{\hspace{6pt}}>{\centering\arraybackslash}X@{\hspace{6pt}}>{\centering\arraybackslash}X@{\hspace{6pt}}>{\centering\arraybackslash}X@{\hspace{6pt}}>{\centering\arraybackslash}X}
+\toprule
+ & A & B & C & D & E & F & G \\
+\midrule
+\multicolumn{8}{@{}l}{\textbf{\uline{Panel A}}} \\
+foo & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+bar & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+\midrule
+Pre & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+N & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+\midrule
+\multicolumn{8}{@{}l}{\textbf{\uline{Panel B}}} \\
+foo & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+bar & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+\midrule
+First-stage & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+KP & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+N & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+\midrule
+Firm FE & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+Half-year FE & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+\bottomrule
+\end{tabularx}
+\end{adjustbox}
+\end{table}
+\end{document}

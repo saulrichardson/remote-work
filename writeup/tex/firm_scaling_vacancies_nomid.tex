@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{float}
+\begin{document}
+
+% --- OLS table ------------------------------------------------------------
+\begin{table}[H]
+\centering
+\caption{Firm Scaling with Vacancy Outcomes — OLS}
+\label{tab:firm_scaling_vacancy_ols}
+\begin{tabular}{lcccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5) & (6) \
+ & \makecell[c]{Growth\\(wins.)} & \makecell[c]{Growth\\(wins.)} & \makecell[c]{Join\\(wins.)} & \makecell[c]{Leave\\(wins.)} & \makecell[c]{Vacancies} & \makecell[c]{Hires/Vacancies} \
+\midrule
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.01**\\(0.01)} & \makecell[c]{0.00\\(0.00)} & \makecell[c]{0.01**\\(0.00)} & \makecell[c]{0.02***\\(0.00)} & \makecell[c]{-0.91***\\(0.23)} & \makecell[c]{0.10\\(0.10)} \
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{0.07***\\(0.02)} & \makecell[c]{0.05*\\(0.03)} & \makecell[c]{-0.01\\(0.01)} & \makecell[c]{0.63**\\(0.27)} & \makecell[c]{0.24\\(0.25)} \
+$ \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{-0.06***\\(0.01)} & \makecell[c]{-0.12***\\(0.02)} & \makecell[c]{-0.09***\\(0.02)} & \makecell[c]{0.03***\\(0.01)} & \makecell[c]{-1.27***\\(0.22)} & \makecell[c]{0.01\\(0.21)} \
+\midrule
+Time FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \
+Firm FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \
+\midrule
+Pre-COVID mean & 0.11 & 0.11 & 0.25 & 0.14 & 0.50 & 2.47 \
+N & 41,742 & 41,742 & 41,742 & 41,742 & 37,681 & 28,795 \
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1cm}
+
+% --- IV table -------------------------------------------------------------
+\begin{table}[H]
+\centering
+\caption{Firm Scaling with Vacancy Outcomes — IV}
+\label{tab:firm_scaling_vacancy_iv}
+\begin{tabular}{lcccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5) & (6) \
+\midrule
+ & \makecell[c]{Growth\\(wins.)} & \makecell[c]{Growth\\(wins.)} & \makecell[c]{Join\\(wins.)} & \makecell[c]{Leave\\(wins.)} & \makecell[c]{Vacancies} & \makecell[c]{Hires/Vacancies} \
+\midrule
+$ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.02\\(0.01)} & \makecell[c]{-0.00\\(0.01)} & \makecell[c]{0.03***\\(0.01)} & \makecell[c]{0.04***\\(0.00)} & \makecell[c]{-3.58***\\(0.61)} & \makecell[c]{0.61***\\(0.20)} \
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{0.22**\\(0.09)} & \makecell[c]{0.23**\\(0.10)} & \makecell[c]{0.06\\(0.05)} & \makecell[c]{1.60*\\(0.96)} & \makecell[c]{1.99*\\(1.18)} \
+$ \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{-0.06***\\(0.01)} & \makecell[c]{-0.25***\\(0.08)} & \makecell[c]{-0.26***\\(0.08)} & \makecell[c]{-0.05\\(0.04)} & \makecell[c]{-1.32*\\(0.76)} & \makecell[c]{-1.58\\(0.97)} \
+\midrule
+Time FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \
+Firm FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \
+\midrule
+Pre-COVID mean & 0.11 & 0.11 & 0.25 & 0.14 & 0.50 & 2.47 \
+KP rk Wald F & 982.73 & 18.30 & 18.30 & 18.30 & 10.66 & 10.26 \
+N & 41,742 & 41,742 & 41,742 & 41,742 & 37,681 & 28,795 \
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}

@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\title{Role-Specific Hiring IRFs: Remote \texttimes{} Startup Quadrants}
+\date{\vspace{-1.5em}}
+
+% Paths to result images (produced by spec/composition_irfs_by_remote_startup.do
+% and spec/plot_irf_graphs_by_remote_startup.do)
+\newcommand{\pathNRNS}{../results/composition_irfs_all7_by_remote_startup/remote0_startup0}
+\newcommand{\pathRNS}{../results/composition_irfs_all7_by_remote_startup/remote1_startup0}
+\newcommand{\pathNRST}{../results/composition_irfs_all7_by_remote_startup/remote0_startup1}
+\newcommand{\pathRST}{../results/composition_irfs_all7_by_remote_startup/remote1_startup1}
+
+\newcommand{\RoleFigure}[2]{%
+  \begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.48\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{\pathNRNS/clean_irf_#1.png}
+      \caption{Non-Remote, Non-Startup}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{\pathRNS/clean_irf_#1.png}
+      \caption{Remote, Non-Startup}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.48\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{\pathNRST/clean_irf_#1.png}
+      \caption{Non-Remote, Startup}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{\pathRST/clean_irf_#1.png}
+      \caption{Remote, Startup}
+    \end{subfigure}
+    \caption{#2 Hiring IRF by Remote \texttimes{} Startup Quadrant}
+  \end{figure}%
+}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+We estimate impulse response functions (IRFs) for individual productivity (percentile) following firm-level hiring growth by role. We split results across four groups: Non-Remote/Non-Startup, Remote/Non-Startup, Non-Remote/Startup, and Remote/Startup. Estimates come from local projections with user\texttimes{}firm and time fixed effects and firm-clustered standard errors.
+
+\vspace{0.5em}
+This document assembles the per-role IRF plots output to the results folders. Generate plots with:\\
+\texttt{do spec/composition\\_irfs\\_by	extrm{\_}remote	extrm{\_}startup.do} then\\
+\texttt{do spec/plot	extrm{\_}irf	extrm{\_}graphs	extrm{\_}by	extrm{\_}remote	extrm{\_}startup.do}
+
+\section*{Role IRFs}
+\RoleFigure{Admin}{Admin}
+\RoleFigure{Engineer}{Engineer}
+\RoleFigure{Finance}{Finance}
+\RoleFigure{Marketing}{Marketing}
+\RoleFigure{Operations}{Operations}
+\RoleFigure{Sales}{Sales}
+\RoleFigure{Scientist}{Scientist}
+
+\section*{Aggregate Growth IRFs}
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/firm_irfs_total_growth/remote0_startup0/clean_firm_irf.png}
+    \caption{Non-Remote, Non-Startup}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/firm_irfs_total_growth/remote1_startup0/clean_firm_irf.png}
+    \caption{Remote, Non-Startup}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/firm_irfs_total_growth/remote0_startup1/clean_firm_irf.png}
+    \caption{Non-Remote, Startup}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../results/firm_irfs_total_growth/remote1_startup1/clean_firm_irf.png}
+    \caption{Remote, Startup}
+  \end{subfigure}
+  \caption{Aggregate Firm Growth IRFs by Remote \texttimes{} Startup Quadrant}
+\end{figure}
+
+\end{document}

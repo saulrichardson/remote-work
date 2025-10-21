@@ -56,12 +56,12 @@ sort company_numeric yh
 // gen join_rate = join / L.total_employees if _n > 1
 // gen leave_rate = leave / L.total_employees if _n > 1
 
-gen headcount_lag = L.headcount
+gen total_employees_lag = L.total_employees
 
 
-gen growth_rate = (headcount/headcount_lag) - 1   if headcount_lag < .
-gen join_rate   = joins/ headcount_lag           if headcount_lag < .
-gen leave_rate  = leaves/ headcount_lag           if headcount_lag < .
+gen growth_rate = (total_employees/total_employees_lag) - 1   if total_employees_lag < .
+gen join_rate   = join / total_employees_lag           if total_employees_lag < .
+gen leave_rate  = leave/ total_employees_lag           if total_employees_lag < .
 
 xtset, clear
 
@@ -163,8 +163,11 @@ gen covid = yh >= 120
 
 rename flexibility_score2 remote
 
-gen hybrid  = (remote>0 & remote<1)
-gen fullrem = (remote==1)
+gen byte hybrid    = (remote>0 & remote<1)
+gen byte fullrem   = (remote==1)
+gen byte inperson  = (remote==0)
+gen byte nonrem    = inperson
+gen byte anyremote = (remote>0)
 
 * For the hybrid treatment
 gen var3_hybrid = hybrid * covid
@@ -173,6 +176,18 @@ gen var5_hybrid = hybrid * covid * startup
 * For the fully-remote treatment
 gen var3_fullrem = fullrem * covid
 gen var5_fullrem = fullrem * covid * startup
+
+* For the in-person treatment (remote == 0)
+gen var3_inperson = inperson * covid
+gen var5_inperson = inperson * covid * startup
+
+* For the legacy non-remote definition (synonym for in-person)
+gen var3_nonrem = inperson * covid
+gen var5_nonrem = inperson * covid * startup
+
+* For any remote exposure (full-remote or hybrid)
+gen var3_anyremote = anyremote * covid
+gen var5_anyremote = anyremote * covid * startup
 
 
 summarize yh

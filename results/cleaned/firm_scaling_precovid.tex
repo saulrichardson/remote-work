@@ -1,0 +1,26 @@
+\centering
+    \begin{tabularx}{\linewidth}{l@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}}
+    \toprule
+     & (1) & (2) & (3) & (4) & (5) & (6) \\
+    \midrule
+     & Growth & Growth & Join & Leave & Job Postings (1,000s) & Hires/Job Postings \\
+    \midrule
+    \multicolumn{7}{@{}l}{\textbf{\uline{Panel A: OLS}}} \\
+    \hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.01**\\(0.01)} & \makecell[c]{0.00\\(0.00)} & \makecell[c]{0.01**\\(0.00)} & \makecell[c]{0.02***\\(0.00)} & \makecell[c]{-0.91***\\(0.23)} & \makecell[c]{0.09\\(0.08)} \\ 
+\hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{0.07***\\(0.02)} & \makecell[c]{0.05*\\(0.03)} & \makecell[c]{-0.01\\(0.01)} & \makecell[c]{0.63**\\(0.27)} & \makecell[c]{0.37*\\(0.22)} \\ 
+    \midrule
+    Pre-Covid Mean & 0.11 & 0.11 & 0.25 & 0.14 & 0.50 & 2.15 \\
+N & 41,742 & 41,742 & 41,742 & 41,742 & 37,681 & 27,790 \\
+    \midrule
+    \multicolumn{7}{@{}l}{\textbf{\uline{Panel B: IV}}} \\
+    \hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{0.02\\(0.01)} & \makecell[c]{-0.00\\(0.01)} & \makecell[c]{0.03***\\(0.01)} & \makecell[c]{0.04***\\(0.00)} & \makecell[c]{-3.58***\\(0.61)} & \makecell[c]{0.38**\\(0.17)} \\ 
+\hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ &  & \makecell[c]{0.22**\\(0.09)} & \makecell[c]{0.23**\\(0.10)} & \makecell[c]{0.06\\(0.05)} & \makecell[c]{1.60*\\(0.96)} & \makecell[c]{2.16**\\(1.09)} \\ 
+    \midrule
+    KP rk Wald F & 982.73 & 18.30 & 18.30 & 18.30 & 10.66 & 9.04 \\
+N & 41,742 & 41,742 & 41,742 & 41,742 & 37,681 & 27,790 \\
+    \midrule
+    \textbf{Fixed Effects} &  &  &  &  &  &  \\
+    \hspace{1em}Time FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+\hspace{1em}Firm FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    \bottomrule
+    \end{tabularx}

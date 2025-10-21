@@ -1,13 +1,19 @@
------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_dist_base.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_dist_ba
+> se.log
   log type:  text
- opened on:  27 Jun 2025, 08:53:32
+ opened on:  27 Aug 2025, 00:52:11
 
 . 
 . local result_dir "$results/het_dist_base_`panel_variant'_`nbins'"
 
 . cap mkdir "`result_dir'"
+
+. di as text "[distance_do] panel_variant=`panel_variant' nbins=`nbins' -> `res
+> ult_dir'"
+[distance_do] panel_variant=precovid nbins=2 -> ../results/raw/het_dist_base_pr
+> ecovid_2
 
 . 
 . 
@@ -24,7 +30,8 @@
 >     double coef5 se5 pval5   /// var5 stats
 >     double rkf nobs          /// first‐stage F and N
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000003 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//St47692.000003 not
+    found)
 
 . 
 . *--------------------------------------------------------------
@@ -193,15 +200,149 @@ Absorbed degrees of freedom:
 . 
 . postclose handle
 
+. preserve
+
 . use `out', clear
 
 . export delimited using "`result_dir'/var5_distance_base.csv", replace
-(file ../results/raw/het_dist_base_precovid_2/var5_distance_base.csv not found)
 file ../results/raw/het_dist_base_precovid_2/var5_distance_base.csv saved
+
+. restore
 
 . log close
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_dist_base.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_dist_ba
+> se.log
   log type:  text
- closed on:  27 Jun 2025, 08:53:45
------------------------------------------------------------------------------------------------------------------------------------------
+ closed on:  27 Aug 2025, 00:52:23
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_dist_ba
+> se.log
+  log type:  text
+ opened on:  27 Aug 2025, 00:52:23
+
+. 
+. tempfile out_ols
+
+. capture postclose handle_ols
+
+. postfile handle_ols ///
+>     str8   bucket       ///  1, 2, 3, ...
+>     double coef3 se3 pval3   /// var3 stats
+>     double coef5 se5 pval5   /// var5 stats
+>     double rkf nobs          /// placeholder for consistency; rkf missing for
+>  OLS
+>     using `out_ols', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//St47692.000005 not
+    found)
+
+. 
+. forvalues g = 1/`nbins' {
+  2. 
+.     di as text "=== OLS: Distance bucket `g' ==="
+  3. 
+.     reghdfe total_contributions_q100 ///
+>         var3 var5  var4               ///
+>         if gdist_tile == `g',         ///
+>         absorb(firm_id#user_id yh) vce(cluster user_id)
+  4. 
+.     // compute stats for var3
+.     local b3   = _b[var3]
+  5.     local se3  = _se[var3]
+  6.     local p3   = 2*ttail(e(df_r), abs(`b3'/`se3'))
+  7. 
+.     // compute stats for var5
+.     local b5   = _b[var5]
+  8.     local se5  = _se[var5]
+  9.     local p5   = 2*ttail(e(df_r), abs(`b5'/`se5'))
+ 10. 
+.     post handle_ols ("`g'") ///
+>         (`b3') (`se3') (`p3') ///
+>         (`b5') (`se5') (`p5') ///
+>         (.) (e(N))
+ 11. }
+=== OLS: Distance bucket 1 ===
+(dropped 1260 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     46,715
+Absorbing 2 HDFE groups                           F(   3,   8269) =       7.04
+Statistics robust to heteroskedasticity           Prob > F        =     0.0001
+                                                  R-squared       =     0.7226
+                                                  Adj R-squared   =     0.6593
+                                                  Within R-sq.    =     0.0013
+Number of clusters (user_id) =      8,270         Root MSE        =    17.2877
+
+                            (Std. err. adjusted for 8,270 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -1.005998   .9264085    -1.09   0.278    -2.821991    .8099948
+        var5 |    6.75076   2.210964     3.05   0.002     2.416717     11.0848
+        var4 |  -7.886537   1.988267    -3.97   0.000    -11.78404   -3.989034
+       _cons |   57.51564   .2857003   201.31   0.000      56.9556    58.07569
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |      8666        8666           0    *|
+                yh |        11           1          10     |
+-----------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+=== OLS: Distance bucket 2 ===
+(dropped 5336 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    177,907
+Absorbing 2 HDFE groups                           F(   3,  29193) =       9.37
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7126
+                                                  Adj R-squared   =     0.6446
+                                                  Within R-sq.    =     0.0004
+Number of clusters (user_id) =     29,194         Root MSE        =    17.7350
+
+                           (Std. err. adjusted for 29,194 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -1.339748   .5874104    -2.28   0.023    -2.491099   -.1883972
+        var5 |   6.161141   1.568563     3.93   0.000     3.086687    9.235595
+        var4 |  -6.241304    1.31874    -4.73   0.000    -8.826094   -3.656514
+       _cons |   48.69149   .1782209   273.21   0.000     48.34217    49.04081
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------------+
+       Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------------+---------------------------------------|
+   firm_id#user_id |     34029       34029           0    *|
+                yh |        11           1          10     |
+-----------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. postclose handle_ols
+
+. preserve
+
+. use `out_ols', clear
+
+. export delimited using "`result_dir'/var5_distance_base_ols.csv", replace
+file ../results/raw/het_dist_base_precovid_2/var5_distance_base_ols.csv saved
+
+. restore
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/het_dist_ba
+> se.log
+  log type:  text
+ closed on:  27 Aug 2025, 00:52:24
+-------------------------------------------------------------------------------

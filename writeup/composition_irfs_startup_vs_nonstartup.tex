@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+
+\title{Role-Specific Hiring IRFs: Startups vs Non-Startups}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+We report impulse response functions (IRFs) for individual productivity following firm-level growth in role-specific hiring. We estimate the exact same specification separately for startups and non-startups. Startup results are shown first, followed by non-startups, for each role.
+
+\section*{Empirical Setup}
+We estimate dynamic responses using local projections. At each horizon $h\in\{0,1,2,3,4\}$ (half-year steps), we run a single regression that includes \emph{all} role-specific hiring growth rates simultaneously, so each effect is identified \emph{holding fixed} the growth of the other roles.
+
+\paragraph{Outcome.} The dependent variable is individual productivity measured as a percentile rank (1--100) of total contributions, aggregated to half-year frequency. For horizon $h$, we use the $h$-period lead of productivity for the same individual--firm match, so $y_{if,t+h}$ is exactly $h$ half-years ahead.
+
+\paragraph{Role-growth vector.} For each firm $f$ and half-year $t$, let $\bm g_{f,t} = \big(g_{f,t}^{\text{Admin}},\; g_{f,t}^{\text{Engineer}},\ldots,\; g_{f,t}^{\text{Scientist}}\big)^{\top}$ collect the percentage growth rates in headcount (or hires) by role (seven roles total). These enter the regression jointly.
+
+\paragraph{Specification (per horizon $h$).}
+\begin{equation}
+\label{eq:lp}
+ y_{if,t+h} \;=\; \bm\beta_h^{\top}\,\bm g_{f,t} \; + \; \alpha_{i\times f} \; + \; \gamma_t \; + \; \varepsilon_{if,t+h},
+\end{equation}
+where $i$ indexes individuals, $f$ firms, $t$ half-year periods, $\bm\beta_h = \big(\beta_{\text{Admin},h},\ldots,\beta_{\text{Scientist},h}\big)^{\top}$ are horizon-$h$ coefficients, $\alpha_{i\times f}$ are user$\times$firm fixed effects (match fixed effects), and $\gamma_t$ are time fixed effects. We estimate \eqref{eq:lp} separately for startups and non-startups; the model is otherwise identical across groups.
+
+
+\newcommand{\startupPath}{../results/composition_irfs_all7_startup}
+\newcommand{\nonstartupPath}{../results/composition_irfs_all7_nonstartup}
+
+% Helper macro to render a two-panel figure per role
+\newcommand{\RoleFigure}[2]{%
+  \begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{\startupPath/clean_irf_#1.png}
+      \caption{Startup}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{\nonstartupPath/clean_irf_#1.png}
+      \caption{Non-Startup}
+    \end{subfigure}
+    \caption{#2 Hiring IRF: Startup (left) vs Non-Startup (right)}
+  \end{figure}
+}
+
+\RoleFigure{Admin}{Admin}
+\RoleFigure{Engineer}{Engineer}
+\RoleFigure{Finance}{Finance}
+\RoleFigure{Marketing}{Marketing}
+\RoleFigure{Operations}{Operations}
+\RoleFigure{Sales}{Sales}
+\RoleFigure{Scientist}{Scientist}
+
+\end{document}

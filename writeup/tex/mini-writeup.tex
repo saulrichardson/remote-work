@@ -1,0 +1,153 @@
+% Mini Writeup: Key Mechanism Updates
+\documentclass{article}
+
+% -------------------------------------------------------------------------
+%  Packages
+% -------------------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{makecell}
+\usepackage{threeparttable}
+\usepackage{float}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[export]{adjustbox}
+\usepackage[normalem]{ulem}
+\usepackage{dsfont}
+\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+
+\setlength{\extrarowheight}{1.5pt}
+
+% Base directories for cleaned LaTeX tables and figures
+\newcommand{\cleanedresultsdir}{../../results/cleaned}
+\newcommand{\figdir}{../../results/figures}
+\newcommand{\irfdir}{../../results/user_irfs_eng_vs_noneng_remote_hybrid}
+
+\begin{document}
+
+\section{Table of Means}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/table_of_means.tex}
+\end{table}
+
+\section{Figures}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\figdir/firm_teleworkable_remote.png}
+  \caption{Remote vs. Teleworkable Scores}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\figdir/firm_age_lt100_remote.png}
+  \caption{Remote vs. Firm Age}
+\end{figure}
+
+\section{Event Studies}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\figdir/user_event_study_precovid_ols.png}
+  \caption{Event study: user rank for contributions (OLS)}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_growth_ols.png}
+  \caption{Event study: firm growth (OLS)}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_join_rate_ols.png}
+  \caption{Event study: join (OLS)}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_leave_rate_ols.png}
+  \caption{Event study: leave (OLS)}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_job_postings_ols.png}
+  \caption{Event study: job postings (OLS)}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_hires_per_job_posting_ols.png}
+  \caption{Event study: hires per job posting (OLS)}
+\end{figure}
+
+\section{User Productivity}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/user_productivity_precovid_total.tex}
+\end{table}
+
+\section{Remote Modalities}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/user_productivity_fr_focus_precovid.tex}
+\end{table}
+
+\begin{landscape}
+\section{First Stage Summary}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/first_stage_summary.tex}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\section{User Mechanisms}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/user_mechanisms_with_growth_precovid_iv.tex}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\section{Firm Scaling}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/firm_scaling_precovid.tex}
+\end{table}
+
+\section{Role-Type Growth Rates}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/firm_scaling_role_growth.tex}
+\end{table}
+\end{landscape}
+
+\appendix
+\section*{Appendix}
+\addcontentsline{toc}{section}{Appendix}
+\section{Restricted Contributions}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/user_productivity_precovid_restricted.tex}
+\end{table}
+
+\section{Impulse Response Functions}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\irfdir/irf_remote_eng.png}
+  \caption{Impulse response: engineer productivity at fully remote firms}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\irfdir/irf_hybrid_eng.png}
+  \caption{Impulse response: engineer productivity at hybrid/in-person firms}
+\end{figure}
+
+\end{document}

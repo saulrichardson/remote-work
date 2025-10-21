@@ -8,9 +8,6 @@ data/**
 **/data/
 **/data/**
 
-# Build artifacts
-writeup/build/
-
 # System files (declare once)
 .DS_Store
 
@@ -34,3 +31,51 @@ archive/
 # HPC generated files
 hpc/sbatch/
 hpc/out/
+
+# Local logs and scratch outputs
+log/
+spec/log/
+spec/scratch/
+writeup/build/
+writeup/scratch/
+*.log
+*.smcl
+*.DS_Store
+
+# LaTeX build artefacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.out
+
+# Generated analysis results (re-allow curated artefacts)
+results/*
+!results/cleaned/
+results/cleaned/*
+!results/cleaned/table_of_means.tex
+!results/cleaned/user_productivity_precovid_total.tex
+!results/cleaned/user_productivity_precovid_restricted.tex
+!results/cleaned/user_productivity_fr_focus_precovid.tex
+!results/cleaned/user_productivity_pairwise_precovid.tex
+!results/cleaned/user_mechanisms_with_growth_precovid_iv.tex
+!results/cleaned/first_stage_summary.tex
+!results/cleaned/firm_scaling_precovid.tex
+!results/figures/
+results/figures/*
+!results/figures/firm_teleworkable_remote.png
+!results/figures/firm_age_lt100_remote.png
+!results/figures/user_event_study_precovid_ols.png
+!results/figures/firm_event_study_growth_ols.png
+!results/figures/firm_event_study_join_rate_ols.png
+!results/figures/firm_event_study_leave_rate_ols.png
+!results/figures/firm_event_study_job_postings_ols.png
+!results/figures/firm_event_study_hires_per_job_posting_ols.png
+!results/user_irfs_eng_vs_noneng_remote_hybrid/
+results/user_irfs_eng_vs_noneng_remote_hybrid/*
+!results/user_irfs_eng_vs_noneng_remote_hybrid/irf_remote_eng.png
+!results/user_irfs_eng_vs_noneng_remote_hybrid/irf_hybrid_eng.png
+
+# Stata swap files anywhere
+*.dta.swp
+*.stswp

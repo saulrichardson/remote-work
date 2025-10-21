@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_initial_precovid.log
   log type:  text
- opened on:  13 Jun 2025, 09:48:31
+ opened on:  17 Sep 2025, 05:33:27
 
 . 
 . // 0) Setup environment
@@ -51,7 +51,7 @@ end of do-file
 >     double coef se pval pre_mean ///
 >     double rkf nobs     ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46341.000001 not found)
 
 . 
 . 
@@ -68,11 +68,11 @@ end of do-file
 >     double coef se pval       ///
 >     double partialF rkf nobs  ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46341.000002 not found)
 
 .         
 . // 3) Loop over outcomes
-. local outcomes total_contributions_q100 
+. local outcomes total_contributions_q100 restricted_contributions_q100 
 
 . local fs_done 0
 
@@ -239,6 +239,102 @@ Absorbed degrees of freedom:
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 (results _ivreg2_var3 are active now)
+→ Processing outcome: restricted_contributions_q100
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 82 iterations)
+
+HDFE Linear regression                            Number of obs   =    229,862
+Absorbing 3 HDFE groups                           F(   2,  35788) =      15.49
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6596
+                                                  Adj R-squared   =     0.5923
+                                                  Within R-sq.    =     0.0003
+Number of clusters (user_id) =     35,789         Root MSE        =    20.2214
+
+                           (Std. err. adjusted for 35,789 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+restrict~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -.5055142   .4628887    -1.09   0.275     -1.41279    .4017616
+        var4 |  -1.671316     .33414    -5.00   0.000     -2.32624   -1.016391
+       _cons |   48.54484   .1412956   343.57   0.000      48.2679    48.82179
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     35789       35789           0    *|
+     firm_id |      2151           1        2150     |
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 82 iterations)
+
+Stored estimation results
+-------------------------
+---------------------------------------------------------------------------
+             |           Dependent  Number of        
+        Name | Command    variable     param.  Title 
+-------------+-------------------------------------------------------------
+_ivreg2_var3 | ivreg2         var3          2  First-stage regression: var3
+---------------------------------------------------------------------------
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on user_id
+
+Number of clusters (user_id) =   35789                Number of obs =   229862
+                                                      F(  2, 35788) =    15.53
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =   78494862.2                Centered R2   =  -0.0001
+Total (uncentered) SS   =   78494862.2                Uncentered R2 =  -0.0001
+Residual SS             =  78502700.68                Root MSE      =    18.57
+
+------------------------------------------------------------------------------
+             |               Robust
+restrict~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -3.363678   2.911309    -1.16   0.248    -9.069932    2.342576
+        var4 |  -1.110302   .6539466    -1.70   0.090    -2.392057    .1714535
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):            485.130
+                                                   Chi-sq(1) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):             5804.156
+                         (Kleibergen-Paap rk Wald F statistic):        543.257
+Stock-Yogo weak ID test critical values: 10% maximal IV size             16.38
+                                         15% maximal IV size              8.96
+                                         20% maximal IV size              6.66
+                                         25% maximal IV size              5.53
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         var3
+Included instruments: var4
+Excluded instruments: var6
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     35789       35789           0    *|
+     firm_id |      2151           1        2150     |
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
 
 . 
 . // 4) Close & export to CSV
