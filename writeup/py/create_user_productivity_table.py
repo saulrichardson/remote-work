@@ -5,20 +5,25 @@ specification."""
 from __future__ import annotations
 
 import argparse
+
+import sys
 from pathlib import Path
+
 import pandas as pd
 import textwrap
+
+HERE = Path(__file__).resolve().parent
+PY_DIR = HERE.parents[1] / "py"
+if str(PY_DIR) not in sys.path:
+    sys.path.insert(0, str(PY_DIR))
+
+from project_paths import RESULTS_FINAL_TEX, RESULTS_RAW
 
 # ---------------------------------------------------------------------------
 # Paths and constants
 # ---------------------------------------------------------------------------
-HERE = Path(__file__).resolve().parent
-PROJECT_ROOT = HERE.parents[1]
-
-
-
 SPEC_BASE = "user_productivity"
-RAW_DIR = PROJECT_ROOT / "results" / "raw"
+RAW_DIR = RESULTS_RAW
 
 # Default sample variant for the script (pre-covid user panel)
 DEFAULT_VARIANT = "precovid"
@@ -53,7 +58,7 @@ FIRM_FE_INCLUDED = {
     "msaindustrytime": True,
 }
 
-USER_FE_INCLUDED = {
+INDIVIDUAL_FE_INCLUDED = {
     # pure user FE appears as `user_id`
     "init": True,
     "fyhu": True,
@@ -73,12 +78,13 @@ TIME_FE_INCLUDED = {
 
 
 # Firm × User FE
-FIRMUSER_FE_INCLUDED = {
+FIRMINDEX_FE_INCLUDED = {
     "init": False,
     "firmbyuseryh": True,
 }
 
 STAR_RULES = [(0.01, "***"), (0.05, "**"), (0.10, "*")]
+DASH = r"--"
 
 TOP = r"\toprule"
 MID = r"\midrule"
@@ -204,11 +210,11 @@ def _stat_row(
             & (df["fe_tag"] == tag)
         ].head(1)
         if sub.empty:
-            cells.append("")
+            cells.append(DASH)
             continue
         value = sub.iloc[0].get(field)
         if pd.isna(value):
-            cells.append("")
+            cells.append(DASH)
         else:
             cells.append(fmt.format(value))
     return " & ".join([label, *cells]) + r" \\"
@@ -243,25 +249,14 @@ def _panel_rows(
                 & (df["param"] == param)
             ].head(1)
             if sub.empty:
-                row.append("")
+                row.append(DASH)
             else:
                 coef, se, pval = sub.iloc[0][["coef", "se", "pval"]]
-                row.append(cell(coef, se, pval))
+                if pd.isna(coef) or pd.isna(se):
+                    row.append(DASH)
+                else:
+                    row.append(cell(coef, se, pval))
         lines.append(" & ".join(row) + r" \\")
-
-    def ind_row(label: str, mapping: dict[str, bool]) -> str:
-        marks = [r"$\checkmark$" if mapping.get(tag, False) else "" for tag in column_tags]
-        return " & ".join([label, *marks]) + r" \\"
-
-    lines.append(MID)
-    lines.extend(
-        [
-            ind_row("Time FE", TIME_FE_INCLUDED),
-            ind_row("Firm FE", FIRM_FE_INCLUDED),
-            ind_row("User FE", USER_FE_INCLUDED),
-            ind_row(r"Firm $\times$ User FE", FIRMUSER_FE_INCLUDED),
-        ]
-    )
 
     lines.append(MID)
     if include_pre_mean:
@@ -276,6 +271,24 @@ def _panel_rows(
     return lines
 
 
+def build_fe_rows(column_tags: list[str]) -> list[str]:
+    """Return a standardized fixed-effects block for the provided column tags."""
+
+    def marks(mapping: dict[str, bool]) -> list[str]:
+        return [r"$\checkmark$" if mapping.get(tag, False) else "" for tag in column_tags]
+
+    INDENT = r"\hspace{1em}"
+    empty_cols = " & ".join([""] * len(column_tags))
+    rows = [
+        r"\textbf{Fixed Effects} & " + empty_cols + r" \\",
+        " & ".join([INDENT + "Time", *marks(TIME_FE_INCLUDED)]) + r" \\",
+        " & ".join([INDENT + "Firm", *marks(FIRM_FE_INCLUDED)]) + r" \\",
+        " & ".join([INDENT + "Individual", *marks(INDIVIDUAL_FE_INCLUDED)]) + r" \\",
+        " & ".join([INDENT + r"Firm $\times$ Individual", *marks(FIRMINDEX_FE_INCLUDED)]) + r" \\",
+    ]
+    return rows
+
+
 def build_panel_fe(
     df: pd.DataFrame,
     model: str,
@@ -283,6 +296,7 @@ def build_panel_fe(
     *,
     columns: list[tuple[str, str]] | None = None,
     headers: dict[str, str] | None = None,
+    panel_label: str | None = None,
 ) -> str:
     """Legacy helper that keeps compatibility with csv2panel_user."""
 
@@ -299,11 +313,13 @@ def build_panel_fe(
         model,
         columns=columns,
         column_tags=column_tags,
-        panel_label=None,
+        panel_label=panel_label,
         include_kp=include_kp,
         trailing_midrule=False,
         include_pre_mean=True,
     )
+
+    fe_block = build_fe_rows(column_tags)
 
     lines = [
         rf"\begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}",
@@ -313,6 +329,8 @@ def build_panel_fe(
         header_nums,
         MID,
         *body_lines,
+        MID,
+        *fe_block,
         BOTTOM,
         rf"\end{{{TABLE_ENV}}}",
     ]
@@ -329,23 +347,6 @@ def build_combined_table(
     header_nums, header_groups, cmidrule_line = _build_headers(columns, headers)
     col_fmt = column_format(len(columns))
 
-    def _strip_fe_rows(rows: list[str]) -> list[str]:
-        killers = (
-            "Time FE ",
-            "Firm FE ",
-            "User FE ",
-            "Firm $\\times$ User FE ",
-        )
-        out: list[str] = []
-        for r in rows:
-            if any(r.lstrip().startswith(k) for k in killers):
-                continue
-            if out and out[-1].strip() == MID and r.strip() == MID:
-                # collapse duplicate midrules left after removing FE block
-                continue
-            out.append(r)
-        return out
-
     panel_ols = _panel_rows(
         df,
         "OLS",
@@ -356,7 +357,6 @@ def build_combined_table(
         trailing_midrule=True,
         include_pre_mean=True,
     )
-    panel_ols = _strip_fe_rows(panel_ols)
 
     panel_iv = _panel_rows(
         df,
@@ -368,22 +368,9 @@ def build_combined_table(
         trailing_midrule=False,
         include_pre_mean=False,
     )
-    panel_iv = _strip_fe_rows(panel_iv)
 
     # FE rows at bottom only once
-    INDENT = r"\hspace{1em}"
-    def ind_row(label: str, mapping: dict[str, bool]) -> str:
-        marks = [r"$\checkmark$" if mapping.get(tag, False) else "" for tag in column_tags]
-        return " & ".join([INDENT + label, *marks]) + r" \\" 
-
-    fe_header = r"\textbf{Fixed Effects} & " + " & ".join([""] * len(column_tags)) + r" \\" 
-    fe_block = [
-        fe_header,
-        ind_row("Time FE", TIME_FE_INCLUDED),
-        ind_row("Firm FE", FIRM_FE_INCLUDED),
-        ind_row("User FE", USER_FE_INCLUDED),
-        ind_row(r"Firm $\times$ User FE", FIRMUSER_FE_INCLUDED),
-    ]
+    fe_block = build_fe_rows(column_tags)
 
     lines = [
         rf"\begin{{{TABLE_ENV}}}{{{TABLE_WIDTH}}}{{{col_fmt}}}",
@@ -438,7 +425,7 @@ def main() -> None:
         filename = "user_productivity_precovid_total.tex"
     else:
         filename = f"{SPEC_BASE}_{args.variant}{config['filename_suffix']}.tex"
-    output_tex = PROJECT_ROOT / "results" / "cleaned" / filename
+    output_tex = RESULTS_FINAL_TEX / filename
 
     # ------------------------------------------------------------------
     # Load regression outputs

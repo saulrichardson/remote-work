@@ -14,9 +14,10 @@ import pandas as pd
 
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parents[1]
-SCRIPTS_DIR = PROJECT_ROOT / "scripts"
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
+PY_DIR = PROJECT_ROOT / "py"
+if str(PY_DIR) not in sys.path:
+    sys.path.insert(0, str(PY_DIR))
+
 
 from plot_style import (  # noqa: E402  pylint: disable=wrong-import-position
     EVENT_YLIMS,

@@ -6,12 +6,12 @@ SHELL := /usr/bin/env bash
 
 PYTHON ?= python
 
-# Resolve scripts from ./py (writeup-specific) or ../scripts (shared helpers)
+# Resolve scripts from ./py (writeup-specific) or ../py (shared helpers)
 define RUN_PYSCRIPT
   if [ -f ./py/$(1) ]; then \
       SCRIPT=./py/$(1); \
-  elif [ -f ../scripts/$(1) ]; then \
-      SCRIPT=../scripts/$(1); \
+  elif [ -f ../py/$(1) ]; then \
+      SCRIPT=../py/$(1); \
   else \
       echo "✖ Missing script $(1)"; \
       exit 1; \
@@ -21,14 +21,14 @@ define RUN_PYSCRIPT
 endef
 
 SRC          := tex
-BUILD        := build
-FINAL        := final
+BUILD        := $(SRC)/build
+FINAL        := $(SRC)/final
 LATEX_SOURCE := $(SRC)/mini-writeup.tex
 PDF_BUILD    := $(BUILD)/mini-writeup.pdf
 PDF_FINAL    := $(FINAL)/mini-writeup.pdf
 
-TABLE_SRC    := ../results/cleaned
-FIGURE_SRC   := ../results/figures
+TABLE_SRC    := ../results/final/tex
+FIGURE_SRC   := ../results/final/figures
 IRF_SRC      := ../results/user_irfs_eng_vs_noneng_remote_hybrid
 
 OVERLEAF_BASE := /Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current
@@ -40,13 +40,15 @@ DEST_FIGURES  := $(DEST_RESULTS)/Figures
 # Whitelist of cleaned LaTeX tables that may be synced to Overleaf.
 OVERLEAF_TABLE_WHITELIST := \
   $(TABLE_SRC)/table_of_means.tex \
-  $(TABLE_SRC)/user_productivity_precovid_total.tex \
-  $(TABLE_SRC)/user_productivity_precovid_restricted.tex \
+  $(TABLE_SRC)/user_productivity_precovid_total_ols_single.tex \
+  $(TABLE_SRC)/user_productivity_precovid_total_iv_single.tex \
+  $(TABLE_SRC)/firm_scaling_precovid_cols1_4.tex \
+  $(TABLE_SRC)/firm_scaling_precovid_cols5_6.tex \
+  $(TABLE_SRC)/user_mechanisms_with_growth_precovid.tex \
+  $(TABLE_SRC)/user_wage_fe_variants_precovid_log_salary.tex \
   $(TABLE_SRC)/user_productivity_fr_focus_precovid.tex \
-  $(TABLE_SRC)/user_productivity_pairwise_precovid.tex \
-  $(TABLE_SRC)/user_mechanisms_with_growth_precovid_iv.tex \
   $(TABLE_SRC)/first_stage_summary.tex \
-  $(TABLE_SRC)/firm_scaling_precovid.tex
+  $(TABLE_SRC)/user_productivity_precovid_restricted.tex
 
 OVERLEAF_FIGURE_WHITELIST := \
   firm_teleworkable_remote.png \
@@ -56,54 +58,62 @@ OVERLEAF_FIGURE_WHITELIST := \
   firm_event_study_join_rate_ols.png \
   firm_event_study_leave_rate_ols.png \
   firm_event_study_job_postings_ols.png \
-  firm_event_study_hires_per_job_posting_ols.png \
-  irf_remote_eng.png \
-  irf_hybrid_eng.png
+  firm_event_study_hires_per_job_posting_ols.png
 
 .PHONY: mini-writeup mini-writeup-inputs mini-writeup-pdf clean
+.PHONY: heterogeneity-pdf user-wage-fe-pdf firm-wage-log-pdf
 
 mini-writeup-inputs:
 	@echo "[1/2] Refreshing mini-writeup inputs"
-	@$(PYTHON) ../scripts/build_table_of_means.py
-	@MPLBACKEND=Agg $(PYTHON) ../scripts/figures.py
+	@$(PYTHON) ../py/build_table_of_means.py
+	@MPLBACKEND=Agg $(PYTHON) ../py/figures_binsreg.py
 	@$(call RUN_PYSCRIPT,create_user_productivity_table.py,--variant precovid --outcome-set total)
+	@$(call RUN_PYSCRIPT,create_user_productivity_panel_tables.py,--variant precovid --outcome-set total)
+	@$(call RUN_PYSCRIPT,create_user_productivity_split_tables.py,--variant precovid --outcome-set total)
 	@$(call RUN_PYSCRIPT,create_user_productivity_table.py,--variant precovid --outcome-set restricted)
 	@$(call RUN_PYSCRIPT,create_user_productivity_fr_focus_table.py,--variant precovid)
-	@$(call RUN_PYSCRIPT,create_user_productivity_pairwise_table.py,--variant precovid)
+	@$(call RUN_PYSCRIPT,create_user_wage_tables.py,--variant precovid)
 	@$(call RUN_PYSCRIPT,create_first_stage_summary_table.py,)
 	@$(call RUN_PYSCRIPT,create_user_mechanisms_with_growth_table.py,--variant precovid)
-	@$(call RUN_PYSCRIPT,create_firm_scaling_vacancies_styled_table.py,)
-	@$(call RUN_PYSCRIPT,create_firm_scaling_role_group_table.py,)
-	@$(call RUN_PYSCRIPT,create_firm_scaling_role_table.py,)
+	@$(call RUN_PYSCRIPT,create_firm_scaling_split_tables.py,)
 	@MPLBACKEND=Agg $(PYTHON) ./py/plot_event_study.py \
-		--ols ../results/cleaned/user_event_study_precovid/ols_total_contributions_q100.csv \
-		--output ../results/figures/user_event_study_precovid_ols.png \
+		--ols ../results/raw/user_event_study_precovid/ols_total_contributions_q100.csv \
+		--output ../results/final/figures/user_event_study_precovid_ols.png \
 		--ylabel "Contribution Rank" --series ols
 	@MPLBACKEND=Agg $(PYTHON) ./py/plot_event_study.py \
-		--ols ../results/cleaned/ols_growth_rate_we.csv \
-		--output ../results/figures/firm_event_study_growth_ols.png \
-		--xlabel "Year-half" --ylabel "Growth rate" --series ols \
-		--title "Event study: firm growth (OLS)" \
-		--limit-ols ../results/cleaned/ols_growth_rate_we.csv \
-		--limit-ols ../results/cleaned/ols_join_rate_we.csv \
-		--limit-ols ../results/cleaned/ols_leave_rate_we.csv
+		--ols ../results/raw/firm_event_study/ols_growth_rate_we.csv \
+		--output ../results/final/figures/firm_event_study_growth_ols.png \
+		--xlabel "Year-half" --ylabel "Growth" --series ols \
+		--limit-ols ../results/raw/firm_event_study/ols_growth_rate_we.csv \
+		--limit-ols ../results/raw/firm_event_study/ols_join_rate_we.csv \
+		--limit-ols ../results/raw/firm_event_study/ols_leave_rate_we.csv
 	@MPLBACKEND=Agg $(PYTHON) ./py/plot_event_study.py \
-		--ols ../results/cleaned/ols_join_rate_we.csv \
-		--output ../results/figures/firm_event_study_join_rate_ols.png \
-		--xlabel "Year-half" --ylabel "Join rate" --series ols \
-		--title "Event study: join rate (OLS)" \
-		--limit-ols ../results/cleaned/ols_growth_rate_we.csv \
-		--limit-ols ../results/cleaned/ols_join_rate_we.csv \
-		--limit-ols ../results/cleaned/ols_leave_rate_we.csv
+		--ols ../results/raw/firm_event_study/ols_join_rate_we.csv \
+		--output ../results/final/figures/firm_event_study_join_rate_ols.png \
+		--xlabel "Year-half" --ylabel "Join" --series ols \
+		--limit-ols ../results/raw/firm_event_study/ols_growth_rate_we.csv \
+		--limit-ols ../results/raw/firm_event_study/ols_join_rate_we.csv \
+		--limit-ols ../results/raw/firm_event_study/ols_leave_rate_we.csv
 	@MPLBACKEND=Agg $(PYTHON) ./py/plot_event_study.py \
-		--ols ../results/cleaned/ols_leave_rate_we.csv \
-		--output ../results/figures/firm_event_study_leave_rate_ols.png \
-		--xlabel "Year-half" --ylabel "Leave rate" --series ols \
-		--title "Event study: leave rate (OLS)" \
-		--limit-ols ../results/cleaned/ols_growth_rate_we.csv \
-		--limit-ols ../results/cleaned/ols_join_rate_we.csv \
-		--limit-ols ../results/cleaned/ols_leave_rate_we.csv
-	@MPLBACKEND=Agg $(PYTHON) ../scripts/plot_user_irfs_remote_hybrid.py
+		--ols ../results/raw/firm_event_study/ols_leave_rate_we.csv \
+		--output ../results/final/figures/firm_event_study_leave_rate_ols.png \
+		--xlabel "Year-half" --ylabel "Leave" --series ols \
+		--limit-ols ../results/raw/firm_event_study/ols_growth_rate_we.csv \
+		--limit-ols ../results/raw/firm_event_study/ols_join_rate_we.csv \
+		--limit-ols ../results/raw/firm_event_study/ols_leave_rate_we.csv
+	@MPLBACKEND=Agg $(PYTHON) ./py/plot_event_study.py \
+		--ols ../results/raw/firm_vacancy_event_study/ols_vacancies_thousands.csv \
+		--output ../results/final/figures/firm_event_study_job_postings_ols.png \
+		--xlabel "" --ylabel "Job postings (1,000s)" --series ols
+	@MPLBACKEND=Agg $(PYTHON) ./py/plot_event_study.py \
+		--ols ../results/raw/firm_vacancy_event_study/ols_hires_to_vacancies_winsor.csv \
+		--output ../results/final/figures/firm_event_study_hires_per_job_posting_ols.png \
+		--xlabel "" --ylabel "Hires per job posting" --series ols
+	@if [ -f ../py/plot_user_irfs_remote_hybrid.py ]; then \
+		MPLBACKEND=Agg $(PYTHON) ../py/plot_user_irfs_remote_hybrid.py; \
+	else \
+		echo "⚠ Skipping plot_user_irfs_remote_hybrid.py (script not found)"; \
+	fi
 	@echo "[2/2] Syncing whitelisted artefacts to Overleaf"
 	@mkdir -p "$(DEST_RESULTS)" "$(DEST_TABLES)" "$(DEST_FIGURES)"
 	@for src in $(OVERLEAF_TABLE_WHITELIST); do \
@@ -130,7 +140,7 @@ mini-writeup-inputs:
 	@echo "✓ Tables copied to $(DEST_TABLES)"
 	@echo "✓ Figures copied to $(DEST_FIGURES)"
 
-mini-writeup-pdf:
+mini-writeup-pdf: mini-writeup-inputs
 	@echo "Compiling mini-writeup PDF"
 	@mkdir -p "$(BUILD)"
 	@latexmk -pdf -interaction=nonstopmode -output-directory="$(BUILD)" "$(LATEX_SOURCE)"
@@ -141,6 +151,21 @@ mini-writeup-pdf:
 	@echo "✓ mini-writeup.pdf copied to $(DEST_REPORTS)"
 
 mini-writeup: mini-writeup-pdf
+
+heterogeneity-pdf:
+	@echo "Compiling heterogeneity tables PDF"
+	@latexmk -pdf -interaction=nonstopmode -output-directory="tex/build" "tex/heterogeneity_tables.tex"
+	@echo "✓ heterogeneity_tables.pdf available at tex/build/"
+
+user-wage-fe-pdf:
+	@echo "Compiling user wage FE variants PDF"
+	@latexmk -pdf -interaction=nonstopmode -output-directory="tex/build" "tex/user_wage_fe_variants.tex"
+	@echo "✓ user_wage_fe_variants.pdf available at tex/build/"
+
+firm-wage-log-pdf:
+	@echo "Compiling firm log wage PDF"
+	@latexmk -pdf -interaction=nonstopmode -output-directory="tex/build" "tex/firm_wage_log.tex"
+	@echo "✓ firm_wage_log.pdf available at tex/build/"
 
 clean:
 	@rm -rf "$(BUILD)" "$(FINAL)"

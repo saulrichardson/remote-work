@@ -9,12 +9,19 @@ from pathlib import Path
 from typing import Iterable
 
 import math
+import sys
+
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-PROJECT_ROOT = HERE.parents[1]
-RAW_DIR = PROJECT_ROOT / "results" / "raw"
-CLEAN_DIR = PROJECT_ROOT / "results" / "cleaned"
+PY_DIR = HERE.parents[1] / "py"
+if str(PY_DIR) not in sys.path:
+    sys.path.insert(0, str(PY_DIR))
+
+from project_paths import RESULTS_FINAL_TEX, RESULTS_RAW
+
+RAW_DIR = RESULTS_RAW
+FINAL_TEX_DIR = RESULTS_FINAL_TEX
 
 COMPARISONS = OrderedDict(
     [
@@ -34,8 +41,8 @@ COMPARISONS = OrderedDict(
 )
 
 PARAM_LABELS_LATEX = {
-    "var3": "Fully Remote.",
-    "var5": r"Fully Remote $\times$ Startup",
+    "var3": r"$ \text{Fully Remote} \times \mathds{1}(\text{Post}) $",
+    "var5": r"$ \text{Fully Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $",
 }
 
 STAR_RULES = [(0.01, "***"), (0.05, "**"), (0.10, "*")]
@@ -97,6 +104,7 @@ def build_table(variant: str, comparisons: Iterable[str]) -> str:
     lines.append(r"\toprule")
     numbers = " & ".join(f"({i})" for i in range(1, len(comparisons) + 1))
     lines.append(f"& {numbers} {E}")
+    lines.append(r"\midrule")
     header_groups = " & ".join(groups)
     lines.append(f"Comparison Group & {header_groups} {E}")
     lines.append(r"\midrule")
@@ -127,8 +135,8 @@ def build_table(variant: str, comparisons: Iterable[str]) -> str:
 
     blanks = " & ".join(["" for _ in comparisons])
     lines.append(f"\\textbf{{Fixed Effects}} & {blanks} {E}")
-    lines.append(f"{indent}Time FE & " + " & ".join(["$\\checkmark$"] * len(comparisons)) + f" {E}")
-    lines.append(f"{indent}Firm $\\times$ User FE & " + " & ".join(["$\\checkmark$"] * len(comparisons)) + f" {E}")
+    lines.append(f"{indent}Time & " + " & ".join(["$\\checkmark$"] * len(comparisons)) + f" {E}")
+    lines.append(f"{indent}Firm $\\times$ Individual & " + " & ".join(["$\\checkmark$"] * len(comparisons)) + f" {E}")
     lines.append(r"\bottomrule")
     lines.append(r"\end{tabular*}")
     return "\n".join(lines)
@@ -145,7 +153,7 @@ def main() -> None:
     parser.add_argument(
         "--output",
         default=None,
-        help="Optional override for output path under results/cleaned",
+        help="Optional override for output path under results/final/tex",
     )
     args = parser.parse_args()
 
@@ -156,13 +164,13 @@ def main() -> None:
 
     table = build_table(args.variant, comps)
 
-    CLEAN_DIR.mkdir(parents=True, exist_ok=True)
+    FINAL_TEX_DIR.mkdir(parents=True, exist_ok=True)
     if args.output:
         out_path = Path(args.output)
         if not out_path.is_absolute():
-            out_path = CLEAN_DIR / out_path
+            out_path = FINAL_TEX_DIR / out_path
     else:
-        out_path = CLEAN_DIR / f"user_productivity_fr_focus_{args.variant}.tex"
+        out_path = FINAL_TEX_DIR / f"user_productivity_fr_focus_{args.variant}.tex"
     out_path.write_text(table)
 
     print(f"Wrote table to {out_path}")

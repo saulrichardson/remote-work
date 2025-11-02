@@ -1,0 +1,23 @@
+\centering
+\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}c@{\extracolsep{\fill}}c@{\extracolsep{\fill}}c@{}}
+\toprule
+ & \multicolumn{3}{c}{Rank} & \multicolumn{1}{c}{Total} \\
+\cmidrule(lr){2-4}
+\cmidrule(lr){5-5}
+ & (1) & (2) & (3) & (4) \\
+\midrule
+\multicolumn{5}{@{}l}{\textbf{\uline{Panel A: OLS}}} \\
+\addlinespace[2pt]
+\hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-0.28\\(0.44)} & \makecell[c]{-1.03**\\(0.48)} & \makecell[c]{-1.23**\\(0.50)} & \makecell[c]{-19.74***\\(4.66)} \\
+\hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & -- & \makecell[c]{5.18***\\(1.24)} & \makecell[c]{6.21***\\(1.27)} & \makecell[c]{59.23***\\(14.22)} \\
+\midrule
+Pre-Covid Mean & 49.92 & 49.92 & 49.92 & 184.71 \\
+N & 229,862 & 229,862 & 224,708 & 224,708 \\
+\midrule
+\textbf{Fixed Effects} &  &  &  &  \\
+\hspace{1em}Time & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+\hspace{1em}Firm & $\checkmark$ & $\checkmark$ &  &  \\
+\hspace{1em}Individual & $\checkmark$ & $\checkmark$ &  &  \\
+\hspace{1em}Firm $\times$ Individual &  &  & $\checkmark$ & $\checkmark$ \\
+\bottomrule
+\end{tabular*}

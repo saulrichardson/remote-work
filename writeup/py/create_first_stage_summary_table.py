@@ -3,31 +3,30 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-PROJECT_ROOT = HERE.parents[1]
+PY_DIR = HERE.parents[1] / "py"
+if str(PY_DIR) not in sys.path:
+    sys.path.insert(0, str(PY_DIR))
 
-USER_BASE_PATH = PROJECT_ROOT / "results" / "raw" / "user_productivity_precovid" / "first_stage.csv"
-USER_ALT_PATH = (
-    PROJECT_ROOT
-    / "results"
-    / "raw"
-    / "user_productivity_alternative_fe_precovid"
-    / "first_stage_fstats.csv"
-)
-FIRM_PATH = PROJECT_ROOT / "results" / "raw" / "firm_scaling" / "first_stage.csv"
+from project_paths import RESULTS_FINAL_TEX, RESULTS_RAW
 
-OUTPUT_PATH = PROJECT_ROOT / "results" / "cleaned" / "first_stage_summary.tex"
+USER_BASE_PATH = RESULTS_RAW / "user_productivity_precovid" / "first_stage.csv"
+USER_ALT_PATH = RESULTS_RAW / "user_productivity_alternative_fe_precovid" / "first_stage_fstats.csv"
+FIRM_PATH = RESULTS_RAW / "firm_scaling" / "first_stage.csv"
+
+OUTPUT_PATH = RESULTS_FINAL_TEX / "first_stage_summary.tex"
 TARGET_OUTCOME = "total_contributions_q100"
 
 PARAMS = ["var6", "var7", "var4"]
 
 COL_TITLES = {
-    "var3": r"$ \text{Remote} \times \mathds{1}(\text{Post}) $",
-    "var5": r"$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $",
+    "var3": r"\makecell[c]{$ \text{Remote} \times \mathds{1}(\text{Post}) $}",
+    "var5": r"\makecell[c]{$ \text{Remote} \times \mathds{1}(\text{Post}) $ \\ $\times\, \text{Startup}$}",
 }
 
 PARAM_LABEL = {
@@ -96,8 +95,8 @@ def build_lines(user_tables: dict[str, pd.DataFrame], firm_df: pd.DataFrame) -> 
     lines.append(r"{\centering")
 
     # Use tabularx so the four numeric columns share width evenly
-    colspec = r"l" + r"*{" + str(len(columns)) + r"}{>{\centering\arraybackslash}X}"
-    lines.append(r"\begin{tabularx}{\linewidth}{" + colspec + "}")
+    colspec = "@{}l@{\\extracolsep{\\fill}}" + "c" * len(columns) + "@{}"
+    lines.append(r"\begin{tabular*}{\linewidth}{" + colspec + "}")
     lines.append(r"\toprule")
     lines.append(
         " & "
@@ -105,10 +104,9 @@ def build_lines(user_tables: dict[str, pd.DataFrame], firm_df: pd.DataFrame) -> 
         + r"\multicolumn{2}{c}{" + COL_TITLES["var5"] + "}"
         + row_end
     )
-    lines.append(r"\cmidrule(lr){2-3}")
-    lines.append(r"\cmidrule(lr){4-5}")
     lines.append(r"\midrule")
-    lines.append("\\multicolumn{5}{l}{\\textbf{\\uline{User-level}}}\\\\")
+    lines.append(r"\multicolumn{5}{@{}l}{\textbf{\uline{Panel A: Individual-level}}}\\")
+    lines.append(r"\addlinespace[2pt]")
 
     for param in PARAMS:
         row = [f"{indent}{PARAM_LABEL.get(param, param)}"]
@@ -121,10 +119,10 @@ def build_lines(user_tables: dict[str, pd.DataFrame], firm_df: pd.DataFrame) -> 
     lines.append(" & ".join(["\\textbf{Fixed Effects}", "", "", "", ""]) + row_end)
 
     fe_rows = [
-        ("Time FE", [True, True, True, True]),
-        ("Firm FE", [True, False, True, False]),
-        ("User FE", [True, False, True, False]),
-        ("Firm \\ensuremath{\\times} User FE", [False, True, False, True]),
+        ("Time", [True, True, True, True]),
+        ("Firm", [True, False, True, False]),
+        ("Individual", [True, False, True, False]),
+        ("Firm \\ensuremath{\\times} Individual", [False, True, False, True]),
     ]
 
     for label, checks in fe_rows:
@@ -149,8 +147,8 @@ def build_lines(user_tables: dict[str, pd.DataFrame], firm_df: pd.DataFrame) -> 
         lines.append(" & ".join(row) + row_end)
 
     lines.append(r"\midrule")
-    lines.append("\\multicolumn{5}{l}{\\textbf{\\uline{Firm-level}}}\\\\")
-    lines.append(r"\addlinespace[2pt]")
+    lines.append(r"\multicolumn{5}{@{}l}{\textbf{\uline{Panel B: Firm-level}}}\\")
+    lines.append(r"\addlinespace[2pt]") 
 
     for param in PARAMS:
         row = [f"{indent}{PARAM_LABEL.get(param, param)}"]
@@ -169,8 +167,8 @@ def build_lines(user_tables: dict[str, pd.DataFrame], firm_df: pd.DataFrame) -> 
     lines.append(" & ".join(["\\textbf{Fixed Effects}", "", "", "", ""]) + row_end)
 
     firm_fe_rows = [
-        ("Time FE", True, True),
-        ("Firm FE", True, True),
+        ("Time", True, True),
+        ("Firm", True, True),
     ]
 
     for label, has_var3, has_var5 in firm_fe_rows:
@@ -209,7 +207,7 @@ def build_lines(user_tables: dict[str, pd.DataFrame], firm_df: pd.DataFrame) -> 
         lines.append(" & ".join(row) + row_end)
 
     lines.append(r"\bottomrule")
-    lines.append(r"\end{tabularx}")
+    lines.append(r"\end{tabular*}")
     lines.append(r"}")
 
     return lines

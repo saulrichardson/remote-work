@@ -24,16 +24,68 @@
 \setlength{\extrarowheight}{1.5pt}
 
 % Base directories for cleaned LaTeX tables and figures
-\newcommand{\cleanedresultsdir}{../../results/cleaned}
-\newcommand{\figdir}{../../results/figures}
-\newcommand{\irfdir}{../../results/user_irfs_eng_vs_noneng_remote_hybrid}
-
+\newcommand{\cleanedresultsdir}{../results/final/tex}
+\newcommand{\figdir}{../results/final/figures}
+\newcommand{\irfdir}{../results/user_irfs_eng_vs_noneng_remote_hybrid}
+\newcommand{\TableInput}[2][\linewidth]{%
+  \begin{adjustbox}{center,max width=#1}%
+    \input{#2}%
+  \end{adjustbox}%
+}
 \begin{document}
 
 \section{Table of Means}
 \begin{table}[H]
   \centering
-  \input{\cleanedresultsdir/table_of_means.tex}
+  \caption{Summary Statistics}
+  \label{tab:mini-summary}
+  \TableInput{\cleanedresultsdir/table_of_means.tex}
+\end{table}
+
+\section{User Productivity}
+\begin{table}[H]
+  \centering
+  \TableInput{\cleanedresultsdir/user_productivity_precovid_total_ols_single.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \TableInput{\cleanedresultsdir/user_productivity_precovid_total_iv_single.tex}
+\end{table}
+
+\section{Firm Scaling}
+\begin{table}[H]
+  \centering
+  \caption{Firm Scaling}
+  \label{tab:firm-scaling-cols1-4}
+  \TableInput{\cleanedresultsdir/firm_scaling_precovid_cols1_4.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Firm Scaling (Continued)}
+  \label{tab:firm-scaling-cols5-6}
+  \TableInput{\cleanedresultsdir/firm_scaling_precovid_cols5_6.tex}
+\end{table}
+
+\section{User Mechanisms}
+\begin{table}[H]
+  \centering
+  \caption{User Mechanisms}
+  \label{tab:user-mechanisms}
+  \TableInput{\cleanedresultsdir/user_mechanisms_with_growth_precovid.tex}
+\end{table}
+
+\section{User Wages}
+\begin{table}[H]
+  \centering
+  \TableInput{\cleanedresultsdir/user_wage_fe_variants_precovid_log_salary.tex}
+\end{table}
+
+\section{Remote Modalities}
+\begin{table}[H]
+  \centering
+  \TableInput{\cleanedresultsdir/user_productivity_fr_focus_precovid.tex}
 \end{table}
 
 \section{Figures}
@@ -53,101 +105,54 @@
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{\figdir/user_event_study_precovid_ols.png}
-  \caption{Event study: user rank for contributions (OLS)}
+  \caption{Event Study: User Rank for Contributions (OLS)}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_growth_ols.png}
-  \caption{Event study: firm growth (OLS)}
+  \caption{Event Study: Firm Growth (OLS)}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_join_rate_ols.png}
-  \caption{Event study: join (OLS)}
+  \caption{Event Study: Join (OLS)}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_leave_rate_ols.png}
-  \caption{Event study: leave (OLS)}
+  \caption{Event Study: Leave (OLS)}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_job_postings_ols.png}
-  \caption{Event study: job postings (OLS)}
+  \caption{Event Study: Job Postings (OLS)}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_hires_per_job_posting_ols.png}
-  \caption{Event study: hires per job posting (OLS)}
+  \caption{Event Study: Hires per Job Posting (OLS)}
 \end{figure}
 
-\section{User Productivity}
-\begin{table}[H]
-  \centering
-  \input{\cleanedresultsdir/user_productivity_precovid_total.tex}
-\end{table}
-
-\section{Remote Modalities}
-\begin{table}[H]
-  \centering
-  \input{\cleanedresultsdir/user_productivity_fr_focus_precovid.tex}
-\end{table}
-
-\begin{landscape}
+\appendix
+\clearpage
+\section*{Appendix}
+\addcontentsline{toc}{section}{Appendix}
 \section{First Stage Summary}
 \begin{table}[H]
   \centering
-  \input{\cleanedresultsdir/first_stage_summary.tex}
+  \caption{First Stage Summary}
+  \label{tab:first-stage-summary}
+  \TableInput{\cleanedresultsdir/first_stage_summary.tex}
 \end{table}
-\end{landscape}
-
-\begin{landscape}
-\section{User Mechanisms}
-\begin{table}[H]
-  \centering
-  \input{\cleanedresultsdir/user_mechanisms_with_growth_precovid_iv.tex}
-\end{table}
-\end{landscape}
-
-\begin{landscape}
-\section{Firm Scaling}
-\begin{table}[H]
-  \centering
-  \input{\cleanedresultsdir/firm_scaling_precovid.tex}
-\end{table}
-
-\section{Role-Type Growth Rates}
-\begin{table}[H]
-  \centering
-  \input{\cleanedresultsdir/firm_scaling_role_growth.tex}
-\end{table}
-\end{landscape}
-
-\appendix
-\section*{Appendix}
-\addcontentsline{toc}{section}{Appendix}
 \section{Restricted Contributions}
 \begin{table}[H]
   \centering
-  \input{\cleanedresultsdir/user_productivity_precovid_restricted.tex}
+  \TableInput{\cleanedresultsdir/user_productivity_precovid_restricted.tex}
 \end{table}
-
-\section{Impulse Response Functions}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\irfdir/irf_remote_eng.png}
-  \caption{Impulse response: engineer productivity at fully remote firms}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\irfdir/irf_hybrid_eng.png}
-  \caption{Impulse response: engineer productivity at hybrid/in-person firms}
-\end{figure}
 
 \end{document}

@@ -1,8 +1,8 @@
------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_precovid.log
   log type:  text
- opened on:  27 Jun 2025, 04:47:24
+ opened on:  31 Oct 2025, 17:03:57
 
 . 
 . // 0) Setup environment
@@ -28,55 +28,178 @@ end of do-file
 . use "$processed_data/user_panel_`panel_variant'.dta", clear
 
 . 
-. generate byte in_modal_msa = (cbsacode == company_cbsacode) ///
->       if !missing(cbsacode, company_cbsacode)
-(56,944 missing values generated)
+. 
+. drop _merge
 
-. label var in_modal_msa "User in firm's modal CBSA (yh-specific)"
+. local result_dir  "$results/`specname'"
+
+. capture mkdir "`result_dir'"
 
 . 
-. * 3) Three-way categorical variable: 0 outside | 1 inside | 2 unknown
-. generate byte modal_cat = .
-(231,305 missing values generated)
+. capture postclose handle
 
-. replace  modal_cat = 1 if in_modal_msa == 1
-(98,819 real changes made)
+. tempfile out
 
-. replace  modal_cat = 0 if in_modal_msa == 0
-(75,542 real changes made)
-
-. replace  modal_cat = 2 if missing(in_modal_msa)
-(56,944 real changes made)
+. *--- postfile header (main results) -------------------------------------------
+. postfile handle ///
+>     str8   model_type ///
+>     str40  outcome     ///
+>     str40  param       ///
+>     double coef se pval pre_mean ///
+>     double rkf nobs     ///
+>     using `out', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_80750.000001 not found)
 
 . 
 . 
+. *------------------------------------------------------------------
+. *  First-stage results → first_stage_fstats.csv
+. *------------------------------------------------------------------
+. tempfile out_fs
+
+. capture postclose handle_fs
+
+. postfile handle_fs ///
+>     str8   endovar            ///  var3 / var5
+>     str40  param              ///  var6 / var7 / var4
+>     double coef se pval       ///
+>     double partialF rkf nobs  ///
+>     using `out_fs', replace
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_80750.000002 not found)
+
+.         
+. // 3) Loop over outcomes
+. // Include percentile-rank and Winsorized versions of the contribution
+. // measures
+. local outcomes total_contributions_q100 
+
+. // restricted_contributions_q100 total_contributions_we restricted_contributions_we
+. local fs_done 0
+
 . 
-. 
-. ivreghdfe total_contributions_q100                                   ///
->        ( c.(var3 var5)##i.modal_cat                                  /// endogenous
->          = c.(var6 var7)##i.modal_cat )                              /// instruments
->        var4 `spec_iv_exog'                                           ///
->        , absorb(firm_id#user_id yh) vce(cluster user_id) savefirst
-(dropped 6597 singleton observations)
-Warning - duplicate variables detected
-Duplicates:         1.modal_cat 2.modal_cat
-(MWFE estimator converged in 8 iterations)
-equation not identified; must have at least as many instruments
-not in the regression as there are instrumented variables
-r(481);
-
-end of do-file
-
-r(481);
-
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
-
-.  
-. ivreghdfe ///
->         total_contributions_q100  (var3 var5 = var6 var7) var4, ///
->         absorb(user_id firm_id yh) vce(cluster user_id) 
+. foreach y of local outcomes {
+  2.     di as text "→ Processing outcome: `y'"
+  3. 
+.     summarize `y' if covid == 0, meanonly
+  4.     local pre_mean = r(mean)
+  5. 
+.     // ----- OLS -----
+.     reghdfe `y' var3 var5 var4, absorb(user_id firm_id yh) ///
+>         vce(cluster user_id)
+  6.                 
+.         local N = e(N) 
+  7.         
+.     foreach p in var3 var5 var4 {
+  8.         local b    = _b[`p']
+  9.         local se   = _se[`p']
+ 10.         local t    = `b'/`se'
+ 11.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 12.                 *--- inside the OLS loop ------------------------------------------------------
+.         post handle ("OLS") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (.) (`N')                 // dot for rkf, then nobs
+ 13.     }
+ 14. 
+.     // ----- IV (2nd‐stage) -----
+.     ivreghdfe ///
+>         `y' (var3 var5 = var6 var7) var4, ///
+>         absorb(user_id firm_id yh) vce(cluster user_id) savefirst
+ 15.                 
+.     local rkf = e(rkf)
+ 16.         local N = e(N) 
+ 17.         
+.     foreach p in var3 var5 var4 {
+ 18.         local b    = _b[`p']
+ 19.         local se   = _se[`p']
+ 20.         local t    = `b'/`se'
+ 21.         local pval = 2*ttail(e(df_r), abs(`t'))
+ 22.                 *--- inside the IV loop -------------------------------------------------------
+.         post handle ("IV") ("`y'") ("`p'") ///
+>                                         (`b') (`se') (`pval') (`pre_mean') ///
+>                                         (`rkf') (`N')            // rkf, then nobs
+ 23.     }
+ 24. 
+.         if !`fs_done' {
+ 25.                 
+.                 matrix FS = e(first)
+ 26.         local F3 = FS[4,1]
+ 27.         local F5 = FS[4,2]
+ 28. 
+.                 /* -------- var3 first stage -------------------------------- */
+.                 estimates restore _ivreg2_var3
+ 29.                 local N_fs = e(N)
+ 30.                 foreach p in var6 var7 var4 {
+ 31.                         local b    = _b[`p']
+ 32.                         local se   = _se[`p']
+ 33.                         local t    = `b'/`se'
+ 34.                         local pval = 2*ttail(e(df_r), abs(`t'))
+ 35. 
+.                         post handle_fs ("var3") ("`p'") ///
+>                                                         (`b') (`se') (`pval') ///
+>                                                         (`F3') (`rkf') (`N_fs')
+ 36.                 }
+ 37. 
+.                 /* -------- var5 first stage -------------------------------- */
+.                 estimates restore _ivreg2_var5
+ 38.                 local N_fs = e(N)
+ 39.                 foreach p in var6 var7 var4 {
+ 40.                         local b    = _b[`p']
+ 41.                         local se   = _se[`p']
+ 42.                         local t    = `b'/`se'
+ 43.                         local pval = 2*ttail(e(df_r), abs(`t'))
+ 44. 
+.                         post handle_fs ("var5") ("`p'") ///
+>                                                         (`b') (`se') (`pval') ///
+>                                                         (`F5') (`rkf') (`N_fs')
+ 45.                 }
+ 46. 
+.                 local fs_done 1
+ 47.         }
+ 48. }
+→ Processing outcome: total_contributions_q100
 (dropped 1443 singleton observations)
 (MWFE estimator converged in 80 iterations)
+
+HDFE Linear regression                            Number of obs   =    229,862
+Absorbing 3 HDFE groups                           F(   3,  35788) =      11.67
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6838
+                                                  Adj R-squared   =     0.6213
+                                                  Within R-sq.    =     0.0004
+Number of clusters (user_id) =     35,789         Root MSE        =    18.4409
+
+                           (Std. err. adjusted for 35,789 clusters in user_id)
+------------------------------------------------------------------------------
+             |               Robust
+total_co~100 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        var3 |  -1.032798   .4818263    -2.14   0.032    -1.977192   -.0884035
+        var5 |   5.175073   1.236242     4.19   0.000     2.752001    7.598144
+        var4 |  -5.526524   1.065824    -5.19   0.000    -7.615571   -3.437477
+       _cons |   50.13249   .1467355   341.65   0.000     49.84489     50.4201
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     user_id |     35789       35789           0    *|
+     firm_id |      2151           1        2150     |
+          yh |        11           1          10     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(dropped 1443 singleton observations)
+(MWFE estimator converged in 80 iterations)
+
+Stored estimation results
+-------------------------
+---------------------------------------------------------------------------
+             |           Dependent  Number of        
+        Name | Command    variable     param.  Title 
+-------------+-------------------------------------------------------------
+_ivreg2_var3 | ivreg2         var3          3  First-stage regression: var3
+_ivreg2_var5 | ivreg2         var5          3  First-stage regression: var5
+---------------------------------------------------------------------------
 
 IV (2SLS) estimation
 --------------------
@@ -132,112 +255,34 @@ Absorbed degrees of freedom:
           yh |        11           1          10     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
+(results _ivreg2_var3 are active now)
+(results _ivreg2_var5 are active now)
 
 . 
-end of do-file
+. // 4) Close & export to CSV
+. postclose handle
 
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
+. use `out', clear
 
-. *-----------------------------------------------------------------------
-. * heterogeneity_distance_base.do   —  IV split by distance tercile
-. *   base controls:  var3  var4
-. *-----------------------------------------------------------------------
-. args panel_variant
-
-. if "`panel_variant'"=="" local panel_variant "precovid"
+. export delimited using "`result_dir'/consolidated_results.csv", ///
+>     replace delimiter(",") quote
+file ../results/raw/user_productivity_precovid/consolidated_results.csv saved
 
 . 
-. use "$processed_data/user_panel_`panel_variant'.dta", clear
+. * --- write first-stage CSV -----------------------------------------
+. postclose handle_fs
+
+. use `out_fs', clear
+
+. export delimited using "`result_dir'/first_stage.csv", ///
+>         replace delimiter(",") quote
+file ../results/raw/user_productivity_precovid/first_stage.csv saved
 
 . 
-. * 1.  Build firm-level distance terciles ---------------------------------
-. preserve
+. di as result "→ second-stage CSV : `result_dir'/consolidated_results.csv"
+→ second-stage CSV : ../results/raw/user_productivity_precovid/consolidated_results.csv
 
-.     keep firm_id avg_dist_2019
-variable avg_dist_2019 not found
-r(111);
-
-end of do-file
-
-r(111);
-
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
-
-. *-----------------------------------------------------------------------
-. * heterogeneity_distance_base.do   —  IV split by distance tercile
-. *   base controls:  var3  var4
-. *-----------------------------------------------------------------------
-. args panel_variant
-
-. if "`panel_variant'"=="" local panel_variant "precovid"
-
-. 
-. use "$processed_data/user_panel_`panel_variant'.dta", clear
-
-. 
-. * 1.  Build firm-level distance terciles ---------------------------------
-. preserve
-
-.     keep firm_id avg_dist_2019
-variable avg_dist_2019 not found
-r(111);
-
-end of do-file
-
-r(111);
-
-. do "/var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//SD22469.000000"
-
-. *-----------------------------------------------------------------------
-. * heterogeneity_distance_base.do   —  IV split by distance tercile
-. *   base controls:  var3  var4
-. *-----------------------------------------------------------------------
-. args panel_variant
-
-. if "`panel_variant'"=="" local panel_variant "precovid"
-
-. 
-. use "$processed_data/user_panel_`panel_variant'.dta", clear
-
-. 
-. * 1.  Build firm-level distance terciles ---------------------------------
-. preserve
-
-.     keep firm_id avgdist_km
-
-.     duplicates drop firm_id, force          // one row per firm
-
-Duplicates in terms of firm_id
-
-(229,081 observations deleted)
-
-.     xtile gdist_tile = avgdist_km, nq(3) // 1=short  2=med  3=long
-
-.     keep firm_id gdist_tile
-
-.     tempfile dist_tiles
-
-.     save `dist_tiles'
-file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_22469.000002 saved as .dta format
-
-. restore
-
-. 
-. merge m:1 firm_id using `dist_tiles', nogenerate
-(label firm_id already defined)
-
-    Result                      Number of obs
-    -----------------------------------------
-    Not matched                             0
-    Matched                           231,305  
-    -----------------------------------------
-
-. label define gdt 1 "short-dist" 2 "medium" 3 "long-dist"
-
-. label values gdist_tile gdt
-
-. 
-. * 2.  Prepare logging & output ------------------------------------------
-. cap mkdir "log"
+. di as result "→ first-stage  CSV : `result_dir'/first_stage.csv"
+→ first-stage  CSV : ../results/raw/user_productivity_precovid/first_stage.csv
 
 . capture log close
