@@ -90,8 +90,8 @@ Generated artefacts live under `results/` and `writeup/tex/build/`; wipe them wh
 ## Housekeeping & conventions
 
 - **Logs and scratch work**  
-  - `spec/stata/log/` and `src/stata/log/` capture Stata run logs.  
-  - Use `spec/stata/scratch/` or `writeup/scratch/` for one-off experiments; move polished scripts back into the main folders.
+  - `src/stata/log/` and `spec/stata/log/` capture Stata run logs; each directory sits alongside the scripts that generated those outputs.  
+  - Use `spec/stata/scratch/`, `writeup/scratch/`, or `writeup/py/scratch/` for one-off experiments; move polished scripts back into the main folders.
 
 - **Generated outputs**  
   - `results/` and `writeup/tex/build/` are derived artefacts—delete them to rerun the pipeline.  

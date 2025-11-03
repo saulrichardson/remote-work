@@ -40,6 +40,7 @@ spec/stata/archive/
 spec/stata/scratch/
 writeup/tex/build/
 writeup/scratch/
+writeup/py/scratch/
 *.log
 *.smcl
 *.DS_Store
