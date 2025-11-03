@@ -6,12 +6,12 @@ SHELL := /usr/bin/env bash
 
 PYTHON ?= python
 
-# Resolve scripts from ./py (writeup-specific) or ../py (shared helpers)
+# Resolve scripts from ./py (writeup-specific) or ../src/py (shared helpers)
 define RUN_PYSCRIPT
   if [ -f ./py/$(1) ]; then \
       SCRIPT=./py/$(1); \
-  elif [ -f ../py/$(1) ]; then \
-      SCRIPT=../py/$(1); \
+  elif [ -f ../src/py/$(1) ]; then \
+      SCRIPT=../src/py/$(1); \
   else \
       echo "✖ Missing script $(1)"; \
       exit 1; \
@@ -65,8 +65,8 @@ OVERLEAF_FIGURE_WHITELIST := \
 
 mini-writeup-inputs:
 	@echo "[1/2] Refreshing mini-writeup inputs"
-	@$(PYTHON) ../py/build_table_of_means.py
-	@MPLBACKEND=Agg $(PYTHON) ../py/figures_binsreg.py
+	@$(PYTHON) ../src/py/build_table_of_means.py
+	@MPLBACKEND=Agg $(PYTHON) ../src/py/figures_binsreg.py
 	@$(call RUN_PYSCRIPT,create_user_productivity_table.py,--variant precovid --outcome-set total)
 	@$(call RUN_PYSCRIPT,create_user_productivity_panel_tables.py,--variant precovid --outcome-set total)
 	@$(call RUN_PYSCRIPT,create_user_productivity_split_tables.py,--variant precovid --outcome-set total)
@@ -109,8 +109,8 @@ mini-writeup-inputs:
 		--ols ../results/raw/firm_vacancy_event_study/ols_hires_to_vacancies_winsor.csv \
 		--output ../results/final/figures/firm_event_study_hires_per_job_posting_ols.png \
 		--xlabel "" --ylabel "Hires per job posting" --series ols
-	@if [ -f ../py/plot_user_irfs_remote_hybrid.py ]; then \
-		MPLBACKEND=Agg $(PYTHON) ../py/plot_user_irfs_remote_hybrid.py; \
+	@if [ -f ../src/py/plot_user_irfs_remote_hybrid.py ]; then \
+		MPLBACKEND=Agg $(PYTHON) ../src/py/plot_user_irfs_remote_hybrid.py; \
 	else \
 		echo "⚠ Skipping plot_user_irfs_remote_hybrid.py (script not found)"; \
 	fi

@@ -1,4 +1,4 @@
-do "globals.do"
+do "../../spec/stata/_bootstrap.do"
 
 capture log close
 cap mkdir "log"
@@ -145,5 +145,4 @@ keep companyname teleworkable
 save "$processed_data/scoop_firm_tele_2.dta", replace
 
 log close
-
 

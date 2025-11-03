@@ -2,11 +2,11 @@
 ** 0) Initial Setup
 ********************************************************************************
 
-do "../globals.do"
+do "../../spec/stata/_bootstrap.do"
 
 capture log close
 cap mkdir "log"
-log using "log/build_firm_modal_role.log", replace text
+log using "log/build_firm_modal_msa.log", replace text
 
 ********************************************************************************
 ** 1) Import LinkedIn Occupation Data
@@ -26,17 +26,16 @@ local cutoff = date("2019-12-31", "YMD")
 keep if start <= `cutoff' & (missing(end) | end >= `cutoff')
 
 
-order companyname role_k7
-bysort companyname role_k7 : gen _freq = _N      
+order companyname msa
+bysort companyname  msa : gen _freq = _N      
 * Order so that the most frequent role comes first
-gsort companyname -_freq role_k7                
+gsort companyname -_freq  msa
 * Within each firm, keep only the first (i.e. modal) role
 bysort companyname : keep if _n == 1
 * Keep only what you need
-keep companyname role_k7 _freq
+keep companyname  msa _freq
 
-save "$data/modal_role_per_firm.dta", replace
+save "$data/modal_msa_per_firm.dta", replace
 
 log close
-
 

@@ -62,8 +62,8 @@ RESULTS_FINAL: Path = RESULTS_DIR / "final"
 RESULTS_FINAL_TEX: Path = RESULTS_FINAL / "tex"
 RESULTS_FINAL_FIGURES: Path = RESULTS_FINAL / "figures"
 
-PY_DIR: Path = PROJECT_ROOT / "py"
-SPEC_DIR: Path = PROJECT_ROOT / "spec"
+PY_DIR: Path = PROJECT_ROOT / "src" / "py"
+SPEC_DIR: Path = PROJECT_ROOT / "spec" / "stata"
 WRITEUP_DIR: Path = PROJECT_ROOT / "writeup"
 
 

@@ -34,8 +34,10 @@ hpc/out/
 
 # Local logs and scratch outputs
 log/
-spec/log/
-spec/scratch/
+src/stata/log/
+spec/stata/log/
+spec/stata/archive/
+spec/stata/scratch/
 writeup/tex/build/
 writeup/scratch/
 *.log

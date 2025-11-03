@@ -39,7 +39,7 @@ log using "log/build_all_user_panels.log", replace text
 ****************************************************************************
 * 0.  Globals
 ****************************************************************************
-do "../src/globals.do"
+do "../../spec/stata/_bootstrap.do"
 
 ****************************************************************************
 * 1.  Build the *full* (unfiltered) master panel
@@ -106,4 +106,3 @@ export delimited "~/Downloads/all_contributions.csv", replace
 
 
 contributions_scoop file 
-

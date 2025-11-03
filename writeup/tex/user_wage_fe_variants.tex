@@ -1,0 +1,25 @@
+\documentclass{article}
+
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+
+\geometry{margin=1in}
+
+\newcommand{\cleanedresultsdir}{../results/final/tex}
+
+\begin{document}
+
+\section*{User Wage Regressions (FE Variants)}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/user_wage_fe_variants_precovid_log_salary.tex}
+\end{table}
+
+\end{document}

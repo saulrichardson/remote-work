@@ -3,7 +3,7 @@
 Create LaTeX tables for the combined user mechanisms + growth specs.
 
 This mirrors writeup/py/create_user_mechanisms_table.py but reads
-results from the new Stata driver spec/user_mechanisms_with_growth.do
+results from the new Stata driver spec/stata/user_mechanisms_with_growth.do
 and inserts two growth columns (endogenous, exogenous) alongside the
 standard mechanism columns. Output keeps a Panel A (OLS) / Panel B (IV)
 layout and splits into chunks of up to 8 columns per table.
@@ -18,7 +18,8 @@ import pandas as pd
 
 
 HERE = Path(__file__).resolve().parent
-PY_DIR = HERE.parents[1] / "py"
+PROJECT_ROOT = HERE.parents[1]
+PY_DIR = PROJECT_ROOT / "src" / "py"
 if str(PY_DIR) not in sys.path:
     sys.path.insert(0, str(PY_DIR))
 

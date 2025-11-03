@@ -23,7 +23,7 @@ local specname user_productivity_alternative_fe_`panel_variant'
 log using "log/`specname'.log", replace text
 
 // 0) Setup environment
-do "../src/globals.do"
+do "_bootstrap.do"
 
 // 1) Common settings
 local result_dir "$results/`specname'"

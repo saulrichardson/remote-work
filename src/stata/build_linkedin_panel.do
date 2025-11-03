@@ -3,7 +3,7 @@
 *         Half-Year Periods, and Generate Half-Year Time Variable (yh)
 ********************************************************************************
 
-do "../globals.do"
+do "../../spec/stata/_bootstrap.do"
 
 capture log close
 cap mkdir "log"

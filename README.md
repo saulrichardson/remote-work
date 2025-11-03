@@ -1,41 +1,106 @@
-# WFH Startups — Repository Overview
+# WFH Startups — Repository Guide
 
-This repository holds the full data pipeline and write-up for the paper *“Working-from-Home Start-ups”*.  The project is organised as a **linear workflow** – raw data enter at the top, a series of scripts transform them, and the final paper is compiled from the generated artefacts.
-
-## Directory structure
-
-| Folder | Purpose |
-|--------|---------|
-| `data/` | External inputs.  Raw files live in `data/raw`, processed panels in `data/processed`, and tiny illustrative samples (kept under version-control) in `data/samples`. |
-| `src/` | Stata build scripts that turn the raw inputs into analysis-ready datasets.  Each script sources `src/globals.do` for unified paths and writes its output to `data/processed`. |
-| `spec/` | Self-contained empirical specifications.  Every `.do` file loads the processed panels, runs a model, and exports both tidy tables and raw diagnostics into `results/`. |
-| `py/` | Python utilities that post-process Stata outputs: merge standard errors, generate figures, and tidy tables before they reach the paper. |
-| `results/` | Generated artefacts from all estimation scripts.  Split into `raw/`, `final/tex`, and `final/figures`.  The `final` subfolders hold paper-ready tables and images. |
-| `writeup/` | Contains the LaTeX source of the paper together with a `Makefile`.  The build rules collect tables from `results/final/tex` and compile the final PDF. |
+This repository contains the full data and writing pipeline for the remote‑work paper.  Everything is organised as a one‑way flow: external data land in `data/`, Stata builds the analytical panels, specifications export results into `results/`, Python scripts polish tables/figures, and the LaTeX sources in `writeup/` assemble the document.
 
 ```
-data/raw  ─▶ src/ ─▶ data/processed ─▶ spec/ ─▶ results/ ─▶ py/ ─▶ writeup/
+data/raw  →  src/stata/  →  data/processed  →  spec/stata/  →  results/raw
+                                       ↘
+                                src/py/ (post-processing)  →  results/final  →  writeup/
 ```
 
-Each stage depends only on the outputs of the previous one.  Re-running a step therefore updates every downstream artefact without touching unrelated parts of the project.
+## Prerequisites
 
-## Building the paper
+- **Stata 17+** (earlier versions should work if they support `reghdfe`).
+- **Python 3.10+** with packages listed in `requirements.txt`.
+- Optional: set the environment variable `PROJECT_ROOT` before running Stata/Python scripts when working outside the repo root (the bootstrap scripts will also auto-detect the root).
 
-```
-cd writeup
-make            # Re-generates tables + figures and compiles consolidated-report.pdf
-```
+## Directory map
 
-The `deploy` target of the same `Makefile` copies the freshly compiled PDF and cleaned tables into an Overleaf-synchronised Dropbox folder.
+| Path | What lives here |
+|------|-----------------|
+| `data/raw/` | External sources (not tracked).  Place Scoop, Revelio, GitHub, etc. here. |
+| `data/processed/` | Harmonised `.dta` panels produced by `src/stata/*.do`. |
+| `data/samples/` | Tiny CSV snippets that ship with the repo for diagnostics. |
+| `src/stata/` | Build scripts that construct the processed panels (`build_firm_panel.do`, `build_all_user_panels.do`, …). |
+| `spec/stata/` | Empirical specifications. Each `.do` file reads the processed data, runs a model, and exports outputs into `results/raw/<specname>/`. |
+| `src/py/` | Shared Python helpers (table formatters, figure generators, path utilities). |
+| `results/raw/` | Direct exports from the Stata specs (CSV coefficient dumps, event-study series, etc.). |
+| `results/final/tex` & `results/final/figures` | Paper-ready LaTeX tables and PNG figures created by the Python scripts. |
+| `log/` | Run logs from bulk jobs (kept out of the tree root). |
+| `docs/` | Research notes, auxiliary write-ups, and exploratory notebooks. |
+| `writeup/` | LaTeX sources (`tex/`), Python write-up scripts (`py/`), scratch space, and the `Makefile` that rebuilds the paper. |
 
----
+Generated artefacts live under `results/` and `writeup/tex/build/`; wipe them whenever you want to regenerate from scratch.
 
-*Last updated: 2025-06-01*
+## Rebuilding the pipeline
 
-## Housekeeping rules
+1. **Prepare raw inputs**  
+   - Drop all required raw files under `data/raw/` (they are not tracked by Git).  
+   - The repository ships with metadata samples in `data/samples/` for quick sanity checks.
 
-- Drop every Stata log (and other runtime artefacts) into `log/` or `spec/log/`. The root of the repository should only contain source files and the primary directory skeleton.
-- Treat `spec/scratch/` and `writeup/scratch/` as sandboxes for one-off investigations. Anything that graduates into the main pipeline should move back into `spec/` or `writeup/tex/`.
-- `results/` is entirely generated. Only the small whitelist of tables and figures that feed the write-up stay version-controlled; everything else is ignored and can be blown away before regenerating.
-- LaTeX intermediates live under `writeup/build/`, which is ignored. Only the sources under `writeup/tex/` and the curated PDFs under `writeup/final/` are expected to be tracked.
-- Data inputs stay outside Git: use `data/raw/` and `data/processed/` locally, and rely on the documented pipeline scripts to rebuild them when needed.
+2. **Construct processed panels (Stata)**  
+   Run the required build scripts from the repo root in Stata. Typical entry points:
+   ```stata
+   do src/stata/build_firm_panel.do          // firm-level panels and covariates
+   do src/stata/build_all_user_panels.do     // user-level panels (multiple variants)
+   do src/stata/build_firm_soc_panel_from_csv.do   // auxiliary firm data merges
+   ```
+   Each script writes `.dta` files to `data/processed/` (and CSV mirrors to `data/samples/` when appropriate).
+
+3. **Run empirical specifications (Stata)**  
+   Specifications live in `spec/stata/` and expect the processed panels from step 2.
+   ```stata
+   do spec/stata/user_productivity.do
+   do spec/stata/user_productivity_initial.do
+   do spec/stata/firm_scaling.do
+   do spec/stata/user_mechanisms_with_growth.do
+   do spec/stata/user_productivity_discrete_fr_focus.do
+   do spec/stata/firm_scaling_vacancy_outcomes_htv2_95.do
+   ```
+   Outputs: coefficient tables, event-study series, and diagnostics under `results/raw/<specname>/`.
+
+4. **Post-process tables & figures (Python)**  
+   From `writeup/`, refresh all cleaned artefacts:
+   ```bash
+   cd writeup
+   make mini-writeup-inputs   # runs the Python formatters/plotters
+   ```
+   This populates `results/final/tex` and `results/final/figures`.
+
+5. **Compile the write-up (LaTeX)**  
+   While still inside `writeup/`:
+   ```bash
+   make mini-writeup           # builds writeup/tex/final/mini-writeup.pdf
+   ```
+   The Makefile also copies the curated tables/figures to the Overleaf-synced Dropbox folders configured at the top of the file.
+
+## How the main specs line up
+
+| Spec | Purpose | Key outputs |
+|------|---------|-------------|
+| `spec/stata/user_productivity.do` | Baseline worker regressions (OLS + IV) | `results/raw/user_productivity_precovid/` |
+| `spec/stata/user_productivity_initial.do` | No startup interaction baseline | `results/raw/user_productivity_initial_precovid/` |
+| `spec/stata/firm_scaling.do` | Firm growth/join/leave regressions | `results/raw/firm_scaling/` |
+| `spec/stata/firm_scaling_vacancy_outcomes_htv2_95.do` | Job-posting outcomes | `results/raw/firm_scaling_vacancy_outcomes_htv2_95/` |
+| `spec/stata/user_mechanisms_with_growth.do` | Mechanism robustness checks | `results/raw/user_mechanisms_with_growth_precovid/` |
+| `spec/stata/user_wage_fe_variants.do` | Wage regressions | `results/raw/user_wage_fe_variants_precovid/` |
+| `spec/stata/user_productivity_discrete_fr_focus.do` | Fully remote vs hybrid comparisons | `results/raw/user_productivity_fr_focus_precovid_*` |
+| `spec/stata/user_event_study_export.do` & `firm_event_study_export.do` | Event-study CSVs for plotting | `results/raw/user_event_study_precovid/`, `results/raw/firm_event_study/` |
+
+## Housekeeping & conventions
+
+- **Logs and scratch work**  
+  - `spec/stata/log/` and `src/stata/log/` capture Stata run logs.  
+  - Use `spec/stata/scratch/` or `writeup/scratch/` for one-off experiments; move polished scripts back into the main folders.
+
+- **Generated outputs**  
+  - `results/` and `writeup/tex/build/` are derived artefacts—delete them to rerun the pipeline.  
+  - Only the whitelisted tables/figures in `results/final/` are synced to Overleaf.
+
+- **Data handling**  
+  - Keep raw/processed data out of Git.  The repository assumes you can rebuild `data/processed/` using the supplied Stata scripts whenever needed.
+
+- **Python helpers**  
+  - `src/py/project_paths.py` resolves repo-relative paths and is imported by all Python scripts; it understands the `PROJECT_ROOT` environment variable as an override.
+
+For questions about a particular module, open the corresponding folder (`spec/stata/` for empirical specs, `src/py/` for post-processing, `writeup/py/` for paper-specific formatting scripts).  Each script includes comments documenting required inputs and outputs.

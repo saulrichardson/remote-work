@@ -7,6 +7,10 @@ capture confirm global PROJECT_ROOT
 if _rc {
     * First try environment variable so batch jobs can override paths
     local env_root: env PROJECT_ROOT
+    if "`env_root'" == "" {
+        * Backwards compatibility for legacy STATAROOT env var
+        local env_root: env STATAROOT
+    }
     if "`env_root'" != "" {
         global PROJECT_ROOT "`env_root'"
     }
@@ -59,4 +63,3 @@ global results        "$RAW_RESULTS"
 global processed_data "$PROCESSED_DATA"
 global data_processed "$PROCESSED_DATA"
 global clean_results  "$FINAL_TEX"
-

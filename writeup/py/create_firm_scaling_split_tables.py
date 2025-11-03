@@ -16,7 +16,8 @@ from typing import Sequence
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-PY_DIR = HERE.parents[1] / "py"
+PROJECT_ROOT = HERE.parents[1]
+PY_DIR = PROJECT_ROOT / "src" / "py"
 if str(PY_DIR) not in sys.path:
     sys.path.insert(0, str(PY_DIR))
 

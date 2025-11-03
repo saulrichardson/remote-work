@@ -1,5 +1,5 @@
 
-do "globals.do"
+do "../../spec/stata/_bootstrap.do"
 
 capture log close
 cap mkdir "log"

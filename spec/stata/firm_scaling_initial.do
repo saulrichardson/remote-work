@@ -3,7 +3,7 @@
 *============================================================*
 
 // 0) Setup environment
-do "../src/globals.do"
+do "_bootstrap.do"
 
 // 1) Load master panel
 use "$processed_data/firm_panel.dta", clear

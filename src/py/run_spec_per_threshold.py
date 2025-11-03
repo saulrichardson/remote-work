@@ -25,11 +25,11 @@ def main() -> None:
     args = parse_args()
     base = Path(args.outdir)
     canonical_csv = Path("data/processed/vacancy/firm_halfyear_panel_MERGED_POST.csv")
-    spec_dir = Path("spec")
+    spec_dir = Path("spec/stata")
     spec_file = spec_dir / "firm_scaling_vacancy_outcomes.do"
     results_base = Path("results/raw")
     results_canon_dir = results_base / "firm_scaling_vacancy_outcomes"
-    spec_log_dir = Path("spec/log")
+    spec_log_dir = Path("spec/stata/log")
     log_canon = spec_log_dir / "firm_scaling_vacancy_outcomes.log"
 
     if not spec_file.exists():

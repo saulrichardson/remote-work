@@ -1,0 +1,30 @@
+\documentclass{article}
+
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+
+\geometry{margin=1in}
+
+\newcommand{\cleanedresultsdir}{../results/final/tex}
+
+\begin{document}
+
+\section*{User Productivity Heterogeneity}
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/user_productivity_traits_precovid_heterogeneity_ols.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \input{\cleanedresultsdir/user_productivity_traits_precovid_heterogeneity_iv.tex}
+\end{table}
+
+\end{document}

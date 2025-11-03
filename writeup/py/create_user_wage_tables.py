@@ -3,7 +3,7 @@
 
 The script mirrors the formatting of Table 2 for user productivity but swaps
 in wage outcomes (log salary).  The companion Stata script
-``spec/user_wage_fe_variants.do`` writes a consolidated CSV with an
+``spec/stata/user_wage_fe_variants.do`` writes a consolidated CSV with an
 ``fe_tag`` column covering four FE variants:
 
     user_firm_yh         – firm + user + time FE
@@ -24,7 +24,8 @@ from typing import Iterable
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-PY_DIR = HERE.parents[1] / "py"
+PROJECT_ROOT = HERE.parents[1]
+PY_DIR = PROJECT_ROOT / "src" / "py"
 if str(PY_DIR) not in sys.path:
     sys.path.insert(0, str(PY_DIR))
 

@@ -21,7 +21,7 @@ key ids      : companyname, soc4, yh, firm_id, soc_id
 outcomes     : growth_rate_we, join_rate_we, leave_rate_we
 attributes   : remote, teleworkable, startup, covid, tight_wavg, etc.
 
-All names match those expected by *spec/firm_scaling.do*, so you can adapt the
+All names match those expected by *spec/stata/firm_scaling.do*, so you can adapt the
 Stata code by absorbing `firm_id yh` (or add `soc_id` if desired).
 """
 
