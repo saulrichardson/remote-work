@@ -19,18 +19,16 @@ hhi_lower, hhi_higher.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 
+from project_paths import DATA_PROCESSED, DATA_RAW
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent
-RAW  = ROOT / "data" / "raw" / "Data for labor market concentration using Lightcast (formerly Burning Glass Technologies)-2"
-PROC = ROOT / "data" / "processed"
+RAW = DATA_RAW / "Data for labor market concentration using Lightcast (formerly Burning Glass Technologies)-2"
+PROC = DATA_PROCESSED
 
 PATH_HHI = RAW / "hhis_pub_revised.dta"
 
@@ -115,4 +113,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

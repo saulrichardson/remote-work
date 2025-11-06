@@ -34,6 +34,13 @@ PARAM_LABEL = {
 
 STAR_RULES = [(0.01, "***"), (0.05, "**"), (0.10, "*")]
 
+HEADER_OVERRIDES = {
+    "Job Postings": r"\makecell[c]{\rule{0pt}{0.9em}Job\\Postings}",
+    "Log Job Postings": r"\makecell[c]{\rule{0pt}{0.9em}Log Job\\Postings}",
+    "Hires/Job Postings": r"\makecell[c]{\rule{0pt}{0.9em}Hires/\\Job Posting}",
+    "Any Job Postings": r"\makecell[c]{\rule{0pt}{0.9em}Any Job\\Postings}",
+}
+
 
 def stars(p: float) -> str:
     for cut, sym in STAR_RULES:
@@ -43,10 +50,60 @@ def stars(p: float) -> str:
 
 
 def column_format(n_numeric: int) -> str:
-    pad = r"@{\hspace{4pt}}"
-    body = (pad + r">{\centering\arraybackslash}X" + pad) * n_numeric
-    return "l" + body
+    parts = ["@{}l"]
+    parts.extend([r"@{\extracolsep{\fill}}c"] * n_numeric)
+    parts.append("@{}")
+    return "".join(parts)
 
+
+def format_label(text: str) -> str:
+    text = text.replace("&", r"\&")
+    if text in HEADER_OVERRIDES:
+        return HEADER_OVERRIDES[text]
+    if " " in text:
+        parts = text.split(" ", 1)
+        return rf"\makecell[c]{{{parts[0]}\\{parts[1]}}}"
+    return text
+
+
+def build_header_block(
+    columns: Sequence[tuple[str, str, str]], start_index: int
+) -> tuple[str, str, str]:
+    groups: list[tuple[str, int]] = []
+    idx = 0
+    while idx < len(columns):
+        label = columns[idx][2]
+        span = 1
+        while idx + span < len(columns) and columns[idx + span][2] == label:
+            span += 1
+        groups.append((label, span))
+        idx += span
+
+    header_cells = [""]  # blank descriptor column
+    for label, span in groups:
+        formatted = format_label(label)
+        if span == 1:
+            header_cells.append(formatted)
+        else:
+            header_cells.append(rf"\multicolumn{{{span}}}{{c}}{{{formatted}}}")
+    header_groups = " & ".join(header_cells) + r" \\"
+
+    cmidrules = []
+    col_start = 2
+    for _, span in groups:
+        col_end = col_start + span - 1
+        cmidrules.append(rf"\cmidrule(lr){{{col_start}-{col_end}}}")
+        col_start = col_end + 1
+
+    header_nums = (
+        " & "
+        + " & ".join(
+            f"({i})" for i in range(start_index, start_index + len(columns))
+        )
+        + r" \\"
+    )
+
+    return header_groups, "\n".join(cmidrules), header_nums
 
 def load_data() -> pd.DataFrame:
     init = pd.read_csv(RAW_DIR / "firm_scaling_initial" / "consolidated_results.csv")
@@ -162,18 +219,15 @@ def build_table(
 ) -> str:
     num_cols = len(columns)
     col_fmt = column_format(num_cols)
-    header_nums = " & ".join(
-        [""] + [f"({i})" for i in range(start_index, start_index + num_cols)]
-    ) + r" \\"
-    header_labels = " & ".join([""] + [label for _, _, label in columns]) + r" \\"
+    header_groups, cmidrule_block, header_nums = build_header_block(columns, start_index)
 
     lines: list[str] = [
         r"\centering",
-        rf"\begin{{tabularx}}{{\linewidth}}{{{col_fmt}}}",
+        rf"\begin{{tabular*}}{{\linewidth}}{{{col_fmt}}}",
         r"\toprule",
+        header_groups,
+        cmidrule_block,
         header_nums,
-        r"\midrule",
-        header_labels,
         r"\midrule",
         rf"\multicolumn{{{num_cols + 1}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: OLS}}}}}} \\",
         r"\addlinespace[2pt]",
@@ -189,7 +243,7 @@ def build_table(
         r"\midrule",
         *fixed_effect_rows(num_cols),
         r"\bottomrule",
-        r"\end{tabularx}",
+        r"\end{tabular*}",
     ]
     return "\n".join(lines) + "\n"
 

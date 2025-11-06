@@ -23,18 +23,16 @@ data/processed/vacancy_measures_2020.csv with columns
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 
+from project_paths import DATA_PROCESSED, DATA_RAW, ensure_dir
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent
-RAW = ROOT / "data" / "raw"
-PROC = ROOT / "data" / "processed"
+RAW = DATA_RAW
+PROC = DATA_PROCESSED
 
 PATH_VACANCY = RAW / "scoop_vacancy.csv"
 PATH_POS = PROC / "Scoop_Positions_Firm_Collapse2.csv"
@@ -111,7 +109,7 @@ def build() -> None:
     df.loc[df["hires_2019H2"] <= 0, "vacancy_per_hire"] = pd.NA
 
     # Save --------------------------------------------------------------
-    OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+    ensure_dir(OUT_CSV.parent)
     df.to_csv(OUT_CSV, index=False)
 
     print(

@@ -47,8 +47,11 @@ OVERLEAF_TABLE_WHITELIST := \
   $(TABLE_SRC)/user_mechanisms_with_growth_precovid.tex \
   $(TABLE_SRC)/user_wage_fe_variants_precovid_log_salary.tex \
   $(TABLE_SRC)/user_productivity_fr_focus_precovid.tex \
+  $(TABLE_SRC)/user_productivity_traits_dual_precovid_ols.tex \
   $(TABLE_SRC)/first_stage_summary.tex \
-  $(TABLE_SRC)/user_productivity_precovid_restricted.tex
+  $(TABLE_SRC)/user_productivity_precovid_restricted.tex \
+  $(TABLE_SRC)/user_productivity_precovid_robustness_part1.tex \
+  $(TABLE_SRC)/user_productivity_precovid_robustness_part2.tex
 
 OVERLEAF_FIGURE_WHITELIST := \
   firm_teleworkable_remote.png \
@@ -58,7 +61,11 @@ OVERLEAF_FIGURE_WHITELIST := \
   firm_event_study_join_rate_ols.png \
   firm_event_study_leave_rate_ols.png \
   firm_event_study_job_postings_ols.png \
-  firm_event_study_hires_per_job_posting_ols.png
+  firm_event_study_hires_per_job_posting_ols.png \
+  panelA_hybrid_engineer.png \
+  panelA_hybrid_nonengineer.png \
+  panelB_fullremote_engineer.png \
+  panelB_fullremote_nonengineer.png
 
 .PHONY: mini-writeup mini-writeup-inputs mini-writeup-pdf clean
 .PHONY: heterogeneity-pdf user-wage-fe-pdf firm-wage-log-pdf
@@ -72,6 +79,7 @@ mini-writeup-inputs:
 	@$(call RUN_PYSCRIPT,create_user_productivity_split_tables.py,--variant precovid --outcome-set total)
 	@$(call RUN_PYSCRIPT,create_user_productivity_table.py,--variant precovid --outcome-set restricted)
 	@$(call RUN_PYSCRIPT,create_user_productivity_fr_focus_table.py,--variant precovid)
+	@$(call RUN_PYSCRIPT,create_user_productivity_traits_dual_table.py,)
 	@$(call RUN_PYSCRIPT,create_user_wage_tables.py,--variant precovid)
 	@$(call RUN_PYSCRIPT,create_first_stage_summary_table.py,)
 	@$(call RUN_PYSCRIPT,create_user_mechanisms_with_growth_table.py,--variant precovid)

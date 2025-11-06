@@ -15,19 +15,19 @@ Groups:
 from __future__ import annotations
 
 import math
-import os
 import sys
+from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-RES_ROOT = os.path.join(BASE, 'results', 'composition_irfs_all7_by_remote_startup')
+from project_paths import PY_DIR, RESULTS_DIR, ensure_dir
 
-PY_DIR = os.path.join(BASE, 'py')
-if PY_DIR not in sys.path:
-    sys.path.insert(0, PY_DIR)
+RES_ROOT = RESULTS_DIR / "composition_irfs_all7_by_remote_startup"
+
+if str(PY_DIR) not in sys.path:
+    sys.path.insert(0, str(PY_DIR))
 
 from plot_style import (  # noqa: E402  pylint: disable=wrong-import-position
     AXIS_COLOR,
@@ -56,10 +56,8 @@ ROLES: List[str] = [
 ]
 
 
-def save_plot(fig: plt.Figure, outpath: str) -> None:
-    directory = os.path.dirname(outpath)
-    if directory:
-        os.makedirs(directory, exist_ok=True)
+def save_plot(fig: plt.Figure, outpath: Path) -> None:
+    ensure_dir(outpath.parent)
     fig.savefig(outpath, dpi=FIG_DPI, facecolor='white')
 
 
@@ -67,7 +65,7 @@ def plot_role(
     df: pd.DataFrame,
     role: str,
     color_index: int,
-    outpath: str,
+    outpath: Path,
     title_suffix: str,
     y_limits: tuple[float, float],
     *,
@@ -149,9 +147,9 @@ def compute_role_limits(group_frames: Dict[str, pd.DataFrame]) -> Dict[str, tupl
 def main() -> int:
     group_frames: Dict[str, pd.DataFrame] = {}
     for group in GROUPS:
-        gdir = os.path.join(RES_ROOT, group)
-        csv_path = os.path.join(gdir, 'all7_irf_results.csv')
-        if not os.path.exists(csv_path):
+        gdir = RES_ROOT / group
+        csv_path = gdir / "all7_irf_results.csv"
+        if not csv_path.exists():
             print(f"[WARN] Missing CSV: {csv_path}")
             continue
         df = pd.read_csv(csv_path)
@@ -174,7 +172,7 @@ def main() -> int:
         label = GROUPS[group]
         gdir = os.path.join(RES_ROOT, group)
         for idx, role in enumerate(ROLES):
-            out_png = os.path.join(gdir, f'clean_irf_{role}.png')
+            out_png = gdir / f"clean_irf_{role}.png"
             ok = plot_role(
                 df,
                 role,

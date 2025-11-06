@@ -29,25 +29,23 @@ pipeline itself).
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 from textwrap import dedent
 
 import duckdb as dk  # type: ignore
 
+from project_paths import DATA_PROCESSED, DATA_RAW, RESULTS_DIR, ensure_dir
 
 # ---------------------------------------------------------------------------
 # Paths & constants
 # ---------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent                     # project root
-
 # Inputs
-LINKEDIN_PATH = ROOT / "data/processed/linkedin_panel.parquet"
-OEWS_PATH = ROOT / "data/raw/oews/processed_data/tight_occ_msa_y.csv"
+PROC = DATA_PROCESSED
+LINKEDIN_PATH = PROC / "linkedin_panel.parquet"
+OEWS_PATH = DATA_RAW / "oews" / "processed_data" / "tight_occ_msa_y.csv"
 
 # Output directories
-PROC = ROOT / "data/processed"
-RES  = ROOT / "results"
+RES = RESULTS_DIR
 
 # CSV outputs
 HEADS_CSV   = PROC / "firm_occ_msa_heads_2019H2.csv"
@@ -70,8 +68,8 @@ DEFAULT_FALLBACK_CB = False  # no primary-CBSA fallback by default
 
 
 def _ensure_dirs() -> None:
-    PROC.mkdir(parents=True, exist_ok=True)
-    RES.mkdir(parents=True, exist_ok=True)
+    ensure_dir(PROC)
+    ensure_dir(RES)
 
 
 def _log(msg: str) -> None:  # tiny logger to stderr

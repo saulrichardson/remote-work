@@ -23,7 +23,14 @@ local specname user_productivity_alternative_fe_`panel_variant'
 log using "log/`specname'.log", replace text
 
 // 0) Setup environment
-do "_bootstrap.do"
+local __bootstrap "_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") {
+    di as error "Unable to locate _bootstrap.do. Run from project root or spec/stata."
+    exit 601
+}
+do "`__bootstrap'"
 
 // 1) Common settings
 local result_dir "$results/`specname'"

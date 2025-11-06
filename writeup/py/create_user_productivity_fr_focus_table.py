@@ -24,18 +24,38 @@ from project_paths import RESULTS_FINAL_TEX, RESULTS_RAW
 RAW_DIR = RESULTS_RAW
 FINAL_TEX_DIR = RESULTS_FINAL_TEX
 
-COMPARISONS = OrderedDict(
+COMPARISON_COLUMNS = OrderedDict(
     [
         (
-            "fr_vs_hyb",
+            "fr_vs_hyb_match",
             {
+                "suffix": "fr_vs_hyb",
                 "group": "Hybrid",
+                "fe_tag": "match",
             },
         ),
         (
-            "fr_vs_all",
+            "fr_vs_hyb_regular",
             {
+                "suffix": "fr_vs_hyb",
+                "group": "Hybrid",
+                "fe_tag": "regular",
+            },
+        ),
+        (
+            "fr_vs_all_match",
+            {
+                "suffix": "fr_vs_all",
                 "group": "Hybrid/In-Person",
+                "fe_tag": "match",
+            },
+        ),
+        (
+            "fr_vs_all_regular",
+            {
+                "suffix": "fr_vs_all",
+                "group": "Hybrid/In-Person",
+                "fe_tag": "regular",
             },
         ),
     ]
@@ -62,21 +82,30 @@ def fmt_cell(coef: float, se: float, p: float) -> str:
     return rf"\makecell[c]{{{coef:.2f}{stars(p)}\\({se:.2f})}}"
 
 
-def load_comparison(variant: str, suffix: str) -> dict:
+def load_comparison(variant: str, suffix: str, fe_tag: str) -> dict:
     base_dir = RAW_DIR / f"user_productivity_fr_focus_{variant}_{suffix}"
     csv_path = base_dir / "consolidated_results.csv"
     if not csv_path.exists():
         raise FileNotFoundError(f"Missing results for {variant}/{suffix}: {csv_path}")
 
     df = pd.read_csv(csv_path)
+    if "fe_tag" not in df.columns:
+        raise ValueError(
+            "Expected `fe_tag` column in consolidated results. "
+            "Re-run spec/stata/user_productivity_discrete_fr_focus.do to refresh outputs."
+        )
+    sub = df[(df["comparison"] == suffix) & (df["fe_tag"] == fe_tag)]
+    if sub.empty:
+        raise ValueError(f"No rows for suffix={suffix}, fe_tag={fe_tag}")
+
     var3_name = f"var3_{suffix}"
     var5_name = f"var5_{suffix}"
 
     out: dict[str, dict[str, pd.Series] | float | int | None] = {"OLS": {}, "IV": {}}
     for model in ("OLS", "IV"):
-        sub = df[df["model_type"] == model]
+        model_block = sub[sub["model_type"] == model]
         for param, name in (("var3", var3_name), ("var5", var5_name)):
-            row = sub[sub["param"] == name]
+            row = model_block[model_block["param"] == name]
             if row.empty:
                 raise ValueError(f"Missing {name} for {suffix} ({model})")
             out[model][param] = row.iloc[0]
@@ -88,14 +117,20 @@ def load_comparison(variant: str, suffix: str) -> dict:
     out["rkf"] = float(any_iv.rkf) if not math.isnan(any_iv.rkf) else None
     out["comparison_group"] = str(any_ols.comparison_group)
     out["comparison"] = str(any_ols.comparison)
+    out["fe_tag"] = fe_tag
     return out
 
 
 def build_table(variant: str, comparisons: Iterable[str]) -> str:
     comparisons = list(comparisons)
-    data = {cmp: load_comparison(variant, cmp) for cmp in comparisons}
-
-    groups = [data[cmp]["comparison_group"].replace("&", r"\&") for cmp in comparisons]
+    data = {
+        key: load_comparison(
+            variant,
+            COMPARISON_COLUMNS[key]["suffix"],
+            COMPARISON_COLUMNS[key]["fe_tag"],
+        )
+        for key in comparisons
+    }
 
     lines: list[str] = []
     lines.append("% Auto-generated: user productivity fully-remote comparisons")
@@ -103,11 +138,11 @@ def build_table(variant: str, comparisons: Iterable[str]) -> str:
     lines.append(rf"\begin{{tabular*}}{{\linewidth}}{{{colspec}}}")
     E = r"\\"
     lines.append(r"\toprule")
+    header_top = ["", "\\multicolumn{{{}}}{{c}}{{Contribution Rank}}".format(len(comparisons))]
+    lines.append(" & ".join(header_top) + f" {E}")
+    lines.append("\\cmidrule(lr){2-%d}" % (len(comparisons) + 1))
     numbers = " & ".join(f"({i})" for i in range(1, len(comparisons) + 1))
-    lines.append(f"& {numbers} {E}")
-    lines.append(r"\midrule")
-    header_groups = " & ".join(groups)
-    lines.append(f"Comparison Group & {header_groups} {E}")
+    lines.append(" & " + numbers + f" {E}")
     lines.append(r"\midrule")
 
     lines.append(rf"\multicolumn{{{len(comparisons)+1}}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: OLS}}}}}} {E}")
@@ -136,8 +171,38 @@ def build_table(variant: str, comparisons: Iterable[str]) -> str:
 
     blanks = " & ".join(["" for _ in comparisons])
     lines.append(f"\\textbf{{Fixed Effects}} & {blanks} {E}")
+
     lines.append(f"{indent}Time & " + " & ".join(["$\\checkmark$"] * len(comparisons)) + f" {E}")
-    lines.append(f"{indent}Firm $\\times$ Individual & " + " & ".join(["$\\checkmark$"] * len(comparisons)) + f" {E}")
+    lines.append(
+        f"{indent}Firm & "
+        + " & ".join("$\\checkmark$" if data[c]["fe_tag"] == "regular" else "" for c in comparisons)
+        + f" {E}"
+    )
+    lines.append(
+        f"{indent}Individual & "
+        + " & ".join("$\\checkmark$" if data[c]["fe_tag"] == "regular" else "" for c in comparisons)
+        + f" {E}"
+    )
+    lines.append(
+        f"{indent}Firm $\\times$ Individual & "
+        + " & ".join("$\\checkmark$" if data[c]["fe_tag"] == "match" else "" for c in comparisons)
+        + f" {E}"
+    )
+    lines.append(r"\midrule")
+
+    lines.append(f"\\textbf{{Comparison Group}} & {blanks} {E}")
+    lines.append(
+        f"{indent}Hybrid & "
+        + " & ".join("$\\checkmark$" if COMPARISON_COLUMNS[c]["group"] == "Hybrid" else "" for c in comparisons)
+        + f" {E}"
+    )
+    lines.append(
+        f"{indent}Hybrid/In-Person & "
+        + " & ".join(
+            "$\\checkmark$" if COMPARISON_COLUMNS[c]["group"] == "Hybrid/In-Person" else "" for c in comparisons
+        )
+        + f" {E}"
+    )
     lines.append(r"\bottomrule")
     lines.append(r"\end{tabular*}")
     return "\n".join(lines)
@@ -148,8 +213,8 @@ def main() -> None:
     parser.add_argument("--variant", default="precovid", help="Panel variant (default: precovid)")
     parser.add_argument(
         "--comparisons",
-        default=",".join(COMPARISONS.keys()),
-        help="Comma-separated comparison suffixes to include (default: both)",
+        default=",".join(COMPARISON_COLUMNS.keys()),
+        help="Comma-separated column keys to include (default: all)",
     )
     parser.add_argument(
         "--output",
@@ -160,7 +225,7 @@ def main() -> None:
 
     comps = [c.strip() for c in args.comparisons.split(",") if c.strip()]
     for cmp in comps:
-        if cmp not in COMPARISONS:
+        if cmp not in COMPARISON_COLUMNS:
             raise ValueError(f"Unknown comparison '{cmp}'")
 
     table = build_table(args.variant, comps)

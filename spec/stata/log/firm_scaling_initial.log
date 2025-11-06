@@ -1,8 +1,9 @@
------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/firm_scaling_initial.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/stata/log/firm_
+> scaling_initial.log
   log type:  text
- opened on:  13 Jun 2025, 09:47:32
+ opened on:   3 Nov 2025, 10:28:04
 
 . 
 . local result_dir "$results/`specname'"
@@ -16,7 +17,8 @@
 
 . tempfile out
 
-. *--- postfile header (main results) -------------------------------------------
+. *--- postfile header (main results) -----------------------------------------
+> --
 . postfile handle ///
 >     str8   model_type ///
 >     str40  outcome     ///
@@ -24,7 +26,8 @@
 >     double coef se pval pre_mean ///
 >     double rkf nobs     ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//St15654.000001 not
+    found)
 
 . 
 . 
@@ -41,7 +44,8 @@
 >     double coef se pval       ///
 >     double partialF rkf nobs  ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_86562.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//St15654.000002 not
+    found)
 
 . 
 . // 3) Loop over outcomes
@@ -68,12 +72,15 @@
  10.         local t    = `b'/`se'
  11.         local pval = 2*ttail(e(df_r), abs(`t'))
  12.                 post handle ("OLS") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')                 // dot for rkf, then nobs
+>                                         (`b') (`se') (`pval') (`pre_mean') //
+> /
+>                                         (.) (`N')                 // dot for 
+> rkf, then nobs
  13.     }
  14. 
 .     // --- IV (2nd stage) ---
-.      ivreghdfe `y' (var3 = var6) var4,           absorb(firm_id yh) vce(cluster firm_id) savefirst
+.      ivreghdfe `y' (var3 = var6) var4,           absorb(firm_id yh) vce(clust
+> er firm_id) savefirst
  15. 
 .     local rkf   = e(rkf)
  16.         local N = e(N) 
@@ -83,10 +90,13 @@
  19.         local se   = _se[`p']
  20.         local t    = `b'/`se'
  21.         local pval = 2*ttail(e(df_r), abs(`t'))
- 22.                 *--- inside the IV loop -------------------------------------------------------
+ 22.                 *--- inside the IV loop ----------------------------------
+> ---------------------
 .                 post handle ("IV") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')            // rkf, then nobs
+>                                         (`b') (`se') (`pval') (`pre_mean') //
+> /
+>                                         (`rkf') (`N')            // rkf, then
+>  nobs
  23.     }
  24. 
 .     // --- FIRST STAGE: only once on first loop pass ---
@@ -95,7 +105,8 @@
 .                 matrix FS = e(first)
  26.         local F3 = FS[4,1]
  27. 
-.                 /* -------- var3 first stage -------------------------------- */
+.                 /* -------- var3 first stage --------------------------------
+>  */
 .                 estimates restore _ivreg2_var3
  28.                 local N_fs = e(N)
  29.                 foreach p in var6 var4 {
@@ -105,8 +116,10 @@
  33.                         local pval = 2*ttail(e(df_r), abs(`t'))
  34. 
 .                         post handle_fs ("var3") ("`p'") ///
->                                                         (`b') (`se') (`pval') ///
->                                                         (`F3') (`rkf') (`N_fs')
+>                                                         (`b') (`se') (`pval')
+>  ///
+>                                                         (`F3') (`rkf') (`N_fs
+> ')
  35.                 }
  36. 
 . 
@@ -217,7 +230,8 @@ Absorbed degrees of freedom:
 
 . export delimited using "`result_dir'/consolidated_results.csv", ///
 >     replace delimiter(",") quote
-file ../results/raw/firm_scaling_initial/consolidated_results.csv saved
+file /Users/saul/Dropbox/Remote Work Startups/main/results/raw/firm_scaling_ini
+> tial/consolidated_results.csv saved
 
 . 
 . * --- write first-stage CSV -----------------------------------------
@@ -227,33 +241,17 @@ file ../results/raw/firm_scaling_initial/consolidated_results.csv saved
 
 . export delimited using "`result_dir'/first_stage.csv", ///
 >         replace delimiter(",") quote
-file ../results/raw/firm_scaling_initial/first_stage.csv saved
+file /Users/saul/Dropbox/Remote Work Startups/main/results/raw/firm_scaling_ini
+> tial/first_stage.csv saved
 
 . 
 . di as result "→ second-stage CSV : `result_dir'/consolidated_results.csv"
-→ second-stage CSV : ../results/raw/firm_scaling_initial/consolidated_results.csv
+→ second-stage CSV : /Users/saul/Dropbox/Remote Work Startups/main/results/raw/
+> firm_scaling_initial/consolidated_results.csv
 
 . di as result "→ first-stage  CSV : `result_dir'/first_stage.csv"
-→ first-stage  CSV : ../results/raw/firm_scaling_initial/first_stage.csv
+→ first-stage  CSV : /Users/saul/Dropbox/Remote Work Startups/main/results/raw/
+> firm_scaling_initial/first_stage.csv
 
 . 
 end of do-file
-
-. do "/Users/saul/Dropbox/Remote Work Startups/main/spec/user_productivity_initial.do"
-
-. *============================================================*
-. *  user_productivity_initial.do
-. *  — Baseline spec (no startup × remote interaction) for worker
-. *    productivity.  Accepts *optional* first argument selecting the user
-. *    panel variant (unbalanced | balanced | precovid).  Default = unbalanced.
-. *    Example: do user_productivity_initial.do balanced
-. *============================================================*
-. 
-. * Parse variant argument ----------------------------------------------------
-. args panel_variant
-
-. if "`panel_variant'" == "" local panel_variant "unbalanced"
-
-. local specname user_productivity_initial_`panel_variant'
-
-. capture log close

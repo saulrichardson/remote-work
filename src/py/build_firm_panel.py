@@ -42,20 +42,18 @@ Implementation notes
 from __future__ import annotations
 
 import datetime as _dt
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import duckdb as dk  # fallback reader *and* writer when pyarrow unavailable
 
+from project_paths import DATA_PROCESSED, DATA_RAW
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent
-PROC = ROOT / "data" / "processed"
-RAW = ROOT / "data" / "raw"
+PROC = DATA_PROCESSED
+RAW = DATA_RAW
 
 # Occupation-level panel (CSV produced by build_firm_occ_tightness.py)
 PANEL_OCC_CSV = PROC / "firm_occ_panel_enriched.csv"

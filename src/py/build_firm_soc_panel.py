@@ -27,18 +27,16 @@ Stata code by absorbing `firm_id yh` (or add `soc_id` if desired).
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
 # Fallback engine for parquet if pyarrow missing
 import duckdb as dk
 
+from project_paths import DATA_PROCESSED, DATA_RAW
 
-ROOT = Path(__file__).resolve().parent.parent
-PROC = ROOT / "data" / "processed"
-RAW = ROOT / "data" / "raw"
+PROC = DATA_PROCESSED
+RAW = DATA_RAW
 
 # Input occupation panel (already enriched with tightness)
 # The build_firm_occ_tightness.py script now writes only CSV.  We first look

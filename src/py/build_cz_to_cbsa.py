@@ -18,18 +18,16 @@ HHI panel from commuting-zone to CBSA level.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 
+from project_paths import DATA_PROCESSED, DATA_RAW, ensure_dir
 
 # ---------------------------------------------------------------------------
 # Paths & constants
 # ---------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent  # project root
-RAW  = ROOT / "data" / "raw" / "Data for labor market concentration using Lightcast (formerly Burning Glass Technologies)-2"
-PROC = ROOT / "data" / "processed"
+RAW = DATA_RAW / "Data for labor market concentration using Lightcast (formerly Burning Glass Technologies)-2"
+PROC = DATA_PROCESSED
 
 
 CZ_DTA   = RAW / "county_cz_xwalk.dta"
@@ -46,7 +44,7 @@ OUT_FRACTION  = PROC / "cz_to_cbsa_fractional.csv"
 
 
 def _ensure_dirs() -> None:
-    PROC.mkdir(parents=True, exist_ok=True)
+    ensure_dir(PROC)
 
 
 def _load_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -145,4 +143,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

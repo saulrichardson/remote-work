@@ -11,8 +11,14 @@ capture log close
 cap mkdir "log"
 log using "log/`specname_base'.log", replace text
 
-
-do "_bootstrap.do"
+local __bootstrap "_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") {
+    di as error "Unable to locate _bootstrap.do. Run from project root or spec/stata."
+    exit 601
+}
+do "`__bootstrap'"
 
 use "$processed_data/user_panel_`panel_variant'.dta", clear
 
@@ -37,6 +43,10 @@ replace nonfr = 0 if missing(nonfr)
 
 tempfile SOURCE
 save `SOURCE'
+
+local fe_configs "match regular"
+local fe_absorb_match   "firm_id#user_id yh"
+local fe_absorb_regular "user_id firm_id yh"
 
 local outcomes total_contributions_q100
 local comparisons "fr_vs_hyb fr_vs_all"
@@ -105,37 +115,42 @@ foreach cmp of local comparisons {
         double rkf nobs ///
         str20  comparison ///
         str24  comparison_group ///
+        str12  fe_tag ///
         using `out', replace
 
-    foreach y of local outcomes {
-        di as text "-> `treated_label' :: outcome `y'"
+    foreach fe of local fe_configs {
+        local absorb = "`fe_absorb_`fe''"
 
-        summarize `y' if covid == 0, meanonly
-        local pre_mean = r(mean)
+        foreach y of local outcomes {
+            di as text "-> `treated_label' [`fe'] :: outcome `y'"
 
-        reghdfe `y' `treat_var' `startup_var' var4, absorb(user_id firm_id yh) vce(cluster user_id)
-        local N = e(N)
-        foreach p in `treat_var' `startup_var' var4 {
-            local b    = _b[`p']
-            local se   = _se[`p']
-            local pval = 2*ttail(e(df_r), abs(`b'/`se'))
-            post handle ("OLS") ("`y'") ("`p'") (`b') (`se') (`pval') (`pre_mean') (.) (`N') ("`result_suffix'") ("`comparison_group'")
-        }
+            summarize `y' if covid == 0, meanonly
+            local pre_mean = r(mean)
 
-        ivreghdfe `y' (`treat_var' `startup_var' = var6 var7) var4, absorb(user_id firm_id yh) vce(cluster user_id)
-        local rkf = e(rkf)
-        local N = e(N)
-        foreach p in `treat_var' `startup_var' var4 {
-            local b    = _b[`p']
-            local se   = _se[`p']
-            local pval = 2*ttail(e(df_r), abs(`b'/`se'))
-            post handle ("IV") ("`y'") ("`p'") (`b') (`se') (`pval') (`pre_mean') (`rkf') (`N') ("`result_suffix'") ("`comparison_group'")
+            reghdfe `y' `treat_var' `startup_var' var4, absorb(`absorb') vce(cluster user_id)
+            local N = e(N)
+            foreach p in `treat_var' `startup_var' var4 {
+                local b    = _b[`p']
+                local se   = _se[`p']
+                local pval = 2*ttail(e(df_r), abs(`b'/`se'))
+                post handle ("OLS") ("`y'") ("`p'") (`b') (`se') (`pval') (`pre_mean') (.) (`N') ("`result_suffix'") ("`comparison_group'") ("`fe'")
+            }
+
+            ivreghdfe `y' (`treat_var' `startup_var' = var6 var7) var4, absorb(`absorb') vce(cluster user_id)
+            local rkf = e(rkf)
+            local N = e(N)
+            foreach p in `treat_var' `startup_var' var4 {
+                local b    = _b[`p']
+                local se   = _se[`p']
+                local pval = 2*ttail(e(df_r), abs(`b'/`se'))
+                post handle ("IV") ("`y'") ("`p'") (`b') (`se') (`pval') (`pre_mean') (`rkf') (`N') ("`result_suffix'") ("`comparison_group'") ("`fe'")
+            }
         }
     }
 
     postclose handle
     use `out', clear
-    order comparison comparison_group
+    order comparison comparison_group fe_tag
     export delimited using "`result_dir'/consolidated_results.csv", replace
     di as result "-> CSV: `result_dir'/consolidated_results.csv"
 }

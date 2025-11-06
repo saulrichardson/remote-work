@@ -131,7 +131,7 @@ OUTCOME_SETS: dict[str, dict[str, object]] = {
             ("total_contributions_we", "firmbyuseryh"),
         ],
         "headers": {
-            "total_contributions_q100": r"Rank",
+            "total_contributions_q100": r"Contribution Rank",
             "total_contributions_we": r"Total",
         },
         "caption_suffix": "",
@@ -146,7 +146,7 @@ OUTCOME_SETS: dict[str, dict[str, object]] = {
             ("restricted_contributions_we", "firmbyuseryh"),
         ],
         "headers": {
-            "restricted_contributions_q100": r"Rank",
+            "restricted_contributions_q100": r"Contribution Rank",
             "restricted_contributions_we": r"Total",
         },
         "caption_suffix": " (Restricted)",

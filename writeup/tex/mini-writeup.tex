@@ -22,15 +22,14 @@
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
 
 \setlength{\extrarowheight}{1.5pt}
+\renewcommand{\arraystretch}{1.2}
 
 % Base directories for cleaned LaTeX tables and figures
 \newcommand{\cleanedresultsdir}{../results/final/tex}
 \newcommand{\figdir}{../results/final/figures}
 \newcommand{\irfdir}{../results/user_irfs_eng_vs_noneng_remote_hybrid}
 \newcommand{\TableInput}[2][\linewidth]{%
-  \begin{adjustbox}{center,max width=#1}%
-    \input{#2}%
-  \end{adjustbox}%
+  \input{#2}%
 }
 \begin{document}
 
@@ -88,6 +87,23 @@
   \TableInput{\cleanedresultsdir/user_productivity_fr_focus_precovid.tex}
 \end{table}
 
+\section{User Productivity Heterogeneity}
+\begin{table}[H]
+  \centering
+  \TableInput{\cleanedresultsdir/user_productivity_traits_dual_precovid_ols.tex}
+\end{table}
+
+\section{User Productivity Robustness}
+\begin{table}[H]
+  \centering
+  \TableInput{\cleanedresultsdir/user_productivity_precovid_robustness_part1.tex}
+\end{table}
+\clearpage
+\begin{table}[H]
+  \centering
+  \TableInput{\cleanedresultsdir/user_productivity_precovid_robustness_part2.tex}
+\end{table}
+
 \section{Figures}
 \begin{figure}[H]
   \centering
@@ -136,6 +152,38 @@
   \centering
   \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_hires_per_job_posting_ols.png}
   \caption{Event Study: Hires per Job Posting (OLS)}
+\end{figure}
+
+\section{Impulse Response Functions}
+\captionsetup[subfigure]{labelformat=empty}
+\begin{figure}[H]
+  \centering
+ Panel A: Hybrid/In-person\\[0.3em]
+ \begin{subfigure}[t]{0.495\linewidth}
+   \centering
+   \includegraphics[width=\linewidth]{\irfdir/panelA_hybrid_engineer.png}
+   \caption{Engineer hiring shocks}
+ \end{subfigure}\hfill
+ \begin{subfigure}[t]{0.495\linewidth}
+   \centering
+   \includegraphics[width=\linewidth]{\irfdir/panelA_hybrid_nonengineer.png}
+   \caption{Non-Engineer hiring shocks}
+ \end{subfigure}
+
+  \vspace{0.8em}
+
+ Panel B: Fully Remote\\[0.3em]
+ \begin{subfigure}[t]{0.495\linewidth}
+   \centering
+   \includegraphics[width=\linewidth]{\irfdir/panelB_fullremote_engineer.png}
+   \caption{Engineer hiring shocks}
+ \end{subfigure}\hfill
+ \begin{subfigure}[t]{0.495\linewidth}
+   \centering
+   \includegraphics[width=\linewidth]{\irfdir/panelB_fullremote_nonengineer.png}
+   \caption{Non-Engineer hiring shocks}
+ \end{subfigure}
+  \caption{Change in contribution rank following role-specific hiring growth; each panel shares a common scale.}
 \end{figure}
 
 \appendix

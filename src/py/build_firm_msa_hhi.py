@@ -24,18 +24,16 @@ towards 0 as the footprint becomes more evenly spread over many metros.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
+from project_paths import DATA_PROCESSED
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent
-PROC = ROOT / "data" / "processed"
+PROC = DATA_PROCESSED
 
 PATH_HEADS = PROC / "firm_occ_msa_heads_2019H2.csv"
 OUT_CSV = PROC / "firm_hhi_msa.csv"

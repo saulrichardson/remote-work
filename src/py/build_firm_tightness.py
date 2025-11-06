@@ -14,18 +14,16 @@ for workflows that need only the firm-level aggregates.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
+from project_paths import DATA_PROCESSED, DATA_RAW
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent
-PROC = ROOT / "data" / "processed"
-RAW = ROOT / "data" / "raw"
+PROC = DATA_PROCESSED
+RAW = DATA_RAW
 
 # Inputs
 PATH_HEADS = PROC / "firm_occ_msa_heads_2019H2.csv"

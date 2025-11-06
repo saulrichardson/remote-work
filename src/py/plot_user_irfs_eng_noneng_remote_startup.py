@@ -12,13 +12,14 @@ fresh outputs.
 """
 
 import math
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-RES_ROOT = os.path.join(BASE, 'results', 'user_irfs_eng_vs_noneng_by_remote_startup')
+from project_paths import RESULTS_DIR, ensure_dir
+
+RES_ROOT = RESULTS_DIR / "user_irfs_eng_vs_noneng_by_remote_startup"
 
 GROUPS = {
     'remote0_startup0': 'Non-Remote, Non-Startup',
@@ -29,8 +30,8 @@ GROUPS = {
 
 
 def load_group_csv(group):
-    path = os.path.join(RES_ROOT, group, 'eng_noneng_irf_results.csv')
-    if not os.path.exists(path):
+    path = RES_ROOT / group / "eng_noneng_irf_results.csv"
+    if not path.exists():
         return None
     df = pd.read_csv(path)
     for col in ['horizon', 'coef', 'ci_lo', 'ci_hi']:
@@ -51,7 +52,7 @@ def _format_tick_labels(ticks):
     return labels
 
 
-def plot_group(df, label, out_png_abs, out_png_rb, y_limits_abs=None, y_limits_rb=None,
+def plot_group(df, label, out_png_abs: Path, out_png_rb: Path, y_limits_abs=None, y_limits_rb=None,
                x_ticks=None, tick_labels=None):
     piv = df.pivot(index='horizon', columns='rhs', values=['coef', 'ci_lo', 'ci_hi']).sort_index()
     h_years = piv.index.values / 2.0
@@ -84,6 +85,7 @@ def plot_group(df, label, out_png_abs, out_png_rb, y_limits_abs=None, y_limits_r
     ax.grid(axis='y', alpha=0.15)
     ax.legend()
     fig.tight_layout()
+    ensure_dir(out_png_abs.parent)
     fig.savefig(out_png_abs, dpi=120)
     plt.close(fig)
 
@@ -114,12 +116,13 @@ def plot_group(df, label, out_png_abs, out_png_rb, y_limits_abs=None, y_limits_r
     ax.grid(axis='y', alpha=0.15)
     ax.legend()
     fig.tight_layout()
+    ensure_dir(out_png_rb.parent)
     fig.savefig(out_png_rb, dpi=120)
     plt.close(fig)
 
 
 def main():
-    os.makedirs(RES_ROOT, exist_ok=True)
+    ensure_dir(RES_ROOT)
 
     group_data = {}
     ymin_abs = ymax_abs = None
@@ -179,10 +182,10 @@ def main():
     y_limits_rb = (ymin_rb, ymax_rb) if ymin_rb is not None and ymax_rb is not None else None
 
     for group, info in group_data.items():
-        gdir = os.path.join(RES_ROOT, group)
-        os.makedirs(gdir, exist_ok=True)
-        out_abs = os.path.join(gdir, 'irf_plot_absolute.png')
-        out_rb = os.path.join(gdir, 'irf_plot_rebased.png')
+        gdir = RES_ROOT / group
+        ensure_dir(gdir)
+        out_abs = gdir / "irf_plot_absolute.png"
+        out_rb = gdir / "irf_plot_rebased.png"
         plot_group(info['df'], info['label'], out_abs, out_rb,
                    y_limits_abs=y_limits_abs, y_limits_rb=y_limits_rb,
                    x_ticks=x_ticks, tick_labels=tick_labels)
@@ -219,7 +222,7 @@ def main():
                 ax.set_ylabel('Effect on Productivity')
         fig.suptitle('Eng vs Non-Eng IRFs (Absolute, Shared Y)')
         fig.tight_layout(rect=[0, 0, 1, 0.96])
-        out_comb_abs = os.path.join(RES_ROOT, 'combined_irf_absolute.png')
+        out_comb_abs = RES_ROOT / "combined_irf_absolute.png"
         fig.savefig(out_comb_abs, dpi=120)
         plt.close(fig)
         print(f"[OK] {out_comb_abs}")
@@ -255,7 +258,7 @@ def main():
                 ax.set_ylabel('Effect on Productivity (rebased)')
         fig.suptitle('Eng vs Non-Eng IRFs (Rebased, Shared Y)')
         fig.tight_layout(rect=[0, 0, 1, 0.96])
-        out_comb_rb = os.path.join(RES_ROOT, 'combined_irf_rebased.png')
+        out_comb_rb = RES_ROOT / "combined_irf_rebased.png"
         fig.savefig(out_comb_rb, dpi=120)
         plt.close(fig)
         print(f"[OK] {out_comb_rb}")

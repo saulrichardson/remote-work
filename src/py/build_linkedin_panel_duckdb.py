@@ -41,7 +41,6 @@ import datetime as _dt
 import math
 import os
 import sys
-from pathlib import Path
 
 # We attempt to import DuckDB; if unavailable we fall back to a (slow but
 # functional) pandas implementation that is suitable for small samples and for
@@ -62,8 +61,9 @@ except ModuleNotFoundError:  # pragma: no cover  -- fallback environment
 import pandas as _pd
 import numpy as _np
 
-ROOT = Path(__file__).resolve().parent.parent
-USER_CBSA_CSV = ROOT / "data" / "processed" / "user_location_lookup.csv"
+from project_paths import DATA_PROCESSED
+
+USER_CBSA_CSV = DATA_PROCESSED / "user_location_lookup.csv"
 VALID_LOOKUP_MATCHES = (
     "alias",
     "principal_city",

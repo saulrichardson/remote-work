@@ -26,8 +26,8 @@ TARGET_OUTCOME = "total_contributions_q100"
 PARAMS = ["var6", "var7", "var4"]
 
 COL_TITLES = {
-    "var3": r"\makecell[c]{$ \text{Remote} \times \mathds{1}(\text{Post}) $}",
-    "var5": r"\makecell[c]{$ \text{Remote} \times \mathds{1}(\text{Post}) $ \\ $\times\, \text{Startup}$}",
+    "var3": r"\makecell[c]{\rule{0pt}{1.4em}$ \text{Remote} \times \mathds{1}(\text{Post}) $}",
+    "var5": r"\makecell[c]{\rule{0pt}{1.4em}$ \text{Remote} \times \mathds{1}(\text{Post}) $ \\ $\times\, \text{Startup}$}",
 }
 
 PARAM_LABEL = {
@@ -105,6 +105,9 @@ def build_lines(user_tables: dict[str, pd.DataFrame], firm_df: pd.DataFrame) -> 
         + r"\multicolumn{2}{c}{" + COL_TITLES["var5"] + "}"
         + row_end
     )
+    lines.append(r"\cmidrule(lr){2-3}")
+    lines.append(r"\cmidrule(lr){4-5}")
+    lines.append(r"\addlinespace[0.6em]")
     lines.append(r"\midrule")
     lines.append(r"\multicolumn{5}{@{}l}{\textbf{\uline{Panel A: Individual-level}}}\\")
     lines.append(r"\addlinespace[2pt]")

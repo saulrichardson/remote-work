@@ -42,12 +42,12 @@ def main() -> None:
     canonical_csv = DATA_PROCESSED / "vacancy" / "firm_halfyear_panel_MERGED_POST.csv"
     ensure_dir(canonical_csv.parent)
     spec_dir = SPEC_DIR
-    spec_file = spec_dir / "firm_scaling_vacancy_outcomes.do"
+    spec_file = spec_dir / "firm_scaling_vacancy_outcomes_htv2_95.do"
     if not spec_file.exists():
         raise SystemExit(f"Missing Stata spec: {spec_file}")
 
     results_base = RESULTS_RAW
-    canon_results_dir = results_base / "firm_scaling_vacancy_outcomes"
+    canon_results_dir = results_base / "firm_scaling_vacancy_outcomes_htv2_95"
     log_dir = SPEC_DIR / "log"
 
     for mv in args.min_vacs:
@@ -69,15 +69,15 @@ def main() -> None:
         run([args.stata, "-b", "do", spec_file.name], cwd=spec_dir)
 
         # 3) Save results under minvac-specific folder
-        mv_results = ensure_dir(results_base / f"firm_scaling_vacancy_outcomes_minvac_{mv}")
+        mv_results = ensure_dir(results_base / f"firm_scaling_vacancy_outcomes_htv2_95_minvac_{mv}")
         for fname in ("consolidated_results.csv", "first_stage.csv"):
             src = canon_results_dir / fname
             if src.exists():
                 shutil.copy2(src, mv_results / fname)
         # copy log too
-        src_log = log_dir / "firm_scaling_vacancy_outcomes.log"
+        src_log = log_dir / "firm_scaling_vacancy_outcomes_htv2_95.log"
         if src_log.exists():
-            shutil.copy2(src_log, log_dir / f"firm_scaling_vacancy_outcomes_minvac_{mv}.log")
+            shutil.copy2(src_log, log_dir / f"firm_scaling_vacancy_outcomes_htv2_95_minvac_{mv}.log")
         print(f"✓ Stored results in {mv_results}")
 
 

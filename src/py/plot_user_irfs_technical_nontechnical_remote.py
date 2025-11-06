@@ -6,14 +6,15 @@ and rewrites the per-coefficient PNGs with a shared year-based x-axis.
 """
 
 import math
-import os
+from pathlib import Path
 from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-RES_ROOT = os.path.join(BASE, 'results', 'user_irfs_technical_vs_nontechnical_remote')
+from project_paths import RESULTS_DIR, ensure_dir
+
+RES_ROOT = RESULTS_DIR / "user_irfs_technical_vs_nontechnical_remote"
 
 GROUPS: Dict[str, str] = {
     'remote1': 'Remote-first firms',
@@ -27,8 +28,8 @@ ROLE_META: Dict[str, Tuple[str, str, str]] = {
 
 
 def load_group(group: str) -> pd.DataFrame:
-    path = os.path.join(RES_ROOT, group, 'technical_irf_results.csv')
-    if not os.path.exists(path):
+    path = RES_ROOT / group / "technical_irf_results.csv"
+    if not path.exists():
         return pd.DataFrame()
     df = pd.read_csv(path)
     needed = {'rhs', 'horizon', 'coef_rebased', 'ci_lo_rebased', 'ci_hi_rebased'}
@@ -83,7 +84,7 @@ def axis_limits(series: pd.Series) -> Tuple[float, float]:
 
 def plot_role(df: pd.DataFrame, group_label: str, role: str,
               ticks: List[float], labels: List[str],
-              y_limits: Tuple[float, float], outfile: str, color: str) -> None:
+              y_limits: Tuple[float, float], outfile: Path, color: str) -> None:
     subset = df[df['rhs'] == role].copy()
     if subset.empty:
         return
@@ -109,12 +110,13 @@ def plot_role(df: pd.DataFrame, group_label: str, role: str,
     ax.grid(axis='y', alpha=0.15)
 
     fig.tight_layout()
+    ensure_dir(outfile.parent)
     fig.savefig(outfile, dpi=120)
     plt.close(fig)
 
 
 def main() -> None:
-    os.makedirs(RES_ROOT, exist_ok=True)
+    ensure_dir(RES_ROOT)
 
     group_frames: Dict[str, pd.DataFrame] = {}
     all_years: List[float] = []
@@ -152,7 +154,7 @@ def main() -> None:
         group_label = GROUPS.get(group, group)
         for role, (tag, _, color) in ROLE_META.items():
             suffix = 'remote' if group == 'remote1' else 'lt1'
-            outfile = os.path.join(RES_ROOT, f'irf_{suffix}_{tag}.png')
+            outfile = RES_ROOT / f'irf_{suffix}_{tag}.png'
             y_limits = role_limits.get(role, (-0.2, 0.2))
             plot_role(df, group_label, role, ticks, labels, y_limits, outfile, color)
 

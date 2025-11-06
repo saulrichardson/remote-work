@@ -1,9 +1,12 @@
 \centering
-\begin{tabularx}{\linewidth}{l@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}@{\hspace{4pt}}>{\centering\arraybackslash}X@{\hspace{4pt}}}
+\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}c@{\extracolsep{\fill}}c@{\extracolsep{\fill}}c@{}}
 \toprule
+ & \makecell[c]{\rule{0pt}{0.9em}Job\\Postings} & \makecell[c]{\rule{0pt}{0.9em}Log Job\\Postings} & \makecell[c]{\rule{0pt}{0.9em}Hires/\\Job Posting} & \makecell[c]{\rule{0pt}{0.9em}Any Job\\Postings} \\
+\cmidrule(lr){2-2}
+\cmidrule(lr){3-3}
+\cmidrule(lr){4-4}
+\cmidrule(lr){5-5}
  & (1) & (2) & (3) & (4) \\
-\midrule
- & Job Postings & Log Job Postings & Hires/Job Postings & Any Job Postings \\
 \midrule
 \multicolumn{5}{@{}l}{\textbf{\uline{Panel A: OLS}}} \\
 \addlinespace[2pt]
@@ -25,4 +28,4 @@ N & 37,681 & 30,313 & 27,790 & 37,681 \\
 \hspace{1em}Time & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 \hspace{1em}Firm & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 \bottomrule
-\end{tabularx}
+\end{tabular*}

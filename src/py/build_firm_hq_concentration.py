@@ -23,11 +23,10 @@ mapping (‘hhi_cbsa_largest.dta’).
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
+from project_paths import DATA_PROCESSED, DATA_RAW
 
 # ---------------------------------------------------------------------------
 # Parameters
@@ -40,9 +39,8 @@ MIN_HQ_HEADS = 20  # threshold for hhi_hq_hq
 # Paths
 # ---------------------------------------------------------------------------
 
-ROOT = Path(__file__).resolve().parent.parent
-PROC = ROOT / "data" / "processed"
-RAW  = ROOT / "data" / "raw" / "Data for labor market concentration using Lightcast (formerly Burning Glass Technologies)-2"
+PROC = DATA_PROCESSED
+RAW = DATA_RAW / "Data for labor market concentration using Lightcast (formerly Burning Glass Technologies)-2"
 
 # Inputs
 PATH_HEADS = PROC / "firm_occ_msa_heads_2019H2.csv"  # firm × soc4 × cbsa × heads

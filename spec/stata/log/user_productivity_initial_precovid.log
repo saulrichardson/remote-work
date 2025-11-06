@@ -1,25 +1,176 @@
----------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/log/user_productivity_initial_precovid.log
+       log:  /Users/saul/Dropbox/Remote Work Startups/main/spec/stata/log/user_
+> productivity_initial_precovid.log
   log type:  text
- opened on:  17 Sep 2025, 05:33:27
+ opened on:   3 Nov 2025, 10:32:05
 
 . 
 . // 0) Setup environment
-. do "../src/globals.do"
+. local __bootstrap "_bootstrap.do"
 
-. global raw_data "../data/raw"
+. if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
 
-. global processed_data  "../data/processed"
+. if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.d
+> o"
 
-. global results "../results/raw"
+. if !fileexists("`__bootstrap'") {
+.     di as error "Unable to locate _bootstrap.do. Run from project root or spe
+> c/stata."
+.     exit 601
+. }
 
-. global clean_results "../results/cleaned"
+. do "`__bootstrap'"
+
+. * ----------------------------------------------------------------------
+. * spec/_bootstrap.do — Resolve project paths robustly
+. * Include this at the top of every spec before referencing $PROJECT_ROOT
+. * ----------------------------------------------------------------------
+. 
+. capture confirm global PROJECT_ROOT
+
+. if _rc {
+.     * First try environment variable so batch jobs can override paths
+.     local env_root: env PROJECT_ROOT
+.     if "`env_root'" == "" {
+.         * Backwards compatibility for legacy STATAROOT env var
+.         local env_root: env STATAROOT
+.     }
+.     if "`env_root'" != "" {
+.         global PROJECT_ROOT "`env_root'"
+.     }
+.     else {
+.         * Derive from the current script location (this bootstrap file)
+.         local __bootstrap_self "`c(filename)'"
+.         if "`__bootstrap_self'" == "" {
+.             * When invoked interactively, fall back to current directory
+.             local __bootstrap_self "`c(pwd)'/_bootstrap.do"
+.         }
+. 
+.         capture mata: mata drop __trim_trailing_sep()
+.         capture mata: mata drop __parent_dir()
+.         capture mata: mata drop __find_project_root()
+. 
+.         mata:
+------------------------------------------------- mata (type end to exit) -----
+:         function __trim_trailing_sep(string scalar path) {
+>             string scalar backslash
+>             backslash = char(92)
+>             real scalar len
+>             len = strlen(path)
+>             while (len > 1) {
+>                 string scalar last
+>                 last = substr(path, len, 1)
+>                 if (last == "/" | last == backslash) {
+>                     /* preserve drive roots like C:\ */
+>                     if (len == 3 & substr(path, 2, 1) == ":") {
+>                         break
+>                     }
+>                     path = substr(path, 1, len - 1)
+>                     len  = len - 1
+>                 }
+>                 else {
+>                     break
+>                 }
+>             }
+>             return(path)
+>         }
+
+: 
+:         function __parent_dir(string scalar path) {
+>             string scalar backslash
+>             real scalar i, len
+>             backslash = char(92)
+>             string scalar clean, ch
+> 
+>             clean = __trim_trailing_sep(path)
+>             len   = strlen(clean)
+>             if (len == 0) return("")
+> 
+>             for (i = len; i >= 1; i--) {
+>                 ch = substr(clean, i, 1)
+>                 if (ch == "/" | ch == backslash) {
+>                     if (i == 1) return(substr(clean, 1, 1))
+>                     if (i == 3 & substr(clean, 2, 1) == ":") return(substr(cl
+> ean, 1, 3))
+>                     return(substr(clean, 1, i - 1))
+>                 }
+>             }
+>             return("")
+>         }
+
+: 
+:         function __find_project_root(string scalar start) {
+>             string scalar here
+>             here = __trim_trailing_sep(start)
+>             while (here != "") {
+>                 if (direxists(here + "/.git") | fileexists(here + "/README.md
+> ")) {
+>                     return(here)
+>                 }
+>                 here = __parent_dir(here)
+>             }
+>             return("")
+>         }
+
+:         end
+-------------------------------------------------------------------------------
+. 
+.         mata: st_local("__bootstrap_self", "`__bootstrap_self'")
+.         mata: st_local("__spec_dir", __parent_dir(st_local("__bootstrap_self"
+> )))
+.         mata: st_local("__proj_root", __find_project_root(st_local("__spec_di
+> r")))
+.         if "`__proj_root'" == "" {
+.             di as error "Unable to locate project root. Set PROJECT_ROOT env 
+> var before running."
+.             exit 198
+.         }
+.         global PROJECT_ROOT "`__proj_root'"
+.     }
+. }
+
+. 
+. * Derive commonly used paths from the resolved root
+. if "$PROJECT_ROOT" == "" {
+.     di as error "PROJECT_ROOT is empty after bootstrap."
+.     exit 198
+. }
+
+. 
+. local __sep "/"
+
+. if strpos("`c(os)'","Windows") local __sep "\"
+
+. 
+. global RAW_DATA        "$PROJECT_ROOT`__sep'data/raw"
+
+. global PROCESSED_DATA  "$PROJECT_ROOT`__sep'data/processed"
+
+. global RAW_RESULTS     "$PROJECT_ROOT`__sep'results/raw"
+
+. global FINAL_TEX       "$PROJECT_ROOT`__sep'results/final/tex"
+
+. global FINAL_FIGURES   "$PROJECT_ROOT`__sep'results/final/figures"
+
+. 
+. mata: mata drop __find_project_root()
+
+. mata: mata drop __parent_dir()
+
+. mata: mata drop __trim_trailing_sep()
 
 . 
 . 
-. 
-. 
+. * Backwards-compatible aliases
+. global results        "$RAW_RESULTS"
+
+. global processed_data "$PROCESSED_DATA"
+
+. global data_processed "$PROCESSED_DATA"
+
+. global clean_results  "$FINAL_TEX"
+
 . 
 end of do-file
 
@@ -31,7 +182,8 @@ end of do-file
 . // 2) Prepare output dir & reset any old postfile
 . *--------------------------------------------------------------------------*
 . * Output directory is *always* suffixed with the panel variant so each run is
-. * explicit about the underlying sample (e.g., "user_productivity_initial_balanced").
+. * explicit about the underlying sample (e.g., "user_productivity_initial_bala
+> nced").
 . *--------------------------------------------------------------------------*
 . 
 . local result_dir  "$results/`specname'"
@@ -43,7 +195,8 @@ end of do-file
 
 . tempfile out
 
-. *--- postfile header (main results) -------------------------------------------
+. *--- postfile header (main results) -----------------------------------------
+> --
 . postfile handle ///
 >     str8   model_type ///
 >     str40  outcome     ///
@@ -51,7 +204,8 @@ end of do-file
 >     double coef se pval pre_mean ///
 >     double rkf nobs     ///
 >     using `out', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46341.000001 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//St16345.000001 not
+    found)
 
 . 
 . 
@@ -68,7 +222,8 @@ end of do-file
 >     double coef se pval       ///
 >     double partialF rkf nobs  ///
 >     using `out_fs', replace
-(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//S_46341.000002 not found)
+(file /var/folders/hg/s3xm9w393gxby64_zklmhgbc0000gn/T//St16345.000002 not
+    found)
 
 .         
 . // 3) Loop over outcomes
@@ -94,10 +249,13 @@ end of do-file
   9.         local se   = _se[`p']
  10.         local t    = `b'/`se'
  11.         local pval = 2*ttail(e(df_r), abs(`t'))
- 12.                 *--- inside the OLS loop ------------------------------------------------------
+ 12.                 *--- inside the OLS loop ---------------------------------
+> ---------------------
 .         post handle ("OLS") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (.) (`N')                 // dot for rkf, then nobs
+>                                         (`b') (`se') (`pval') (`pre_mean') //
+> /
+>                                         (.) (`N')                 // dot for 
+> rkf, then nobs
  13.     }
  14. 
 .     // ----- IV (2nd‐stage) -----
@@ -113,10 +271,13 @@ end of do-file
  19.         local se   = _se[`p']
  20.         local t    = `b'/`se'
  21.         local pval = 2*ttail(e(df_r), abs(`t'))
- 22.                 *--- inside the IV loop -------------------------------------------------------
+ 22.                 *--- inside the IV loop ----------------------------------
+> ---------------------
 .         post handle ("IV") ("`y'") ("`p'") ///
->                                         (`b') (`se') (`pval') (`pre_mean') ///
->                                         (`rkf') (`N')            // rkf, then nobs
+>                                         (`b') (`se') (`pval') (`pre_mean') //
+> /
+>                                         (`rkf') (`N')            // rkf, then
+>  nobs
  23.     }
  24. 
 .         if !`fs_done' {
@@ -124,7 +285,8 @@ end of do-file
 .                 matrix FS = e(first)
  26.         local F3 = FS[4,1]
  27. 
-.                 /* -------- var3 first stage -------------------------------- */
+.                 /* -------- var3 first stage --------------------------------
+>  */
 .                 estimates restore _ivreg2_var3
  28.                 local N_fs = e(N)
  29.                 foreach p in var6 var4 {
@@ -134,8 +296,10 @@ end of do-file
  33.                         local pval = 2*ttail(e(df_r), abs(`t'))
  34. 
 .                         post handle_fs ("var3") ("`p'") ///
->                                                         (`b') (`se') (`pval') ///
->                                                         (`F3') (`rkf') (`N_fs')
+>                                                         (`b') (`se') (`pval')
+>  ///
+>                                                         (`F3') (`rkf') (`N_fs
+> ')
  35.                 }
  36. 
 . 
@@ -344,7 +508,8 @@ Absorbed degrees of freedom:
 
 . export delimited using "`result_dir'/consolidated_results.csv", ///
 >     replace delimiter(",") quote
-file ../results/raw/user_productivity_initial_precovid/consolidated_results.csv saved
+file /Users/saul/Dropbox/Remote Work Startups/main/results/raw/user_productivit
+> y_initial_precovid/consolidated_results.csv saved
 
 . 
 . * --- write first-stage CSV -----------------------------------------
@@ -354,13 +519,16 @@ file ../results/raw/user_productivity_initial_precovid/consolidated_results.csv 
 
 . export delimited using "`result_dir'/first_stage.csv", ///
 >         replace delimiter(",") quote
-file ../results/raw/user_productivity_initial_precovid/first_stage.csv saved
+file /Users/saul/Dropbox/Remote Work Startups/main/results/raw/user_productivit
+> y_initial_precovid/first_stage.csv saved
 
 . 
 . di as result "→ second-stage CSV : `result_dir'/consolidated_results.csv"
-→ second-stage CSV : ../results/raw/user_productivity_initial_precovid/consolidated_results.csv
+→ second-stage CSV : /Users/saul/Dropbox/Remote Work Startups/main/results/raw/
+> user_productivity_initial_precovid/consolidated_results.csv
 
 . di as result "→ first-stage  CSV : `result_dir'/first_stage.csv"
-→ first-stage  CSV : ../results/raw/user_productivity_initial_precovid/first_stage.csv
+→ first-stage  CSV : /Users/saul/Dropbox/Remote Work Startups/main/results/raw/
+> user_productivity_initial_precovid/first_stage.csv
 
 . capture log close

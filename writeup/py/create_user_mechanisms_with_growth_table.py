@@ -146,7 +146,7 @@ def format_table_chunk_for_model(
     lines.append(rf"\begin{{tabular*}}{{\linewidth}}{{{col_spec}}}")
     lines.append(r"\toprule")
 
-    lines.append(r" & \multicolumn{%d}{c}{Contributions} \\" % len(specs))
+    lines.append(r" & \multicolumn{%d}{c}{Contribution Rank} \\" % len(specs))
     lines.append(r"\cmidrule(lr){2-%d}" % (len(specs) + 1))
 
     lines.append(" & " + " & ".join(f"({i})" for i in range(1, len(specs) + 1)) + r" \\")
@@ -284,7 +284,7 @@ def format_combined_table_chunk(
         r"{\centering",
         rf"\begin{{tabular*}}{{\linewidth}}{{{col_spec}}}",
         r"\toprule",
-        rf" & \multicolumn{{{n_cols}}}{{c}}{{Contributions}} \\",
+        rf" & \multicolumn{{{n_cols}}}{{c}}{{Contribution Rank}} \\",
         rf"\cmidrule(lr){{2-{n_cols + 1}}}",
         " & " + header_nums + r" \\",
         r"\midrule",

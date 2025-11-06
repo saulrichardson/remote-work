@@ -18,15 +18,12 @@ PROC/firm_hhi_hq.csv      • columns: companyname (lower), hhi_hq
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
+from project_paths import DATA_PROCESSED
 
-ROOT = Path(__file__).resolve().parent.parent
-PROC = ROOT / "data" / "processed"
-RAW  = ROOT / "data" / "raw" / "Data for labor market concentration using Lightcast (formerly Burning Glass Technologies)-2"
+PROC = DATA_PROCESSED
 
 # paths
 HQ_DTA   = PROC / "modal_msa_per_firm.dta"

@@ -12,12 +12,12 @@ Groups:
   - remote1_startup1 → "Remote, Startup"
 """
 
-import os
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-RES_ROOT = os.path.join(BASE, 'results', 'firm_irfs_total_growth')
+from project_paths import RESULTS_DIR
+
+RES_ROOT = RESULTS_DIR / "firm_irfs_total_growth"
 
 GROUPS = {
     'remote0_startup0': 'Non-Remote, Non-Startup',
@@ -29,9 +29,9 @@ GROUPS = {
 def main():
     any_plotted = False
     for group, label in GROUPS.items():
-        gdir = os.path.join(RES_ROOT, group)
-        csv_path = os.path.join(gdir, 'irf_results.csv')
-        if not os.path.exists(csv_path):
+        gdir = RES_ROOT / group
+        csv_path = gdir / "irf_results.csv"
+        if not csv_path.exists():
             print(f"[WARN] Missing CSV: {csv_path}")
             continue
         df = pd.read_csv(csv_path)
@@ -71,7 +71,7 @@ def main():
         ax.grid(axis='y', alpha=0.15)
         fig.tight_layout()
 
-        out_png = os.path.join(gdir, 'clean_firm_irf.png')
+        out_png = gdir / "clean_firm_irf.png"
         fig.savefig(out_png, dpi=120)
         plt.close(fig)
         print(f"[OK] {out_png}")
@@ -82,4 +82,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

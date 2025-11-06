@@ -8,20 +8,20 @@ per-coefficient PNGs with a shared year-based x-axis and unified styling.
 from __future__ import annotations
 
 import math
-import os
 import sys
+from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-RES_ROOT = os.path.join(BASE, 'results', 'user_irfs_engineer_remote')
+from project_paths import PY_DIR, RESULTS_DIR, ensure_dir
 
-PY_DIR = os.path.join(BASE, 'py')
-if PY_DIR not in sys.path:
-    sys.path.insert(0, PY_DIR)
+RES_ROOT = RESULTS_DIR / "user_irfs_engineer_remote"
+
+if str(PY_DIR) not in sys.path:
+    sys.path.insert(0, str(PY_DIR))
 
 from plot_style import (  # noqa: E402  pylint: disable=wrong-import-position
     AXIS_COLOR,
@@ -54,8 +54,8 @@ LEGACY_FILENAME_STEMS: Dict[str, str] = {
 
 
 def load_group(group: str) -> pd.DataFrame:
-    path = os.path.join(RES_ROOT, group, 'engineer_irf_results.csv')
-    if not os.path.exists(path):
+    path = RES_ROOT / group / "engineer_irf_results.csv"
+    if not path.exists():
         return pd.DataFrame()
     df = pd.read_csv(path)
     needed = {'rhs', 'horizon', 'coef_rebased', 'ci_lo_rebased', 'ci_hi_rebased'}
@@ -81,11 +81,9 @@ def compute_ticks(years: Iterable[float]) -> Tuple[List[float], List[str]]:
     return ticks, labels
 
 
-def save_plot(fig: plt.Figure, outpaths: Sequence[str]) -> None:
+def save_plot(fig: plt.Figure, outpaths: Sequence[Path]) -> None:
     for path in dict.fromkeys(outpaths):  # deduplicate while preserving order
-        directory = os.path.dirname(path)
-        if directory:
-            os.makedirs(directory, exist_ok=True)
+        ensure_dir(path.parent)
         fig.savefig(path, dpi=FIG_DPI, facecolor='white')
 
 
@@ -96,7 +94,7 @@ def plot_role(
     ticks: Sequence[float],
     labels: Sequence[str],
     y_limits: Tuple[float, float],
-    outpaths: Sequence[str],
+    outpaths: Sequence[Path],
 ) -> None:
     subset = df[df['rhs'] == role].copy()
     if subset.empty:
@@ -134,7 +132,7 @@ def plot_role(
 
 
 def main() -> None:
-    os.makedirs(RES_ROOT, exist_ok=True)
+    ensure_dir(RES_ROOT)
 
     group_frames: Dict[str, pd.DataFrame] = {}
     all_years: List[float] = []
@@ -174,8 +172,8 @@ def main() -> None:
         suffix = 'remote' if group == 'remote1' else 'lt1'
         role = 'Engineer'
         tag, _ = ROLE_META[role]
-        primary = os.path.join(RES_ROOT, f'irf_{suffix}_{tag}.png')
-        legacy = os.path.join(RES_ROOT, LEGACY_FILENAME_STEMS[group] + ".png")
+        primary = RES_ROOT / f"irf_{suffix}_{tag}.png"
+        legacy = RES_ROOT / f"{LEGACY_FILENAME_STEMS[group]}.png"
         outpaths = [primary, legacy]
         lo, hi = role_limits.get(role, [-0.2, 0.2])
         plot_role(df, group_label, role, ticks, labels, (lo, hi), outpaths)
