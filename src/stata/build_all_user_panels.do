@@ -33,8 +33,8 @@
 *-------------------------------------------------------------------*/
 
 capture log close
-cap mkdir "log"
-log using "log/build_all_user_panels.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/build_all_user_panels.log", replace text
 
 ****************************************************************************
 * 0.  Globals

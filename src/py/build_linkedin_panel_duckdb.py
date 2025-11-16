@@ -25,8 +25,8 @@ Usage
 -----
 python py/build_linkedin_panel_duckdb.py \
        --spells     data/raw/Scoop_workers_positions.csv \
-       --msa-map    data/processed/enriched_msa.csv      \
-       --output     data/processed/linkedin_firm_soc_msa_yh.parquet
+       --msa-map    data/cleaned/enriched_msa.csv      \
+       --output     data/cleaned/linkedin_firm_soc_msa_yh.parquet
 
 Optional flags:
     --threads N          number of DuckDB threads (default: all cores)

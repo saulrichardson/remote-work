@@ -4,12 +4,12 @@ geographically concentrated each firm is across U.S. metropolitan areas
 
 Input
 -----
-data/processed/firm_occ_msa_heads_2019H2.csv
+data/cleaned/firm_occ_msa_heads_2019H2.csv
     Columns required: companyname, cbsa, heads
 
 Output
 ------
-data/processed/firm_hhi_msa.csv
+data/cleaned/firm_hhi_msa.csv
     Columns: companyname (lower-case), hhi_msa_2019
 
 HHI definition

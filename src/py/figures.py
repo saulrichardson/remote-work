@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """make_core_figures.py
 
 Generates **firm‑level** binscatter figures for the project.  All plots use
 *quantile (equal‑frequency) bins* (Stata‑style `binscatter`) and are written to
-`results/final/figures/`.
+`results/cleaned/figures/`.
 
 Relationships visualised
 ------------------------
@@ -22,11 +24,21 @@ Inputs (CSV expected under `data/samples/`)
 """
 
 import argparse
-import numpy as np
+import warnings
+from pathlib import Path
+
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
-from pathlib import Path
+
+try:
+    from binsreg import binsreg
+except ImportError as exc:  # pragma: no cover - runtime guard
+    raise SystemExit(
+        "binsreg is not installed. Run `pip install binsreg` inside the project virtualenv "
+        "before executing src/py/figures.py."
+    ) from exc
 
 from plot_style import (
     FIGSIZE,
@@ -34,7 +46,7 @@ from plot_style import (
     apply_standard_figure_layout,
     compute_padded_limits,
 )
-from project_paths import DATA_SAMPLES, RESULTS_FINAL_FIGURES, ensure_dir
+from project_paths import DATA_SAMPLES, RESULTS_CLEANED_FIGURES, ensure_dir
 
 # Shared plotting style ------------------------------------------------------
 plt.rcParams.update({
@@ -48,7 +60,7 @@ plt.rcParams.update({
 })
 
 DATA_DIR = DATA_SAMPLES
-OUTPUT_DIR = ensure_dir(RESULTS_FINAL_FIGURES)
+OUTPUT_DIR = ensure_dir(RESULTS_CLEANED_FIGURES)
 
 
 def _read_csv_flexible(path: Path) -> pd.DataFrame:
@@ -73,13 +85,60 @@ COLOURS          = {True: '#111111', False: '#444444'}
 # HELPER FUNCTIONS
 ###############################################################################
 
-def _binscatter_quantile(df: pd.DataFrame, x: str, y: str, q: int):
-    """Return X‑midpoints and Y‑means for *q* equal‑frequency bins."""
+def _quantile_bins(df: pd.DataFrame, x: str, y: str, q: int) -> tuple[np.ndarray, np.ndarray]:
+    """Fallback: equal-frequency bins via pandas.qcut."""
     tmp = df[[x, y]].dropna().copy()
-    tmp["bin"] = pd.qcut(tmp[x], q=q, duplicates="drop")
-    means   = tmp.groupby("bin", observed=False)[y].mean()  # observed=False silences FutureWarning
-    centres = [interval.mid for interval in means.index.categories]
-    return centres, means.values
+    if tmp.empty:
+        raise ValueError("No observations left after filtering NaNs")
+    tmp["bin"] = pd.qcut(tmp[x], q=min(q, tmp[x].nunique()), duplicates="drop")
+    grouped = tmp.groupby("bin", observed=False)[[x, y]].mean()
+    return grouped[x].to_numpy(), grouped[y].to_numpy()
+
+
+def _binsreg_points(
+    df: pd.DataFrame,
+    x: str,
+    y: str,
+    nbins: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return within-bin x/fit pairs using binsreg with graceful fallbacks."""
+
+    df_valid = df[[x, y]].dropna()
+    if df_valid.empty or df_valid[x].nunique() < 2:
+        raise ValueError("Insufficient variation for binsreg")
+
+    unique_x = df_valid[x].nunique()
+    candidate_bins = []
+    if unique_x > 2:
+        candidate_bins.append(min(nbins, unique_x - 1))
+    candidate_bins.append(max(2, min(20, unique_x - 1)))
+    candidate_bins = [b for b in candidate_bins if b >= 2]
+
+    def run_binsreg(nbins_override: int | None):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=RuntimeWarning)
+            return binsreg(
+                df_valid[y].to_numpy(),
+                df_valid[x].to_numpy(),
+                nbins=nbins_override,
+                noplot=True,
+                nsims=0,
+                binsmethod="dpi",
+                binspos="qs",
+            )
+
+    tries = [None] + candidate_bins
+    for nbins_override in tries:
+        try:
+            res = run_binsreg(nbins_override)
+        except Exception:
+            continue
+        dots = res.data_plot[0].dots if res.data_plot else None
+        if dots is not None and not dots.empty:
+            return dots["x"].to_numpy(), dots["fit"].to_numpy()
+
+    # Fallback to quantile bins if binsreg never produced dots
+    return _quantile_bins(df_valid, x, y, nbins)
 
 
 
@@ -117,10 +176,13 @@ def _plot_bins_reg(
         grp_valid = grp.dropna(subset=[x, y])
         if len(grp_valid) < 3 or grp_valid[x].nunique() < 2:
             continue
-        # adjust number of bins to avoid non-unique edges
-        group_q = min(q, grp_valid[x].nunique() - 1)
-        colour   = COLOURS.get(key, "black")
-        xs, ys   = _binscatter_quantile(grp_valid, x, y, group_q)
+        # adjust requested bins for the available support
+        group_q = max(2, min(q, grp_valid[x].nunique() - 1))
+        colour = COLOURS.get(key, "black")
+        try:
+            xs, ys = _binsreg_points(grp_valid, x, y, group_q)
+        except ValueError:
+            continue
         label_bs = (
             f"{'Remote' if key else 'Non‑remote'} (Binscatter)"
             if split_col else "Binscatter"

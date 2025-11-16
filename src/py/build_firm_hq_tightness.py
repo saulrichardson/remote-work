@@ -13,7 +13,7 @@ Steps (data flow)
 
 Output
 ------
-data/processed/firm_tightness_hq.csv  (columns: companyname, tight_hq)
+data/cleaned/firm_tightness_hq.csv  (columns: companyname, tight_hq)
 
 The resulting CSV can be merged in Stata:
 

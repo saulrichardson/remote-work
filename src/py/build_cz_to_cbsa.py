@@ -7,7 +7,7 @@ data/raw/Data for labor market concentration using Lightcast (formerly Burning G
     • list1_2023.xlsx           (OMB CBSA delineations, county → CBSA)
     • co-est2020-alldata.csv    (Census 2020 county population)
 
-Outputs written to data/processed/
+Outputs written to data/cleaned/
 ---------------------------------
 cz_to_cbsa_largest.csv       cz → cbsa  (1-to-1, pick CBSA with largest 2020 pop share)
 cz_to_cbsa_fractional.csv    cz → cbsa, weight  (many-to-many, population shares)

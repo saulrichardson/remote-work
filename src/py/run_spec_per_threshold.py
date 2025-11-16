@@ -16,7 +16,7 @@ def run(cmd: list[str], cwd: Path | None = None) -> None:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Run Stata vacancy spec for multiple thresholds")
-    p.add_argument("--outdir", required=True, help="Base outdir used in threshold sweep (e.g., data/processed/vacancy/sensitivity)")
+    p.add_argument("--outdir", required=True, help="Base outdir used in threshold sweep (e.g., data/cleaned/vacancy/sensitivity)")
     p.add_argument("--thresholds", nargs="+", type=int, required=True, help="Threshold-days list, e.g., 30 60 90 120 150")
     p.add_argument("--stata", default="/Applications/Stata/StataSE.app/Contents/MacOS/stata-se", help="Path to Stata executable")
     return p.parse_args()

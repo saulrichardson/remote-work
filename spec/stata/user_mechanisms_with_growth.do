@@ -19,11 +19,8 @@ args panel_variant
 if "`panel_variant'" == "" local panel_variant "precovid"
 
 // Logging --------------------------------------------------------------
-capture log close
-cap mkdir "log"
-local specname   "user_mechanisms_with_growth_`panel_variant'"
-log using "log/`specname'.log", replace text
 
+local specname   "user_mechanisms_with_growth_`panel_variant'"
 // Globals --------------------------------------------------------------
 local __bootstrap "_bootstrap.do"
 if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
@@ -33,8 +30,15 @@ if !fileexists("`__bootstrap'") {
     exit 601
 }
 do "`__bootstrap'"
+capture log close
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
+
+
 local result_dir "$results/`specname'"
 cap mkdir "`result_dir'"
+
+
 
 // Load user panel ------------------------------------------------------
 use "$processed_data/user_panel_`panel_variant'.dta", clear
@@ -48,10 +52,8 @@ gen seniority_4 = !inrange(seniority_levels, 1, 3)
 gen var8  = covid*rent
 gen var9  = covid*rent*startup
 
-
 gen var11 = covid*hhi_1000
 gen var12 = covid*hhi_1000*startup
-
 
 gen var14 = covid*seniority_4
 gen var15 = covid*seniority_4*startup

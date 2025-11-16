@@ -8,10 +8,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from project_paths import RESULTS_FINAL_FIGURES
+from project_paths import RESULTS_CLEANED_FIGURES, RESULTS_RAW
 
-SAVED_DATA = Path("results/final/binsreg_var5_levels.dta")
-OUTPUT = RESULTS_FINAL_FIGURES / "binsreg_var5_levels_python.png"
+SAVED_DATA = RESULTS_RAW / "binsreg_var5_levels.dta"
+OUTPUT = RESULTS_CLEANED_FIGURES / "binsreg_var5_levels_python.png"
 
 
 def load_binsreg_data(path: Path) -> pd.DataFrame:

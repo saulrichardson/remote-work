@@ -6,10 +6,14 @@ if !fileexists("`__bootstrap'") {
     exit 601
 }
 do "`__bootstrap'"
+
+
+
 local specname  "firm_event_study"
 capture log close
-cap mkdir "log"
-log using "log/`specname'.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
+
 
 local result_path "$results/`specname'"
 cap mkdir "`result_path'"

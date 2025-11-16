@@ -14,7 +14,7 @@ import pandas as pd
 
 from project_paths import (
     DATA_PROCESSED,
-    RESULTS_FINAL_FIGURES,
+    RESULTS_CLEANED_FIGURES,
     ensure_dir,
     relative_to_project,
 )
@@ -46,7 +46,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=str,
-        default=str(RESULTS_FINAL_FIGURES / "var5_effect_by_age.png"),
+        default=str(RESULTS_CLEANED_FIGURES / "var5_effect_by_age.png"),
         help="Destination for the figure (default: %(default)s).",
     )
     parser.add_argument(

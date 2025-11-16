@@ -1,0 +1,25 @@
+{
+  "runs": [
+    {
+      "run_id": "smoke",
+      "timestamp": "2025-11-07T21:05:29.118065Z",
+      "contract": "automation/contracts/contract-smoke.json",
+      "tasks": [
+        {
+          "task_id": "smoke-orchestrator-note",
+          "title": "Document smoke test note",
+          "worktree_path": "worktrees/task-smoke",
+          "branch_name": "smoke/orchestrator-test",
+          "status": "completed",
+          "logs": {
+            "worktree": "/Users/saulrichardson/Library/CloudStorage/Dropbox/Remote Work Startups/main/worktrees/task-smoke",
+            "events": "worktrees/task-smoke/.codex/events.jsonl",
+            "stderr": "worktrees/task-smoke/.codex/stderr.log",
+            "final_message": "worktrees/task-smoke/.codex/final.md",
+            "session_id": "019a6023-7ae1-7d70-9191-6502f147af34"
+          }
+        }
+      ]
+    }
+  ]
+}

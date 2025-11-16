@@ -17,7 +17,7 @@ Usage
 
 Optional flags allow custom caption/label and destination directory.  The
 output mirrors the behaviour of *simple_table_from_consolidated.py* and is
-written to *results/final/tex/<csv-stem>.tex* by default.
+written to *results/cleaned/tex/<csv-stem>.tex* by default.
 """
 
 from __future__ import annotations
@@ -196,7 +196,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("csv_path", type=Path, help="CSV file produced by Stata heterogeneity script")
     p.add_argument("--caption", help="Custom caption (defaults to derived from file name)")
     p.add_argument("--label", help="Custom LaTeX label (defaults to derived from file name)")
-    p.add_argument("--out", type=Path, help="Output .tex file (defaults to results/final/tex/<stem>.tex)")
+    p.add_argument("--out", type=Path, help="Output .tex file (defaults to results/cleaned/tex/<stem>.tex)")
     p.add_argument(
         "--bucket-labels",
         help="Comma-separated labels for buckets in sorted order (e.g., 'Outside,Inside,Remote')",
@@ -221,7 +221,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.out is not None:
         out_path = args.out.expanduser().resolve()
     else:
-        # results/final/tex/<stem>.tex  – stay consistent with other helpers
+        # results/cleaned/tex/<stem>.tex  – stay consistent with other helpers
         out_path = csv_path.parents[2] / "cleaned" / f"{stem}.tex"
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

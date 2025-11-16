@@ -17,14 +17,17 @@ if !fileexists("`__bootstrap'") {
 }
 do "`__bootstrap'"
 
+
+
 // 1) Load master firm panel (provides firm_id, yh, covariates)
 use "$processed_data/firm_panel.dta", clear
 
 // 2) Prepare output dir & logging
 local specname   "firm_scaling_vacancy_outcomes_htv2_95"
 capture log close
-cap mkdir "log"
-log using "log/`specname'.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
+
 
 local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
@@ -72,6 +75,13 @@ capture drop vacancies_thousands
 gen double vacancies_thousands = vacancies/1000
 label var vacancies_thousands "Vacancies (Thousands)"
 
+tempvar vac_rank_raw vac_rank_denom
+bysort yh: egen `vac_rank_raw' = rank(vacancies_thousands), field
+bysort yh: egen `vac_rank_denom' = count(vacancies_thousands)
+capture drop vacancies_rank_q100
+gen double vacancies_rank_q100 = 100 * `vac_rank_raw' / `vac_rank_denom'
+label var vacancies_rank_q100 "Job posting rank (pctile)"
+
 capture drop log_vacancies
 gen double log_vacancies = .
 replace log_vacancies = ln(1 + vacancies) if vacancies > 0
@@ -83,7 +93,8 @@ label var any_vacancy "Indicator for any job postings"
 
 /*
 Outcomes used below:
- - vacancies_thousands
+ - vacancies_thousands (levels)
+ - vacancies_rank_q100 (within-half-year percentile)
  - log_vacancies (intensive margin, vacancies > 0)
  - hires_to_vacancies_winsor95_min3 (min vacancies = 3, winsor 5/95)
  - any_vacancy (extensive margin indicator)
@@ -103,7 +114,7 @@ postfile handle ///
 // (No separate first-stage export in this minimal spec)
 
 // 4) Loop over outcomes (restricted set)
-local outcome_vars vacancies_thousands log_vacancies hires_to_vacancies_winsor95_min3 any_vacancy
+local outcome_vars vacancies_thousands vacancies_rank_q100 log_vacancies hires_to_vacancies_winsor95_min3 any_vacancy
 
 foreach y of local outcome_vars {
     di as text "→ Processing `y'"

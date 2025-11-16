@@ -1,49 +1,73 @@
 #!/usr/bin/env python3
-"""
-Find every (user_id, year, month) combination that never appears
-between 2016 and 2022 in /Users/saul/Downloads/all_contributions.csv
-and save the result to a new CSV in the same folder.
-"""
+"""Find (user, year, month) combinations missing from an activity CSV."""
 
-import pandas as pd
+from __future__ import annotations
+
+import argparse
 from itertools import product
 from pathlib import Path
 
-# ----- hard-coded settings ---------------------------------------------------
-DATA_PATH   = Path("/Users/saul/Downloads/all_contributions.csv")
-START_YEAR  = 2016
-END_YEAR    = 2022
-OUTPUT_PATH = DATA_PATH.with_name(
-    f"missing_user_months_{START_YEAR}_{END_YEAR}.csv"
-)
-# -----------------------------------------------------------------------------
+import pandas as pd
+
+from project_paths import DATA_RAW
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Identify user-year-month combinations absent from a contributions "
+            "CSV and export them as a companion file."
+        )
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=DATA_RAW / "all_contributions.csv",
+        help="Path to the contributions CSV (default: data/raw/all_contributions.csv)",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Optional path for the output CSV (defaults to alongside --input)",
+    )
+    parser.add_argument("--start-year", type=int, default=2016)
+    parser.add_argument("--end-year", type=int, default=2022)
+    return parser.parse_args()
 
 
 def main() -> None:
-    # Load the data
-    df = pd.read_csv(DATA_PATH)
-    print(len(df))
+    args = parse_args()
+    data_path = args.input.expanduser().resolve()
+    if args.output:
+        output_path = args.output.expanduser().resolve()
+    else:
+        output_path = data_path.with_name(
+            f"missing_user_months_{args.start_year}_{args.end_year}.csv"
+        )
 
-    # Ensure correct dtypes
-    df["year"]  = df["year"].astype(int)
+    if not data_path.exists():
+        raise FileNotFoundError(
+            f"Contributions file not found: {data_path}. Place it under data/raw or use --input."
+        )
+
+    df = pd.read_csv(data_path)
+    df["year"] = df["year"].astype(int)
     df["month"] = df["month"].astype(int)
 
-    # Build the complete user–year–month grid
-    users  = df["user_id"].unique()
-    years  = range(START_YEAR, END_YEAR + 1)
+    users = df["user_id"].unique()
+    years = range(args.start_year, args.end_year + 1)
     months = range(1, 13)
 
     full_grid = pd.DataFrame(
         product(users, years, months),
-        columns=["user_id", "year", "month"]
+        columns=["user_id", "year", "month"],
     )
 
-    # Identify missing combinations
     merged = full_grid.merge(
         df.drop_duplicates(["user_id", "year", "month"]),
         on=["user_id", "year", "month"],
         how="left",
-        indicator=True
+        indicator=True,
     )
 
     missing = (
@@ -51,12 +75,11 @@ def main() -> None:
         .sort_values(["user_id", "year", "month"])
         .reset_index(drop=True)
     )
-    print(len(missing))
-    # Write result
-    missing.to_csv(OUTPUT_PATH, index=False)
-    print(f"✅  Missing combinations written to {OUTPUT_PATH}")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    missing.to_csv(output_path, index=False)
+    print(f"✅  Missing combinations written to {output_path}")
 
 
 if __name__ == "__main__":
     main()
-

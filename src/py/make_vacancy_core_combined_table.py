@@ -5,6 +5,7 @@ import argparse
 from pathlib import Path
 import csv
 
+from project_paths import RESULTS_CLEANED_TEX, RESULTS_RAW
 
 PARAM_TITLES = {
     "var3": "$ \\text{Remote} \\times \\mathds{1}(\\text{Post}) $",
@@ -123,8 +124,16 @@ def build_table(data: dict) -> str:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--input", type=Path, default=Path("results/raw/firm_scaling_vacancy_outcomes_t90/consolidated_results.csv"))
-    ap.add_argument("--output-tex", type=Path, default=Path("results/final/tex/vacancy_workflow/core_combined_table.tex"))
+    ap.add_argument(
+        "--input",
+        type=Path,
+        default=RESULTS_RAW / "firm_scaling_vacancy_outcomes_t90" / "consolidated_results.csv",
+    )
+    ap.add_argument(
+        "--output-tex",
+        type=Path,
+        default=RESULTS_CLEANED_TEX / "vacancy_workflow" / "core_combined_table.tex",
+    )
     args = ap.parse_args()
 
     args.output_tex.parent.mkdir(parents=True, exist_ok=True)

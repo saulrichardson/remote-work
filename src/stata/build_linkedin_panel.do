@@ -6,8 +6,8 @@
 do "../../spec/stata/_bootstrap.do"
 
 capture log close
-cap mkdir "log"
-log using "log/build_linkedin_panel.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/build_linkedin_panel.log", replace text
 *---------------------------------------------------------*
 * 1) Load the LinkedIn Positions Data & Standardize SOC Codes
 *---------------------------------------------------------*

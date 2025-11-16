@@ -7,10 +7,6 @@ if "`panel_variant'" == "" local panel_variant "precovid"
 
 local specname_base user_productivity_fr_focus_`panel_variant'
 
-capture log close
-cap mkdir "log"
-log using "log/`specname_base'.log", replace text
-
 local __bootstrap "_bootstrap.do"
 if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
 if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.do"
@@ -19,10 +15,17 @@ if !fileexists("`__bootstrap'") {
     exit 601
 }
 do "`__bootstrap'"
+capture log close
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname_base'.log", replace text
+
+
 
 use "$processed_data/user_panel_`panel_variant'.dta", clear
 
 drop if missing(remote)
+
+
 capture drop fr hyb ip nonfr
 
 // Fully remote indicator based on exact 100% remote share

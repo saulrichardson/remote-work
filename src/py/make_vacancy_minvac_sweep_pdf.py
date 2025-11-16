@@ -5,6 +5,8 @@ import argparse
 from pathlib import Path
 import csv
 
+from project_paths import RESULTS_CLEANED_TEX, RESULTS_RAW
+
 PARAM_TITLES = {
     "var3": "$ \\text{Remote} \\times \\mathds{1}(\\text{Post}) $",
     "var5": "$ \\text{Remote} \\times \\mathds{1}(\\text{Post}) \\times \\text{Startup} $",
@@ -94,8 +96,12 @@ def build_table(d, cols, title):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument('--minvacs', nargs='+', type=int, required=True)
-    ap.add_argument('--base', type=Path, default=Path('results/raw'))
-    ap.add_argument('--output-tex', type=Path, default=Path('results/final/tex/vacancy_workflow/minvac_sweep_combined.tex'))
+    ap.add_argument('--base', type=Path, default=RESULTS_RAW)
+    ap.add_argument(
+        '--output-tex',
+        type=Path,
+        default=RESULTS_CLEANED_TEX / 'vacancy_workflow' / 'minvac_sweep_combined.tex',
+    )
     args=ap.parse_args()
 
     args.output_tex.parent.mkdir(parents=True, exist_ok=True)
@@ -121,4 +127,3 @@ def main():
 
 if __name__=='__main__':
     main()
-

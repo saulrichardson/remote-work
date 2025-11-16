@@ -1,6 +1,6 @@
 capture log close
-cap mkdir "log"
-log using "log/build_worker_modal_role.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/build_worker_modal_role.log", replace text
 
 use "$data/expanded_half_years_2.dta", clear
 

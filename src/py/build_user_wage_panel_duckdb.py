@@ -23,14 +23,14 @@ import duckdb
 import pandas as pd
 import pyreadstat
 
-DEFAULT_OUTPUT = Path("data/processed/user_wage_panel_full.parquet")
+DEFAULT_OUTPUT = Path("data/cleaned/user_wage_panel_full.parquet")
 
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser("Build user wage panel via DuckDB")
     p.add_argument("--spells", default="data/raw/Scoop_workers_positions.csv",
                    help="Raw LinkedIn spell CSV")
-    p.add_argument("--teleworkable", default="data/processed/scoop_firm_tele_2.dta",
+    p.add_argument("--teleworkable", default="data/cleaned/scoop_firm_tele_2.dta",
                    help="Firm-level teleworkable scores (Stata DTA)")
     p.add_argument("--remote", default="data/raw/Scoop_clean_public.dta",
                    help="Firm-level flexibility/remote metrics (Stata DTA)")

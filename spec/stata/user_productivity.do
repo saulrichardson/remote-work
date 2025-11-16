@@ -15,9 +15,6 @@
 args panel_variant
 if "`panel_variant'" == "" local panel_variant "precovid"
 local specname user_productivity_`panel_variant'
-capture log close
-cap mkdir "log"
-log using "log/`specname'.log", replace text
 
 // 0) Setup environment
 local __bootstrap "_bootstrap.do"
@@ -28,6 +25,11 @@ if !fileexists("`__bootstrap'") {
     exit 601
 }
 do "`__bootstrap'"
+capture log close
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
+
+
 
 // 1) Load worker‐level panel
 use "$processed_data/user_panel_`panel_variant'.dta", clear
@@ -47,7 +49,6 @@ postfile handle ///
     double coef se pval pre_mean ///
     double rkf nobs     ///
     using `out', replace
-
 
 *------------------------------------------------------------------
 *  First-stage results → first_stage_fstats.csv

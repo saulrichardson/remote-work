@@ -2,8 +2,8 @@
 do "../../spec/stata/_bootstrap.do"
 
 capture log close
-cap mkdir "log"
-log using "log/build_firm_panel.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/build_firm_panel.log", replace text
 
 
 import delimited "$raw_data/Scoop_alt.csv", clear

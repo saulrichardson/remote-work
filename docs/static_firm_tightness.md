@@ -1,6 +1,6 @@
 # Static Firm-Level Tightness (2019-H2)
 
-This note documents how the dataset `data/processed/firm_tightness_static.csv` is produced.  The file contains **one row per company** with the variable `tight_wavg`, a head-count-weighted measure of labour-market tightness that is *fixed in time* at the firm’s **2019-H2 occupational composition**.
+This note documents how the dataset `data/clean/firm_tightness_static.csv` is produced.  The file contains **one row per company** with the variable `tight_wavg`, a head-count-weighted measure of labour-market tightness that is *fixed in time* at the firm’s **2019-H2 occupational composition**.
 
 --------------------------------------------------------------------
 1  Source data
@@ -8,7 +8,7 @@ This note documents how the dataset `data/processed/firm_tightness_static.csv` i
 
 | Data file | Description |
 |-----------|-------------|
-| `data/processed/linkedin_panel.parquet` | Half-year spells of LinkedIn workers (built by `py/build_linkedin_panel_duckdb.py`). |
+| `data/clean/linkedin_panel.parquet` | Half-year spells of LinkedIn workers (built by `py/build_linkedin_panel_duckdb.py`). |
 | `data/raw/oews/processed_data/tight_occ_msa_y.csv` | OEWS occupation-by-CBSA tightness metric for 2019. |
 
 --------------------------------------------------------------------
@@ -32,7 +32,7 @@ Script: **`py/build_firm_panel.py`** (2025-07 revision)
 np.average(tight, weights=heads)
 ```
 
-3. Persist the result as `data/processed/firm_tightness_static.csv`.
+3. Persist the result as `data/clean/firm_tightness_static.csv`.
 4. Merge the same value into every half-year row of `firm_panel_enriched.csv` so regressions already have the variable.
 
 --------------------------------------------------------------------

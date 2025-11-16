@@ -7,10 +7,6 @@ if "`panel_variant'" == "" local panel_variant "precovid"
 
 local specname "user_event_study_`panel_variant'"
 
-capture log close
-cap mkdir "log"
-log using "log/`specname'.log", replace text
-
 local __bootstrap "_bootstrap.do"
 if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
 if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.do"
@@ -19,9 +15,16 @@ if !fileexists("`__bootstrap'") {
     exit 601
 }
 do "`__bootstrap'"
+capture log close
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
+
+
 
 local result_path "$results/`specname'"
 cap mkdir "`result_path'"
+
+
 
 use "$processed_data/user_panel_`panel_variant'.dta", clear
 

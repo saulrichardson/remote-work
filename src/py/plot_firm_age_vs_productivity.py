@@ -14,7 +14,7 @@ from matplotlib.lines import Line2D
 
 from project_paths import (
     DATA_PROCESSED,
-    RESULTS_FINAL_FIGURES,
+    RESULTS_CLEANED_FIGURES,
     ensure_dir,
     relative_to_project,
 )
@@ -37,7 +37,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=str,
-        default=str(RESULTS_FINAL_FIGURES / "firm_age_vs_productivity_remote.png"),
+        default=str(RESULTS_CLEANED_FIGURES / "firm_age_vs_productivity_remote.png"),
         help="Destination for the scatter plot (default: %(default)s).",
     )
     parser.add_argument(

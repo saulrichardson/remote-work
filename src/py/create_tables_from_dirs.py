@@ -10,7 +10,7 @@ Each *result* directory must contain the Stata-/Julia-produced
 The script iterates over the directories passed on the command line and for
 every folder writes
 
-    results/final/tex/<dirname>.tex
+    results/cleaned/tex/<dirname>.tex
 
 mirroring the behaviour of :pyfile:`simple_table_from_consolidated.py`.  It is
 meant as a thin convenience wrapper so you can simply run

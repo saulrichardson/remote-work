@@ -1,0 +1,8 @@
+Transcript: Smoke test planning session
+
+- Objective: run a trivial end-to-end automation test.
+- Please create one task: check out a dedicated branch (suggested name `smoke/orchestrator-test`)
+  in a worktree under `worktrees/task-smoke`.
+- Inside the repo, add a short note file `docs/orchestrator-smoke.md` stating that the smoke test
+  ran successfully. Keep it brief and do not touch other files.
+- This task should read `AGENTS.md` before making changes, but no other docs are required.

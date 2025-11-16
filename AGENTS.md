@@ -3,7 +3,7 @@
 Use this checklist to get up to speed fast whenever you drop into the repo.
 
 ## 1. Repo Anatomy
-- Read `README.md` first; it diagrams the one-way flow: `data/raw → src/stata → data/processed → spec/stata → results/raw → writeup/`.
+- Read `README.md` first; it diagrams the one-way flow: `data/raw → src/stata → data/clean → spec/stata → results/raw → results/cleaned → writeup/`.
 - All Stata build scripts live in `src/stata/`, specs/regressions in `spec/stata/`, shared Python helpers in `src/py/`, and LaTeX + writeup automation under `writeup/`.
 - Generated artefacts are confined to `results/` and `writeup/tex/build/`; safe to delete/regenerate as needed.
 
@@ -12,7 +12,7 @@ Use this checklist to get up to speed fast whenever you drop into the repo.
 - Other `.do` files mirror this structure (variant arguments + consolidated result exports); search `spec/stata/` when you need robustness or event-study variants.
 
 ## 3. Building Data
-- Raw inputs belong in `data/raw/` (not tracked). Stata builders in `src/stata/` create harmonized `.dta` files inside `data/processed/`.
+- Raw inputs belong in `data/raw/` (not tracked). Stata builders in `src/stata/` create the cleaned `.dta` panels inside `data/clean/` (exposed via the `clean_data` global).
 - Typical entry points: `do src/stata/build_firm_panel.do`, `do src/stata/build_all_user_panels.do`, plus any auxiliary merges (read README’s “Construct processed panels” section).
 
 ## 4. Post-Processing & Writeup

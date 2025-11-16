@@ -12,19 +12,20 @@ if !fileexists("`__bootstrap'") {
 }
 do "`__bootstrap'"
 
+
+
 // 1) Load master panel
 use "$processed_data/firm_panel.dta", clear
 
 // 2) Prepare output dir & tempfile
 local specname   "firm_scaling_initial"
 capture log close
-cap mkdir "log"
-log using "log/`specname'.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
+
 
 local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
-
-
 
 capture postclose handle
 tempfile out
@@ -36,7 +37,6 @@ postfile handle ///
     double coef se pval pre_mean ///
     double rkf nobs     ///
     using `out', replace
-
 
 *------------------------------------------------------------------
 *  First-stage results → first_stage_fstats.csv
@@ -113,12 +113,10 @@ foreach y of local outcome_vars {
 							(`F3') (`rkf') (`N_fs')
 		}
 
-
 		local fs_done 1
 	}
 
 }
-
 
 // 4) Close & export to CSV
 postclose handle

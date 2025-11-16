@@ -1,8 +1,8 @@
 do "../../spec/stata/_bootstrap.do"
 
 capture log close
-cap mkdir "log"
-log using "log/build_panel_og.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/build_panel_og.log", replace text
 
 *----------------------------------------------------------
 * User-Level Contributions

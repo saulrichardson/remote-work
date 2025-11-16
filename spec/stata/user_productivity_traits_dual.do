@@ -11,29 +11,27 @@ if "`panel_variant'" == "" local panel_variant "precovid"
 
 local specname  "user_productivity_traits_dual_`panel_variant'"
 
-capture log close
-cap mkdir "log"
-log using "log/`specname'.log", replace text
-
 // ------------------------------------------------------------
 // 0) Environment & data
 // ------------------------------------------------------------
-// Hard-code project paths so the script runs directly from spec/
-// ------------------------------------------------------------
-local project_root "/Users/saul/Dropbox/Remote Work Startups/main"
-local raw_data       "`project_root'/data/raw"
-local processed_data "`project_root'/data/processed"
-local results        "`project_root'/results/raw"
-local clean_results  "`project_root'/results/cleaned"
+local __bootstrap "_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") {
+    di as error "Unable to locate _bootstrap.do. Run from project root or spec/stata."
+    exit 601
+}
+do "`__bootstrap'"
+capture log close
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
 
-global raw_data       "`raw_data'"
-global processed_data "`processed_data'"
-global results        "`results'"
-global clean_results  "`clean_results'"
+
 
 use "$processed_data/user_panel_`panel_variant'.dta", clear
 merge m:1 user_id using "$processed_data/user_attributes.dta", ///
     keep(match master) nogen
+
 
 // ------------------------------------------------------------
 // 1) Trait construction (Female + Age 25–45)

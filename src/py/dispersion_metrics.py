@@ -19,7 +19,7 @@ from tqdm import tqdm
 
 # ── folders ────────────────────────────────────────────────────────────────
 RAW_DIR       = Path("../data/raw")
-PROC_DIR      = Path("../data/processed")
+PROC_DIR      = Path("../data/cleaned")
 RES_DIR       = Path("../data/raw")
 
 SPELL_CSV  = RAW_DIR / "Scoop_workers_positions.csv"

@@ -1,8 +1,8 @@
 do "../../spec/stata/_bootstrap.do"
 
 capture log close
-cap mkdir "log"
-log using "log/build_firm_teleworkable_scores.log", replace text
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/build_firm_teleworkable_scores.log", replace text
 
 
 import delimited "$raw_data/rolek1000_onet_cw.csv", varnames(1)  ///

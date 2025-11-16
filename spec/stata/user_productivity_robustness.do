@@ -43,19 +43,25 @@ if "`manual_suffix'" != "" {
 }
 
 local specname user_productivity_`panel_variant'_`resolved_tag'
-capture log close
-cap mkdir "log"
-log using "log/`specname'.log", replace text
 
-// 0) Hard-code required paths (avoid bootstrap search)
-global PROJECT_ROOT  "/Users/saul/Dropbox/Remote Work Startups/main"
-global processed_data "$PROJECT_ROOT/data/processed"
-global results        "$PROJECT_ROOT/results/raw"
-global RAW_RESULTS    "$PROJECT_ROOT/results/raw"
-global PROCESSED_DATA "$PROJECT_ROOT/data/processed"
+// 0) Bootstrap project paths before logging
+local __bootstrap "_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") {
+    di as error "Unable to locate _bootstrap.do. Run from project root or spec/stata."
+    exit 601
+}
+do "`__bootstrap'"
+capture log close
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
+
+
 
 // 1) Load worker‐level panel
 use "$processed_data/user_panel_`panel_variant'.dta", clear
+
 
 // Apply requested robustness filter
 local sample_desc "No additional filter"
@@ -120,7 +126,6 @@ postfile handle ///
     double coef se pval pre_mean ///
     double rkf nobs    ///
     using `out', replace
-
 
 *------------------------------------------------------------------
 *  First-stage results → first_stage_fstats.csv

@@ -7,41 +7,31 @@ import os
 from pathlib import Path
 from typing import Iterable
 
-_MARKERS: tuple[str, ...] = (".git", "README.md", "pyproject.toml")
+
+def _root_from_repo_layout() -> Path:
+    """Return the repo root assuming this file lives under PROJECT_ROOT/src/py/."""
+    here = Path(__file__).resolve()
+    root = here.parents[2]
+    sentinel = root / "README.md"
+    if not sentinel.exists():
+        raise RuntimeError(
+            "project_paths.py expected to reside in PROJECT_ROOT/src/py/. "
+            "Set PROJECT_ROOT to override automatic detection."
+        )
+    return root
 
 
-def _find_root_from(start: Path) -> Path:
-    """Walk parents of *start* until a repository marker is located."""
-    current = start.resolve()
-    if current.is_file():
-        current = current.parent
-
-    for candidate in (current, *current.parents):
-        if _has_marker(candidate):
-            return candidate
-    raise RuntimeError(
-        "Unable to determine project root. "
-        "Set the PROJECT_ROOT environment variable to override detection."
-    )
-
-
-def _has_marker(path: Path) -> bool:
-    return any((path / marker).exists() for marker in _MARKERS)
-
-
-def resolve_project_root(start: Path | None = None) -> Path:
+def resolve_project_root() -> Path:
     """Return the absolute project root.
 
     Priority:
       1. PROJECT_ROOT environment variable
-      2. Heuristic search starting from *start* (defaults to this file)
+      2. Known repo layout (assumes this module sits inside PROJECT_ROOT/src/py/)
     """
     env_root = os.getenv("PROJECT_ROOT")
     if env_root:
         return Path(env_root).expanduser().resolve()
-    if start is None:
-        start = Path(__file__).resolve()
-    return _find_root_from(start)
+    return _root_from_repo_layout()
 
 
 def ensure_dir(path: Path) -> Path:
@@ -53,14 +43,15 @@ def ensure_dir(path: Path) -> Path:
 PROJECT_ROOT: Path = resolve_project_root()
 DATA_DIR: Path = PROJECT_ROOT / "data"
 DATA_RAW: Path = DATA_DIR / "raw"
-DATA_PROCESSED: Path = DATA_DIR / "processed"
+DATA_CLEAN: Path = DATA_DIR / "clean"
+DATA_PROCESSED: Path = DATA_CLEAN  # backward-compatible alias
 DATA_SAMPLES: Path = DATA_DIR / "samples"
 
 RESULTS_DIR: Path = PROJECT_ROOT / "results"
 RESULTS_RAW: Path = RESULTS_DIR / "raw"
-RESULTS_FINAL: Path = RESULTS_DIR / "final"
-RESULTS_FINAL_TEX: Path = RESULTS_FINAL / "tex"
-RESULTS_FINAL_FIGURES: Path = RESULTS_FINAL / "figures"
+RESULTS_CLEANED: Path = RESULTS_DIR / "cleaned"
+RESULTS_CLEANED_TEX: Path = RESULTS_CLEANED / "tex"
+RESULTS_CLEANED_FIGURES: Path = RESULTS_CLEANED / "figures"
 
 PY_DIR: Path = PROJECT_ROOT / "src" / "py"
 SPEC_DIR: Path = PROJECT_ROOT / "spec" / "stata"
@@ -79,13 +70,14 @@ __all__: Iterable[str] = [
     "PROJECT_ROOT",
     "DATA_DIR",
     "DATA_RAW",
+    "DATA_CLEAN",
     "DATA_PROCESSED",
     "DATA_SAMPLES",
     "RESULTS_DIR",
     "RESULTS_RAW",
-    "RESULTS_FINAL",
-    "RESULTS_FINAL_TEX",
-    "RESULTS_FINAL_FIGURES",
+    "RESULTS_CLEANED",
+    "RESULTS_CLEANED_TEX",
+    "RESULTS_CLEANED_FIGURES",
     "PY_DIR",
     "SPEC_DIR",
     "WRITEUP_DIR",
@@ -93,4 +85,3 @@ __all__: Iterable[str] = [
     "resolve_project_root",
     "relative_to_project",
 ]
-

@@ -31,8 +31,8 @@ Winsorization:
 
 Example
   python py/postprocess_halfyear_panel.py \
-    --input data/processed/vacancy/firm_halfyear_panel_MERGED.csv \
-    --output data/processed/vacancy/firm_halfyear_panel_MERGED_POST.csv \
+    --input data/cleaned/vacancy/firm_halfyear_panel_MERGED.csv \
+    --output data/cleaned/vacancy/firm_halfyear_panel_MERGED_POST.csv \
     --min-lag-employees 100 --winsor-low 1 --winsor-high 99
 """
 from __future__ import annotations

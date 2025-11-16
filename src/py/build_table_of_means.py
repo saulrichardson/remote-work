@@ -13,7 +13,7 @@ import textwrap
 import re
 import pandas as pd
 
-from project_paths import DATA_SAMPLES, RESULTS_FINAL_TEX
+from project_paths import DATA_SAMPLES, RESULTS_CLEANED_TEX
 
 
 def _read_csv_flexible(path: Path) -> pd.DataFrame:
@@ -34,7 +34,7 @@ def _read_csv_flexible(path: Path) -> pd.DataFrame:
 DEF_FIRM = DATA_SAMPLES / "firm_panel.csv"
 # worker-level sample (expected file name: ``user_panel_<variant>.csv``)
 DEF_WORKER = DATA_SAMPLES / "user_panel_precovid.csv"
-DEF_OUT = RESULTS_FINAL_TEX / "table_of_means.tex"
+DEF_OUT = RESULTS_CLEANED_TEX / "table_of_means.tex"
 
 # ----------------------------------------------------------------------
 # Panel A: firm level settings

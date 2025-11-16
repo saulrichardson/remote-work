@@ -12,7 +12,7 @@ row per (model type × parameter) combination, with columns
 
 This helper script turns that into a minimal but nicely formatted booktabs
 table that mirrors the look of the *tmp_*.tex placeholders already present in
-results/final/tex/.
+results/cleaned/tex/.
 
 Usage
 -----
@@ -179,7 +179,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("spec_dir", type=Path, help="Directory containing consolidated_results.csv")
     p.add_argument("--caption", default=None, help="Custom table caption (defaults to derived spec name)")
     p.add_argument("--label",   default=None, help="Custom LaTeX label (defaults to derived spec name)")
-    p.add_argument("--out",     type=Path, default=None, help="Destination .tex file (defaults to results/final/tex/<spec>.tex)")
+    p.add_argument("--out",     type=Path, default=None, help="Destination .tex file (defaults to results/cleaned/tex/<spec>.tex)")
     args = p.parse_args(argv)
 
     spec_dir: Path = args.spec_dir.expanduser().resolve()
@@ -200,7 +200,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.out is not None:
         out_path = args.out
     else:
-        out_path = spec_dir.parents[1] / "final" / "tex" / f"{spec_name}.tex"  # results/final/tex/
+        out_path = spec_dir.parents[1] / "cleaned" / "tex" / f"{spec_name}.tex"  # results/cleaned/tex/
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(tex_str)
     print(f"✓ Wrote {out_path.relative_to(Path.cwd())}")

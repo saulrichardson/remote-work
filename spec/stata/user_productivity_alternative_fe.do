@@ -10,8 +10,7 @@
 
 args panel_variant
 if "`panel_variant'" == "" local panel_variant "precovid"
-capture log close
-cap mkdir "log"
+
 *---------------------------------------------------------------------------*
 * Write results to a *variant‐specific* directory if we are not using the
 * default (unbalanced) worker panel.  This prevents subsequent runs from
@@ -20,8 +19,6 @@ cap mkdir "log"
 *---------------------------------------------------------------------------*
 
 local specname user_productivity_alternative_fe_`panel_variant'
-log using "log/`specname'.log", replace text
-
 // 0) Setup environment
 local __bootstrap "_bootstrap.do"
 if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
@@ -31,9 +28,16 @@ if !fileexists("`__bootstrap'") {
     exit 601
 }
 do "`__bootstrap'"
+capture log close
+cap mkdir "$LOG_DIR"
+log using "$LOG_DIR/`specname'.log", replace text
+
+
 
 // 1) Common settings
 local result_dir "$results/`specname'"
+
+
 capture mkdir "`result_dir'"
 
 // -------------------------------------------------------------------------
@@ -61,7 +65,6 @@ postfile handle ///
     double rkf nobs            ///
     using `out', replace
 
-
 *--- first-stage results (coefficients + diagnostics) -------------------------
 tempfile out_fs
 capture postclose handle_fs
@@ -81,7 +84,6 @@ postfile handle_fs ///
 local feopt "absorb(firm_id user_id yh)"
 local tag   "fyhu"
 
-
 foreach y of local outcomes {
     use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
@@ -161,8 +163,6 @@ foreach y of local outcomes {
 	}
 
 }
-
-
 
 //-------------------------------------------------------------
 // firm x user + yh
@@ -170,7 +170,6 @@ foreach y of local outcomes {
 local feopt "absorb(firm_id#user_id yh)"
 local tag   "firmbyuseryh"
 
-
 foreach y of local outcomes {
     use "$processed_data/user_panel_`panel_variant'.dta", clear
     display as text ">> FE spec: (tag=`tag')"
@@ -249,9 +248,6 @@ foreach y of local outcomes {
 	}
 
 }
-
-
-
 
 //-------------------------------------------------------------
 // //  Firm + year FE ("fyh")
@@ -946,8 +942,6 @@ foreach y of local outcomes {
 //
 // }
 //
-
-
 
 //-------------------------------------------------------------
 // Close & export CSV

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from project_paths import DATA_PROCESSED, RESULTS_FINAL_FIGURES, ensure_dir, relative_to_project
+from project_paths import DATA_PROCESSED, RESULTS_CLEANED_FIGURES, ensure_dir, relative_to_project
 
 
 EFFECT_CONFIG = {
@@ -47,7 +47,7 @@ def parse_args() -> argparse.Namespace:
         "--output",
         type=str,
         default=None,
-        help="Destination figure; defaults to results/final/figures/effect_<effect>_age.png",
+        help="Destination figure; defaults to results/cleaned/figures/effect_<effect>_age.png",
     )
     parser.add_argument("--min-count", type=int, default=80, help="Min observations per age bin.")
     parser.add_argument("--dpi", type=int, default=250)
@@ -159,7 +159,7 @@ def main() -> None:
 
     output = args.output
     if output is None:
-        output = RESULTS_FINAL_FIGURES / f"effect_{args.effect}_age_python.png"
+        output = RESULTS_CLEANED_FIGURES / f"effect_{args.effect}_age_python.png"
     output_path = ensure_dir(Path(output).resolve().parent) / Path(output).name
 
     fig, ax = plt.subplots(figsize=(8.2, 4.5))

@@ -1,206 +1,201 @@
-% Mini Writeup: Key Mechanism Updates
 \documentclass{article}
-
-% -------------------------------------------------------------------------
-%  Packages
-% -------------------------------------------------------------------------
+\usepackage[margin=1.25in]{geometry}
 \usepackage{booktabs}
 \usepackage{siunitx}
 \usepackage{makecell}
-\usepackage{threeparttable}
 \usepackage{float}
-\usepackage{amsfonts}
-\usepackage{amssymb}
-\usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{caption}
 \usepackage{subcaption}
-\usepackage[export]{adjustbox}
-\usepackage[normalem]{ulem}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{dsfont}
-\usepackage{pdflscape}
 \usepackage{tabularx}
-\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\usepackage[normalem]{ulem}
 
-\setlength{\extrarowheight}{1.5pt}
-\renewcommand{\arraystretch}{1.2}
-
-% Base directories for cleaned LaTeX tables and figures
-\newcommand{\cleanedresultsdir}{../results/final/tex}
-\newcommand{\figdir}{../results/final/figures}
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+\newcommand{\figdir}{../results/cleaned/figures}
 \newcommand{\irfdir}{../results/user_irfs_eng_vs_noneng_remote_hybrid}
-\newcommand{\TableInput}[2][\linewidth]{%
-  \input{#2}%
+\newcommand{\TableInput}[2][\linewidth]{\input{#2}}
+\captionsetup[figure]{justification=centering}
+\DeclareCaptionStyle{noteflush}{%
+  format=plain,
+  justification=raggedright,
+  singlelinecheck=false,
+  font=footnotesize,
+  width=\linewidth,
+  skip=0pt
 }
+\newcommand{\FloatNote}[1]{%
+  \begingroup
+    \captionsetup{style=noteflush}%
+    \caption*{\textit{Notes:}~#1}%
+  \endgroup
+}
+
 \begin{document}
 
-\section{Table of Means}
+\section*{Figures}
+
+\begin{figure}[H]\centering\caption{Firm Age and Remote Work}\includegraphics[width=.8\linewidth]{\figdir/firm_age_lt100_remote.png}\end{figure}
+\begin{figure}[H]\centering\caption{Telework Index and Remote Work}\includegraphics[width=.8\linewidth]{\figdir/firm_teleworkable_remote.png}\end{figure}
+\begin{figure}[H]\centering
+  \caption{Event Study of Key Outcomes}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: User Productivity}\includegraphics[width=.8\linewidth]{\figdir/user_event_study_precovid_ols.png}\end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Firm Growth}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_growth_ols.png}\end{subfigure}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Startup Cutoff Visualization}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: Contribution Rank (Total)}\includegraphics[width=.8\linewidth]{\figdir/startup_cutoff_bars_total_contributions_q100.png}\end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Firm Growth Rate}\includegraphics[width=.8\linewidth]{\figdir/startup_cutoff_bars_growth_rate_we.png}\end{subfigure}
+\end{figure}
+\begin{figure}[H]\centering\caption{Remote Effect by Top Employment MSAs}\includegraphics[width=.9\linewidth]{\figdir/top_employment_msa_remote_startup.png}\end{figure}
+\section*{Tables}
+
 \begin{table}[H]
   \centering
   \caption{Summary Statistics}
-  \label{tab:mini-summary}
+  \label{tab:summary}
   \TableInput{\cleanedresultsdir/table_of_means.tex}
+  \FloatNote{}
 \end{table}
-
-\section{User Productivity}
 \begin{table}[H]
   \centering
+  \caption{Remote Work and Individual Productivity -- OLS}
+  \label{tab:prod_ols}
   \TableInput{\cleanedresultsdir/user_productivity_precovid_total_ols_single.tex}
+  \FloatNote{}
 \end{table}
-
 \begin{table}[H]
   \centering
+  \caption{Remote Work and Individual Productivity -- IV}
+  \label{tab:prod_iv}
   \TableInput{\cleanedresultsdir/user_productivity_precovid_total_iv_single.tex}
+  \FloatNote{}
 \end{table}
-
-\section{Firm Scaling}
 \begin{table}[H]
   \centering
   \caption{Firm Scaling}
-  \label{tab:firm-scaling-cols1-4}
+  \label{tab:scaling}
   \TableInput{\cleanedresultsdir/firm_scaling_precovid_cols1_4.tex}
+  \FloatNote{}
 \end{table}
-
 \begin{table}[H]
   \centering
-  \caption{Firm Scaling (Continued)}
-  \label{tab:firm-scaling-cols5-6}
+  \caption{Job Posting Outcomes}
+  \label{tab:job_postings}
   \TableInput{\cleanedresultsdir/firm_scaling_precovid_cols5_6.tex}
+  \FloatNote{}
 \end{table}
-
-\section{User Mechanisms}
 \begin{table}[H]
   \centering
-  \caption{User Mechanisms}
-  \label{tab:user-mechanisms}
+  \caption{Individual Productivity Mechanisms}
+  \label{tab:mechanisms}
   \TableInput{\cleanedresultsdir/user_mechanisms_with_growth_precovid.tex}
+  \FloatNote{}
 \end{table}
-
-\section{User Wages}
 \begin{table}[H]
   \centering
-  \TableInput{\cleanedresultsdir/user_wage_fe_variants_precovid_log_salary.tex}
-\end{table}
-
-\section{Remote Modalities}
-\begin{table}[H]
-  \centering
+  \caption{Fully Remote Versus Hybrid Productivity}
+  \label{tab:fr_focus}
   \TableInput{\cleanedresultsdir/user_productivity_fr_focus_precovid.tex}
+  \FloatNote{}
 \end{table}
-
-\section{User Productivity Heterogeneity}
 \begin{table}[H]
   \centering
+  \caption{Productivity Heterogeneity by Worker Traits}
+  \label{tab:traits}
   \TableInput{\cleanedresultsdir/user_productivity_traits_dual_precovid_ols.tex}
+  \FloatNote{}
 \end{table}
-
-\section{User Productivity Robustness}
 \begin{table}[H]
   \centering
-  \TableInput{\cleanedresultsdir/user_productivity_precovid_robustness_part1.tex}
+  \caption{Remote Work Outside Software and Hub Markets}
+  \label{tab:nonsoftware}
+  \TableInput{\cleanedresultsdir/user_productivity_precovid_nonsoftware.tex}
+  \FloatNote{}
 \end{table}
+\begin{table}[H]
+  \centering
+  \caption{Per-Employee Geographic Reach}
+  \label{tab:location_ratio}
+  \TableInput{\cleanedresultsdir/firm_scaling_location_ratios.tex}
+  \FloatNote{}
+\end{table}
+\begin{table}[H]
+  \centering
+  \caption{Remote Work and Imputed Wages: Fixed-Effect Variants}
+  \label{tab:wages}
+  \TableInput{\cleanedresultsdir/user_wage_fe_variants_precovid_log_salary.tex}
+  \FloatNote{}
+\end{table}
+
 \clearpage
-\begin{table}[H]
-  \centering
-  \TableInput{\cleanedresultsdir/user_productivity_precovid_robustness_part2.tex}
-\end{table}
-
-\section{Figures}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\figdir/firm_teleworkable_remote.png}
-  \caption{Remote vs. Teleworkable Scores}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\figdir/firm_age_lt100_remote.png}
-  \caption{Remote vs. Firm Age}
-\end{figure}
-
-\section{Event Studies}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\figdir/user_event_study_precovid_ols.png}
-  \caption{Event Study: User Rank for Contributions (OLS)}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_growth_ols.png}
-  \caption{Event Study: Firm Growth (OLS)}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_join_rate_ols.png}
-  \caption{Event Study: Join (OLS)}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_leave_rate_ols.png}
-  \caption{Event Study: Leave (OLS)}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_job_postings_ols.png}
-  \caption{Event Study: Job Postings (OLS)}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{\figdir/firm_event_study_hires_per_job_posting_ols.png}
-  \caption{Event Study: Hires per Job Posting (OLS)}
-\end{figure}
-
-\section{Impulse Response Functions}
-\captionsetup[subfigure]{labelformat=empty}
-\begin{figure}[H]
-  \centering
- Panel A: Hybrid/In-person\\[0.3em]
- \begin{subfigure}[t]{0.495\linewidth}
-   \centering
-   \includegraphics[width=\linewidth]{\irfdir/panelA_hybrid_engineer.png}
-   \caption{Engineer hiring shocks}
- \end{subfigure}\hfill
- \begin{subfigure}[t]{0.495\linewidth}
-   \centering
-   \includegraphics[width=\linewidth]{\irfdir/panelA_hybrid_nonengineer.png}
-   \caption{Non-Engineer hiring shocks}
- \end{subfigure}
-
-  \vspace{0.8em}
-
- Panel B: Fully Remote\\[0.3em]
- \begin{subfigure}[t]{0.495\linewidth}
-   \centering
-   \includegraphics[width=\linewidth]{\irfdir/panelB_fullremote_engineer.png}
-   \caption{Engineer hiring shocks}
- \end{subfigure}\hfill
- \begin{subfigure}[t]{0.495\linewidth}
-   \centering
-   \includegraphics[width=\linewidth]{\irfdir/panelB_fullremote_nonengineer.png}
-   \caption{Non-Engineer hiring shocks}
- \end{subfigure}
-  \caption{Change in contribution rank following role-specific hiring growth; each panel shares a common scale.}
-\end{figure}
-
 \appendix
-\clearpage
+\setcounter{table}{0}
+\setcounter{figure}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thefigure}{A\arabic{figure}}
+
 \section*{Appendix}
-\addcontentsline{toc}{section}{Appendix}
-\section{First Stage Summary}
+\subsection*{Tables}
 \begin{table}[H]
   \centering
-  \caption{First Stage Summary}
-  \label{tab:first-stage-summary}
+  \caption{First-Stage Diagnostics}
+  \label{tab:first_stage}
   \TableInput{\cleanedresultsdir/first_stage_summary.tex}
+  \FloatNote{}
 \end{table}
-\section{Restricted Contributions}
 \begin{table}[H]
   \centering
+  \caption{Remote Work and Restricted Contributions}
+  \label{tab:restricted}
   \TableInput{\cleanedresultsdir/user_productivity_precovid_restricted.tex}
+  \FloatNote{}
 \end{table}
+
+\subsection*{Figures}
+\begin{figure}[H]\centering
+  \caption{Event Study of Labor Market Flows}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: Firm Join}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_join_rate_ols.png}\end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Firm Leave}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_leave_rate_ols.png}\end{subfigure}
+\end{figure}
+\begin{figure}[H]\centering
+  \caption{Event Study of Job Postings and Fill Rates}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: Job Postings}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_job_postings_ols.png}\end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Hires per Posting}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_hires_per_job_posting_ols.png}\end{subfigure}
+\end{figure}
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Key Outcomes}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: User Productivity}\includegraphics[width=.8\linewidth]{\figdir/user_event_study_fullrem_precovid_ols.png}\end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Firm Growth}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_fullrem_growth_ols.png}\end{subfigure}
+\end{figure}
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Labor Flows}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: Firm Join}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_fullrem_join_rate_ols.png}\end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Firm Leave}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_fullrem_leave_rate_ols.png}\end{subfigure}
+\end{figure}
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Hiring Channels}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: Job Postings}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_fullrem_job_postings_ols.png}\end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Hires per Posting}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_fullrem_hires_per_job_posting_ols.png}\end{subfigure}
+\end{figure}
+\begin{figure}[H]\centering
+  \caption{Impulse Responses}
+  Panel A: Hybrid/In-person\\[0.3em]
+  \begin{subfigure}[t]{0.495\linewidth}\centering\includegraphics[width=\linewidth]{\irfdir/panelA_hybrid_engineer.png}\end{subfigure}\hfill
+  \begin{subfigure}[t]{0.495\linewidth}\centering\includegraphics[width=\linewidth]{\irfdir/panelA_hybrid_nonengineer.png}\end{subfigure}
+  \vspace{0.8em}
+  Panel B: Fully Remote\\[0.3em]
+  \begin{subfigure}[t]{0.495\linewidth}\centering\includegraphics[width=\linewidth]{\irfdir/panelB_fullremote_engineer.png}\end{subfigure}\hfill
+  \begin{subfigure}[t]{0.495\linewidth}\centering\includegraphics[width=\linewidth]{\irfdir/panelB_fullremote_nonengineer.png}\end{subfigure}
+\end{figure}
 
 \end{document}
