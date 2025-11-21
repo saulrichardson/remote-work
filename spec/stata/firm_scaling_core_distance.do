@@ -1,8 +1,7 @@
 *======================================================================*
-* firm_scaling_locations_per_employee.do
-* Runs the canonical firm-scaling spec with the outcome equal to the
-* ratio of unique LinkedIn locations per firm divided by the time-varying
-* employee count.
+* firm_scaling_core_distance.do
+* Runs the canonical firm-scaling OLS/IV specification on new geography
+* outcomes derived from core vs non-core CBSA headcounts.
 *======================================================================*
 
 version 17
@@ -21,66 +20,35 @@ do "`__bootstrap'"
 
 
 
-*---- Load firm panel & merge geography counts -----------------------*
+*---- Load firm panel & merge new outcomes ----------------------------*
 use "$processed_data/firm_panel.dta", clear
 replace companyname = lower(companyname)
 
-local geo_counts "$processed_data/firm_geography_counts.dta"
-if !fileexists("`geo_counts'") {
-    di as error "Missing geography counts file: `geo_counts'"
-    exit 601
+tempfile metrics
+preserve
+    import delimited "$processed_data/firm_core_distance_outcomes.csv", varnames(1) clear
+    replace companyname = lower(strtrim(companyname))
+    compress
+    capture confirm numeric variable yh
+    if _rc quietly destring yh, replace
+    save `metrics'
+restore
+
+merge 1:1 companyname yh using `metrics', keep(master match) nogen
+
+foreach v in core_share noncore_share share_far_050 share_far_250 noncore_core_ratio {
+    capture confirm numeric variable `v'
+    if _rc {
+        di as error "Missing expected variable: `v'"
+        exit 459
+    }
 }
-
-merge 1:1 companyname yh using "`geo_counts'", keep(master match) nogen
-
-foreach v in n_states_imputed n_msas_imputed {
-    capture confirm variable `v'
-    if _rc gen double `v' = .
-}
-
-capture confirm variable n_locations_imputed
-if _rc gen double n_locations_imputed = n_locations
-
-foreach v in n_states n_msas n_locations n_states_imputed n_msas_imputed n_locations_imputed {
-    replace `v' = 0 if missing(`v')
-}
-
-capture confirm numeric variable total_employees
-if _rc {
-    di as error "total_employees variable missing in firm_panel."
-    exit 459
-}
-
-gen double states_per_employee = .
-replace states_per_employee = n_states / total_employees if total_employees > 0
-label var states_per_employee "# States per Employee"
-
-gen double msas_per_employee = .
-replace msas_per_employee = n_msas / total_employees if total_employees > 0
-label var msas_per_employee "# MSAs per Employee"
-
-gen double locations_per_employee = .
-replace locations_per_employee = n_locations / total_employees if total_employees > 0
-label var locations_per_employee "# Locations per Employee"
-
-gen double locations_imputed_per_employee = .
-replace locations_imputed_per_employee = n_locations_imputed / total_employees if total_employees > 0
-label var locations_imputed_per_employee "# Locations (Imputed) per Employee"
-
-gen double states_imputed_per_employee = .
-replace states_imputed_per_employee = n_states_imputed / total_employees if total_employees > 0
-label var states_imputed_per_employee "# States (Imputed) per Employee"
-
-gen double msas_imputed_per_employee = .
-replace msas_imputed_per_employee = n_msas_imputed / total_employees if total_employees > 0
-label var msas_imputed_per_employee "# MSAs (Imputed) per Employee"
 
 *---- Results setup ---------------------------------------------------*
-local specname "firm_scaling_locations_per_employee"
+local specname "firm_scaling_core_distance"
 capture log close
 cap mkdir "$LOG_DIR"
 log using "$LOG_DIR/`specname'.log", replace text
-
 
 local result_dir "$results/`specname'"
 capture mkdir "`result_dir'"
@@ -104,30 +72,53 @@ postfile handle_fs ///
     double partialF rkf nobs  ///
     using `out_fs', replace
 
+local outcome_vars ///
+    core_headcount ///
+    noncore_headcount ///
+    headcount_far_050 ///
+    headcount_far_250 ///
+    core_share ///
+    noncore_share ///
+    share_far_050 ///
+    share_far_250 ///
+    avg_distance_km ///
+    p90_distance_km ///
+    noncore_core_ratio ///
+    core_minus_noncore ///
+    num_noncore_cbsa ///
+    any_far_050 ///
+    any_far_250
+
 local fs_done = 0
 
-local outcome_vars states_per_employee states_imputed_per_employee msas_per_employee msas_imputed_per_employee locations_per_employee locations_imputed_per_employee
-
-foreach outcome of local outcome_vars {
-    quietly summarize `outcome' if covid == 0
+foreach y of local outcome_vars {
+    quietly summarize `y' if covid == 0
     local pre_mean = r(mean)
 
     *--- OLS ----------------------------------------------------------*
-    reghdfe `outcome' var3 var5 var4, absorb(firm_id yh) vce(cluster firm_id)
+    capture noisily reghdfe `y' var3 var5 var4, absorb(firm_id yh) vce(cluster firm_id)
+    if _rc {
+        di as error "Skipping `y' – OLS regression failed (code `_rc')."
+        continue
+    }
     local N = e(N)
     foreach p in var3 var5 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-        post handle ("OLS") ("`outcome'") ("`p'") ///
+        post handle ("OLS") ("`y'") ("`p'") ///
             (`b') (`se') (`pval') (`pre_mean') ///
             (.) (`N')
     }
 
     *--- IV -----------------------------------------------------------*
-    ivreghdfe `outcome' (var3 var5 = var6 var7) var4, ///
+    capture noisily ivreghdfe `y' (var3 var5 = var6 var7) var4, ///
         absorb(firm_id yh) vce(cluster firm_id) savefirst
+    if _rc {
+        di as error "Skipping `y' – IV regression failed (code `_rc')."
+        continue
+    }
     local rkf = e(rkf)
     local N = e(N)
     foreach p in var3 var5 var4 {
@@ -135,7 +126,7 @@ foreach outcome of local outcome_vars {
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-        post handle ("IV") ("`outcome'") ("`p'") ///
+        post handle ("IV") ("`y'") ("`p'") ///
             (`b') (`se') (`pval') (`pre_mean') ///
             (`rkf') (`N')
     }
@@ -183,5 +174,5 @@ use `out_fs', clear
 export delimited using "`result_dir'/first_stage.csv", ///
     replace delimiter(",") quote
 
-di as result "✓ Locations-per-employee spec completed → `result_dir'"
-capture log close
+di as result "✓ Core-distance spec completed → `result_dir'"
+log close

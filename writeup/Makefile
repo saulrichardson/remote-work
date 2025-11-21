@@ -32,7 +32,7 @@ TABLE_SRC    := ../results/cleaned/tex
 FIGURE_SRC   := ../results/cleaned/figures
 IRF_SRC      := ../results/user_irfs_eng_vs_noneng_remote_hybrid
 
-OVERLEAF_BASE := /Users/saulrichardson/Library/CloudStorage/Dropbox/Apps/Overleaf/WFH Startups/Current
+OVERLEAF_BASE := /Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current
 DEST_REPORTS  := $(OVERLEAF_BASE)/Reports
 DEST_RESULTS  := $(OVERLEAF_BASE)/Results
 DEST_TABLES   := $(DEST_RESULTS)/Tables
@@ -50,6 +50,7 @@ OVERLEAF_TABLE_WHITELIST := \
   $(TABLE_SRC)/user_productivity_fr_focus_precovid.tex \
   $(TABLE_SRC)/user_productivity_traits_dual_precovid_ols.tex \
   $(TABLE_SRC)/user_productivity_precovid_nonsoftware.tex \
+  $(TABLE_SRC)/user_productivity_top_metros_firmbyuser.tex \
   $(TABLE_SRC)/firm_scaling_location_ratios.tex \
   $(TABLE_SRC)/first_stage_summary.tex \
   $(TABLE_SRC)/user_productivity_precovid_restricted.tex \
@@ -101,6 +102,7 @@ mini-writeup-inputs:
 	@$(call RUN_PYSCRIPT,user_productivity/build_wage_fe_tables.py,--variant precovid)
 	@$(call RUN_PYSCRIPT,user_productivity/build_first_stage_table.py,)
 	@$(call RUN_PYSCRIPT,user_productivity/build_mechanisms_with_growth_tables.py,--variant precovid)
+	@$(call RUN_PYSCRIPT,user_productivity/build_top_metro_firmbyuser_table.py,)
 	@$(call RUN_PYSCRIPT,startup_cutoff/build_robustness_tables.py,)
 	@$(call RUN_PYSCRIPT,firm_scaling/build_growth_split_tables.py,)
 	@$(call RUN_PYSCRIPT,firm_scaling/build_geography_table.py,)

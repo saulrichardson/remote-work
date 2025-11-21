@@ -40,8 +40,8 @@ log using "$LOG_DIR/user_irfs_eng_noneng_remote_fast.log", replace text
 
 
 local panel_path  "$processed_data/user_panel_precovid.dta"
- local growth_path "$processed_data/eng_noneng_growth.csv"
-local results_root "../../results/user_irfs_eng_vs_noneng_remote_hybrid"
+local growth_path "$processed_data/eng_noneng_growth.csv"
+local results_root "$PROJECT_ROOT/results/user_irfs_eng_vs_noneng_remote_hybrid"
 
 
 cap mkdir "`results_root'"

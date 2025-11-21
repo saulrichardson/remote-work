@@ -123,7 +123,7 @@ def _two_line_label(label: str) -> str:
     split_idx = len(words) // 2
     first = " ".join(words[:split_idx])
     second = " ".join(words[split_idx:])
-    return rf"{first}\\ {second}"
+    return rf"\makecell[c]{{{first}\\ {second}}}"
 
 
 def header_lines(columns: list[tuple[str, str]]) -> list[str]:

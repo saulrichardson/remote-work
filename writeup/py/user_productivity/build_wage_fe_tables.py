@@ -75,19 +75,6 @@ COLUMN_SPECS = [
             "msa_location": False,
         },
     },
-    {
-        "tag": "userfirm_yh_title_location",
-        "label": "Match + Job Title + Location FE",
-        "fe": {
-            "time": True,
-            "firm": False,
-            "individual": False,
-            "match": True,
-            "title": True,
-            "job_location": True,
-            "msa_location": False,
-        },
-    },
 ]
 
 PARAM_ORDER = [
@@ -101,7 +88,6 @@ FE_ROWS = [
     ("Individual", "individual"),
     (r"Firm $\times$ Individual", "match"),
     ("Title", "title"),
-    ("Location", "job_location"),
 ]
 
 INDENT = r"\hspace{1em}"

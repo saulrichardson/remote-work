@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{dsfont}
+\usepackage{booktabs,makecell,ulem}
+\usepackage[margin=1in]{geometry}
+\begin{document}
+\centering
+
+\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}c@{\extracolsep{\fill}}c@{}}
+\toprule
+ & \makecell[c]{\# States /\\Employee} & \makecell[c]{\# MSAs /\\Employee} & \makecell[c]{\# Locations /\\Employee} \\
+\cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4}
+ & (1) & (2) & (3) \\
+\midrule
+\addlinespace[2pt]
+\multicolumn{4}{@{}l}{\textbf{\uline{Panel A: OLS}}}  \\
+\addlinespace[2pt]
+\hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-0.007**\\(0.003)} & \makecell[c]{-0.002\\(0.003)} & \makecell[c]{0.004\\(0.004)} \\
+\hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{0.056***\\(0.016)} & \makecell[c]{0.051***\\(0.017)} & \makecell[c]{0.056***\\(0.017)} \\
+\midrule
+Pre-Covid Mean & 0.134 & 0.165 & 0.466 \\
+N & 41,959 & 41,959 & 41,959 \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{\uline{Panel B: IV}}}  \\
+\addlinespace[2pt]
+\hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) $ & \makecell[c]{-0.016**\\(0.007)} & \makecell[c]{-0.003\\(0.007)} & \makecell[c]{0.024***\\(0.009)} \\
+\hspace{1em}$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $ & \makecell[c]{-0.059\\(0.081)} & \makecell[c]{-0.071\\(0.080)} & \makecell[c]{0.022\\(0.075)} \\
+\midrule
+Pre-Covid Mean & 0.134 & 0.165 & 0.466 \\
+KP rk Wald F & 16.40 & 16.40 & 16.40 \\
+N & 41,959 & 41,959 & 41,959 \\
+\bottomrule
+\end{tabular*}
+
+\end{document}

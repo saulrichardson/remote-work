@@ -45,10 +45,24 @@ PARAM_LABEL = {
     ),
 }
 
+COLUMN_LABELS = {
+    "states_per_employee": r"\makecell[c]{\# States /\\Employee}",
+    "msas_per_employee": r"\makecell[c]{\# MSAs /\\Employee}",
+    "locations_per_employee": r"\makecell[c]{\# Locations /\\Employee}",
+    # Imputed columns deliberately inherit the legacy labels to keep writeups concise.
+    "states_imputed_per_employee": r"\makecell[c]{\# States /\\Employee}",
+    "msas_imputed_per_employee": r"\makecell[c]{\# MSAs /\\Employee}",
+    "locations_imputed_per_employee": r"\makecell[c]{\# Locations /\\Employee}",
+}
+
+DEFAULT_STATE = "states_imputed_per_employee"
+DEFAULT_MSA = "msas_imputed_per_employee"
+DEFAULT_LOCATION = "locations_imputed_per_employee"
+
 COLUMNS: Sequence[tuple[str, str]] = (
-    ("states_per_employee", r"\makecell[c]{\# States /\\Employee}"),
-    ("msas_per_employee", r"\makecell[c]{\# MSAs /\\Employee}"),
-    ("locations_per_employee", r"\makecell[c]{\# Locations /\\Employee}"),
+    (DEFAULT_STATE, COLUMN_LABELS[DEFAULT_STATE]),
+    (DEFAULT_MSA, COLUMN_LABELS[DEFAULT_MSA]),
+    (DEFAULT_LOCATION, COLUMN_LABELS[DEFAULT_LOCATION]),
 )
 
 
@@ -173,11 +187,35 @@ def parse_args() -> argparse.Namespace:
         default=RESULTS_CLEANED_TEX / "firm_scaling_location_ratios.tex",
         help="Destination TeX file",
     )
+    parser.add_argument(
+        "--state-outcome",
+        choices=("states_per_employee", "states_imputed_per_employee"),
+        default=DEFAULT_STATE,
+        help="Outcome name for the first (state) column",
+    )
+    parser.add_argument(
+        "--msa-outcome",
+        choices=("msas_per_employee", "msas_imputed_per_employee"),
+        default=DEFAULT_MSA,
+        help="Outcome name for the second (MSA) column",
+    )
+    parser.add_argument(
+        "--location-outcome",
+        choices=("locations_per_employee", "locations_imputed_per_employee"),
+        default=DEFAULT_LOCATION,
+        help="Outcome name for the third (location) column",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    global COLUMNS
+    COLUMNS = (
+        (args.state_outcome, COLUMN_LABELS[args.state_outcome]),
+        (args.msa_outcome, COLUMN_LABELS[args.msa_outcome]),
+        (args.location_outcome, COLUMN_LABELS[args.location_outcome]),
+    )
     df = load_results()
     ensure_dir(args.output.parent)
     tex = build_table(df)

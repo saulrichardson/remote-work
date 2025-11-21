@@ -119,6 +119,13 @@
 \end{table}
 \begin{table}[H]
   \centering
+  \caption{Remote Work and Top CSA Filters (Firm$\times$Individual FE)}
+  \label{tab:top_csa_firmbyuser}
+  \TableInput{\cleanedresultsdir/user_productivity_top_metros_firmbyuser.tex}
+  \FloatNote{Reports the firm$\times$individual fixed-effect regressions from Tables~\ref{tab:prod_ols}--\ref{tab:prod_iv} after filtering on firms' primary CBSA (the Scoop-identified location with the most employment spells in each half-year). The top-CSAs refer to the fourteen large software hubs in the CSA list we distribute with the data appendix. Columns~(1) and (2) keep only employers whose primary CBSA is among the top five or top ten entries from that list, whereas columns~(3) and (4) drop those same CSAs by removing all workers linked to firms whose primary CBSA is in that set. Panels~A and B present the OLS and IV coefficients (instrumenting the remote interactions with their teleworkability counterparts). Every specification absorbs half-year fixed effects, keeps the post$\times$startup main effect, and clusters standard errors by worker.}
+\end{table}
+\begin{table}[H]
+  \centering
   \caption{Per-Employee Geographic Reach}
   \label{tab:location_ratio}
   \TableInput{\cleanedresultsdir/firm_scaling_location_ratios.tex}

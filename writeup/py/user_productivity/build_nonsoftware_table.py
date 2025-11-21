@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Render a five-column robustness table for non-software comparisons.
+"""Render a robustness table for non-software comparisons.
 
 Columns shown (all using firm × user FE):
   1. Drop NAICS 5415xx firms (techfilter spec)
   2. Drop canonical tech SOC roles
   3. Drop CA/NY locations
-  4. Drop Top 5 CSAs
-  5. Drop Top 10 CSAs
 """
 
 from __future__ import annotations
@@ -70,16 +68,6 @@ COLUMN_SPECS: list[ColumnSpec] = [
         label=r"\makecell[c]{Drop\\CA/NY}",
         dir_template="user_productivity_{variant}_exclude_ca_ny",
         description="Exclude CA or NY job locations",
-    ),
-    ColumnSpec(
-        label=r"\makecell[c]{Drop\\Top 5\\CSAs}",
-        dir_template="user_productivity_firmbyuser_{variant}_droptop5",
-        description="Exclude firms in the top 5 CSAs",
-    ),
-    ColumnSpec(
-        label=r"\makecell[c]{Drop\\Top 10\\CSAs}",
-        dir_template="user_productivity_firmbyuser_{variant}_droptop10",
-        description="Exclude firms in the top 10 CSAs",
     ),
 ]
 
