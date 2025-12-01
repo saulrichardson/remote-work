@@ -25,6 +25,9 @@ archive/
 # Local folders for old scripts
 **/bin/
 
+# Local git worktrees (not needed in repo)
+worktrees/
+
 # HPC generated files
 hpc/sbatch/
 hpc/out/
