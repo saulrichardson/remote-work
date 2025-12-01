@@ -2,7 +2,7 @@
 
 This repository contains the full data and writing pipeline for the remote‑work paper.  Everything is organised as a one‑way flow: external data land in `data/`, Stata builds the analytical panels, specifications export results into `results/`, Python scripts polish tables/figures, and the LaTeX sources in `writeup/` assemble the document.
 
-Current mini-writeup PDF: `writeup/tex/final/mini-writeup.pdf`.
+Current mini-writeup PDF: [writeup/tex/final/mini-writeup.pdf](writeup/tex/final/mini-writeup.pdf).
 
 ```
 data/raw  →  src/stata/  →  data/clean  →  spec/stata/  →  results/raw
