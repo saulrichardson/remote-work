@@ -28,6 +28,9 @@ archive/
 # Local git worktrees (not needed in repo)
 worktrees/
 
+# Docs and one-off writeups (not tracked)
+docs/
+
 # HPC generated files
 hpc/sbatch/
 hpc/out/
