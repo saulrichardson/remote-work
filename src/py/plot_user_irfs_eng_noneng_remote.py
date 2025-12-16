@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from project_paths import PY_DIR, RESULTS_DIR, ensure_dir  # noqa: E402
+from project_paths import PY_DIR, RESULTS_CLEANED, ensure_dir  # noqa: E402
 
 if str(PY_DIR) not in sys.path:
     sys.path.insert(0, str(PY_DIR))
@@ -61,7 +61,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--results-root",
         type=Path,
-        default=RESULTS_DIR / "user_irfs_eng_vs_noneng_remote_hybrid",
+        default=RESULTS_CLEANED / "irfs" / "user_irfs_eng_vs_noneng_remote_hybrid",
         help="Directory containing group subfolders with eng_noneng_irf_results.csv",
     )
     parser.add_argument(

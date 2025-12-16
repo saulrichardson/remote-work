@@ -2,9 +2,10 @@
 * user_productivity_drop_top_metros.do
 * Re-runs the canonical user-productivity spec after excluding the
 * top CSAs (by the provided screenshot list) based on firm MSAs.
-* The script drops the first 5, 10, and 15 CSAs (capped at the 14
-* enumerated metros), saves filtered panels, and calls the baseline
-* spec for each variant.
+* The script now drops two sets of CSAs (capped at the 14 enumerated
+* metros), saves filtered panels, and calls the baseline spec for each:
+*  - Drop Top 5
+*  - Drop Top 14 (drops all mapped CSAs)
 *======================================================================*
 
 version 17
@@ -30,7 +31,8 @@ di as text "Wrapper PROJECT_ROOT: $PROJECT_ROOT"
 local pr_root        "$PROJECT_ROOT"
 local pr_processed   "$PROCESSED_DATA"
 local pr_results     "$RAW_RESULTS"
-local stata_bin      "/Applications/StataNow/StataSE.app/Contents/MacOS/stata-se"
+local stata_bin      "/Applications/Stata/StataSE.app/Contents/MacOS/stata-se"
+if !fileexists("`stata_bin'") local stata_bin "/Applications/StataNow/StataSE.app/Contents/MacOS/stata-se"
 
 * Ensure downstream specs see the same globals (in case they were cleared)
 global PROJECT_ROOT   "`pr_root'"
@@ -60,7 +62,9 @@ local max_rank = r(max)
 save `csa_map'
 
 *---- Drop thresholds -------------------------------------------------*
-local drop_targets "5 10 15"
+* Include the intermediate cut (top 10) so we can form four scenarios:
+* drop5, drop10, keep5, keep10
+local drop_targets "5 10 14"
 
 foreach drop_count of local drop_targets {
     local effective_rank = `drop_count'
@@ -101,6 +105,9 @@ foreach drop_count of local drop_targets {
     di as text "   Running canonical spec for `variant' via external Stata call"
     cd "`pr_root'"
     ! "`stata_bin'" -b do spec/stata/user_productivity.do "`variant'"
+
+    di as text "   Running firm×user FE spec for `variant'"
+    ! "`stata_bin'" -b do spec/stata/scratch/user_productivity_firmbyuser.do "`variant'"
 }
 
 di as result "✓ Completed drop-top CSA runs for thresholds: `drop_targets'"

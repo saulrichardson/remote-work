@@ -20,10 +20,10 @@ from build_top_metro_dualfe_table import (  # type: ignore
 )
 
 COLUMN_ORDER: list[tuple[str, str]] = [
-    ("precovid_keeptop5", "Keep Top 5 CSAs"),
-    ("precovid_keeptop10", "Keep Top 10 CSAs"),
-    ("precovid_droptop5", "Drop Top 5 CSAs"),
-    ("precovid_droptop10", "Drop Top 10 CSAs"),
+    ("precovid_keeptop5", "Keep CSAs Ranked 1–5"),
+    ("precovid_keeptop10", "Keep CSAs Ranked 1–10"),
+    ("precovid_droptop5", "Drop CSAs Ranked 1–5"),
+    ("precovid_droptop10", "Drop CSAs Ranked 1–10"),
 ]
 
 

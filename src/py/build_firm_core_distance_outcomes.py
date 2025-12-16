@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List, Sequence
 
 import duckdb
 import numpy as np
@@ -26,9 +26,30 @@ def parse_args() -> argparse.Namespace:
         help="LinkedIn firm×CBSA×half-year panel (parquet).",
     )
     parser.add_argument(
+        "--spells",
+        type=Path,
+        help="Raw Scoop_workers_positions.csv; if provided, rebuild panel using user lookup.",
+    )
+    parser.add_argument(
+        "--user-lookup",
+        type=Path,
+        default=DATA_CLEAN / "user_location_lookup.csv",
+        help="User-level location lookup CSV (user_location_lookup.csv).",
+    )
+    parser.add_argument(
+        "--threads",
+        type=int,
+        help="DuckDB worker threads when rebuilding from --spells.",
+    )
+    parser.add_argument(
+        "--temp-dir",
+        type=str,
+        help="Optional DuckDB temp directory when rebuilding from --spells.",
+    )
+    parser.add_argument(
         "--core",
         type=Path,
-        default=DATA_RAW / "company_core_msas_by_half.csv",
+        default=DATA_CLEAN / "company_core_msas_by_half.csv",
         help="Core CBSA table (output of dispersion_metrics.py).",
     )
     parser.add_argument(
@@ -47,13 +68,15 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_linkedin_panel(path: Path) -> pd.DataFrame:
+    """Load existing firm×CBSA panel (numeric CBSAs only)."""
+
     if not path.exists():
         raise FileNotFoundError(path)
     con = duckdb.connect()
     query = f"""
         SELECT
             lower(trim(companyname)) AS companyname,
-            CAST(yh AS BIGINT)       AS yh,
+            CAST(yh AS BIGINT)       AS yh_raw,
             CAST(cbsa AS VARCHAR)    AS cbsa_text,
             SUM(headcount)           AS headcount,
             AVG(lat)                 AS lat,
@@ -73,7 +96,176 @@ def load_linkedin_panel(path: Path) -> pd.DataFrame:
     df = df.drop(columns=["cbsa_text"])
     df["lat"] = df["lat"].astype(float)
     df["lon"] = df["lon"].astype(float)
-    df["yh"] = (df["yh"] - 3920).astype(int)
+    # Stata year-half date baseline is 1960H1 → 3920
+    df["yh"] = (df["yh_raw"] - 3920).astype(int)
+    df.drop(columns=["yh_raw"], inplace=True)
+    df["cbsa_from_lookup"] = 0
+    return df
+
+
+def build_panel_from_spells(
+    spells_path: Path,
+    msa_map_path: Path,
+    user_lookup_path: Path,
+    threads: int | None = None,
+    temp_dir: str | None = None,
+) -> pd.DataFrame:
+    """Rebuild firm×CBSA×half-year headcounts using user_location_lookup to impute locations."""
+
+    if not spells_path.exists():
+        raise FileNotFoundError(spells_path)
+    if not msa_map_path.exists():
+        raise FileNotFoundError(msa_map_path)
+    if not user_lookup_path.exists():
+        raise FileNotFoundError(user_lookup_path)
+
+    con = duckdb.connect()
+    if threads:
+        con.execute(f"PRAGMA threads={threads};")
+    if temp_dir:
+        safe = temp_dir.replace("'", "''")
+        con.execute(f"PRAGMA temp_directory='{safe}';")
+
+    con.execute(
+        f"""
+        CREATE OR REPLACE TEMP TABLE spells AS
+        SELECT
+            CAST(user_id AS BIGINT) AS user_id,
+            lower(trim(regexp_replace(companyname, ',+$', ''))) AS companyname,
+            TRIM(msa) AS msa,
+            COALESCE(TRY_CAST(start_date AS DATE), TRY_CAST(startdate AS DATE)) AS start_dt,
+            COALESCE(
+                TRY_CAST(end_date AS DATE),
+                TRY_CAST(enddate AS DATE),
+                TRY_CAST(start_date AS DATE),
+                TRY_CAST(startdate AS DATE)
+            ) AS end_dt
+        FROM read_csv_auto('{spells_path.as_posix()}',
+            header=true,
+            strict_mode=false,
+            ignore_errors=true,
+            union_by_name=true,
+            sample_size=2000000,
+            null_padding=true,
+            parallel=false)
+        WHERE companyname IS NOT NULL
+          AND start_date IS NOT NULL;
+        """
+    )
+
+    con.execute("DELETE FROM spells WHERE start_dt IS NULL;")
+    con.execute("UPDATE spells SET end_dt = start_dt WHERE end_dt < start_dt;")
+
+    con.execute(
+        f"""
+        CREATE OR REPLACE TEMP TABLE msa_map AS
+        SELECT
+            TRIM(msa) AS msa,
+            CAST(cbsacode AS VARCHAR) AS cbsa,
+            CAST(lat AS DOUBLE) AS lat,
+            CAST(lon AS DOUBLE) AS lon
+        FROM read_csv_auto('{msa_map_path.as_posix()}', header=true, ignore_errors=true)
+        WHERE cbsacode IS NOT NULL;
+        """
+    )
+
+    con.execute(
+        f"""
+        CREATE OR REPLACE TEMP TABLE user_lookup AS
+        SELECT *
+        FROM (
+            SELECT
+                CAST(user_id AS BIGINT) AS user_id,
+                TRIM(CAST(cbsa AS VARCHAR)) AS cbsa,
+                TRY_CAST(latitude AS DOUBLE) AS lat_lookup,
+                TRY_CAST(longitude AS DOUBLE) AS lon_lookup
+            FROM read_csv_auto('{user_lookup_path.as_posix()}',
+                header=true,
+                union_by_name=true,
+                ignore_errors=true)
+        )
+        WHERE cbsa IS NOT NULL AND cbsa <> '';
+        """
+    )
+
+    con.execute(
+        """
+        CREATE OR REPLACE TEMP TABLE spell_geo AS
+        SELECT
+            s.user_id,
+            s.companyname,
+            COALESCE(m.cbsa, ul.cbsa) AS cbsa,
+            COALESCE(m.lat, ul.lat_lookup) AS lat,
+            COALESCE(m.lon, ul.lon_lookup) AS lon,
+            CASE WHEN m.cbsa IS NULL AND ul.cbsa IS NOT NULL THEN 1 ELSE 0 END AS cbsa_from_lookup,
+            date_trunc('month', s.start_dt) AS start_m,
+            date_trunc('month', s.end_dt)   AS end_m
+        FROM spells s
+        LEFT JOIN msa_map m USING (msa)
+        LEFT JOIN user_lookup ul USING (user_id)
+        WHERE (m.cbsa IS NOT NULL OR ul.cbsa IS NOT NULL);
+        """
+    )
+
+    con.execute(
+        """
+        CREATE OR REPLACE TEMP TABLE month_expanded AS
+        SELECT
+            companyname,
+            cbsa,
+            cbsa_from_lookup,
+            lat,
+            lon,
+            gen.mon AS mon,
+            user_id
+        FROM spell_geo sg
+        JOIN generate_series(sg.start_m, sg.end_m, INTERVAL '1 month') AS gen(mon) ON TRUE;
+        """
+    )
+
+    df = con.execute(
+        """
+        WITH base AS (
+            SELECT
+                companyname,
+                cbsa,
+                cbsa_from_lookup,
+                lat,
+                lon,
+                ((year(mon) - 1960) * 2 + CASE WHEN month(mon) > 6 THEN 1 ELSE 0 END) AS yh,
+                user_id
+            FROM month_expanded
+        )
+        SELECT
+            companyname,
+            CAST(cbsa AS VARCHAR) AS cbsa_text,
+            MAX(cbsa_from_lookup) AS cbsa_from_lookup,
+            yh,
+            AVG(lat) AS lat,
+            AVG(lon) AS lon,
+            COUNT(DISTINCT user_id) AS headcount
+        FROM base
+        GROUP BY companyname, cbsa, yh
+        HAVING COUNT(DISTINCT user_id) > 0
+        ORDER BY companyname, yh, cbsa;
+        """
+    ).fetch_df()
+
+    con.close()
+
+    if df.empty:
+        raise RuntimeError("No rows produced when rebuilding panel from spells/user lookup.")
+
+    df = df[df["cbsa_text"].str.match(r"^[0-9]+$")]
+    if df.empty:
+        raise RuntimeError("All rows had non-numeric CBSA after rebuild; check lookup inputs.")
+    df["cbsa"] = df["cbsa_text"].astype(int)
+    df = df.drop(columns=["cbsa_text"])
+    df["lat"] = df["lat"].astype(float)
+    df["lon"] = df["lon"].astype(float)
+    df["yh"] = df["yh"].astype(int)
+    df["headcount"] = df["headcount"].astype(int)
+    df["cbsa_from_lookup"] = df["cbsa_from_lookup"].astype(int)
     return df
 
 
@@ -181,6 +373,7 @@ def summarize_outcomes(df: pd.DataFrame) -> pd.DataFrame:
         total = g["headcount"].sum()
         if total <= 0:
             raise RuntimeError(f"Non-positive headcount for {(company, yh)}")
+        imputed_head = g.loc[g.get("cbsa_from_lookup", 0) == 1, "headcount"].sum()
         core_head = g.loc[g["is_core"] == 1, "headcount"].sum()
         noncore_head = total - core_head
         dist_values = g["dist_to_core_km"].to_numpy()
@@ -190,6 +383,8 @@ def summarize_outcomes(df: pd.DataFrame) -> pd.DataFrame:
             "companyname": company,
             "yh": int(yh),
             "total_headcount": total,
+            "imputed_headcount": imputed_head,
+            "imputed_share": imputed_head / total if total > 0 else np.nan,
             "core_headcount": core_head,
             "noncore_headcount": noncore_head,
             "core_share": core_head / total,
@@ -216,7 +411,17 @@ def main() -> None:
     args = parse_args()
     ensure_dir(args.output.parent)
 
-    linkedin = load_linkedin_panel(args.linkedin)
+    if args.spells:
+        linkedin = build_panel_from_spells(
+            spells_path=args.spells,
+            msa_map_path=args.msa_map,
+            user_lookup_path=args.user_lookup,
+            threads=args.threads,
+            temp_dir=args.temp_dir,
+        )
+    else:
+        linkedin = load_linkedin_panel(args.linkedin)
+
     core = load_core_table(args.core, args.msa_map)
     lookup = build_core_lookup(core)
 

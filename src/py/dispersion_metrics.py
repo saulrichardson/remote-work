@@ -12,19 +12,20 @@
 # ---------------------------------------------------------------------------
 
 import pandas as pd, argparse
-from pathlib import Path
 from collections import defaultdict, Counter
 from haversine import haversine_vector, Unit
 from tqdm import tqdm
 
-# ── folders ────────────────────────────────────────────────────────────────
-RAW_DIR       = Path("../data/raw")
-PROC_DIR      = Path("../data/cleaned")
-RES_DIR       = Path("../data/raw")
+from project_paths import DATA_CLEAN, DATA_RAW
+
+# ── folders (resolved via project_paths) ───────────────────────────────────
+RAW_DIR = DATA_RAW
+PROC_DIR = DATA_CLEAN
+RES_DIR = DATA_CLEAN
 
 SPELL_CSV  = RAW_DIR / "Scoop_workers_positions.csv"
 ENRICH_CSV = PROC_DIR / "enriched_msa.csv"
-OUT_CSV    = RES_DIR / "company_dispersion_2019.csv"
+OUT_CSV    = RES_DIR / "company_dispersion_by_half.csv"
 OUT_CORES  = RES_DIR / "company_core_msas_by_half.csv"
 
 # ── constants ──────────────────────────────────────────────────────────────

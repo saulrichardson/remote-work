@@ -227,6 +227,6 @@ keep if common_sample == 1
 drop miss_ct common_sample    
 
 save "$processed_data/firm_panel.dta", replace
-export delimited "../data/samples/firm_panel.csv", replace
+export delimited "$PROJECT_ROOT/data/samples/firm_panel.csv", replace
 
 log close

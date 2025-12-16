@@ -144,6 +144,6 @@ drop miss_ct complete
 sort companyname soc4 yh
 
 save "$processed_data/firm_soc_panel.dta", replace
-export delimited "../data/samples/firm_soc_panel.csv", replace
+export delimited "$PROJECT_ROOT/data/samples/firm_soc_panel.csv", replace
 
 log close

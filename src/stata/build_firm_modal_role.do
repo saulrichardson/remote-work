@@ -12,7 +12,7 @@ log using "$LOG_DIR/build_firm_modal_role.log", replace text
 ** 1) Import LinkedIn Occupation Data
 ********************************************************************************
 
-import delimited "$data/Scoop_workers_positions.csv", clear bindquote(strict) ///
+import delimited "$raw_data/Scoop_workers_positions.csv", clear bindquote(strict) ///
     stringcols(_all)
     
 * Convert date strings to Stata date values.
@@ -35,7 +35,6 @@ bysort companyname : keep if _n == 1
 * Keep only what you need
 keep companyname role_k7 _freq
 
-save "$data/modal_role_per_firm.dta", replace
+save "$processed_data/modal_role_per_firm.dta", replace
 
 log close
-

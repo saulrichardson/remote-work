@@ -28,7 +28,7 @@ data/raw  →  src/stata/  →  data/clean  →  spec/stata/  →  results/raw
 | `src/py/` | Shared Python helpers (table formatters, figure generators, path utilities). |
 | `results/raw/` | Direct exports from the Stata specs (CSV coefficient dumps, event-study series, etc.). |
 | `results/cleaned/tex` & `results/cleaned/figures` | Paper-ready LaTeX tables and PNG figures created by the Python scripts. |
-| `log/` | Run logs from bulk jobs (kept out of the tree root). |
+| `log/` | Run logs (Stata specs/builds, batch jobs; kept out of the tree root). |
 | `docs/` | Research notes, auxiliary write-ups, and exploratory notebooks. |
 | `writeup/` | LaTeX sources (`tex/`), spec-scoped Python formatters under `py/<spec>/`, scratch space, and the `Makefile` that rebuilds the paper. |
 
@@ -45,6 +45,7 @@ Generated artefacts live under `results/` and `writeup/tex/build/`; wipe them wh
    ```stata
    do src/stata/build_firm_panel.do          // firm-level panels and covariates
    do src/stata/build_all_user_panels.do     // user-level panels (multiple variants)
+   do src/stata/build_firm_panel_github_users.do precovid   // firm outcomes collapsed from GitHub-linked users (option B)
    do src/stata/build_firm_soc_panel_from_csv.do   // auxiliary firm data merges
    ```
 Each script writes cleaned `.dta` files to `data/clean/` (with optional CSV mirrors to `data/samples/`).
@@ -55,6 +56,8 @@ Each script writes cleaned `.dta` files to `data/clean/` (with optional CSV mirr
    do spec/stata/user_productivity.do
    do spec/stata/user_productivity_initial.do
    do spec/stata/firm_scaling.do
+   do spec/stata/firm_scaling_github_sample.do precovid   // firm_scaling restricted to GitHub-linked firms
+   do spec/stata/firm_scaling_github_users.do precovid    // firm_scaling where outcomes are built from GitHub-linked users (option B)
    do spec/stata/user_mechanisms_with_growth.do
    do spec/stata/user_productivity_discrete_fr_focus.do
    do spec/stata/firm_scaling_vacancy_outcomes_htv2_95.do
@@ -84,6 +87,8 @@ Python formatters now live under `writeup/py/user_productivity/`, `writeup/py/fi
 | `spec/stata/user_productivity.do` | Baseline worker regressions (OLS + IV) | `results/raw/user_productivity_precovid/` |
 | `spec/stata/user_productivity_initial.do` | No startup interaction baseline | `results/raw/user_productivity_initial_precovid/` |
 | `spec/stata/firm_scaling.do` | Firm growth/join/leave regressions | `results/raw/firm_scaling/` |
+| `spec/stata/firm_scaling_github_sample.do` | Same as `firm_scaling.do`, but restrict firms to the GitHub-linked user sample | `results/raw/firm_scaling_github_<variant>/` |
+| `spec/stata/firm_scaling_github_users.do` | Same regression spec, but outcomes are computed from GitHub-linked users (collapse user panel → firm×half-year) | `results/raw/firm_scaling_github_users_<variant>/` |
 | `spec/stata/firm_scaling_vacancy_outcomes_htv2_95.do` | Job-posting outcomes | `results/raw/firm_scaling_vacancy_outcomes_htv2_95/` |
 | `spec/stata/user_mechanisms_with_growth.do` | Mechanism robustness checks | `results/raw/user_mechanisms_with_growth_precovid/` |
 | `spec/stata/user_wage_fe_variants.do` | Wage regressions | `results/raw/user_wage_fe_variants_precovid/` |
@@ -94,7 +99,7 @@ Python formatters now live under `writeup/py/user_productivity/`, `writeup/py/fi
 ## Housekeeping & conventions
 
 - **Logs and scratch work**  
-  - `src/stata/log/` and `spec/stata/log/` capture Stata run logs; each directory sits alongside the scripts that generated those outputs.  
+  - `log/` is the canonical destination for Stata run logs (via `LOG_DIR` in `spec/00_paths.do`).  
   - Use `spec/stata/scratch/`, `writeup/scratch/`, or `writeup/py/scratch/` for one-off experiments; move polished scripts back into the main folders.
 
 - **Generated outputs**  
@@ -106,7 +111,7 @@ Python formatters now live under `writeup/py/user_productivity/`, `writeup/py/fi
   - The mini-writeup, Overleaf sync, and any downstream consumers read exclusively from `results/cleaned/`.
 
 - **Data handling**  
-- Keep raw/cleaned data out of Git.  The repository assumes you can rebuild `data/clean/` using the supplied Stata scripts whenever needed.
+  - Keep raw/cleaned data out of Git. The repository assumes you can rebuild `data/clean/` using the supplied Stata scripts whenever needed.
 
 - **Python helpers**  
   - `src/py/project_paths.py` resolves repo-relative paths and is imported by all Python scripts; it understands the `PROJECT_ROOT` environment variable as an override.

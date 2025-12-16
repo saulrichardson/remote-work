@@ -28,7 +28,7 @@ replicated in Stata, matching the original workflow.
 Output
 ------
 
-    data/cleaned/firm_panel_enriched.csv
+    data/clean/firm_panel_enriched.csv
 
 ready for `import delimited` in Stata.
 

@@ -5,12 +5,12 @@ Inputs
 data/raw/scoop_vacancy.csv
     Columns: companyname, vacancy, gap (plus an unnamed index column)
 
-data/cleaned/Scoop_Positions_Firm_Collapse2.csv
+data/clean/Scoop_Positions_Firm_Collapse2.csv
     Firm × date panel with total_employees and join counts.
 
 Outputs
 -------
-data/cleaned/vacancy_measures_2020.csv with columns
+data/clean/vacancy_measures_2020.csv with columns
     companyname          – lower-case firm key
     vacancy              – raw vacancy postings (open postings)
     gap                  – vacancy gap (vacancies vs hires) – copied from
@@ -94,7 +94,7 @@ def build() -> None:
     if not PATH_VACANCY.exists():
         raise FileNotFoundError("scoop_vacancy.csv not found in data/raw")
     if not PATH_POS.exists():
-        raise FileNotFoundError("Scoop_Positions_Firm_Collapse2.csv not found in data/cleaned")
+        raise FileNotFoundError("Scoop_Positions_Firm_Collapse2.csv not found in data/clean")
 
     vac = _read_vacancy()
     firm_2020 = _read_size_hires()

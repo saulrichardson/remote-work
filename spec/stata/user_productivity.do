@@ -61,7 +61,7 @@ postfile handle_fs ///
     double coef se pval       ///
     double partialF rkf nobs  ///
     using `out_fs', replace
-	
+    
 // 3) Loop over outcomes
 // Include percentile-rank and Winsorized versions of the contribution
 // measures
@@ -78,15 +78,15 @@ foreach y of local outcomes {
     // ----- OLS -----
     reghdfe `y' var3 var5 var4, absorb(user_id firm_id yh) ///
         vce(cluster user_id)
-		
-	local N = e(N) 
-	
+        
+    local N = e(N) 
+    
     foreach p in var3 var5 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-		*--- inside the OLS loop ------------------------------------------------------
+        *--- inside the OLS loop ------------------------------------------------------
         post handle ("OLS") ("`y'") ("`p'") ///
                                         (`b') (`se') (`pval') (`pre_mean') ///
                                         (.) (`N')                 // dot for rkf, then nobs
@@ -95,58 +95,58 @@ foreach y of local outcomes {
     // ----- IV (2nd‐stage) -----
     ivreghdfe ///
         `y' (var3 var5 = var6 var7) var4, ///
-        absorb(user_id firm_id yh) vce(cluster user_id) savefirst
-		
+        absorb(user_id firm_id yh) cluster(user_id) savefirst
+        
     local rkf = e(rkf)
-	local N = e(N) 
-	
+    local N = e(N) 
+    
     foreach p in var3 var5 var4 {
         local b    = _b[`p']
         local se   = _se[`p']
         local t    = `b'/`se'
         local pval = 2*ttail(e(df_r), abs(`t'))
-		*--- inside the IV loop -------------------------------------------------------
+        *--- inside the IV loop -------------------------------------------------------
         post handle ("IV") ("`y'") ("`p'") ///
                                         (`b') (`se') (`pval') (`pre_mean') ///
                                         (`rkf') (`N')            // rkf, then nobs
     }
 
-	if !`fs_done' {
-		
-		matrix FS = e(first)
+    if !`fs_done' {
+        
+        matrix FS = e(first)
         local F3 = FS[4,1]
         local F5 = FS[4,2]
 
-		/* -------- var3 first stage -------------------------------- */
-		estimates restore _ivreg2_var3
-		local N_fs = e(N)
-		foreach p in var6 var7 var4 {
-			local b    = _b[`p']
-			local se   = _se[`p']
-			local t    = `b'/`se'
-			local pval = 2*ttail(e(df_r), abs(`t'))
+        /* -------- var3 first stage -------------------------------- */
+        estimates restore _ivreg2_var3
+        local N_fs = e(N)
+        foreach p in var6 var7 var4 {
+            local b    = _b[`p']
+            local se   = _se[`p']
+            local t    = `b'/`se'
+            local pval = 2*ttail(e(df_r), abs(`t'))
 
-			post handle_fs ("var3") ("`p'") ///
-							(`b') (`se') (`pval') ///
-							(`F3') (`rkf') (`N_fs')
-		}
+            post handle_fs ("var3") ("`p'") ///
+                            (`b') (`se') (`pval') ///
+                            (`F3') (`rkf') (`N_fs')
+        }
 
-		/* -------- var5 first stage -------------------------------- */
-		estimates restore _ivreg2_var5
-		local N_fs = e(N)
-		foreach p in var6 var7 var4 {
-			local b    = _b[`p']
-			local se   = _se[`p']
-			local t    = `b'/`se'
-			local pval = 2*ttail(e(df_r), abs(`t'))
+        /* -------- var5 first stage -------------------------------- */
+        estimates restore _ivreg2_var5
+        local N_fs = e(N)
+        foreach p in var6 var7 var4 {
+            local b    = _b[`p']
+            local se   = _se[`p']
+            local t    = `b'/`se'
+            local pval = 2*ttail(e(df_r), abs(`t'))
 
-			post handle_fs ("var5") ("`p'") ///
-							(`b') (`se') (`pval') ///
-							(`F5') (`rkf') (`N_fs')
-		}
+            post handle_fs ("var5") ("`p'") ///
+                            (`b') (`se') (`pval') ///
+                            (`F5') (`rkf') (`N_fs')
+        }
 
-		local fs_done 1
-	}
+        local fs_done 1
+    }
 }
 
 // 4) Close & export to CSV

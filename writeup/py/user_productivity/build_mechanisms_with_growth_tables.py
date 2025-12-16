@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Create LaTeX tables for the combined user mechanisms + growth specs.
+"""Create LaTeX tables for the user mechanisms + growth specs.
 
-The layout mirrors the baseline table builder but adds two growth columns
-(endogenous and exogenous) alongside the standard mechanism dimensions.
-Output keeps a Panel A (OLS) / Panel B (IV) layout and splits into chunks
-of up to eight columns per table.
+The layout mirrors the baseline table builder but adds growth controls and
+mechanism variants. Rent is intentionally excluded from both estimation and
+the table output (the horse-race focuses on HHI and hierarchy/seniority).
 """
 from __future__ import annotations
 
@@ -61,23 +60,20 @@ INDENT = r"\hspace{1em}"
 def _tabular_star_spec(n_cols: int) -> str:
     return "@{}l" + "@{\\extracolsep{\\fill}}c" * n_cols + "@{}"
 
-# Dimension checklist rows (growth rows listed last to match column layout).
+# Dimension checklist rows.
 DIMS = [
-    "rent",
     "hhi",
     "seniority",
     "growth_endog",
 ]
 
 ROW_LABELS = {
-    "rent": "Rent",
     "hhi": "HHI",
     "seniority": "Seniority",
     "growth_endog": "Firm Growth",
 }
 
 DIM_KEYWORDS = {
-    "rent": ["rent"],
     "hhi": ["hhi"],
     "seniority": ["seniority"],
     "growth_endog": ["growth_endog"],
@@ -317,14 +313,20 @@ def main():
     df_ols = df[df.model_type == "OLS"].copy()
 
     all_specs = df["spec"].drop_duplicates().tolist()
+    # Hard-exclude rent variants (Table 6 no longer reports any rent-based specs).
+    all_specs = [s for s in all_specs if "rent" not in str(s).lower()]
     baseline = [s for s in all_specs if s == "baseline"]
     growth = [s for s in ["growth_endog"] if s in all_specs]
     excluded = set(baseline + growth + ["growth_exog"])
     middle = [s for s in all_specs if s not in excluded]
-    # Drop pairwise mechanism combinations (columns 5–7 in prior layout)
-    drop_pairs = {"rent_hhi", "rent_seniority", "hhi_seniority"}
+    # Drop mechanism combinations we do not report in the horse-race table.
+    # (Rent specs should not exist anymore, but keeping the filter makes the
+    # formatter robust to stale raw exports.)
+    drop_pairs = {"rent_hhi", "rent_seniority"}
     middle = [s for s in middle if s not in drop_pairs]
-    spec_order = baseline + middle + growth
+    # Put the growth column(s) first so they appear as column (1), followed by
+    # the baseline and remaining mechanism variants.
+    spec_order = growth + baseline + middle
 
     tables_needed = math.ceil(len(spec_order) / COLS_PER_TABLE)
     lines_ols: list[str] = []

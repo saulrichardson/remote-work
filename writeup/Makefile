@@ -30,9 +30,9 @@ PDF_FINAL    := $(FINAL)/mini-writeup.pdf
 
 TABLE_SRC    := ../results/cleaned/tex
 FIGURE_SRC   := ../results/cleaned/figures
-IRF_SRC      := ../results/user_irfs_eng_vs_noneng_remote_hybrid
+IRF_SRC      := ../results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid
 
-OVERLEAF_BASE := /Users/saul/Dropbox/Apps/Overleaf/WFH Startups/Current
+OVERLEAF_BASE := /Users/saulrichardson/Dropbox/Apps/Overleaf/WFH Startups/Current
 DEST_REPORTS  := $(OVERLEAF_BASE)/Reports
 DEST_RESULTS  := $(OVERLEAF_BASE)/Results
 DEST_TABLES   := $(DEST_RESULTS)/Tables
@@ -43,7 +43,12 @@ OVERLEAF_TABLE_WHITELIST := \
   $(TABLE_SRC)/table_of_means.tex \
   $(TABLE_SRC)/user_productivity_precovid_total_ols_single.tex \
   $(TABLE_SRC)/user_productivity_precovid_total_iv_single.tex \
+  $(TABLE_SRC)/user_productivity_precovid_industry_hqstate_shocks.tex \
+  $(TABLE_SRC)/user_productivity_log_precovid.tex \
+  $(TABLE_SRC)/user_productivity_precovid_stayer_only.tex \
+  $(TABLE_SRC)/user_productivity_precovid_stayer_table3.tex \
   $(TABLE_SRC)/firm_scaling_precovid_cols1_4.tex \
+  $(TABLE_SRC)/firm_scaling_industry_hqstate_shocks.tex \
   $(TABLE_SRC)/firm_scaling_precovid_cols5_6.tex \
   $(TABLE_SRC)/user_mechanisms_with_growth_precovid.tex \
   $(TABLE_SRC)/user_wage_fe_variants_precovid_log_salary.tex \
@@ -51,7 +56,6 @@ OVERLEAF_TABLE_WHITELIST := \
   $(TABLE_SRC)/user_productivity_traits_dual_precovid_ols.tex \
   $(TABLE_SRC)/user_productivity_precovid_nonsoftware.tex \
   $(TABLE_SRC)/user_productivity_top_metros_firmbyuser.tex \
-  $(TABLE_SRC)/firm_scaling_location_ratios.tex \
   $(TABLE_SRC)/first_stage_summary.tex \
   $(TABLE_SRC)/user_productivity_precovid_restricted.tex \
   $(TABLE_SRC)/startup_cutoff_total_contributions_q100.tex \
@@ -59,6 +63,11 @@ OVERLEAF_TABLE_WHITELIST := \
   $(TABLE_SRC)/startup_cutoff_growth_rate_we.tex \
   $(TABLE_SRC)/startup_cutoff_join_rate_we.tex \
   $(TABLE_SRC)/startup_cutoff_leave_rate_we.tex \
+  $(TABLE_SRC)/startup_size_cutoff_total_contributions_q100.tex \
+  $(TABLE_SRC)/startup_size_cutoff_restricted_contributions_q100.tex \
+  $(TABLE_SRC)/startup_size_cutoff_growth_rate_we.tex \
+  $(TABLE_SRC)/startup_size_cutoff_join_rate_we.tex \
+  $(TABLE_SRC)/startup_size_cutoff_leave_rate_we.tex \
   $(TABLE_SRC)/user_productivity_precovid_robustness_part1.tex \
   $(TABLE_SRC)/user_productivity_precovid_robustness_part2.tex
 
@@ -66,6 +75,7 @@ OVERLEAF_FIGURE_WHITELIST := \
   firm_teleworkable_remote.png \
   firm_age_lt100_remote.png \
   user_event_study_precovid_ols.png \
+  user_hire_event_study_remote_rank_mw.png \
   firm_event_study_growth_ols.png \
   firm_event_study_join_rate_ols.png \
   firm_event_study_leave_rate_ols.png \
@@ -83,11 +93,13 @@ OVERLEAF_FIGURE_WHITELIST := \
   panelB_fullremote_nonengineer.png \
   startup_cutoff_bars_total_contributions_q100.png \
   startup_cutoff_bars_growth_rate_we.png \
-  top_employment_csa_remote_startup.png \
-  top_employment_msa_remote_startup.png
+  startup_size_cutoff_bars_total_contributions_q100.png \
+  startup_size_cutoff_bars_growth_rate_we.png \
+  startup_size_cutoff_bars_main_panels.png
 
 .PHONY: mini-writeup mini-writeup-inputs mini-writeup-pdf clean
 .PHONY: heterogeneity-pdf user-wage-fe-pdf firm-wage-log-pdf
+.PHONY: shocks-tables
 
 mini-writeup-inputs:
 	@echo "[1/2] Refreshing mini-writeup inputs"
@@ -97,6 +109,9 @@ mini-writeup-inputs:
 	@$(call RUN_PYSCRIPT,user_productivity/build_panel_tables.py,--variant precovid --outcome-set total)
 	@$(call RUN_PYSCRIPT,user_productivity/build_single_model_tables.py,--variant precovid --outcome-set total)
 	@$(call RUN_PYSCRIPT,user_productivity/build_baseline_table.py,--variant precovid --outcome-set restricted)
+	@$(call RUN_PYSCRIPT,user_productivity/build_stayer_joiner_table.py,--variant precovid --samples both)
+	@$(call RUN_PYSCRIPT,user_productivity/build_stayer_joiner_table.py,--variant precovid --samples stayer)
+	@$(call RUN_PYSCRIPT,user_productivity/build_log_total_table.py,)
 	@$(call RUN_PYSCRIPT,user_productivity/build_fr_focus_table.py,--variant precovid)
 	@$(call RUN_PYSCRIPT,user_productivity/build_traits_dual_table.py,)
 	@$(call RUN_PYSCRIPT,user_productivity/build_wage_fe_tables.py,--variant precovid)
@@ -104,6 +119,7 @@ mini-writeup-inputs:
 	@$(call RUN_PYSCRIPT,user_productivity/build_mechanisms_with_growth_tables.py,--variant precovid)
 	@$(call RUN_PYSCRIPT,user_productivity/build_top_metro_firmbyuser_table.py,)
 	@$(call RUN_PYSCRIPT,startup_cutoff/build_robustness_tables.py,)
+	@$(call RUN_PYSCRIPT,startup_cutoff/build_size_cutoff_tables.py,)
 	@$(call RUN_PYSCRIPT,firm_scaling/build_growth_split_tables.py,)
 	@$(call RUN_PYSCRIPT,firm_scaling/build_geography_table.py,)
 	@$(call RUN_PYSCRIPT,firm_scaling/build_location_ratio_table.py,)
@@ -174,19 +190,13 @@ mini-writeup-inputs:
 		--output ../results/cleaned/figures/firm_event_study_fullrem_hires_per_job_posting_ols.png \
 		--xlabel "" --ylabel "Hires per job posting" --series ols
 	@MPLBACKEND=Agg $(PYTHON) ./py/startup_cutoff/plot_cutoff_bars.py
-	@MPLBACKEND=Agg $(PYTHON) ../src/py/plot_user_irfs_eng_noneng_remote.py
-	@$(PYTHON) ../src/py/build_top_msa_list.py --panel-variant precovid --rank-half 2019h2 --top-n 30
-	@MPLBACKEND=Agg $(PYTHON) ./py/user_productivity/plot_csa_cleveland.py \
-		--panel-variant precovid \
-		--output ../results/cleaned/figures/top_employment_csa_remote_startup.png \
-		--sort-column csa_rank
-	@MPLBACKEND=Agg $(PYTHON) ./py/user_productivity/plot_csa_cleveland.py \
-		--input ../results/raw/user_productivity_msa_interactions_precovid/consolidated_results_by_msa.csv \
-		--output ../results/cleaned/figures/top_employment_msa_remote_startup.png \
-		--name-column msa_name \
-		--sort-column msa_rank
-	@echo "[2/2] Syncing whitelisted artefacts to Overleaf"
-	@mkdir -p "$(DEST_RESULTS)" "$(DEST_TABLES)" "$(DEST_FIGURES)"
+		@MPLBACKEND=Agg $(PYTHON) ./py/startup_cutoff/plot_size_cutoff_bars.py
+		@MPLBACKEND=Agg $(PYTHON) ./py/user_hire/user_hire_event_study_plot_mw.py
+		@MPLBACKEND=Agg $(PYTHON) ../src/py/plot_user_irfs_eng_noneng_remote.py
+		@$(PYTHON) ../src/py/build_top_msa_list.py --panel-variant precovid --rank-half 2019h2 --top-n 30
+		@$(MAKE) shocks-tables
+		@echo "[2/2] Syncing whitelisted artefacts to Overleaf"
+		@mkdir -p "$(DEST_RESULTS)" "$(DEST_TABLES)" "$(DEST_FIGURES)"
 	@for src in $(OVERLEAF_TABLE_WHITELIST); do \
 		if [ ! -f "$$src" ]; then \
 			echo "✖ Missing expected table $$src"; \
@@ -210,6 +220,11 @@ mini-writeup-inputs:
 	done
 	@echo "✓ Tables copied to $(DEST_TABLES)"
 	@echo "✓ Figures copied to $(DEST_FIGURES)"
+
+shocks-tables:
+	@echo "Building industry/HQ-state shock robustness tables (requires Stata raw exports)"
+	@$(call RUN_PYSCRIPT,user_productivity/build_industry_hqstate_shocks_table.py,--variant precovid)
+	@$(call RUN_PYSCRIPT,firm_scaling/build_industry_hqstate_shocks_table.py,)
 
 mini-writeup-pdf: mini-writeup-inputs
 	@echo "Compiling mini-writeup PDF"

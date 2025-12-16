@@ -21,7 +21,7 @@ Steps
           (same logic as in the .do file),
     we accumulate *sum(tele)* and *count* per company.
 4.  Compute the company-level mean and write
-    ``data/cleaned/scoop_firm_tele_2.csv`` (or .parquet).
+    ``data/clean/scoop_firm_tele_2.csv`` (or .parquet).
 
 Compared to the Stata version this implementation avoids brittle CSV
 parsing issues and re-uses the shared company-name normalisation logic.
@@ -63,7 +63,7 @@ def _parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--output",
-        default="data/cleaned/scoop_firm_tele_2.csv",
+        default="data/clean/scoop_firm_tele_2.csv",
         help="Destination (CSV or Parquet)",
     )
     p.add_argument("--chunksize", type=int, default=500_000, help="Spell CSV chunk size")

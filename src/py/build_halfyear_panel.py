@@ -26,7 +26,7 @@ Notes
 Example
   python py/build_halfyear_panel.py \
     --input data/raw/vacancy/Postings_scoop.csv \
-    --output data/cleaned/vacancy/firm_halfyear_panel.csv \
+    --output data/clean/vacancy/firm_halfyear_panel.csv \
     --threshold-days 90
 """
 from __future__ import annotations

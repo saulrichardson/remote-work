@@ -5,11 +5,11 @@
 *  measures (endogenous/exogenous) consistent with prior specs.
 *
 *  • Keeps the mechanism columns from spec/user_mechanisms.do
-*    (rent, HHI, seniority and their combinations)
+*    (HHI, seniority and their combination)
 *  • Adds growth mechanisms from spec/growth_mechanisms_simple_final.do:
 *      - Endogenous (tile_post_c)
 *      - Exogenous (tile_growth_resid) after residualizing on
-*        industry/MSA leave-one-out growth, rent, and HHI.
+*        industry/MSA leave-one-out growth and HHI.
 *  • Fixed effects: worker–firm interacted + half-year
 *      absorb(firm_id#user_id yh), cluster(user_id)
 *  • No fallbacks; assumes required inputs exist
@@ -48,9 +48,6 @@ local FE   "absorb(firm_id#user_id yh) vce(cluster user_id)"
 
 // Core mechanism variables (consistent with user_mechanisms.do) --------
 gen seniority_4 = !inrange(seniority_levels, 1, 3)
-
-gen var8  = covid*rent
-gen var9  = covid*rent*startup
 
 gen var11 = covid*hhi_1000
 gen var12 = covid*hhi_1000*startup
@@ -157,7 +154,7 @@ collapse (mean) msa_growth_postavg_lo, by(company_msa)
 tempfile msa_postavg
 save `msa_postavg'
 
-// 4) Firm-level average post-COVID growth + firm controls (rent/HHI)
+// 4) Firm-level average post-COVID growth + firm controls (HHI)
 use `postcovid', clear
 collapse (mean) fg_we (first) industry company_msa, by(companyname)
 rename fg_we growth_rate_we_post_c
@@ -165,10 +162,9 @@ gen companyname_c = lower(companyname)
 
 preserve
     use "$processed_data/firm_panel.dta", clear
-    keep companyname rent hhi_1000 covid startup
+    keep companyname hhi_1000 covid startup
     gen companyname_c = lower(companyname)
-    collapse (last) startup (last) rent (last) hhi_1000 if covid, by(companyname_c)
-    xtile tile_rent = rent, nq(2)
+    collapse (last) startup (last) hhi_1000 if covid, by(companyname_c)
     xtile tile_hhi  = hhi_1000, nq(2)
     tempfile firm_extra
     save `firm_extra'
@@ -179,9 +175,8 @@ merge m:1 company_msa  using `msa_postavg',  keep(match) nogen
 merge m:1 companyname_c using `firm_extra',  keep(match) nogen
 
 // First-stage residualization (kept for reporting parity)
-reghdfe growth_rate_we_post_c ind_growth_postavg_lo msa_growth_postavg_lo tile_rent tile_hhi
+reghdfe growth_rate_we_post_c ind_growth_postavg_lo msa_growth_postavg_lo tile_hhi
 tempfile first_stage
-esttab using "`first_stage'", replace  // placeholder; we will capture via predict below
 predict growth_resid
 xtile tile_growth_resid = growth_resid, nq(2)
 keep companyname tile_growth_resid
@@ -215,8 +210,8 @@ postfile handle ///
 local specs ///
   baseline ///
   growth_endog growth_exog ///
-  rent hhi seniority ///
-  rent_hhi rent_seniority hhi_seniority rent_hhi_seniority
+  hhi seniority ///
+  hhi_seniority
 
 // Baseline
 local ols_exog_baseline  "var4"
@@ -236,12 +231,6 @@ local iv_exog_gexog      "var4 var17_x var18_x"
 local instr_gexog        "var6 var7"
 local endo_gexog         "var3 var5"
 
-// Rent (lean spec: include triple as exogenous; only var3/var5 endogenous)
-local ols_exog_rent      "var4 var8 var9"
-local iv_exog_rent       "var4 var8 var9"
-local instr_rent         "var6 var7"
-local endo_rent          "var3 var5"
-
 // HHI (lean spec)
 local ols_exog_hhi       "var4 var11 var12"
 local iv_exog_hhi        "var4 var11 var12"
@@ -254,29 +243,11 @@ local iv_exog_sen        "var4 var14 var15"
 local instr_sen          "var6 var7"
 local endo_sen           "var3 var5"
 
-// Rent + HHI (lean spec)
-local ols_exog_rent_hhi  "var4 var8 var9 var11 var12"
-local iv_exog_rent_hhi   "var4 var8 var9 var11 var12"
-local instr_rent_hhi     "var6 var7"
-local endo_rent_hhi      "var3 var5"
-
-// Rent + Seniority (lean spec)
-local ols_exog_rent_sen  "var4 var8 var9 var14 var15"
-local iv_exog_rent_sen   "var4 var8 var9 var14 var15"
-local instr_rent_sen     "var6 var7"
-local endo_rent_sen      "var3 var5"
-
 // HHI + Seniority (lean spec)
 local ols_exog_hhi_sen   "var4 var11 var12 var14 var15"
 local iv_exog_hhi_sen    "var4 var11 var12 var14 var15"
 local instr_hhi_sen      "var6 var7"
 local endo_hhi_sen       "var3 var5"
-
-// Rent + HHI + Seniority (lean spec)
-local ols_exog_rent_hhi_sen "var4 var8 var9 var11 var12 var14 var15"
-local iv_exog_rent_hhi_sen  "var4 var8 var9 var11 var12 var14 var15"
-local instr_rent_hhi_sen    "var6 var7"
-local endo_rent_hhi_sen     "var3 var5"
 
 // ---------------------------------------------------------------------
 // Run specs
@@ -316,12 +287,6 @@ foreach s in `specs' {
         local INSTR     "`instr_gexog'"
         local ENDO      "`endo_gexog'"
     }
-    else if "`s'" == "rent" {
-        local OLS_EXOG  "`ols_exog_rent'"
-        local IV_EXOG   "`iv_exog_rent'"
-        local INSTR     "`instr_rent'"
-        local ENDO      "`endo_rent'"
-    }
     else if "`s'" == "hhi" {
         local OLS_EXOG  "`ols_exog_hhi'"
         local IV_EXOG   "`iv_exog_hhi'"
@@ -334,29 +299,11 @@ foreach s in `specs' {
         local INSTR     "`instr_sen'"
         local ENDO      "`endo_sen'"
     }
-    else if "`s'" == "rent_hhi" {
-        local OLS_EXOG  "`ols_exog_rent_hhi'"
-        local IV_EXOG   "`iv_exog_rent_hhi'"
-        local INSTR     "`instr_rent_hhi'"
-        local ENDO      "`endo_rent_hhi'"
-    }
-    else if "`s'" == "rent_seniority" {
-        local OLS_EXOG  "`ols_exog_rent_sen'"
-        local IV_EXOG   "`iv_exog_rent_sen'"
-        local INSTR     "`instr_rent_sen'"
-        local ENDO      "`endo_rent_sen'"
-    }
     else if "`s'" == "hhi_seniority" {
         local OLS_EXOG  "`ols_exog_hhi_sen'"
         local IV_EXOG   "`iv_exog_hhi_sen'"
         local INSTR     "`instr_hhi_sen'"
         local ENDO      "`endo_hhi_sen'"
-    }
-    else if "`s'" == "rent_hhi_seniority" {
-        local OLS_EXOG  "`ols_exog_rent_hhi_sen'"
-        local IV_EXOG   "`iv_exog_rent_hhi_sen'"
-        local INSTR     "`instr_rent_hhi_sen'"
-        local ENDO      "`endo_rent_hhi_sen'"
     }
 
     // OLS

@@ -7,8 +7,8 @@ archived CSV outputs in `results/user_irfs_eng_vs_noneng_by_remote_startup/`.
 
 This code predates the current remote-vs-hybrid pipeline. Do not run new Stata
 jobs expecting to feed it; instead see `plot_user_irfs_eng_noneng_remote.py` for
-the active workflow and `results/user_irfs_eng_vs_noneng_remote_hybrid/` for
-fresh outputs.
+the active workflow and `results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid/`
+for fresh outputs.
 """
 
 import math

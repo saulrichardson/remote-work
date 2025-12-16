@@ -1,8 +1,9 @@
 *======================================================================*
 * user_productivity_keep_top_metros.do
-* Runs the canonical user-productivity spec while keeping only the top
-* CSAs (based on the supplied mapping). Estimates the baseline spec for
-* keep-top-5, keep-top-10, and keep-top-14 (all) metros.
+* Runs the canonical user-productivity spec while keeping only selected
+* CSAs (based on the supplied mapping). New scenarios:
+*  - keep-top-5
+*  - keep ranks 6–14 (drops the top five hubs but keeps the rest of the list)
 *======================================================================*
 
 version 17
@@ -26,7 +27,8 @@ di as text "Wrapper PROJECT_ROOT: $PROJECT_ROOT"
 local pr_root        "$PROJECT_ROOT"
 local pr_processed   "$PROCESSED_DATA"
 local pr_results     "$RAW_RESULTS"
-local stata_bin      "/Applications/StataNow/StataSE.app/Contents/MacOS/stata-se"
+local stata_bin      "/Applications/Stata/StataSE.app/Contents/MacOS/stata-se"
+if !fileexists("`stata_bin'") local stata_bin "/Applications/StataNow/StataSE.app/Contents/MacOS/stata-se"
 
 * Reassert globals for downstream scripts
 global PROJECT_ROOT   "`pr_root'"
@@ -54,14 +56,21 @@ quietly summarize csa_rank
 local max_rank = r(max)
 save `csa_map'
 
-local keep_targets "5 10 14"
+* Keep thresholds expanded to include top 10 for the four-scenario table
+local keep_targets "5 10 6_14"
 
 foreach keep_count of local keep_targets {
-    local effective_rank = `keep_count'
-    if `effective_rank' > `max_rank' local effective_rank = `max_rank'
-
     use `csa_map', clear
-    keep if csa_rank <= `effective_rank'
+
+    if "`keep_count'" == "6_14" {
+        keep if csa_rank >= 6 & csa_rank <= 14
+    }
+    else {
+        local effective_rank = `keep_count'
+        if `effective_rank' > `max_rank' local effective_rank = `max_rank'
+        keep if csa_rank <= `effective_rank'
+    }
+
     gen byte keep_flag = 1
     keep cbsacode keep_flag
     rename cbsacode company_cbsacode
@@ -93,6 +102,9 @@ foreach keep_count of local keep_targets {
     di as text "   Running canonical spec for `variant'"
     cd "`pr_root'"
     ! "`stata_bin'" -b do spec/stata/user_productivity.do "`variant'"
+
+    di as text "   Running firm×user FE spec for `variant'"
+    ! "`stata_bin'" -b do spec/stata/scratch/user_productivity_firmbyuser.do "`variant'"
 }
 
 di as result "✓ Completed keep-top CSA runs for thresholds: `keep_targets'"

@@ -1,7 +1,7 @@
 """Build both firm-level tightness metrics (static metro-weighted and
 HQ-based) in a *single pass* over the 2019-H2 head-count file.
 
-Outputs – written to data/cleaned/
+Outputs – written to data/clean/
 ------------------------------------
 firm_tightness_static.csv   • columns: companyname, tight_wavg
 firm_tightness_hq.csv       • columns: companyname, tight_hq

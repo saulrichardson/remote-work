@@ -23,18 +23,20 @@ import duckdb
 import pandas as pd
 import pyreadstat
 
-DEFAULT_OUTPUT = Path("data/cleaned/user_wage_panel_full.parquet")
+from project_paths import DATA_CLEAN, DATA_RAW
+
+DEFAULT_OUTPUT = DATA_CLEAN / "user_wage_panel_full.parquet"
 
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser("Build user wage panel via DuckDB")
-    p.add_argument("--spells", default="data/raw/Scoop_workers_positions.csv",
+    p.add_argument("--spells", default=str(DATA_RAW / "Scoop_workers_positions.csv"),
                    help="Raw LinkedIn spell CSV")
-    p.add_argument("--teleworkable", default="data/cleaned/scoop_firm_tele_2.dta",
+    p.add_argument("--teleworkable", default=str(DATA_CLEAN / "scoop_firm_tele_2.dta"),
                    help="Firm-level teleworkable scores (Stata DTA)")
-    p.add_argument("--remote", default="data/raw/Scoop_clean_public.dta",
+    p.add_argument("--remote", default=str(DATA_RAW / "Scoop_clean_public.dta"),
                    help="Firm-level flexibility/remote metrics (Stata DTA)")
-    p.add_argument("--founding", default="data/raw/Scoop_founding.dta",
+    p.add_argument("--founding", default=str(DATA_RAW / "Scoop_founding.dta"),
                    help="Firm founding year (Stata DTA)")
     p.add_argument("--output", default=str(DEFAULT_OUTPUT),
                    help="Destination file (extension determines format)")

@@ -37,15 +37,17 @@ def main() -> None:
     df["t"] = df["b"] / df["se"]
     df["p"] = 2 * stats.norm.sf(df["t"].abs())
 
-    df = df[df["event_time"].isin([0, 1, 2, 3])]
+    df = df[df["event_time"].isin([-4, -3, -2, 0, 1, 2, 3])]
     df = df.sort_values("event_time")
 
     stats_df = pd.read_csv(SAMPLE_STATS)
-    stats_df["group"] = stats_df["startup"].map({1: "startup", 0: "large"})
+    if "dest_startup" not in stats_df.columns:
+        raise RuntimeError("sample_stats missing dest_startup column (re-run Stata export)")
+    stats_df["group"] = stats_df["dest_startup"].map({1: "startup", 0: "large"})
     stats_df = stats_df.set_index("group")
 
     rows = []
-    for evt in [0, 1, 2, 3]:
+    for evt in [-4, -3, -2, 0, 1, 2, 3]:
         sub = df[df["event_time"] == evt]
         row = {"evt": evt}
         for g in ["startup", "large"]:
@@ -66,7 +68,7 @@ def main() -> None:
         "% Auto-generated; do not edit",
         r"\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}cc@{}}",
         r"\toprule",
-        r" & Remote startup & Remote large \\",
+        r" & Remote startup & Remote established \\",
         r"\midrule",
     ]
     for row in rows:

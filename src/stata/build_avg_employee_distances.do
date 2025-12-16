@@ -12,7 +12,7 @@ log using "$LOG_DIR/build_avg_employee_distances.log", replace text
 *------------ 0.  File paths --------------------------------------------
 local panel_in   "$PROCESSED_DATA/expanded_half_years_2.dta"
 local panel_out  "$PROCESSED_DATA/expanded_half_years_2_with_distance.dta"
-local modal_file "$RAW_DATA/modal_msa_per_firm.dta"
+local modal_file "$PROCESSED_DATA/modal_msa_per_firm.dta"
 local gaz_file   "$RAW_DATA/2020_Gaz_cbsa_national.txt"
 
 foreach required in panel_in modal_file gaz_file {
@@ -20,7 +20,7 @@ foreach required in panel_in modal_file gaz_file {
     capture confirm file "`path'"
     if _rc {
         di as error "build_avg_employee_distances.do: missing file `path'"
-        di as error "Place the input under data/raw or adjust the path above."
+        di as error "Place the input under data/raw or data/clean (per 00_paths.do) or adjust the path above."
         exit 601
     }
 }

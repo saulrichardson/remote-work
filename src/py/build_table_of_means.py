@@ -205,7 +205,7 @@ def build_panel(
                 "Startup": _mean_sd_cell(
                     code, m_start, sd_start, mean_dec, sd_dec, pct_vars
                 ),
-                "Incumbent": _mean_sd_cell(
+                "Established": _mean_sd_cell(
                     code, m_non, sd_non, mean_dec, sd_dec, pct_vars
                 ),
                 "All Firms": _mean_sd_cell(
@@ -218,7 +218,7 @@ def build_panel(
         {
             "variable": "\\addlinespace[2pt]\n\\midrule\nN",
             "Startup": int((df[startup_flag] == 1).sum()),
-            "Incumbent": int((df[startup_flag] == 0).sum()),
+            "Established": int((df[startup_flag] == 0).sum()),
             "All Firms": int(df.shape[0]),
         }
     )
@@ -266,7 +266,7 @@ def _notes_block(
     notes = rf"""
         \begin{{tablenotes}}[flushleft]
         \footnotesize
-        \item \emph{{Notes}}: Panel~A uses firm--half--year observations. Panel~B relies on worker--half--year observations. ``Number of firms'' counts distinct firm\,IDs that ever appear in each category over the full sample window, so Startup and Incumbent counts need not sum to the ``All'' column. {scale_sentence} \textit{{Teleworkable}} and \textit{{Remote}} scores are index values between~0 and~1.  The sample period spans {firm_span} at the firm level and {user_span} at the user level.
+        \item \emph{{Notes}}: Panel~A uses firm--half--year observations. Panel~B relies on worker--half--year observations. ``Number of firms'' counts distinct firm\,IDs that ever appear in each category over the full sample window, so Startup and Established counts need not sum to the ``All'' column. {scale_sentence} \textit{{Teleworkable}} and \textit{{Remote}} scores are index values between~0 and~1.  The sample period spans {firm_span} at the firm level and {user_span} at the user level.
         \end{{tablenotes}}
     """
     return textwrap.dedent(notes).strip()
@@ -296,13 +296,13 @@ def main(
             {
                 "variable": "\\addlinespace[2pt]\n\\midrule\nNumber of firms",
                 "Startup": int(firm_counts.get(1, 0)),
-                "Incumbent": int(firm_counts.get(0, 0)),
+                "Established": int(firm_counts.get(0, 0)),
                 "All Firms": int(df_firms["firm_id"].nunique()),
             },
             {
                 "variable": "Observations",
                 "Startup": int(obs_counts.get(1, 0)),
-                "Incumbent": int(obs_counts.get(0, 0)),
+                "Established": int(obs_counts.get(0, 0)),
                 "All Firms": int(df_firms.shape[0]),
             },
         ]
@@ -363,14 +363,14 @@ def main(
             {
                 "variable": "\\addlinespace[2pt]\n\\midrule\nNumber of firms",
                 "Startup": int(company_counts.get(1, 0)),
-                "Incumbent": int(company_counts.get(0, 0)),
+                "Established": int(company_counts.get(0, 0)),
                 "All Firms": int(df_users["firm_id"].nunique()),
             },
             {
                 # distinct from the subsequent ``N`` (individual–period observations)
                 "variable": "Number of individuals",
                 "Startup": int(user_counts.get(1, 0)),
-                "Incumbent": int(user_counts.get(0, 0)),
+                "Established": int(user_counts.get(0, 0)),
                 "All Firms": int(df_users["user_id"].nunique()),
             },
         ]
@@ -386,7 +386,7 @@ def main(
                     {
                         "variable": "Observations",
                         "Startup": int(n_row_b.Startup),
-                        "Incumbent": int(n_row_b.Incumbent),
+                        "Established": int(n_row_b.Established),
                         "All Firms": int(n_row_b["All Firms"]),
                     }
                 ]
@@ -419,7 +419,7 @@ def main(
         rf"""\centering
 \begin{{tabular*}}{{\linewidth}}{{{colspec}}}
 \toprule
- & Startup & Incumbent & All Firms \\
+ & Startup & Established & All Firms \\
 \midrule
 \multicolumn{{4}}{{@{{}}l}}{{\textbf{{\uline{{Panel A: Firm-level}}}}}} \\
 \addlinespace[2pt]

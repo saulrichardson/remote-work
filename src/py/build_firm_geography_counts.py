@@ -9,9 +9,11 @@ from pathlib import Path
 
 import duckdb
 
-DEFAULT_SPELLS = Path("data/raw/Scoop_workers_positions.csv")
-DEFAULT_OUTPUT = Path("data/cleaned/firm_geography_counts.csv")
-DEFAULT_USER_LOOKUP = Path("data/clean/user_location_lookup.csv")
+from project_paths import DATA_CLEAN, DATA_RAW
+
+DEFAULT_SPELLS = DATA_RAW / "Scoop_workers_positions.csv"
+DEFAULT_OUTPUT = DATA_CLEAN / "firm_geography_counts.csv"
+DEFAULT_USER_LOOKUP = DATA_CLEAN / "user_location_lookup.csv"
 
 
 def parse_args() -> argparse.Namespace:

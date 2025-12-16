@@ -2,7 +2,7 @@
 * firm_scaling.do
 * Produces the firm-level hiring and employment-growth regressions that track
 * how remote arrangements change net growth, join, and leave rates for startups
-* versus incumbents.  The script estimates OLS and 2SLS models with firm and
+* versus established firms.  The script estimates OLS and 2SLS models with firm and
 * half-year fixed effects, instrumenting remote adoption with pre-pandemic
 * teleworkability, and exports the coefficient tables plus first-stage tests.
 *============================================================*

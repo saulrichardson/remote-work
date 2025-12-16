@@ -7,14 +7,15 @@
 # ---------------------------------------------------------------------------
 
 import pandas as pd, argparse
-from pathlib import Path
 from collections import defaultdict, Counter
 from tqdm import tqdm
 
-# ── directories (match your Stata globals) ─────────────────────────────────
-RAW_DIR       = Path("../data/raw")
-PROC_DIR      = Path("../data/cleaned")
-RES_DIR       = Path("../data/raw")
+from project_paths import DATA_CLEAN, DATA_RAW
+
+# ── directories (resolved via project_paths) ───────────────────────────────
+RAW_DIR = DATA_RAW
+PROC_DIR = DATA_CLEAN
+RES_DIR = DATA_CLEAN
 
 SPELL_CSV = RAW_DIR / "Scoop_workers_positions.csv"
 ENRICH_CSV = PROC_DIR / "enriched_msa.csv"
@@ -139,4 +140,3 @@ print("\nSummary of skipped/fixed rows:")
 print(f"  • invalid start_date rows dropped : {invalid_date_rows:,}")
 print(f"  • end_date filled with start_date : {filled_end_rows:,}")
 print(f"  • unknown MSA (no CBSA) skipped   : {unknown_msa_rows:,}")
-

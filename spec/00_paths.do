@@ -40,6 +40,9 @@ global FINAL_TEX       "$PROJECT_ROOT/results/cleaned/tex"
 global FINAL_FIGURES   "$PROJECT_ROOT/results/cleaned/figures"
 global LOG_DIR         "$PROJECT_ROOT/log"
 
+* Lowercase aliases (many build scripts reference these)
+global raw_data        "$RAW_DATA"
+
 global DIR_DATA        "$RAW_DATA"
 global DIR_PROCESSED   "$PROCESSED_DATA"
 global DIR_CLEAN       "$CLEAN_DATA"

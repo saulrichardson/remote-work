@@ -180,9 +180,20 @@ save   "`pop_msa'", replace
 local have_core_msas 0
 tempfile core_msas
 preserve
-  cap confirm file "$raw_data/company_core_msas_by_half.csv"
+  local __core_path ""
+  cap confirm file "$clean_data/company_core_msas_by_half.csv"
   if _rc == 0 {
-      import delimited using "$raw_data/company_core_msas_by_half.csv", clear varnames(1)
+      local __core_path "$clean_data/company_core_msas_by_half.csv"
+  }
+  else {
+      cap confirm file "$raw_data/company_core_msas_by_half.csv"
+      if _rc == 0 {
+          local __core_path "$raw_data/company_core_msas_by_half.csv"
+      }
+  }
+
+  if "`__core_path'" != "" {
+      import delimited using "`__core_path'", clear varnames(1)
       drop if missing(companyname, year, half, cbsa)
       gen yh = yh(year, half)
       format yh %th
@@ -434,7 +445,7 @@ foreach sample of local sample_types {
     /* ----------------------- output ---------------------------------- */
     local base   = "$processed_data/user_panel_`sample'"
     quietly save   "`base'.dta", replace
-    export delimited "../data/samples/user_panel_`sample'.csv", replace
+    export delimited "$PROJECT_ROOT/data/samples/user_panel_`sample'.csv", replace
 
     * progress message ---------------------------------------------------
     di as txt "✓ Created `sample' sample (" _N " obs)"

@@ -22,12 +22,12 @@ from build_top_metro_dualfe_table import (  # type: ignore
 
 SCENARIOS: dict[str, list[tuple[str, str]]] = {
     "drop": [
-        ("precovid_droptop5", "Drop Top 5 CSAs"),
-        ("precovid_droptop10", "Drop Top 10 CSAs"),
+        ("precovid_droptop5", "Drop CSAs Ranked 1–5"),
+        ("precovid_droptop14", "Drop CSAs Ranked 1–14"),
     ],
     "keep": [
-        ("precovid_keeptop5", "Keep Top 5 CSAs"),
-        ("precovid_keeptop10", "Keep Top 10 CSAs"),
+        ("precovid_keeptop5", "Keep CSAs Ranked 1–5"),
+        ("precovid_keeptop6_14", "Keep CSAs Ranked 6–14"),
     ],
 }
 

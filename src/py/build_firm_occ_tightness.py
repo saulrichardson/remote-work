@@ -9,7 +9,7 @@ Defaults (when you simply run `python py/build_firm_occ_tightness.py`)
 • no fallback primary-CBSA  →  if every metro of a firm-SOC is below the
   threshold or lacks an OEWS tightness value, `tight_wavg` is left missing.
 
-Outputs (written to data/cleaned/)
+Outputs (written to data/clean/)
 -----------------------------------
 firm_occ_msa_heads_2019H2.csv   • audit head-counts after trim / fallback
 tight_wavg_lookup.csv           • tightness per firm×SOC (static lookup)
@@ -319,7 +319,7 @@ def build_panel(min_heads_per_metro: int, *, fallback_primary: bool) -> None:  #
     QA_LOG.write_text(qa_txt)
     _log(qa_txt)
 
-    _log("✅ Finished – CSVs written to data/cleaned")
+    _log("✅ Finished – CSVs written to data/clean")
 
 
 # ---------------------------------------------------------------------------

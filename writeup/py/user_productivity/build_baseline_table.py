@@ -57,6 +57,10 @@ FIRM_FE_INCLUDED = {
     "industrytime": True,
     "msatime": True,
     "msaindustrytime": True,
+    "firmyear_match": False,
+    "firmyear": False,
+    "indyear_match": False,
+    "indyear": False,
 }
 
 INDIVIDUAL_FE_INCLUDED = {
@@ -66,6 +70,10 @@ INDIVIDUAL_FE_INCLUDED = {
     "industrytime": True,
     "msatime": True,
     "msaindustrytime": True,
+    "firmyear_match": False,
+    "firmyear": False,
+    "indyear_match": False,
+    "indyear": False,
 }
 
 # Generic Time FE (yh) – appears only when `yh` is in the absorb list by itself.
@@ -73,6 +81,10 @@ TIME_FE_INCLUDED = {
     "init": True,
     "fyhu": True,
     "firmbyuseryh": True,
+    "firmyear_match": True,
+    "firmyear": True,
+    "indyear_match": True,
+    "indyear": True,
 }
 
 
@@ -82,6 +94,32 @@ TIME_FE_INCLUDED = {
 FIRMINDEX_FE_INCLUDED = {
     "init": False,
     "firmbyuseryh": True,
+    "firmyear_match": True,
+    "firmyear": False,
+    "indyear_match": True,
+    "indyear": False,
+}
+
+# Firm × Year FE
+FIRMYEAR_FE_INCLUDED = {
+    "init": False,
+    "fyhu": False,
+    "firmbyuseryh": False,
+    "firmyear_match": True,
+    "firmyear": True,
+    "indyear_match": False,
+    "indyear": False,
+}
+
+# Industry × Year FE
+INDUSTRYYEAR_FE_INCLUDED = {
+    "init": False,
+    "fyhu": False,
+    "firmbyuseryh": False,
+    "firmyear_match": False,
+    "firmyear": False,
+    "indyear_match": True,
+    "indyear": True,
 }
 
 STAR_RULES = [(0.01, "***"), (0.05, "**"), (0.10, "*")]
@@ -282,11 +320,20 @@ def build_fe_rows(column_tags: list[str]) -> list[str]:
     empty_cols = " & ".join([""] * len(column_tags))
     rows = [
         r"\textbf{Fixed Effects} & " + empty_cols + r" \\",
-        " & ".join([INDENT + "Time", *marks(TIME_FE_INCLUDED)]) + r" \\",
-        " & ".join([INDENT + "Firm", *marks(FIRM_FE_INCLUDED)]) + r" \\",
-        " & ".join([INDENT + "Individual", *marks(INDIVIDUAL_FE_INCLUDED)]) + r" \\",
-        " & ".join([INDENT + r"Firm $\times$ Individual", *marks(FIRMINDEX_FE_INCLUDED)]) + r" \\",
     ]
+    row_defs = [
+        ("Half-year", TIME_FE_INCLUDED),
+        ("Firm", FIRM_FE_INCLUDED),
+        ("Individual", INDIVIDUAL_FE_INCLUDED),
+        (r"Firm $\times$ Individual", FIRMINDEX_FE_INCLUDED),
+        (r"Firm $\times$ Year", FIRMYEAR_FE_INCLUDED),
+        (r"Industry $\times$ Year", INDUSTRYYEAR_FE_INCLUDED),
+    ]
+    for label, mapping in row_defs:
+        marks_row = marks(mapping)
+        # Only include the row if at least one column has a checkmark
+        if any(marks_row):
+            rows.append(" & ".join([INDENT + label, *marks_row]) + r" \\")
     return rows
 
 

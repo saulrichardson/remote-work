@@ -11,10 +11,10 @@ log using "$LOG_DIR/build_linkedin_panel.log", replace text
 *---------------------------------------------------------*
 * 1) Load the LinkedIn Positions Data & Standardize SOC Codes
 *---------------------------------------------------------*
-use "$data/Scoop_workers_positions_filtered.dta", clear
+use "$raw_data/Scoop_workers_positions_filtered.dta", clear
 
-* (For testing, you have a filter below; remove it for full data)
-keep if user_id == 1001643
+* (For ad-hoc testing, you can temporarily filter on a user_id here.)
+* keep if user_id == 1001643
 
 * Create a standardized occupation code (soc_new).
 * Use soc_2010 if available; if empty, replace with soc6d.
@@ -28,7 +28,7 @@ save `tf_linkedin_occupation', replace
 ********************************************************************************
 * 2) Import and Clean ONET Teleworkability Data
 ********************************************************************************
-import delimited "$data/occupations_workathome.csv", clear stringcols(_all)
+import delimited "$raw_data/occupations_workathome.csv", clear stringcols(_all)
 
 * Convert teleworkable to numeric.
 destring teleworkable, replace
@@ -158,6 +158,6 @@ collapse (last) `keepvars', by(user_id yh)
 ********************************************************************************
 * Remove any variables you don't want to keep (if needed).
 * (For example, the previous version dropped several variables; here we keep all.)
-save "$data/expanded_half_years.dta", replace
+save "$processed_data/expanded_half_years.dta", replace
 
 log close

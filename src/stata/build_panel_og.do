@@ -100,7 +100,7 @@ drop _merge
 
 * Merge back in linkedin data to enforce ground truth (contributions data had 
 * imputed some company names where there were gaps in linkedin)
-merge 1:1 user_id companyname yh using"$processed_data/expanded_half_years_2.dta"
+merge 1:1 user_id companyname yh using "$processed_data/expanded_half_years_2.dta"
 tab _merge
 drop if _merge != 3
 drop _merge

@@ -3,19 +3,19 @@
 Plot the ratio of locations to employees across user, firm, and LinkedIn panels.
 
 The script summarises three tiers of data:
-1. User panel (`data/cleaned/user_panel_<variant>.dta`)
-2. Firm panel (`data/cleaned/firm_panel.dta` + `firm_headcount_breadth.csv`)
-3. LinkedIn firm×MSA panel (e.g. `data/cleaned/linkedin_panel_with_remote.parquet`)
+1. User panel (`data/clean/user_panel_<variant>.dta`)
+2. Firm panel (`data/clean/firm_panel.dta` + `firm_headcount_breadth.csv`)
+3. LinkedIn firm×MSA panel (e.g. `data/clean/linkedin_panel_with_remote.parquet`)
 
 For each half-year it computes:
     ratio = (# distinct firm-location pairs with headcount > 0) / (total employees)
 
 Usage (default paths assume the standard repo layout):
     python src/py/plot_locations_per_employee.py \
-        --user-panel data/cleaned/user_panel_precovid.dta \
-        --firm-panel data/cleaned/firm_panel.dta \
-        --firm-breadth data/cleaned/firm_headcount_breadth.csv \
-        --linkedin-panel data/cleaned/linkedin_panel_with_remote.parquet \
+        --user-panel data/clean/user_panel_precovid.dta \
+        --firm-panel data/clean/firm_panel.dta \
+        --firm-breadth data/clean/firm_headcount_breadth.csv \
+        --linkedin-panel data/clean/linkedin_panel_with_remote.parquet \
         --output results/cleaned/figures/locations_per_employee.png \
         --export-data results/raw/locations_per_employee.csv
 """
@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from project_paths import RESULTS_CLEANED_FIGURES
+from project_paths import DATA_CLEAN, RESULTS_CLEANED_FIGURES
 
 TIER_LABELS = {
     "user_panel": "User panel",
@@ -288,25 +288,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--user-panel",
         type=Path,
-        default=Path("data/cleaned/user_panel_precovid.dta"),
+        default=DATA_CLEAN / "user_panel_precovid.dta",
         help="Path to the user panel .dta file.",
     )
     parser.add_argument(
         "--firm-panel",
         type=Path,
-        default=Path("data/cleaned/firm_panel.dta"),
+        default=DATA_CLEAN / "firm_panel.dta",
         help="Path to the firm panel .dta file.",
     )
     parser.add_argument(
         "--firm-breadth",
         type=Path,
-        default=Path("data/cleaned/firm_headcount_breadth.csv"),
+        default=DATA_CLEAN / "firm_headcount_breadth.csv",
         help="CSV with per-firm counts of CBSAs with headcount.",
     )
     parser.add_argument(
         "--linkedin-panel",
         type=Path,
-        default=Path("data/cleaned/linkedin_panel_with_remote.parquet"),
+        default=DATA_CLEAN / "linkedin_panel_with_remote.parquet",
         help="LinkedIn firm×MSA panel (parquet or CSV).",
     )
     parser.add_argument(

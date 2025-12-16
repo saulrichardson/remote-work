@@ -7,13 +7,13 @@ attributes as the original Stata pipeline, plus `tight_wavg`.
 
 Inputs
 ------
-1. data/cleaned/firm_occ_panel_enriched.parquet  (already built)
+1. data/clean/firm_occ_panel_enriched.parquet  (already built)
 2. Static firm attributes (same as firm_panel script)
 
 Outputs
 -------
-data/cleaned/firm_soc_panel_enriched.parquet
-data/cleaned/firm_soc_panel_enriched.dta
+data/clean/firm_soc_panel_enriched.parquet
+data/clean/firm_soc_panel_enriched.dta
 
 Variables
 ---------
@@ -80,7 +80,7 @@ def _read_occ_panel() -> pd.DataFrame:
             ).fetch_df()
 
     raise FileNotFoundError(
-        "Occupation panel not found – expected CSV or Parquet in data/cleaned."
+        "Occupation panel not found – expected CSV or Parquet in data/clean."
     )
 
 

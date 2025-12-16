@@ -38,7 +38,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        help="Destination CSV for the ranked MSAs (defaults to data/cleaned/top_msas_firm_<variant>.csv).",
+        help="Destination CSV for the ranked MSAs (defaults to data/clean/top_msas_firm_<variant>.csv).",
     )
     parser.add_argument(
         "--min-nonzero",

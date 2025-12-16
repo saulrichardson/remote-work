@@ -1,7 +1,7 @@
 """Build a single consolidated CSV that contains several head-quarters (HQ)
 based labour-market concentration measures for every firm.
 
-Outputs  (written to data/cleaned/firm_hq_concentration.csv)
+Outputs  (written to data/clean/firm_hq_concentration.csv)
 ----------------------------------------------------------------
 companyname (lower-case)  |  hhi_hq_fw  |  hhi_hq_hq  |  hhi_hq_eq  |
 hq_heads  |  any_hq_heads

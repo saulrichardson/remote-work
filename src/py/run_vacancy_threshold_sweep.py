@@ -13,7 +13,7 @@ Example
   python py/run_vacancy_threshold_sweep.py \
     --input data/raw/vacancy/Postings_scoop.csv \
     --firm-panel data/samples/firm_panel.csv \
-    --outdir data/cleaned/vacancy/sensitivity \
+    --outdir data/clean/vacancy/sensitivity \
     --thresholds 30 60 90 120 150
 
 Notes

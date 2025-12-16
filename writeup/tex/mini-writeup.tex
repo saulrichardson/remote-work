@@ -14,7 +14,7 @@
 
 \newcommand{\cleanedresultsdir}{../results/cleaned/tex}
 \newcommand{\figdir}{../results/cleaned/figures}
-\newcommand{\irfdir}{../results/user_irfs_eng_vs_noneng_remote_hybrid}
+\newcommand{\irfdir}{../results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid}
 \newcommand{\TableInput}[2][\linewidth]{\input{#2}}
 \captionsetup[figure]{justification=centering}
 \DeclareCaptionStyle{noteflush}{%
@@ -44,14 +44,6 @@
   \vspace{1em}
   \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Firm Growth}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_growth_ols.png}\end{subfigure}
 \end{figure}
-
-\begin{figure}[H]\centering
-  \caption{Startup Cutoff Visualization}
-  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: Contribution Rank (Total)}\includegraphics[width=.8\linewidth]{\figdir/startup_cutoff_bars_total_contributions_q100.png}\end{subfigure}
-  \vspace{1em}
-  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Firm Growth Rate}\includegraphics[width=.8\linewidth]{\figdir/startup_cutoff_bars_growth_rate_we.png}\end{subfigure}
-\end{figure}
-\begin{figure}[H]\centering\caption{Remote Effect by Top Employment MSAs}\includegraphics[width=.9\linewidth]{\figdir/top_employment_msa_remote_startup.png}\end{figure}
 \section*{Tables}
 
 \begin{table}[H]
@@ -105,6 +97,20 @@
 \end{table}
 \begin{table}[H]
   \centering
+  \caption{Remote Work and Imputed Wages: Fixed-Effect Variants}
+  \label{tab:wages}
+  \TableInput{\cleanedresultsdir/user_wage_fe_variants_precovid_log_salary.tex}
+  \FloatNote{}
+\end{table}
+\begin{table}[H]
+  \centering
+\caption{Remote Work and Top CSA Filters (Firm$\times$Individual FE)}
+  \label{tab:top_csa_firmbyuser}
+  \TableInput{\cleanedresultsdir/user_productivity_top_metros_firmbyuser.tex}
+  \FloatNote{Reports the firm$\times$individual fixed-effect regressions from Tables~\ref{tab:prod_ols}--\ref{tab:prod_iv} after filtering on firms' primary CBSA (the Scoop-identified location with the most employment spells in each half-year). The top-CSAs refer to the fourteen large software hubs in the CSA list we distribute with the data appendix. Column~(1) keeps CSAs ranked 1--5; column~(2) keeps CSAs ranked 6--14; column~(3) drops CSAs ranked 1--5; column~(4) drops CSAs ranked 1--14. Panels~A and B present the OLS and IV coefficients (instrumenting the remote interactions with their teleworkability counterparts). Every specification absorbs half-year fixed effects, keeps the post$\times$startup main effect, and clusters standard errors by worker.}
+\end{table}
+\begin{table}[H]
+  \centering
   \caption{Productivity Heterogeneity by Worker Traits}
   \label{tab:traits}
   \TableInput{\cleanedresultsdir/user_productivity_traits_dual_precovid_ols.tex}
@@ -117,27 +123,6 @@
   \TableInput{\cleanedresultsdir/user_productivity_precovid_nonsoftware.tex}
   \FloatNote{}
 \end{table}
-\begin{table}[H]
-  \centering
-  \caption{Remote Work and Top CSA Filters (Firm$\times$Individual FE)}
-  \label{tab:top_csa_firmbyuser}
-  \TableInput{\cleanedresultsdir/user_productivity_top_metros_firmbyuser.tex}
-  \FloatNote{Reports the firm$\times$individual fixed-effect regressions from Tables~\ref{tab:prod_ols}--\ref{tab:prod_iv} after filtering on firms' primary CBSA (the Scoop-identified location with the most employment spells in each half-year). The top-CSAs refer to the fourteen large software hubs in the CSA list we distribute with the data appendix. Columns~(1) and (2) keep only employers whose primary CBSA is among the top five or top ten entries from that list, whereas columns~(3) and (4) drop those same CSAs by removing all workers linked to firms whose primary CBSA is in that set. Panels~A and B present the OLS and IV coefficients (instrumenting the remote interactions with their teleworkability counterparts). Every specification absorbs half-year fixed effects, keeps the post$\times$startup main effect, and clusters standard errors by worker.}
-\end{table}
-\begin{table}[H]
-  \centering
-  \caption{Per-Employee Geographic Reach}
-  \label{tab:location_ratio}
-  \TableInput{\cleanedresultsdir/firm_scaling_location_ratios.tex}
-  \FloatNote{}
-\end{table}
-\begin{table}[H]
-  \centering
-  \caption{Remote Work and Imputed Wages: Fixed-Effect Variants}
-  \label{tab:wages}
-  \TableInput{\cleanedresultsdir/user_wage_fe_variants_precovid_log_salary.tex}
-  \FloatNote{}
-\end{table}
 
 \clearpage
 \appendix
@@ -146,8 +131,13 @@
 \renewcommand{\thetable}{A\arabic{table}}
 \renewcommand{\thefigure}{A\arabic{figure}}
 
-\section*{Appendix}
-\subsection*{Tables}
+\begin{figure}[H]\centering
+  \caption{Startup Cutoff Visualization}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel A: Contribution Rank (Total)}\includegraphics[width=.8\linewidth]{\figdir/startup_cutoff_bars_total_contributions_q100.png}\end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Firm Growth Rate}\includegraphics[width=.8\linewidth]{\figdir/startup_cutoff_bars_growth_rate_we.png}\end{subfigure}
+\end{figure}
+
 \begin{table}[H]
   \centering
   \caption{First-Stage Diagnostics}
@@ -162,8 +152,21 @@
   \TableInput{\cleanedresultsdir/user_productivity_precovid_restricted.tex}
   \FloatNote{}
 \end{table}
+\begin{table}[H]
+  \centering
+  \caption{Remote Work and Log Contributions}
+  \label{tab:log_contributions}
+  \TableInput{\cleanedresultsdir/user_productivity_log_precovid.tex}
+  \FloatNote{}
+\end{table}
+\begin{table}[H]
+  \centering
+  \caption{Remote Work: Stayers (Boundary Sample)}
+  \label{tab:stayer_only}
+  \TableInput{\cleanedresultsdir/user_productivity_precovid_stayer_table3.tex}
+  \FloatNote{}
+\end{table}
 
-\subsection*{Figures}
 \begin{figure}[H]\centering
   \caption{Event Study of Labor Market Flows}
   \begin{subfigure}{\textwidth}\centering\caption*{Panel A: Firm Join}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_join_rate_ols.png}\end{subfigure}
@@ -195,7 +198,7 @@
   \begin{subfigure}{\textwidth}\centering\caption*{Panel B: Hires per Posting}\includegraphics[width=.8\linewidth]{\figdir/firm_event_study_fullrem_hires_per_job_posting_ols.png}\end{subfigure}
 \end{figure}
 \begin{figure}[H]\centering
-  \caption{Impulse Responses}
+  \caption{Hiring Shocks and Subsequent Productivity}
   Panel A: Hybrid/In-person\\[0.3em]
   \begin{subfigure}[t]{0.495\linewidth}\centering\includegraphics[width=\linewidth]{\irfdir/panelA_hybrid_engineer.png}\end{subfigure}\hfill
   \begin{subfigure}[t]{0.495\linewidth}\centering\includegraphics[width=\linewidth]{\irfdir/panelA_hybrid_nonengineer.png}\end{subfigure}
@@ -204,5 +207,30 @@
   \begin{subfigure}[t]{0.495\linewidth}\centering\includegraphics[width=\linewidth]{\irfdir/panelB_fullremote_engineer.png}\end{subfigure}\hfill
   \begin{subfigure}[t]{0.495\linewidth}\centering\includegraphics[width=\linewidth]{\irfdir/panelB_fullremote_nonengineer.png}\end{subfigure}
 \end{figure}
+\begin{figure}[H]\centering
+  \caption{Event Study of Remote Hires: Contribution Rank}
+  \includegraphics[width=.8\linewidth]{\figdir/user_hire_event_study_remote_rank_mw.png}
+  \FloatNote{\footnotesize Notes: Outcome is contribution rank (percentile). Sample is workers whose \textit{first fully-remote hire} occurs in the window; groups are destination remote startups vs remote non-startups. Regression: $y_{ift} = \sum_{\tau\neq -1}\beta^\text{S}_\tau \mathbb{1}[\tau] \times \mathbb{1}[\text{startup}] + \sum_{\tau\neq -1}\beta^\text{L}_\tau \mathbb{1}[\tau] \times \mathbb{1}[\text{non-startup}] + \alpha_i + \alpha_f + \alpha_t + \varepsilon_{ift}$, where $\tau$ is half-years relative to hire. Baseline $\tau=-1$ is omitted, so each point is a change vs the half-year before hire for that group. Window $\tau\in[-4,3]$. Fixed effects: individual, firm, half-year; standard errors clustered by individual. Parallel-trend identifying assumption: absent the hire, pre-trends for $\tau<0$ would continue similarly.}
+\end{figure}
+
+\clearpage
+\appendix
+\section*{Appendix Tables}
+
+\begin{table}[H]
+  \centering
+  \caption{Remote Work and Individual Productivity: Robustness to Industry and HQ-State Shocks}
+  \label{tab:prod_industry_hqstate_shocks}
+  \TableInput{\cleanedresultsdir/user_productivity_precovid_industry_hqstate_shocks.tex}
+  \FloatNote{Re-estimates the worker-level match fixed-effect design on the 2017H1--2022H1 Scoop--Revelio--GitHub panel with additional time-varying shocks. Column~(1) absorbs industry$\times$half-year fixed effects, column~(2) absorbs HQ state$\times$half-year fixed effects (HQ state is defined at the firm level), and column~(3) absorbs both. Panel~A reports OLS and Panel~B reports IV, instrumenting the remote interactions with teleworkability$\times\mathds{1}(\text{Post})$ (and $\times$Startup) terms computed from the firm’s pre-2020 occupational mix. The post$\times$startup main effect is included and standard errors are clustered by worker; checkmarks summarize absorbed fixed effects.}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Firm Scaling: Robustness to Industry and HQ-State Shocks}
+  \label{tab:scaling_industry_hqstate_shocks}
+  \TableInput{\cleanedresultsdir/firm_scaling_industry_hqstate_shocks.tex}
+  \FloatNote{Re-estimates the firm-level scaling design on the 2016H2--2022H1 Scoop--Revelio firm panel with additional time-varying shocks. Column~(1) absorbs industry$\times$half-year fixed effects, column~(2) absorbs HQ state$\times$half-year fixed effects, and column~(3) absorbs both. Panel~A reports OLS and Panel~B reports IV, instrumenting the remote interactions with teleworkability$\times\mathds{1}(\text{Post})$ (and $\times$Startup) terms computed from the firm’s pre-2020 occupational mix. The post$\times$startup main effect is included, firm fixed effects are absorbed, and standard errors are clustered by firm; checkmarks summarize absorbed fixed effects.}
+\end{table}
 
 \end{document}

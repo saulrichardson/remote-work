@@ -4,11 +4,11 @@ level to CBSA (metro) level.
 Inputs
 ------
 1. data/raw/Data …/hhis_pub_revised.dta         • HHI per CZ×SOC×quarter
-2. data/cleaned/cz_to_cbsa_largest.csv        • 1-to-1 CZ→CBSA mapping
-3. data/cleaned/cz_to_cbsa_fractional.csv     • fractional mapping with
+2. data/clean/cz_to_cbsa_largest.csv        • 1-to-1 CZ→CBSA mapping
+3. data/clean/cz_to_cbsa_fractional.csv     • fractional mapping with
                                                  `weight` = pop share of CZ in CBSA
 
-Outputs (written to data/cleaned/)
+Outputs (written to data/clean/)
 ------------------------------------
 hhi_cbsa_largest.dta      • CBSA×SOC×quarter, inherits HHI from dominant CZ
 hhi_cbsa_weighted.dta     • population-weighted avg across all CZ portions
