@@ -1,0 +1,15 @@
+csa_id,csa_name,csa_rank
+1,"Austin-Round Rock, TX",4
+2,"Boston-Worcester-Manchester, MA-NH",5
+3,"Chicago-Naperville-Michigan City, IL-IN-WI",14
+4,"Dallas-Fort Worth, TX",13
+5,"Denver-Aurora-Boulder, CO",9
+6,"Los Angeles-Long Beach-Riverside, CA",6
+7,"Minneapolis-St. Paul-St. Cloud, MN-WI",7
+8,"New York-Newark-Bridgeport, NY-NJ-CT-PA",2
+9,"Portland-Vancouver-Beaverton, OR-WA",11
+10,"Raleigh-Durham-Cary, NC",8
+11,"San Diego-Carlsbad-San Marcos, CA",10
+12,"San Jose-San Francisco-Oakland, CA",1
+13,"Seattle-Tacoma-Olympia, WA",3
+14,"Washington-Baltimore-Northern Virginia, DC-MD-VA-WV",12

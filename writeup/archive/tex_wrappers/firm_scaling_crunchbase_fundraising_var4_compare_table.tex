@@ -1,0 +1,32 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase Fundraising: Does Including Startup$\times$Post (var4) Matter?}
+
+\paragraph{Context.}
+Under firm fixed effects and half-year fixed effects, Remote and Post are absorbed, so the identifying term
+is Remote$\times$Post. A question is whether we should also control for Startup$\times$Post (var4), allowing
+startups to have a different post-period shift in fundraising outcomes.
+
+\paragraph{Sample and outcomes.}
+The table uses the baseline Crunchbase-matched sample after dropping public firms.
+Outcomes match the canonical fundraising table (any round, repeat fundraising thresholds, log(1+USD raised), and a within-half-year q100 rank of USD raised).
+
+\begin{table}[h!]
+\caption{\textbf{Remote$\times$Post Coefficients With vs Without Startup$\times$Post Control (Baseline Private Sample)}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_var4_compare.tex}
+\end{table}
+
+\end{document}

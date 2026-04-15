@@ -1,119 +1,293 @@
-# WFH Startups — Repository Guide
+# Remote Work Startups
 
-This repository contains the full data and writing pipeline for the remote‑work paper.  Everything is organised as a one‑way flow: external data land in `data/`, Stata builds the analytical panels, specifications export results into `results/`, Python scripts polish tables/figures, and the LaTeX sources in `writeup/` assemble the document.
+This repository owns the empirical pipeline for the `main/` codebase. The
+Dropbox/Overleaf manuscript is downstream of this repo, not the other way
+around.
 
-Current mini-writeup PDF: [writeup/tex/final/mini-writeup.pdf](writeup/tex/final/mini-writeup.pdf).
+The repo is organized around three phases:
 
+1. `data`
+   - upstream builders in [`src/py/`](src/py/) and [`src/stata/`](src/stata/)
+   - outputs canonical datasets in [`data/clean/`](data/clean/)
+2. `specs`
+   - empirical Stata scripts in [`spec/stata/`](spec/stata/)
+   - outputs machine-readable regressions and event-study exports in
+     [`results/raw/`](results/raw/)
+3. `paper`
+   - paper-facing Python builders in [`writeup/py/`](writeup/py/)
+   - outputs cleaned LaTeX tables and manuscript figures in
+     [`results/cleaned/`](results/cleaned/)
+
+That is the intended local contract:
+
+- source-boundary inputs and accepted local boundaries
+- canonical cleaned datasets
+- empirical exports
+- final paper assets
+
+## What is in scope
+
+This repo is the source of truth for:
+
+- canonical cleaned datasets used by the active paper lane
+- active empirical Stata specs
+- active Python table and figure builders
+- active raw empirical outputs in `results/raw/`
+- active cleaned paper outputs in `results/cleaned/`
+- generated lineage docs for the repo-owned `main.tex` asset lane
+
+This repo is not the source of truth for:
+
+- the full Overleaf manuscript source
+- arbitrary Dropbox-only artifacts
+- external manuscript figures still read from Overleaf `../Figures/...`
+- manuscript assets whose generator has not been recovered in this repo
+
+The active exclusions are documented explicitly in:
+
+- [`docs/main_tex_assets.md`](docs/main_tex_assets.md)
+- [`docs/paper_table_lineage.md`](docs/paper_table_lineage.md)
+- [`docs/figure_lineage.md`](docs/figure_lineage.md)
+
+## Run From Repo Root
+
+All commands below assume you are in:
+
+```bash
+cd "/Users/saulrichardson/Dropbox/Remote Work Startups/main"
 ```
-data/raw  →  src/stata/  →  data/clean  →  spec/stata/  →  results/raw
-                                       ↘
-                                src/py/ (post-processing)  →  results/cleaned  →  writeup/
+
+## Environment Setup
+
+### Python
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install binsreg
 ```
 
-## Prerequisites
+Use the repo runtime wrapper for active Python builders:
 
-- **Stata 17+** (earlier versions should work if they support `reghdfe`).
-- **Python 3.10+** with packages listed in `requirements.txt`.
-- Optional: set the environment variable `PROJECT_ROOT` before running Stata/Python scripts when working outside the repo root (the bootstrap scripts will also auto-detect the root).
+```bash
+./bin/project-python src/py/build_user_location_lookup.py
+```
 
-## Directory map
+That wrapper gives the active Python surface one consistent import contract.
 
-| Path | What lives here |
-|------|-----------------|
-| `data/raw/` | External sources (not tracked).  Place Scoop, Revelio, GitHub, etc. here. |
-| `data/clean/` | Harmonised “clean” `.dta` panels produced by `src/stata/*.do`. |
-| `data/samples/` | Tiny CSV snippets that ship with the repo for diagnostics. |
-| `src/stata/` | Build scripts that construct the processed panels (`build_firm_panel.do`, `build_all_user_panels.do`, …). |
-| `spec/stata/` | Empirical specifications. Each `.do` file reads the processed data, runs a model, and exports outputs into `results/raw/<specname>/`. |
-| `src/py/` | Shared Python helpers (table formatters, figure generators, path utilities). |
-| `results/raw/` | Direct exports from the Stata specs (CSV coefficient dumps, event-study series, etc.). |
-| `results/cleaned/tex` & `results/cleaned/figures` | Paper-ready LaTeX tables and PNG figures created by the Python scripts. |
-| `log/` | Run logs (Stata specs/builds, batch jobs; kept out of the tree root). |
-| `docs/` | Research notes, auxiliary write-ups, and exploratory notebooks. |
-| `writeup/` | LaTeX sources (`tex/`), spec-scoped Python formatters under `py/<spec>/`, scratch space, and the `Makefile` that rebuilds the paper. |
+### Stata
 
-Generated artefacts live under `results/` and `writeup/tex/build/`; wipe them whenever you want to regenerate from scratch.
+Use the repo wrapper:
 
-## Rebuilding the pipeline
+```bash
+./bin/stata -q
+```
 
-1. **Prepare raw inputs**  
-   - Drop all required raw files under `data/raw/` (they are not tracked by Git).  
-   - The repository ships with metadata samples in `data/samples/` for quick sanity checks.
+`bin/stata` will:
 
-2. **Construct processed panels (Stata)**  
-   Run the required build scripts from the repo root in Stata. Typical entry points:
-   ```stata
-   do src/stata/build_firm_panel.do          // firm-level panels and covariates
-   do src/stata/build_all_user_panels.do     // user-level panels (multiple variants)
-   do src/stata/build_firm_panel_github_users.do precovid   // firm outcomes collapsed from GitHub-linked users (option B)
-   do src/stata/build_firm_soc_panel_from_csv.do   // auxiliary firm data merges
-   ```
-Each script writes cleaned `.dta` files to `data/clean/` (with optional CSV mirrors to `data/samples/`).
+- use `STATA_BIN` if set
+- otherwise search common macOS Stata install locations
+- otherwise fall back to `stata-se`, `stata-mp`, or `stata` on `PATH`
 
-3. **Run empirical specifications (Stata)**  
-   Specifications live in `spec/stata/` and expect the processed panels from step 2.
-   ```stata
-   do spec/stata/user_productivity.do
-   do spec/stata/user_productivity_initial.do
-   do spec/stata/firm_scaling.do
-   do spec/stata/firm_scaling_github_sample.do precovid   // firm_scaling restricted to GitHub-linked firms
-   do spec/stata/firm_scaling_github_users.do precovid    // firm_scaling where outcomes are built from GitHub-linked users (option B)
-   do spec/stata/user_mechanisms_with_growth.do
-   do spec/stata/user_productivity_discrete_fr_focus.do
-   do spec/stata/firm_scaling_vacancy_outcomes_htv2_95.do
-   ```
-   Outputs: coefficient tables, event-study series, and diagnostics under `results/raw/<specname>/`.
+Required Stata packages for the active paper lane:
 
-4. **Post-process tables & figures (Python)**  
-   From `writeup/`, refresh all cleaned artefacts:
-   ```bash
-   cd writeup
-   make mini-writeup-inputs   # runs the Python formatters/plotters
-   ```
-   This populates `results/cleaned/tex` and `results/cleaned/figures`.
+```stata
+ssc install reghdfe, replace
+ssc install ivreghdfe, replace
+ssc install egenmore, replace
+```
 
-5. **Compile the write-up (LaTeX)**  
-   While still inside `writeup/`:
-   ```bash
-   make mini-writeup           # builds writeup/tex/final/mini-writeup.pdf
-   ```
-The Makefile also copies the curated tables/figures to the Overleaf-synced Dropbox folders configured at the top of the file.  
-Python formatters now live under `writeup/py/user_productivity/`, `writeup/py/firm_scaling/`, and `writeup/py/startup_cutoff/`, mirroring the empirical specs so it is obvious which script produces each table or plot.
+## Public Build Surface
 
-## How the main specs line up
+The public `Makefile` surface mirrors the repo ontology directly:
 
-| Spec | Purpose | Key outputs |
-|------|---------|-------------|
-| `spec/stata/user_productivity.do` | Baseline worker regressions (OLS + IV) | `results/raw/user_productivity_precovid/` |
-| `spec/stata/user_productivity_initial.do` | No startup interaction baseline | `results/raw/user_productivity_initial_precovid/` |
-| `spec/stata/firm_scaling.do` | Firm growth/join/leave regressions | `results/raw/firm_scaling/` |
-| `spec/stata/firm_scaling_github_sample.do` | Same as `firm_scaling.do`, but restrict firms to the GitHub-linked user sample | `results/raw/firm_scaling_github_<variant>/` |
-| `spec/stata/firm_scaling_github_users.do` | Same regression spec, but outcomes are computed from GitHub-linked users (collapse user panel → firm×half-year) | `results/raw/firm_scaling_github_users_<variant>/` |
-| `spec/stata/firm_scaling_vacancy_outcomes_htv2_95.do` | Job-posting outcomes | `results/raw/firm_scaling_vacancy_outcomes_htv2_95/` |
-| `spec/stata/user_mechanisms_with_growth.do` | Mechanism robustness checks | `results/raw/user_mechanisms_with_growth_precovid/` |
-| `spec/stata/user_wage_fe_variants.do` | Wage regressions | `results/raw/user_wage_fe_variants_precovid/` |
-| `spec/stata/user_productivity_discrete_fr_focus.do` | Fully remote vs hybrid comparisons | `results/raw/user_productivity_fr_focus_precovid_*` |
-| `spec/stata/user_event_study_export.do` & `firm_event_study_export.do` | Event-study CSVs for plotting | `results/raw/user_event_study_precovid/`, `results/raw/firm_event_study/` |
-| `spec/stata/user_event_study_fullrem_export.do` & `firm_event_study_fullrem_export.do` (plus vacancy variant) | Same event-study workflow but the treatment is a 0/1 fully-remote indicator | `results/raw/user_event_study_fullrem_*`, `results/raw/firm_event_study_fullrem/`, `results/raw/firm_vacancy_event_study_fullrem/` |
+```bash
+make data
+make specs
+make paper
+```
 
-## Housekeeping & conventions
+### `make data`
 
-- **Logs and scratch work**  
-  - `log/` is the canonical destination for Stata run logs (via `LOG_DIR` in `spec/00_paths.do`).  
-  - Use `spec/stata/scratch/`, `writeup/scratch/`, or `writeup/py/scratch/` for one-off experiments; move polished scripts back into the main folders.
+Runs the local upstream data-construction layer in dependency order.
 
-- **Generated outputs**  
-  - `results/` and `writeup/tex/build/` are derived artefacts—delete them to rerun the pipeline.  
-  - Only the whitelisted tables/figures in `results/cleaned/` are synced to Overleaf.
-- **Results lifecycle**
-  - Stata specs export to `results/raw/<spec>/`.
-  - Python formatters (writeup + shared helpers) emit publish-ready assets under `results/cleaned/`.
-  - The mini-writeup, Overleaf sync, and any downstream consumers read exclusively from `results/cleaned/`.
+It covers:
 
-- **Data handling**  
-  - Keep raw/cleaned data out of Git. The repository assumes you can rebuild `data/clean/` using the supplied Stata scripts whenever needed.
+- lookup and geography helpers in [`src/py/`](src/py/)
+- local Stata panel builders in [`src/stata/`](src/stata/)
+- user, vacancy, Crunchbase, and deterministic postings-equity builders
 
-- **Python helpers**  
-  - `src/py/project_paths.py` resolves repo-relative paths and is imported by all Python scripts; it understands the `PROJECT_ROOT` environment variable as an override.
+It writes:
 
-For questions about a particular module, open the corresponding folder (`spec/stata/` for empirical specs, `src/py/` for post-processing, `writeup/py/` for paper-specific formatting scripts).  Each script includes comments documenting required inputs and outputs.
+- canonical datasets in [`data/clean/`](data/clean/)
+- deterministic upstream equity artifacts in
+  [`results/raw/postings_description_equity/`](results/raw/postings_description_equity/)
+
+The default local `data` contract intentionally starts from accepted boundaries
+rather than rebuilding every heavy upstream artifact on this machine.
+
+Accepted heavy local boundaries:
+
+- [`data/clean/company_top_msa_by_half.csv`](data/clean/company_top_msa_by_half.csv)
+- [`data/clean/modal_role_per_firm.dta`](data/clean/modal_role_per_firm.dta)
+- [`data/clean/scoop_firm_tele_2.dta`](data/clean/scoop_firm_tele_2.dta)
+- [`data/clean/eng_noneng_growth.csv`](data/clean/eng_noneng_growth.csv)
+- [`data/clean/firm_geography_counts_imputed.csv`](data/clean/firm_geography_counts_imputed.csv)
+
+Accepted manual external boundary:
+
+- the OpenAI Batch download/merge path in the postings-equity workflow
+
+That manual branch is documented in:
+
+- [`docs/postings_equity_workflow.md`](docs/postings_equity_workflow.md)
+
+### `make specs`
+
+Runs the active empirical Stata lane in paper order.
+
+It does two things:
+
+1. regenerates the asset-contract-derived docs and preview input map
+2. runs the active table-side and figure-side Stata specs under
+   [`spec/stata/`](spec/stata/)
+
+It writes:
+
+- paper-facing machine-readable outputs under [`results/raw/`](results/raw/)
+- spec logs under [`log/`](log/) and [`log/batch/`](log/batch/)
+
+### `make paper`
+
+Runs the paper-facing Python builders under [`writeup/py/`](writeup/py/).
+
+It also regenerates the contract-derived docs, then renders:
+
+- cleaned LaTeX fragments under [`results/cleaned/tex/`](results/cleaned/tex/)
+- cleaned figures under [`results/cleaned/figures/`](results/cleaned/figures/)
+- cleaned IRF panels under
+  [`results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid/`](results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid/)
+
+There are two valid paper-builder modes:
+
+- descriptive assets:
+  - `data/clean/` -> `writeup/py/` -> `results/cleaned/`
+- estimation-driven assets:
+  - `data/clean/` -> `spec/stata/` -> `results/raw/` -> `writeup/py/` -> `results/cleaned/`
+
+`results/raw/` is the empirical-spec output layer, not the raw-data layer.
+
+## The Pipeline In One View
+
+### Upstream data construction
+
+Canonical source-boundary inputs come from:
+
+- [`data/raw/`](data/raw/)
+- a small set of inherited source-boundary datasets that still live under
+  [`data/clean/`](data/clean/)
+
+Active builders then produce:
+
+- `firm_panel.dta`
+- `user_panel_precovid.dta`
+- `user_attributes.dta`
+- `user_hire_event_panel_precovid.dta`
+- `firm_halfyear_panel_MERGED_POST.csv`
+- `firm_panel_with_cb.csv`
+- `firm_panel_with_cb_funding.csv`
+- `csa_msa_top14_mapping.csv`
+- and related canonical intermediates
+
+The full upstream ontology is documented in:
+
+- [`docs/local_runbook.md`](docs/local_runbook.md)
+- [`docs/upstream_data_ontology.md`](docs/upstream_data_ontology.md)
+
+### Empirical specifications
+
+The core empirical work lives in [`spec/stata/`](spec/stata/).
+
+The main active families are:
+
+- user-productivity OLS and IV tables
+- firm-scaling OLS and IV tables, including vacancy outcomes
+- event-study figures for user and firm outcomes
+- Crunchbase fundraising event-study and table family
+- startup-cutoff bars
+- engineer / non-engineer IRFs
+- remote-hire event-study figure
+
+The empirical overview is documented in:
+
+- [`docs/core_specs.md`](docs/core_specs.md)
+
+### Final paper assets
+
+The repo-owned manuscript lane is defined by:
+
+- [`writeup/py/paper_support/paper_asset_contract.json`](writeup/py/paper_support/paper_asset_contract.json)
+
+Generated documentation from that contract:
+
+- [`docs/main_tex_assets.md`](docs/main_tex_assets.md)
+- [`docs/paper_table_lineage.md`](docs/paper_table_lineage.md)
+- [`docs/figure_lineage.md`](docs/figure_lineage.md)
+
+Those files tell you, asset by asset:
+
+- what `main.tex` reads
+- which Stata spec owns the raw export, if any
+- which Python builder renders the final output
+- which upstream datasets feed that asset
+
+## Most Important Docs
+
+If you are trying to understand the repo from scratch, read these in order:
+
+1. [`docs/local_runbook.md`](docs/local_runbook.md)
+   - exact run order, commands, accepted local boundaries, and output locations
+2. [`docs/upstream_data_ontology.md`](docs/upstream_data_ontology.md)
+   - detailed map of source-boundary inputs and generated datasets
+3. [`docs/core_specs.md`](docs/core_specs.md)
+   - high-level empirical designs behind the active specs
+4. [`docs/main_tex_assets.md`](docs/main_tex_assets.md)
+   - active manuscript asset inventory and exclusions
+5. [`docs/paper_table_lineage.md`](docs/paper_table_lineage.md)
+   - table-by-table lineage
+6. [`docs/figure_lineage.md`](docs/figure_lineage.md)
+   - figure-by-figure lineage
+
+## Active Tree Map
+
+- [`src/py/`](src/py/)
+  - active Python upstream builders
+- [`src/stata/`](src/stata/)
+  - active Stata upstream builders
+- [`spec/stata/`](spec/stata/)
+  - active empirical Stata specs
+- [`writeup/py/`](writeup/py/)
+  - active paper-facing builders
+- [`data/`](data/)
+  - source-boundary inputs and canonical cleaned datasets
+- [`results/`](results/)
+  - raw empirical outputs and cleaned paper assets
+- [`docs/`](docs/)
+  - runbooks, empirical overview, lineage docs
+
+Archive material was preserved under:
+
+- [`src/archive/`](src/archive/)
+- [`spec/archive/stata/`](spec/archive/stata/)
+- [`writeup/archive/`](writeup/archive/)
+- [`results/archive/`](results/archive/)
+
+## Related Docs
+
+- [`data/README.md`](data/README.md)
+- [`results/README.md`](results/README.md)
+- [`src/py/README.md`](src/py/README.md)
+- [`src/stata/README.md`](src/stata/README.md)
+- [`spec/stata/README.md`](spec/stata/README.md)
+- [`writeup/py/README.md`](writeup/py/README.md)

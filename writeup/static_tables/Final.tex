@@ -1,0 +1,25 @@
+
+\begin{tabular}{lrccccccc}
+  %  \toprule
+    \toprule
+          &       & (1)   &       & (2)   &       & (3)   &       & (4) \\
+    \midrule
+    \textbf{Outcome:} &       & \multicolumn{3}{c}{\textit{\textbf{Individual-level}}} &       & \multicolumn{3}{c}{\textit{\textbf{Firm-level}}} \\
+\cmidrule{1-1}\cmidrule{3-5}\cmidrule{7-9}          &       & \textbf{Career Promotions} &       & \textbf{Publications} &       & \textbf{Tobin's Q} &       & \multicolumn{1}{l}{\textbf{Per-capita Org Capital}} \\
+\cmidrule{3-3}\cmidrule{5-5}\cmidrule{7-7}\cmidrule{9-9}    Pct(GitHub Contributions) &       & 0.0061*** &       & 0.0201*** &       & 0.1036*** &       & 0.0967*** \\
+          &       & (0.0020) &       & (0.0007) &       & (0.0238) &       & (0.0258) \\
+          &       &       &       &       &       &       &       &  \\
+    Pct(GitHub Contributions) $\times$ $\mathbbm{1}$(Post) &       & 0.0031 &       & 0.0024*** &       & 0.0189 &       & 0.033 \\
+          &       & (0.0026) &       & (0.0008) &       & (0.0250) &       & (0.0269) \\
+\cmidrule{1-1}\cmidrule{3-5}\cmidrule{7-9}    Cohort $\times$ Role $\times$ Sal Bucket $\times$ Sen Bucket $\times$ Period F.E. &       & Yes   &       & Yes   &       & No    &       & No \\
+    Firm F.E. &       & Yes   &       & Yes   &       & No    &       & No \\
+    Period F.E. &       & No    &       & No    &       & Yes   &       & Yes \\
+\cmidrule{1-1}\cmidrule{3-5}\cmidrule{7-9}    Observations &       & 563,784 &       & 563,784 &       & 3,803 &       & 3,234 \\
+    \#Unique Employees/ Firms &       & 309,853 &       & 309,853 &       & 2,139 &       & 1,814 \\
+    R-Squared &       & 0.228 &       & 0.188 &       & 0.011 &       & 0.013 \\
+    Y-Mean &       & 17.928 &       & 2.273 &       & 50.476 &       & 50.461 \\
+    Magnitude - Main (\%) &       & 0.03  &       & 0.89  &       & 0.21  &       & 0.21 \\
+    Magnitude - Main + Inter (\%) &       & 0.05  &       & 0.99  &       & 0.24  &       & 0.27 \\
+  %  \bottomrule
+    \bottomrule
+    \end{tabular}%

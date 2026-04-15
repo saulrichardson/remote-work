@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{adjustbox}
+\usepackage{threeparttable}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{float}
+
+\title{Firm Composition Effects on Scaling}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Firm scaling regressions with composition share levels as outcomes. Specifications test whether remote firms maintain different workforce composition in roles and seniority post-COVID.
+
+
+\section{Role Composition Effects}
+
+\begin{table}[H]
+\centering
+\caption{Role Composition Effects on Firm Scaling}
+\begin{threeparttable}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{lccccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5) & (6) & (7) \\
+ & Admin & Engineer & Finance & Marketing & Operations & Sales & Scientist \\
+\midrule
+\multicolumn{8}{l}{\textbf{Panel A: OLS}} \\
+\addlinespace
+Remote $\times$ Post & 0.00 & -0.01*** & 0.00* & -0.00** & -0.00 & -0.00 & 0.00 \\
+  & (0.00) & (0.00) & (0.00) & (0.00) & (0.00) & (0.00) & (0.00) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 0.00 & -0.00 & -0.00 & -0.00 & -0.00 & 0.01 & -0.01 \\
+  & (0.00) & (0.01) & (0.01) & (0.01) & (0.01) & (0.01) & (0.01) \\
+\midrule
+\multicolumn{8}{l}{\textbf{Panel B: IV}} \\
+\addlinespace
+Remote $\times$ Post & -0.00 & -0.02*** & -0.00 & -0.00 & -0.00*** & 0.00 & 0.01** \\
+  & (0.00) & (0.00) & (0.00) & (0.00) & (0.00) & (0.00) & (0.00) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & -0.03 & -0.11* & 0.03 & 0.12** & -0.01 & 0.01 & -0.01 \\
+  & (0.02) & (0.05) & (0.03) & (0.06) & (0.02) & (0.03) & (0.03) \\
+\midrule
+N & 19,793 & 22,845 & 18,334 & 20,672 & 16,866 & 23,633 & 11,033 \\
+KP rk Wald F & 10.1 & 8.2 & 5.8 & 5.3 & 5.3 & 13.3 & 9.1 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Firm-level regressions with firm and time fixed effects. 
+Dependent variable is share of role-specific employment in the firm workforce. 
+Remote is an indicator for remote-first firms. Post indicates post-COVID periods.
+Startup indicates young, high-growth firms.
+Standard errors clustered by firm in parentheses. 
+* p$<$0.10, ** p$<$0.05, *** p$<$0.01.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\section{Seniority Composition Effects}
+
+\begin{table}[H]
+\centering
+\caption{Seniority Composition Effects on Firm Scaling}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+ & (1) & (2) & (3) & (4) \\
+ & Level 1 & Level 2 & Level 3 & Level 4 \\
+\midrule
+\multicolumn{5}{l}{\textbf{Panel A: OLS}} \\
+\addlinespace
+Remote $\times$ Post & -0.00*** & 0.00*** & -0.00* & -0.00*** \\
+  & (0.00) & (0.00) & (0.00) & (0.00) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 0.00 & -0.01 & 0.00 & -0.01 \\
+  & (0.01) & (0.01) & (0.01) & (0.01) \\
+\midrule
+\multicolumn{5}{l}{\textbf{Panel B: IV}} \\
+\addlinespace
+Remote $\times$ Post & -0.00 & 0.01*** & -0.00 & -0.01*** \\
+  & (0.00) & (0.00) & (0.00) & (0.00) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & -0.08** & -0.03 & 0.04 & -0.03 \\
+  & (0.03) & (0.03) & (0.03) & (0.03) \\
+\midrule
+N & 22,643 & 26,097 & 21,959 & 21,199 \\
+KP rk Wald F & 10.5 & 16.3 & 8.7 & 9.2 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Firm-level regressions with firm and time fixed effects. 
+Dependent variable is share of seniority-specific employment in the firm workforce. 
+Seniority levels: 1 (most junior) to 4 (most senior).
+Remote is an indicator for remote-first firms. Post indicates post-COVID periods.
+Startup indicates young, high-growth firms.
+Standard errors clustered by firm in parentheses. 
+* p$<$0.10, ** p$<$0.05, *** p$<$0.01.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\end{document}

@@ -1,0 +1,50 @@
+CSA Drop Order (by rank)
+Rank  1: San Jose-San Francisco-Oakland, CA
+Rank  2: New York-Newark-Bridgeport, NY-NJ-CT-PA
+Rank  3: Seattle-Tacoma-Olympia, WA
+Rank  4: Austin-Round Rock, TX
+Rank  5: Boston-Worcester-Manchester, MA-NH
+Rank  6: Los Angeles-Long Beach-Riverside, CA
+Rank  7: Minneapolis-St. Paul-St. Cloud, MN-WI
+Rank  8: Raleigh-Durham-Cary, NC
+Rank  9: Denver-Aurora-Boulder, CO
+Rank 10: San Diego-Carlsbad-San Marcos, CA
+Rank 11: Portland-Vancouver-Beaverton, OR-WA
+Rank 12: Washington-Baltimore-Northern Virginia, DC-MD-VA-WV
+Rank 13: Dallas-Fort Worth, TX
+Rank 14: Chicago-Naperville-Michigan City, IL-IN-WI
+
+Top 5:
+  Rank  1: San Jose-San Francisco-Oakland, CA
+  Rank  2: New York-Newark-Bridgeport, NY-NJ-CT-PA
+  Rank  3: Seattle-Tacoma-Olympia, WA
+  Rank  4: Austin-Round Rock, TX
+  Rank  5: Boston-Worcester-Manchester, MA-NH
+
+Top 10:
+  Rank  1: San Jose-San Francisco-Oakland, CA
+  Rank  2: New York-Newark-Bridgeport, NY-NJ-CT-PA
+  Rank  3: Seattle-Tacoma-Olympia, WA
+  Rank  4: Austin-Round Rock, TX
+  Rank  5: Boston-Worcester-Manchester, MA-NH
+  Rank  6: Los Angeles-Long Beach-Riverside, CA
+  Rank  7: Minneapolis-St. Paul-St. Cloud, MN-WI
+  Rank  8: Raleigh-Durham-Cary, NC
+  Rank  9: Denver-Aurora-Boulder, CO
+  Rank 10: San Diego-Carlsbad-San Marcos, CA
+
+Top 14:
+  Rank  1: San Jose-San Francisco-Oakland, CA
+  Rank  2: New York-Newark-Bridgeport, NY-NJ-CT-PA
+  Rank  3: Seattle-Tacoma-Olympia, WA
+  Rank  4: Austin-Round Rock, TX
+  Rank  5: Boston-Worcester-Manchester, MA-NH
+  Rank  6: Los Angeles-Long Beach-Riverside, CA
+  Rank  7: Minneapolis-St. Paul-St. Cloud, MN-WI
+  Rank  8: Raleigh-Durham-Cary, NC
+  Rank  9: Denver-Aurora-Boulder, CO
+  Rank 10: San Diego-Carlsbad-San Marcos, CA
+  Rank 11: Portland-Vancouver-Beaverton, OR-WA
+  Rank 12: Washington-Baltimore-Northern Virginia, DC-MD-VA-WV
+  Rank 13: Dallas-Fort Worth, TX
+  Rank 14: Chicago-Naperville-Michigan City, IL-IN-WI

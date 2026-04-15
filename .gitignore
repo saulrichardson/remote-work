@@ -1,75 +1,51 @@
-# Data (never tracked)
+# Data (raw/clean payloads are not tracked; small prompt artifacts are allowed)
 data/
 data/**
 **/data/
 **/data/**
+!data/
+!data/README.md
+!data/raw/
+!data/raw/prompts/
+!data/raw/prompts/*.txt
 
-# System files (declare once)
+# Local environments and system files
 .DS_Store
+.env
 .venv/
-
-# Python bytecode
+.pytest_cache/
 __pycache__/
 
-
-archive/
-
-
-# Vim and Stata swap/lock files
-*.swp
-# Stata dataset swap lock files
-*.dta.swp
-# Stata swap lock files (other)
-*.stswp
-
-# Local folders for old scripts
-**/bin/
-
-# Local git worktrees (not needed in repo)
+# Scratch / generated root clutter
+.tmp/
+output/
 worktrees/
 
-# Docs and one-off writeups (not tracked)
-docs/
-
-# HPC generated files
-hpc/sbatch/
-hpc/out/
-
-# Local logs and scratch outputs
+# Logs and scratch output
 log/
-src/stata/log/
+spec/log/
 spec/stata/log/
-spec/stata/archive/
-spec/stata/scratch/
+src/stata/log/
+writeup/build/
 writeup/tex/build/
 writeup/scratch/
 writeup/py/scratch/
 *.log
 *.smcl
-*.DS_Store
 
-# LaTeX build artefacts
-*.aux
-*.fdb_latexmk
-*.fls
-*.synctex.gz
-*.out
-
-# Writeup build outputs (ignore broad; re-allow core source + final PDF)
-writeup/tex/**/*.pdf
-writeup/tex/**/*.tex
-writeup/tex/**/*.aux
-writeup/tex/**/*.log
-
-# Allow primary sources and final deliverable
-!writeup/tex/mini-writeup.tex
-!writeup/tex/mini-writeup-2.tex
-!writeup/tex/final/mini-writeup.pdf
-
-# Generated analysis results (all derived; regenerate via specs + formatters)
+# Generated analysis results
 results/
 results/**
 
-# Stata swap files anywhere
+# LaTeX artefacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.zip
+
+# Swap / lock files
+*.swp
 *.dta.swp
 *.stswp

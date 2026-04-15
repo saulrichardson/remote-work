@@ -1,0 +1,50 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\geometry{margin=1in}
+\graphicspath{{../../results/diagnostics/}}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\section*{Productivity vs Growth: Stayers vs Composition}
+
+We difference each firm between pre-2020H1 and post-2020H1, limit to fully remote firms, and tag startups as age \(\le 10\), leaving \(N=980\) observations. Two outcomes are studied: a stayer measure (median within-worker rank change for incumbents present in both periods) and an all-worker measure (change in the firm’s average worker rank, capturing composition). Both outcomes are regressed on the firm’s change in growth and a startup indicator, with robust standard errors and weights based on the relevant worker counts; no fixed effects are needed because the outcomes are already differences.
+
+Headline coefficients: stayer slope \(\beta=1.23\) (p = 0.63); all-worker slope \(\beta=6.72\) (p = 0.023).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{binscatter_prod_growth_stayer.png}
+  \caption{Binned scatter: stayer median $\Delta$ rank vs $\Delta$ growth (weights = balanced users).}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{binscatter_prod_growth_level.png}
+  \caption{Binned scatter: all-worker mean rank change vs $\Delta$ growth (weights = total users).}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_prod_change_stayer.png}
+  \caption{Productivity change — stayers (startups vs incumbents).}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_prod_change_level.png}
+  \caption{Productivity change — all workers (startups vs incumbents).}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_growth_change.png}
+  \caption{Growth change (startups vs incumbents).}
+\end{figure}
+
+\end{document}

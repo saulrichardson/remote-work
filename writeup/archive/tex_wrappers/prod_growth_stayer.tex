@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{float}
+\geometry{margin=1in}
+\graphicspath{{../../results/diagnostics/}}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\section*{Productivity vs Growth (Stayers Only)}
+
+We compare each firm to itself before and after 2020H1 (pre: \(yh<2020\text{H}1\); post: \(yh\ge2020\text{H}1\)). The sample keeps only fully remote firms and marks startups as those age \(\le 10\); this leaves \(N=980\) firms. For the stayer outcome, we track workers who appear in both periods, take their change in rank, and summarize the firm by the median of those within-worker changes.
+
+The regression relates that median change to the firm’s change in growth and a startup indicator:
+\[ \Delta\text{Prod}^{\text{stayer}}_f = \alpha + \beta\,\Delta\text{Growth}_f + \gamma\,\text{Startup}_f + \varepsilon_f, \]
+using robust standard errors and weights equal to the count of balanced workers. Because the outcome is already a difference, no fixed effects are needed.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{binscatter_prod_growth_stayer.png}
+  \caption{Stayer median $\Delta$ rank vs $\Delta$ growth (20 bins, balanced-user weights).}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_prod_change_stayer.png}
+  \caption{Stayer $\Delta$ rank distribution, startups vs incumbents.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_growth_change.png}
+  \caption{$\Delta$ growth distribution, startups vs incumbents.}
+\end{figure}
+
+\end{document}

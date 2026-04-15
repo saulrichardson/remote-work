@@ -1,0 +1,237 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage[normalem]{ulem}
+\usepackage{textcomp}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{dsfont}
+\usepackage{pdflscape}
+
+\newcommand{\TableInput}[2][\linewidth]{\input{#2}}
+\providecommand{\mathbbm}[1]{\mathds{#1}}
+
+\begin{document}
+
+\section*{Logic-Owned `main.tex` Asset Preview}
+
+This preview is generated from the active logic-owned paper asset contract. It includes only
+the in-scope tables and figures rebuilt by this repo and omits active manuscript assets that are
+explicitly excluded from the logic-owned lane.
+
+\section*{Main Figures}
+
+\begin{figure}[H]\centering
+  \caption{Firm Age and Remote Work}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_age_lt100_remote.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Teleworkability and Remote Work}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_teleworkable_remote.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Key Outcomes: User Productivity}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/user_event_study_precovid_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Key Outcomes: Firm Growth}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_growth_ols.png}
+\end{figure}
+
+\section*{Main Tables}
+
+\begin{table}[H]\centering
+  \caption{Summary Statistics}
+  \TableInput{../../results/cleaned/tex/table_of_means.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Remote Work and Individual Productivity -- OLS}
+  \TableInput{../../results/cleaned/tex/user_productivity_precovid_total_ols_single.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Remote Work and Individual Productivity -- IV}
+  \TableInput{../../results/cleaned/tex/user_productivity_precovid_total_iv_single.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Crunchbase Fundraising Core 4}
+  \TableInput{../../results/cleaned/tex/firm_scaling_crunchbase_fundraising_core4.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Firm Scaling}
+  \TableInput{../../results/cleaned/tex/firm_scaling_precovid_cols1_4.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Job Posting Outcomes}
+  \TableInput{../../results/cleaned/tex/firm_scaling_precovid_cols5_6.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Individual Productivity Mechanisms}
+  \TableInput{../../results/cleaned/tex/user_mechanisms_keep_remote_precovid.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Remote Work and Imputed Wages: Fixed-Effect Variants}
+  \TableInput{../../results/cleaned/tex/user_wage_fe_variants_precovid_log_salary.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Fully Remote Versus Hybrid Productivity}
+  \TableInput{../../results/cleaned/tex/user_productivity_fr_focus_precovid.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Remote Work and Top CSA Filters (Firm x Individual FE)}
+  \TableInput{../../results/cleaned/tex/user_productivity_top_metros_firmbyuser.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Productivity Heterogeneity by Worker Traits}
+  \TableInput{../../results/cleaned/tex/user_productivity_traits_dual_precovid_ols.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Remote Work Outside Software and Hub Markets}
+  \TableInput{../../results/cleaned/tex/user_productivity_precovid_nonsoftware.tex}
+\end{table}
+
+\clearpage
+\appendix
+\section*{Appendix Figures}
+
+\begin{figure}[H]\centering
+  \caption{Startup Cutoff Visualization: Contribution Rank}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/startup_cutoff_bars_total_contributions_q100.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Startup Cutoff Visualization: Firm Growth Rate}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/startup_cutoff_bars_growth_rate_we.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Labor Market Flows: Firm Join}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_join_rate_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Labor Market Flows: Firm Leave}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_leave_rate_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Job Postings and Fill Rates: Job Postings}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_job_postings_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Job Postings and Fill Rates: Hires per Posting}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_hires_per_job_posting_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Key Outcomes: User Productivity}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/user_event_study_fullrem_precovid_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Key Outcomes: Firm Growth}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_fullrem_growth_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Labor Flows: Firm Join}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_fullrem_join_rate_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Labor Flows: Firm Leave}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_fullrem_leave_rate_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Hiring Channels: Job Postings}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_fullrem_job_postings_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Fully Remote Hiring Channels: Hires per Posting}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/firm_event_study_fullrem_hires_per_job_posting_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study of Crunchbase Fundraising: USD Raised (Millions)}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/crunchbase_fundraising_event_study_raised_usd_mil_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Hiring Shocks and Subsequent Productivity: Engineer Hiring Shocks}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid/panelB_fullremote_engineer.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Hiring Shocks and Subsequent Productivity: Non-Engineer Hiring Shocks}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid/panelB_fullremote_nonengineer.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Event Study: Remote Hires into Startups vs. Established Firms}
+  \includegraphics[width=.85\linewidth]{../../results/cleaned/figures/user_hire_event_study_remote_rank_mw.png}
+\end{figure}
+
+\section*{Appendix Tables}
+
+\begin{table}[H]\centering
+  \caption{First-Stage Diagnostics}
+  \TableInput{../../results/cleaned/tex/first_stage_summary.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Remote Work and Restricted Contributions}
+  \TableInput{../../results/cleaned/tex/user_productivity_precovid_restricted.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Remote Work and Individual Productivity -- Stayers Only}
+  \TableInput{../../results/cleaned/tex/user_productivity_precovid_stayer_table3.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Robustness to Industry and State Shocks}
+  \TableInput{../../results/cleaned/tex/user_productivity_precovid_industry_hqstate_shocks.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Crunchbase Fundraising Outcomes: Robustness to Industry and HQ-State Shocks (USD Raised)}
+  \TableInput{../../results/cleaned/tex/firm_scaling_crunchbase_fundraising_core4_fe_robustness_cb_raised_usd.tex}
+\end{table}
+
+\begin{table}[H]\centering
+  \caption{Firm Scaling Location Ratios}
+  \TableInput{../../results/cleaned/tex/firm_scaling_location_ratios.tex}
+\end{table}
+
+\section*{Excluded Active Assets}
+
+The current manuscript still reads the following active assets outside the logic-owned lane:
+
+\begin{itemize}
+\item \texttt{../Results/Tables/Final.tex} (no\_generator\_in\_repo)
+\item \texttt{../Figures/Demeaned\_Indiv\_WithinFirmPromotions.jpg} (external\_figure)
+\item \texttt{../Figures/Demeaned\_Indiv\_Publications.jpg} (external\_figure)
+\item \texttt{../Figures/Demeaned\_TobinsQ.jpg} (external\_figure)
+\item \texttt{../Figures/Demeaned\_OrgCapital.jpg} (external\_figure)
+\end{itemize}
+
+\end{document}

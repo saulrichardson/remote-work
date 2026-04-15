@@ -1,0 +1,28 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{siunitx}
+\usepackage{dsfont}
+\usepackage{amssymb} % for checkmark
+
+\newcommand{\cleaned}{../results/cleaned/tex}
+\newcommand{\TableInput}[1]{\input{#1}}
+
+\begin{document}
+
+\section*{User Productivity — Expanded FE Variants}
+
+\begin{table}[h]
+  \centering
+  \caption{Remote Work and Individual Productivity (Expanded FE) -- OLS}
+  \TableInput{\cleaned/user_productivity_precovid_fe_expanded_ols.tex}
+\end{table}
+
+\begin{table}[h]
+  \centering
+  \caption{Remote Work and Individual Productivity (Expanded FE) -- IV}
+  \TableInput{\cleaned/user_productivity_precovid_fe_expanded_iv.tex}
+\end{table}
+
+\end{document}

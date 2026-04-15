@@ -1,0 +1,183 @@
+\documentclass{article}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{setspace}
+\setstretch{1.05}
+
+\newcommand{\cleanedresultsdir}{../../results/cleaned/tex}
+\newcommand{\TableInput}[2][\linewidth]{\input{#2}}
+
+\begin{document}
+
+\section*{LLM Equity Analysis (Job-Posting Universe): Matched vs Baseline Backfill}
+
+\subsection*{High-level design}
+This note runs the equity analysis directly on the firm and user panels after merging LLM equity signals from job postings. The design reports two side-by-side sample modes:
+\begin{enumerate}
+  \item \textbf{Matched mode (observed-signal sample):} keep firm$\times$half-year rows with parsed LLM coverage (\texttt{llm\_n\_parse\_ok>0}).
+  \item \textbf{Baseline backfill mode (full-panel sample):} keep the full panel and code cells without parsed LLM coverage as non-equity.
+\end{enumerate}
+Backfill uses the coding assumption that, within the submitted candidate-posting universe, absence of parsed equity signal is treated as zero equity exposure.
+
+\subsection*{Data pipeline walkthrough}
+\begin{itemize}
+  \item Start from postings with non-empty descriptions; apply the deterministic equity-language candidate filter before LLM submission.
+  \item Run JSON extraction, aggregate posting outputs to firm$\times$half-year, and merge to outcome panels on normalized \texttt{companyname}$\times$\texttt{yh}.
+  \item Define matched as parse-covered rows only; define backfill as full panel with non-parse rows coded as zero equity.
+\end{itemize}
+
+\subsection*{Equity variables in tables}
+\begin{itemize}
+  \item \textbf{Equity firm (main):} binary indicator for whether a firm shows any equity-compensation mention in the analyzed posting universe.
+  \item \textbf{Equity share (appendix robustness):} fraction of a firm’s analyzed postings that mention equity compensation.
+  \item \textbf{Equity count (appendix robustness):} count-based measure of how frequently a firm’s postings mention equity compensation.
+\end{itemize}
+
+\subsection*{Descriptive evidence}
+\begin{table}[H]
+  \centering
+  \caption{Sample accounting across matched and baseline backfill modes}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_sample_accounting.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Startup vs non-startup equity prevalence and additional descriptives}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_descriptives.tex}
+\end{table}
+
+\subsection*{Main regressions (headline)}
+\subsubsection*{Firm growth}
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: core pooled (extensive margin)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_core_pooled.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: core split (non-equity firms)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_core_split_non_equity.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: core split (equity firms)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_core_split_equity.tex}
+\end{table}
+
+\subsubsection*{User productivity}
+\begin{table}[H]
+  \centering
+  \caption{User productivity: core pooled (extensive margin)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_core_pooled.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: core split (non-equity firms)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_core_split_non_equity.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: core split (equity firms)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_core_split_equity.tex}
+\end{table}
+
+\appendix
+\section*{Appendix: Robustness 2 (reduced, intensity, and concentration)}
+
+\subsection*{Reduced-interaction ladder}
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: reduced-1 (Remote DD + equity heterogeneity; no startup interaction)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_reduced1.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: reduced-2 (Remote $\times$ Post only DD)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_simple_dd.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: reduced-1 (Remote DD + equity heterogeneity; no startup interaction)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_reduced1.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: reduced-2 (Remote $\times$ Post only DD)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_simple_dd.tex}
+\end{table}
+
+\subsection*{Additional robustness tables}
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: appendix robustness A}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_intensive_share.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: appendix robustness B}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_intensive_count_mean.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: appendix robustness A}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_intensive_share.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: appendix robustness B}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_intensive_count_mean.tex}
+\end{table}
+
+\subsection*{Concentration OLS (setting aside remote)}
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: concentration OLS (binary equity exposure $\times$ post)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_concentration_any.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: concentration OLS (appendix robustness C)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_concentration_share.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Firm growth: concentration OLS (appendix robustness D)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_firm_concentration_count_mean.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: concentration OLS (binary equity exposure $\times$ post)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_concentration_any.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: concentration OLS (appendix robustness C)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_concentration_share.tex}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity: concentration OLS (appendix robustness D)}
+  \TableInput{\cleanedresultsdir/llm_equity_no_cb_modes_user_concentration_count_mean.tex}
+\end{table}
+
+\end{document}

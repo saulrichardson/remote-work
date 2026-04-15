@@ -1,0 +1,113 @@
+\documentclass{article}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{setspace}
+\setstretch{1.05}
+
+\newcommand{\cleanedresultsdir}{../../results/cleaned/tex}
+\newcommand{\TableInput}[1]{\input{#1}}
+\DeclareCaptionStyle{noteflush}{%
+  format=plain,
+  justification=raggedright,
+  singlelinecheck=false,
+  font=footnotesize,
+  width=\linewidth,
+  skip=0pt
+}
+\newcommand{\FloatNote}[1]{%
+  \begingroup
+    \captionsetup{style=noteflush}%
+    \caption*{\textit{Notes:}~#1}%
+  \endgroup
+}
+
+\begin{document}
+
+\section*{User Productivity: postings-covered equity designs}
+
+\section*{1. Equity coverage sample}
+
+\subsection*{Empirical rule}
+\noindent The forked equity specifications use a postings-based coverage rule. Firms enter the main equity sample only if they have at least one job-posting observation. Among covered firms, periods with postings but no equity-related keyword hit are backfilled to zero. Firms with keyword hits but no parse-successful LLM output are excluded from the main equity sample, and firms with no postings coverage are excluded as well.
+
+\subsection*{Coverage buckets}
+\begin{table}[H]
+  \centering
+  \caption{Equity coverage buckets in the worker sample}
+  \TableInput{\cleanedresultsdir/llm_equity_postings_coverage_summary.tex}
+  \FloatNote{The table is built by merging the precovid user panel to the enriched job-posting equity panel on normalized firm name and half-year keys. The first two rows are included in the main equity specifications. The third row is excluded because the keyword screen fired but no parse-successful LLM output is available. The final row is excluded because there is no postings coverage.}
+\end{table}
+
+\section*{2. Startup-swapped horse race}
+
+\subsection*{Empirical setup}
+\noindent For each added control $Z_f$, the modified horse race keeps the baseline startup term and adds a startup-swapped remote channel:
+\[
+  \begin{aligned}
+    y_{ifh} =\; & \beta_3 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \right)
+    + \beta_5 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times \text{Startup}_f \right) \\
+    & + \sum_{Z \in \mathcal{Z}} \left[
+        \gamma_Z \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times Z_f \right)
+        + \theta_Z \left( \mathds{1}(\text{Post})_h \times Z_f \right)
+      \right]
+    + \text{FE} + \varepsilon_{ifh} .
+  \end{aligned}
+\]
+\noindent Here $\mathcal{Z}$ contains a firm-level bin for average post-COVID employment growth and the firm-level equity-offer signal. In IV, each remote interaction $\text{Remote}\times\mathds{1}(\text{Post})\times Z_f$ is instrumented by the matching $\text{Teleworkable}\times\mathds{1}(\text{Post})\times Z_f$ interaction. Columns use local support: the baseline column keeps the original sample, the growth column requires the growth control, the equity column requires the postings-based equity sample, and the combined column uses the intersection.
+
+\subsection*{Baseline FE}
+\begin{table}[H]
+  \centering
+  \caption{User productivity startup-swapped horse race, baseline FE, local-support samples}
+  \TableInput{\cleanedresultsdir/llm_equity_postings_coverage_horse_race_baseline.tex}
+  \FloatNote{Columns mirror the current baseline-FE horse-race structure: baseline, firm growth only, equity only, and both. The first two rows report the baseline remote coefficients on $\text{Remote}\times\mathds{1}(\text{Post})$ and $\text{Remote}\times\mathds{1}(\text{Post})\times\text{Startup}$. The growth channel uses a firm-level median split of average post-COVID employment growth. The equity channel uses the postings-based equity sample described above. The baseline column is left on the original sample, and the combined column uses the intersection of the growth and equity supports. Standard errors are clustered by worker.}
+\end{table}
+
+\subsection*{Pair FE}
+\begin{table}[H]
+  \centering
+  \caption{User productivity startup-swapped horse race, pair FE, local-support samples}
+  \TableInput{\cleanedresultsdir/llm_equity_postings_coverage_horse_race_pairfe.tex}
+  \FloatNote{Columns mirror the current pair-FE horse-race structure: baseline, firm growth only, equity only, and both. The growth channel uses the same firm-level median split of average post-COVID employment growth as in Table 2. The equity channel uses the postings-based equity sample under firm$\times$individual and half-year fixed effects. The baseline column is left on the original sample, and the combined column uses the intersection of the growth and equity supports. Standard errors are clustered by worker.}
+\end{table}
+
+\section*{3. Equity quadruple}
+
+\subsection*{Empirical setup}
+\noindent The separate equity-quadruple exercise appends the equity signal directly to the core empirical setup:
+\[
+  \begin{aligned}
+    y_{ifh} =\; & \beta_1 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \right)
+    + \beta_2 \left( \mathds{1}(\text{Post})_h \times \text{Startup}_f \right)
+    + \beta_3 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times \text{Startup}_f \right) \\
+    & + \delta_1 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times \text{Offers equity}_f \right) \\
+    & + \delta_2 \left( \mathds{1}(\text{Post})_h \times \text{Startup}_f \times \text{Offers equity}_f \right) \\
+    & + \delta_3 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times \text{Startup}_f \times \text{Offers equity}_f \right)
+    + \text{FE} + \varepsilon_{ifh} .
+  \end{aligned}
+\]
+\noindent In IV, the remote-post term, the remote-post-startup term, the remote-post-equity term, and the remote-post-startup-equity term are instrumented with the matching teleworkability interactions. The baseline quadruple column keeps the original sample, while the equity-augmented column uses the postings-based equity sample.
+
+\subsection*{Baseline FE}
+\begin{table}[H]
+  \centering
+  \caption{User productivity equity quadruple, baseline FE, local-support samples}
+  \TableInput{\cleanedresultsdir/llm_equity_postings_coverage_quadruple_baseline_fe.tex}
+  \FloatNote{Column (1) is the baseline user-productivity specification. Column (2) appends the equity signal to the core empirical setup through $\text{Remote}\times\mathds{1}(\text{Post})\times\text{Offers equity}$, $\mathds{1}(\text{Post})\times\text{Startup}\times\text{Offers equity}$, and $\text{Remote}\times\mathds{1}(\text{Post})\times\text{Startup}\times\text{Offers equity}$. The remote interactions are instrumented by the matching teleworkability interactions. Standard errors are clustered by worker.}
+\end{table}
+
+\subsection*{Pair FE}
+\begin{table}[H]
+  \centering
+  \caption{User productivity equity quadruple, pair FE, local-support samples}
+  \TableInput{\cleanedresultsdir/llm_equity_postings_coverage_quadruple_pair_fe.tex}
+  \FloatNote{Column (1) is the pair-FE baseline specification. Column (2) appends the equity signal to the core empirical setup under firm$\times$individual and half-year fixed effects. The remote interactions are instrumented by the matching teleworkability interactions. Standard errors are clustered by worker.}
+\end{table}
+
+\end{document}

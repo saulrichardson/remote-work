@@ -1,0 +1,916 @@
+{
+  "metadata": {
+    "contract_version": 1,
+    "main_tex_path": "/Users/saulrichardson/Dropbox/Apps/Overleaf/WFH Startups/Current/Paper/main.tex",
+    "generated_docs": [
+      "docs/main_tex_assets.md",
+      "docs/paper_table_lineage.md",
+      "docs/figure_lineage.md",
+      "writeup/tex/main_assets_preview.tex"
+    ],
+    "cleaned_roots": [
+      "results/cleaned/tex",
+      "results/cleaned/figures",
+      "results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid"
+    ],
+    "required_python_modules": [
+      "binsreg"
+    ],
+    "required_stata_packages": [
+      {
+        "name": "reghdfe",
+        "install": "ssc install reghdfe, replace"
+      },
+      {
+        "name": "ivreghdfe",
+        "install": "ssc install ivreghdfe, replace"
+      },
+      {
+        "name": "_gxtile",
+        "install": "ssc install egenmore, replace"
+      }
+    ]
+  },
+  "active_assets": [
+    {
+      "id": "firm_age_lt100_remote",
+      "kind": "figure",
+      "paper_order": 1,
+      "main_tex_ref": "../Results/Figures/firm_age_lt100_remote.png",
+      "cleaned_output": "results/cleaned/figures/firm_age_lt100_remote.png",
+      "preview_section": "Main Figures",
+      "preview_caption": "Firm Age and Remote Work",
+      "family": "core_firm_figures",
+      "stata_spec": null,
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/01_firm_age_lt100_remote.py",
+      "python_args": [],
+      "raw_outputs": [],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "firm_teleworkable_remote",
+      "kind": "figure",
+      "paper_order": 2,
+      "main_tex_ref": "../Results/Figures/firm_teleworkable_remote.png",
+      "cleaned_output": "results/cleaned/figures/firm_teleworkable_remote.png",
+      "preview_section": "Main Figures",
+      "preview_caption": "Teleworkability and Remote Work",
+      "family": "core_firm_figures",
+      "stata_spec": null,
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/02_firm_teleworkable_remote.py",
+      "python_args": [],
+      "raw_outputs": [],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "01_user_event_study_precovid_ols",
+      "kind": "figure",
+      "paper_order": 3,
+      "main_tex_ref": "../Results/Figures/user_event_study_precovid_ols.png",
+      "cleaned_output": "results/cleaned/figures/user_event_study_precovid_ols.png",
+      "preview_section": "Main Figures",
+      "preview_caption": "Event Study of Key Outcomes: User Productivity",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/01_user_event_study_precovid_ols.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/figures/user_event_study_precovid_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/01_user_event_study_precovid_ols/ols_total_contributions_q100.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "02_firm_event_study_growth_ols",
+      "kind": "figure",
+      "paper_order": 4,
+      "main_tex_ref": "../Results/Figures/firm_event_study_growth_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_growth_ols.png",
+      "preview_section": "Main Figures",
+      "preview_caption": "Event Study of Key Outcomes: Firm Growth",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/02_firm_event_study_growth_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_growth_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/02_firm_event_study_growth_ols/ols_growth_rate_we.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta"
+      ]
+    },
+    {
+      "id": "table_of_means",
+      "kind": "table",
+      "paper_order": 5,
+      "main_tex_ref": "../Results/Tables/table_of_means.tex",
+      "cleaned_output": "results/cleaned/tex/table_of_means.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Summary Statistics",
+      "family": "paper_support_tables",
+      "stata_spec": null,
+      "stata_args": [],
+      "python_builder": "writeup/py/paper_support/table_of_means.py",
+      "python_args": [],
+      "raw_outputs": [],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/user_panel_precovid.dta",
+        "results/raw/postings_description_equity/firm_merge/latest_firm_yh_llm_equity_enriched.csv"
+      ]
+    },
+    {
+      "id": "01_user_productivity_precovid_total_ols_single",
+      "kind": "table",
+      "paper_order": 6,
+      "main_tex_ref": "../Results/Tables/user_productivity_precovid_total_ols_single.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_precovid_total_ols_single.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Remote Work and Individual Productivity -- OLS",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/01_user_productivity_precovid_total_ols_single.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/01_user_productivity_precovid_total_ols_single.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/01_user_productivity_precovid_total_ols_single/baseline_main_effect",
+        "results/raw/01_user_productivity_precovid_total_ols_single/interacted_columns"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "02_user_productivity_precovid_total_iv_single",
+      "kind": "table",
+      "paper_order": 7,
+      "main_tex_ref": "../Results/Tables/user_productivity_precovid_total_iv_single.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_precovid_total_iv_single.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Remote Work and Individual Productivity -- IV",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/02_user_productivity_precovid_total_iv_single.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/02_user_productivity_precovid_total_iv_single.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/02_user_productivity_precovid_total_iv_single/baseline_main_effect",
+        "results/raw/02_user_productivity_precovid_total_iv_single/interacted_columns",
+        "results/raw/02_user_productivity_precovid_total_iv_single/first_stage"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "03_firm_scaling_crunchbase_fundraising_core4",
+      "kind": "table",
+      "paper_order": 8,
+      "main_tex_ref": "../Results/Tables/firm_scaling_crunchbase_fundraising_core4.tex",
+      "cleaned_output": "results/cleaned/tex/firm_scaling_crunchbase_fundraising_core4.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Crunchbase Fundraising Core 4",
+      "family": "firm_scaling_tables",
+      "stata_spec": "spec/stata/tables/03_firm_scaling_crunchbase_fundraising_core4.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/firm_scaling/03_firm_scaling_crunchbase_fundraising_core4.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/03_firm_scaling_crunchbase_fundraising_core4"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel_with_cb_funding.csv"
+      ]
+    },
+    {
+      "id": "04_firm_scaling_precovid_cols1_4",
+      "kind": "table",
+      "paper_order": 9,
+      "main_tex_ref": "../Results/Tables/firm_scaling_precovid_cols1_4.tex",
+      "cleaned_output": "results/cleaned/tex/firm_scaling_precovid_cols1_4.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Firm Scaling",
+      "family": "firm_scaling_tables",
+      "stata_spec": "spec/stata/tables/04_firm_scaling_precovid.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/firm_scaling/04_firm_scaling_precovid.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/04_firm_scaling_precovid/growth_baseline_main_effect",
+        "results/raw/04_firm_scaling_precovid/growth_interacted_columns",
+        "results/raw/04_firm_scaling_precovid/first_stage"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/vacancy/firm_halfyear_panel_MERGED_POST.csv"
+      ]
+    },
+    {
+      "id": "04_firm_scaling_precovid_cols5_6",
+      "kind": "table",
+      "paper_order": 10,
+      "main_tex_ref": "../Results/Tables/firm_scaling_precovid_cols5_6.tex",
+      "cleaned_output": "results/cleaned/tex/firm_scaling_precovid_cols5_6.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Job Posting Outcomes",
+      "family": "firm_scaling_tables",
+      "stata_spec": "spec/stata/tables/04_firm_scaling_precovid.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/firm_scaling/04_firm_scaling_precovid.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/04_firm_scaling_precovid/vacancy_interacted_columns"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/vacancy/firm_halfyear_panel_MERGED_POST.csv"
+      ]
+    },
+    {
+      "id": "05_user_mechanisms_keep_remote_precovid",
+      "kind": "table",
+      "paper_order": 11,
+      "main_tex_ref": "../Results/Tables/user_mechanisms_keep_remote_precovid.tex",
+      "cleaned_output": "results/cleaned/tex/user_mechanisms_keep_remote_precovid.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Individual Productivity Mechanisms",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/05_user_mechanisms_keep_remote_precovid.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/05_user_mechanisms_keep_remote_precovid.py",
+      "python_args": [
+        "--variant",
+        "precovid"
+      ],
+      "raw_outputs": [
+        "results/raw/05_user_mechanisms_keep_remote_precovid"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta",
+        "data/clean/firm_panel.dta",
+        "results/raw/postings_description_equity/firm_merge/latest_firm_yh_llm_equity_enriched.csv"
+      ]
+    },
+    {
+      "id": "06_user_wage_fe_variants_precovid_log_salary",
+      "kind": "table",
+      "paper_order": 12,
+      "main_tex_ref": "../Results/Tables/user_wage_fe_variants_precovid_log_salary.tex",
+      "cleaned_output": "results/cleaned/tex/user_wage_fe_variants_precovid_log_salary.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Remote Work and Imputed Wages: Fixed-Effect Variants",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/06_user_wage_fe_variants_precovid_log_salary.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/06_user_wage_fe_variants_precovid_log_salary.py",
+      "python_args": [
+        "--variant",
+        "precovid"
+      ],
+      "raw_outputs": [
+        "results/raw/06_user_wage_fe_variants_precovid_log_salary"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "07_user_productivity_fr_focus_precovid",
+      "kind": "table",
+      "paper_order": 13,
+      "main_tex_ref": "../Results/Tables/user_productivity_fr_focus_precovid.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_fr_focus_precovid.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Fully Remote Versus Hybrid Productivity",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/07_user_productivity_fr_focus_precovid.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/07_user_productivity_fr_focus_precovid.py",
+      "python_args": [
+        "--variant",
+        "precovid"
+      ],
+      "raw_outputs": [
+        "results/raw/07_user_productivity_fr_focus_precovid/fr_vs_all",
+        "results/raw/07_user_productivity_fr_focus_precovid/fr_vs_hyb"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "08_user_productivity_top_metros_firmbyuser",
+      "kind": "table",
+      "paper_order": 14,
+      "main_tex_ref": "../Results/Tables/user_productivity_top_metros_firmbyuser.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_top_metros_firmbyuser.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Remote Work and Top CSA Filters (Firm x Individual FE)",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/08_user_productivity_top_metros_firmbyuser.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/08_user_productivity_top_metros_firmbyuser.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/08_user_productivity_top_metros_firmbyuser/precovid_keeptop5",
+        "results/raw/08_user_productivity_top_metros_firmbyuser/precovid_keeptop10",
+        "results/raw/08_user_productivity_top_metros_firmbyuser/precovid_droptop5",
+        "results/raw/08_user_productivity_top_metros_firmbyuser/precovid_droptop10"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta",
+        "data/clean/csa_msa_top14_mapping.csv"
+      ]
+    },
+    {
+      "id": "09_user_productivity_traits_dual_precovid_ols",
+      "kind": "table",
+      "paper_order": 15,
+      "main_tex_ref": "../Results/Tables/user_productivity_traits_dual_precovid_ols.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_traits_dual_precovid_ols.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Productivity Heterogeneity by Worker Traits",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/09_user_productivity_traits_dual_precovid_ols.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/09_user_productivity_traits_dual_precovid_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/09_user_productivity_traits_dual_precovid_ols"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta",
+        "data/clean/user_attributes.dta"
+      ]
+    },
+    {
+      "id": "10_user_productivity_precovid_nonsoftware",
+      "kind": "table",
+      "paper_order": 16,
+      "main_tex_ref": "../Results/Tables/user_productivity_precovid_nonsoftware.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_precovid_nonsoftware.tex",
+      "preview_section": "Main Tables",
+      "preview_caption": "Remote Work Outside Software and Hub Markets",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/10_user_productivity_precovid_nonsoftware.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/10_user_productivity_precovid_nonsoftware.py",
+      "python_args": [
+        "--variant",
+        "precovid"
+      ],
+      "raw_outputs": [
+        "results/raw/10_user_productivity_precovid_nonsoftware/naics_software",
+        "results/raw/10_user_productivity_precovid_nonsoftware/soc_strict_new",
+        "results/raw/10_user_productivity_precovid_nonsoftware/exclude_ca_ny"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "03_startup_cutoff_bars_total_contributions_q100",
+      "kind": "figure",
+      "paper_order": 17,
+      "main_tex_ref": "../Results/Figures/startup_cutoff_bars_total_contributions_q100.png",
+      "cleaned_output": "results/cleaned/figures/startup_cutoff_bars_total_contributions_q100.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Startup Cutoff Visualization: Contribution Rank",
+      "family": "startup_cutoff_figures",
+      "stata_spec": "spec/stata/figures/03_startup_cutoff_bars_total_contributions_q100.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/startup_cutoff/03_startup_cutoff_bars_total_contributions_q100.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/03_startup_cutoff_bars_total_contributions_q100/user_productivity/consolidated_results.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "04_startup_cutoff_bars_growth_rate_we",
+      "kind": "figure",
+      "paper_order": 18,
+      "main_tex_ref": "../Results/Figures/startup_cutoff_bars_growth_rate_we.png",
+      "cleaned_output": "results/cleaned/figures/startup_cutoff_bars_growth_rate_we.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Startup Cutoff Visualization: Firm Growth Rate",
+      "family": "startup_cutoff_figures",
+      "stata_spec": "spec/stata/figures/04_startup_cutoff_bars_growth_rate_we.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/startup_cutoff/04_startup_cutoff_bars_growth_rate_we.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/04_startup_cutoff_bars_growth_rate_we/firm_scaling/consolidated_results.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta"
+      ]
+    },
+    {
+      "id": "05_firm_event_study_join_rate_ols",
+      "kind": "figure",
+      "paper_order": 19,
+      "main_tex_ref": "../Results/Figures/firm_event_study_join_rate_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_join_rate_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Labor Market Flows: Firm Join",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/05_firm_event_study_join_rate_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_join_rate_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/05_firm_event_study_join_rate_ols/ols_join_rate_we.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta"
+      ]
+    },
+    {
+      "id": "06_firm_event_study_leave_rate_ols",
+      "kind": "figure",
+      "paper_order": 20,
+      "main_tex_ref": "../Results/Figures/firm_event_study_leave_rate_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_leave_rate_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Labor Market Flows: Firm Leave",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/06_firm_event_study_leave_rate_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_leave_rate_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/06_firm_event_study_leave_rate_ols/ols_leave_rate_we.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta"
+      ]
+    },
+    {
+      "id": "07_firm_event_study_job_postings_ols",
+      "kind": "figure",
+      "paper_order": 21,
+      "main_tex_ref": "../Results/Figures/firm_event_study_job_postings_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_job_postings_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Job Postings and Fill Rates: Job Postings",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/07_firm_event_study_job_postings_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_job_postings_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/07_firm_event_study_job_postings_ols/ols_vacancies_thousands.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/vacancy/firm_halfyear_panel_MERGED_POST.csv"
+      ]
+    },
+    {
+      "id": "08_firm_event_study_hires_per_job_posting_ols",
+      "kind": "figure",
+      "paper_order": 22,
+      "main_tex_ref": "../Results/Figures/firm_event_study_hires_per_job_posting_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_hires_per_job_posting_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Job Postings and Fill Rates: Hires per Posting",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/08_firm_event_study_hires_per_job_posting_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_hires_per_job_posting_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/08_firm_event_study_hires_per_job_posting_ols/ols_hires_to_vacancies_winsor.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/vacancy/firm_halfyear_panel_MERGED_POST.csv"
+      ]
+    },
+    {
+      "id": "09_user_event_study_fullrem_precovid_ols",
+      "kind": "figure",
+      "paper_order": 23,
+      "main_tex_ref": "../Results/Figures/user_event_study_fullrem_precovid_ols.png",
+      "cleaned_output": "results/cleaned/figures/user_event_study_fullrem_precovid_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Fully Remote Key Outcomes: User Productivity",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/09_user_event_study_fullrem_precovid_ols.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/figures/user_event_study_fullrem_precovid_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/09_user_event_study_fullrem_precovid_ols/ols_total_contributions_q100.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "10_firm_event_study_fullrem_growth_ols",
+      "kind": "figure",
+      "paper_order": 24,
+      "main_tex_ref": "../Results/Figures/firm_event_study_fullrem_growth_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_fullrem_growth_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Fully Remote Key Outcomes: Firm Growth",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/10_firm_event_study_fullrem_growth_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_fullrem_growth_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/10_firm_event_study_fullrem_growth_ols/ols_growth_rate_we.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta"
+      ]
+    },
+    {
+      "id": "11_firm_event_study_fullrem_join_rate_ols",
+      "kind": "figure",
+      "paper_order": 25,
+      "main_tex_ref": "../Results/Figures/firm_event_study_fullrem_join_rate_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_fullrem_join_rate_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Fully Remote Labor Flows: Firm Join",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/11_firm_event_study_fullrem_join_rate_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_fullrem_join_rate_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/11_firm_event_study_fullrem_join_rate_ols/ols_join_rate_we.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta"
+      ]
+    },
+    {
+      "id": "12_firm_event_study_fullrem_leave_rate_ols",
+      "kind": "figure",
+      "paper_order": 26,
+      "main_tex_ref": "../Results/Figures/firm_event_study_fullrem_leave_rate_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_fullrem_leave_rate_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Fully Remote Labor Flows: Firm Leave",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/12_firm_event_study_fullrem_leave_rate_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_fullrem_leave_rate_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/12_firm_event_study_fullrem_leave_rate_ols/ols_leave_rate_we.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta"
+      ]
+    },
+    {
+      "id": "13_firm_event_study_fullrem_job_postings_ols",
+      "kind": "figure",
+      "paper_order": 27,
+      "main_tex_ref": "../Results/Figures/firm_event_study_fullrem_job_postings_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_fullrem_job_postings_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Fully Remote Hiring Channels: Job Postings",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/13_firm_event_study_fullrem_job_postings_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_fullrem_job_postings_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/13_firm_event_study_fullrem_job_postings_ols/ols_vacancies_thousands.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/vacancy/firm_halfyear_panel_MERGED_POST.csv"
+      ]
+    },
+    {
+      "id": "14_firm_event_study_fullrem_hires_per_job_posting_ols",
+      "kind": "figure",
+      "paper_order": 28,
+      "main_tex_ref": "../Results/Figures/firm_event_study_fullrem_hires_per_job_posting_ols.png",
+      "cleaned_output": "results/cleaned/figures/firm_event_study_fullrem_hires_per_job_posting_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Fully Remote Hiring Channels: Hires per Posting",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/14_firm_event_study_fullrem_hires_per_job_posting_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/firm_event_study_fullrem_hires_per_job_posting_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/14_firm_event_study_fullrem_hires_per_job_posting_ols/ols_hires_to_vacancies_winsor.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/vacancy/firm_halfyear_panel_MERGED_POST.csv"
+      ]
+    },
+    {
+      "id": "15_crunchbase_fundraising_event_study_raised_usd_mil_ols",
+      "kind": "figure",
+      "paper_order": 29,
+      "main_tex_ref": "../Results/Figures/crunchbase_fundraising_event_study_raised_usd_mil_ols.png",
+      "cleaned_output": "results/cleaned/figures/crunchbase_fundraising_event_study_raised_usd_mil_ols.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study of Crunchbase Fundraising: USD Raised (Millions)",
+      "family": "event_study_figures",
+      "stata_spec": "spec/stata/figures/15_crunchbase_fundraising_event_study_raised_usd_mil_ols.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/crunchbase_fundraising_event_study_raised_usd_mil_ols.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/15_crunchbase_fundraising_event_study_raised_usd_mil_ols/ols_cb_raised_usd_mil.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel_with_cb_funding.csv"
+      ]
+    },
+    {
+      "id": "16_panelB_fullremote_engineer",
+      "kind": "figure",
+      "paper_order": 30,
+      "main_tex_ref": "../Results/Figures/panelB_fullremote_engineer.png",
+      "cleaned_output": "results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid/panelB_fullremote_engineer.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Hiring Shocks and Subsequent Productivity: Engineer Hiring Shocks",
+      "family": "irf_figures",
+      "stata_spec": "spec/stata/figures/16_panelB_fullremote_engineer.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/panelB_fullremote_engineer.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/16_panelB_fullremote_engineer/remote1/eng_noneng_irf_estimates.dta",
+        "results/raw/16_panelB_fullremote_engineer/remote1/eng_noneng_irf_results.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta",
+        "data/clean/eng_noneng_growth.csv"
+      ]
+    },
+    {
+      "id": "17_panelB_fullremote_nonengineer",
+      "kind": "figure",
+      "paper_order": 31,
+      "main_tex_ref": "../Results/Figures/panelB_fullremote_nonengineer.png",
+      "cleaned_output": "results/cleaned/irfs/user_irfs_eng_vs_noneng_remote_hybrid/panelB_fullremote_nonengineer.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Hiring Shocks and Subsequent Productivity: Non-Engineer Hiring Shocks",
+      "family": "irf_figures",
+      "stata_spec": "spec/stata/figures/17_panelB_fullremote_nonengineer.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/figures/panelB_fullremote_nonengineer.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/17_panelB_fullremote_nonengineer/remote1/eng_noneng_irf_estimates.dta",
+        "results/raw/17_panelB_fullremote_nonengineer/remote1/eng_noneng_irf_results.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta",
+        "data/clean/eng_noneng_growth.csv"
+      ]
+    },
+    {
+      "id": "18_user_hire_event_study_remote_rank_mw",
+      "kind": "figure",
+      "paper_order": 32,
+      "main_tex_ref": "../Results/Figures/user_hire_event_study_remote_rank_mw.png",
+      "cleaned_output": "results/cleaned/figures/user_hire_event_study_remote_rank_mw.png",
+      "preview_section": "Appendix Figures",
+      "preview_caption": "Event Study: Remote Hires into Startups vs. Established Firms",
+      "family": "remote_hire_figures",
+      "stata_spec": "spec/stata/figures/18_user_hire_event_study_remote_rank_mw.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/user_hire/18_user_hire_event_study_remote_rank_mw.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/18_user_hire_event_study_remote_rank_mw/ols_results.csv"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_hire_event_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "first_stage_summary",
+      "kind": "table",
+      "paper_order": 33,
+      "main_tex_ref": "../Results/Tables/first_stage_summary.tex",
+      "cleaned_output": "results/cleaned/tex/first_stage_summary.tex",
+      "preview_section": "Appendix Tables",
+      "preview_caption": "First-Stage Diagnostics",
+      "family": "downstream_summary_tables",
+      "stata_spec": null,
+      "stata_args": [],
+      "python_builder": "writeup/py/user_productivity/11_first_stage_summary.py",
+      "python_args": [],
+      "raw_outputs": [],
+      "upstream_inputs": [
+        "results/raw/02_user_productivity_precovid_total_iv_single/first_stage/consolidated_results.csv",
+        "results/raw/04_firm_scaling_precovid/first_stage/consolidated_results.csv"
+      ]
+    },
+    {
+      "id": "11_user_productivity_precovid_restricted",
+      "kind": "table",
+      "paper_order": 34,
+      "main_tex_ref": "../Results/Tables/user_productivity_precovid_restricted.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_precovid_restricted.tex",
+      "preview_section": "Appendix Tables",
+      "preview_caption": "Remote Work and Restricted Contributions",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/11_user_productivity_precovid_restricted.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/11_user_productivity_precovid_restricted.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/11_user_productivity_precovid_restricted/baseline_main_effect",
+        "results/raw/11_user_productivity_precovid_restricted/interacted_columns"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "12_user_productivity_precovid_stayer_table3",
+      "kind": "table",
+      "paper_order": 35,
+      "main_tex_ref": "../Results/Tables/user_productivity_precovid_stayer_table3.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_precovid_stayer_table3.tex",
+      "preview_section": "Appendix Tables",
+      "preview_caption": "Remote Work and Individual Productivity -- Stayers Only",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/12_user_productivity_precovid_stayer_table3.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/12_user_productivity_precovid_stayer_table3.py",
+      "python_args": [
+        "--variant",
+        "precovid"
+      ],
+      "raw_outputs": [
+        "results/raw/12_user_productivity_precovid_stayer_table3/baseline_main_effect",
+        "results/raw/12_user_productivity_precovid_stayer_table3/interacted_columns"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "13_user_productivity_precovid_industry_hqstate_shocks",
+      "kind": "table",
+      "paper_order": 36,
+      "main_tex_ref": "../Results/Tables/user_productivity_precovid_industry_hqstate_shocks.tex",
+      "cleaned_output": "results/cleaned/tex/user_productivity_precovid_industry_hqstate_shocks.tex",
+      "preview_section": "Appendix Tables",
+      "preview_caption": "Robustness to Industry and State Shocks",
+      "family": "user_productivity_tables",
+      "stata_spec": "spec/stata/tables/13_user_productivity_precovid_industry_hqstate_shocks.do",
+      "stata_args": [
+        "precovid"
+      ],
+      "python_builder": "writeup/py/user_productivity/13_user_productivity_precovid_industry_hqstate_shocks.py",
+      "python_args": [
+        "--variant",
+        "precovid"
+      ],
+      "raw_outputs": [
+        "results/raw/13_user_productivity_precovid_industry_hqstate_shocks"
+      ],
+      "upstream_inputs": [
+        "data/clean/user_panel_precovid.dta"
+      ]
+    },
+    {
+      "id": "14_firm_scaling_crunchbase_fundraising_core4_fe_robustness_cb_raised_usd",
+      "kind": "table",
+      "paper_order": 37,
+      "main_tex_ref": "../Results/Tables/firm_scaling_crunchbase_fundraising_core4_fe_robustness_cb_raised_usd.tex",
+      "cleaned_output": "results/cleaned/tex/firm_scaling_crunchbase_fundraising_core4_fe_robustness_cb_raised_usd.tex",
+      "preview_section": "Appendix Tables",
+      "preview_caption": "Crunchbase Fundraising Outcomes: Robustness to Industry and HQ-State Shocks (USD Raised)",
+      "family": "firm_scaling_tables",
+      "stata_spec": "spec/stata/tables/14_firm_scaling_crunchbase_fundraising_core4_fe_robustness_cb_raised_usd.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/firm_scaling/14_firm_scaling_crunchbase_fundraising_core4_fe_robustness_cb_raised_usd.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/14_firm_scaling_crunchbase_fundraising_core4_fe_robustness_cb_raised_usd"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel_with_cb_funding.csv"
+      ]
+    },
+    {
+      "id": "15_firm_scaling_location_ratios",
+      "kind": "table",
+      "paper_order": 43,
+      "main_tex_ref": "../Results/Tables/firm_scaling_location_ratios.tex",
+      "cleaned_output": "results/cleaned/tex/firm_scaling_location_ratios.tex",
+      "preview_section": "Appendix Tables",
+      "preview_caption": "Firm Scaling Location Ratios",
+      "family": "firm_scaling_tables",
+      "stata_spec": "spec/stata/tables/15_firm_scaling_location_ratios.do",
+      "stata_args": [],
+      "python_builder": "writeup/py/firm_scaling/15_firm_scaling_location_ratios.py",
+      "python_args": [],
+      "raw_outputs": [
+        "results/raw/15_firm_scaling_location_ratios"
+      ],
+      "upstream_inputs": [
+        "data/clean/firm_panel.dta",
+        "data/clean/firm_geography_counts_imputed.csv"
+      ]
+    }
+  ],
+  "excluded_assets": [
+    {
+      "id": "github_validation_final_table",
+      "kind": "table",
+      "paper_order": 38,
+      "main_tex_ref": "../Results/Tables/Final.tex",
+      "reason": "no_generator_in_repo",
+      "current_source": "writeup/static_tables/Final.tex",
+      "notes": "Active table omitted from the logic-owned paper lane because the empirical generator has not been recovered in this repo."
+    },
+    {
+      "id": "github_validation_within_firm_promotions",
+      "kind": "figure",
+      "paper_order": 39,
+      "main_tex_ref": "../Figures/Demeaned_Indiv_WithinFirmPromotions.jpg",
+      "reason": "external_figure",
+      "current_source": "../Figures/Demeaned_Indiv_WithinFirmPromotions.jpg",
+      "notes": "Active external figure omitted from the repo-owned paper lane."
+    },
+    {
+      "id": "github_validation_publications",
+      "kind": "figure",
+      "paper_order": 40,
+      "main_tex_ref": "../Figures/Demeaned_Indiv_Publications.jpg",
+      "reason": "external_figure",
+      "current_source": "../Figures/Demeaned_Indiv_Publications.jpg",
+      "notes": "Active external figure omitted from the repo-owned paper lane."
+    },
+    {
+      "id": "github_validation_tobins_q",
+      "kind": "figure",
+      "paper_order": 41,
+      "main_tex_ref": "../Figures/Demeaned_TobinsQ.jpg",
+      "reason": "external_figure",
+      "current_source": "../Figures/Demeaned_TobinsQ.jpg",
+      "notes": "Active external figure omitted from the repo-owned paper lane."
+    },
+    {
+      "id": "github_validation_org_capital",
+      "kind": "figure",
+      "paper_order": 42,
+      "main_tex_ref": "../Figures/Demeaned_OrgCapital.jpg",
+      "reason": "external_figure",
+      "current_source": "../Figures/Demeaned_OrgCapital.jpg",
+      "notes": "Active external figure omitted from the repo-owned paper lane."
+    }
+  ]
+}

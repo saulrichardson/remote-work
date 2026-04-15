@@ -1,0 +1,39 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\usepackage{float}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase Fundraising: USD Raised Rank (Age $<20$ Robustness)}
+
+\paragraph{Outcome.}
+\textbf{USD raised rank} is the within-half-year rank (1--100) of USD raised.
+
+\paragraph{Sample.}
+Crunchbase-matched private firms (drop public firms). Column~(4) restricts to firm-half-year observations with age $<20$; columns~(1)--(3) use the full matched-private sample.
+
+\paragraph{Columns.}
+Columns~(1)--(3) absorb firm fixed effects and replace half-year fixed effects with industry$\times$half-year and/or HQ-state$\times$half-year shocks:
+\begin{itemize}
+  \item Column~(1): industry$\times$half-year shocks
+  \item Column~(2): HQ-state$\times$half-year shocks
+  \item Column~(3): both sets of shocks
+\end{itemize}
+Column~(4) returns to firm and half-year fixed effects and restricts the sample to age $<20$.
+
+\begin{table}[H]
+\caption{\textbf{Crunchbase Fundraising Outcomes: USD Raised Rank (FE Robustness)}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_rank_age20_fe_robustness.tex}
+\end{table}
+
+\end{document}

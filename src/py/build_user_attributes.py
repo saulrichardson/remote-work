@@ -10,29 +10,25 @@ exports a compact dataset that is easy to merge inside Stata.
 from __future__ import annotations
 
 import argparse
-import math
 from pathlib import Path
 from typing import Dict, Iterable, List, Set
 
 import numpy as np
 import pandas as pd
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = REPO_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-NEW_DATA_DIR = REPO_ROOT.parent / "New" / "Data"
+from src.py.project_paths import DATA_CLEAN, DATA_RAW, ensure_dir, require_file
 
-PANEL_PATHS = [
-    PROCESSED_DIR / "user_panel_precovid.dta",
-    PROCESSED_DIR / "user_panel_unbalanced.dta",
-    PROCESSED_DIR / "user_panel_balanced.dta",
+DEFAULT_PANEL_PATHS = [
+    DATA_CLEAN / "user_panel_precovid.dta",
+    DATA_CLEAN / "user_panel_unbalanced.dta",
+    DATA_CLEAN / "user_panel_balanced.dta",
 ]
 
-EDUCATION_PATH = NEW_DATA_DIR / "Scoop_Education.csv"
-LOCATION_PATH = NEW_DATA_DIR / "User_location.csv"
+DEFAULT_EDUCATION_PATH = DATA_RAW / "Scoop_Education.csv"
+DEFAULT_LOCATION_PATH = DATA_RAW / "User_location.csv"
 
-OUTPUT_CSV = PROCESSED_DIR / "user_attributes.csv"
-OUTPUT_DTA = PROCESSED_DIR / "user_attributes.dta"
+DEFAULT_OUTPUT_CSV = DATA_CLEAN / "user_attributes.csv"
+DEFAULT_OUTPUT_DTA = DATA_CLEAN / "user_attributes.dta"
 
 
 def load_panel_user_ids(panel_paths: Iterable[Path]) -> Set[int]:
@@ -345,6 +341,39 @@ def merge_attributes(location: pd.DataFrame, education: pd.DataFrame) -> pd.Data
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build merged user attributes.")
     parser.add_argument(
+        "--panel",
+        action="append",
+        type=Path,
+        help=(
+            "Explicit user panel path. Pass multiple times to override the default "
+            "set of panel variants."
+        ),
+    )
+    parser.add_argument(
+        "--education-path",
+        type=Path,
+        default=DEFAULT_EDUCATION_PATH,
+        help="Path to Scoop_Education.csv (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--location-path",
+        type=Path,
+        default=DEFAULT_LOCATION_PATH,
+        help="Path to User_location.csv (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--output-csv",
+        type=Path,
+        default=DEFAULT_OUTPUT_CSV,
+        help="Destination CSV path (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--output-dta",
+        type=Path,
+        default=DEFAULT_OUTPUT_DTA,
+        help="Destination DTA path (default: %(default)s).",
+    )
+    parser.add_argument(
         "--no-location", action="store_true", help="Skip location processing (debug)."
     )
     parser.add_argument(
@@ -352,8 +381,21 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    panel_paths = args.panel or DEFAULT_PANEL_PATHS
+    if not panel_paths:
+        raise RuntimeError("No panel paths configured for user attribute build.")
+
+    for panel_path in panel_paths:
+        require_file(panel_path, nonempty=True, purpose="user panel input")
+
+    if not args.no_location:
+        require_file(args.location_path, nonempty=True, purpose="user location raw input")
+
+    if not args.no_education:
+        require_file(args.education_path, nonempty=True, purpose="user education raw input")
+
     print("→ Loading user IDs from panel variants…")
-    user_ids = load_panel_user_ids(PANEL_PATHS)
+    user_ids = load_panel_user_ids(panel_paths)
     if not user_ids:
         raise RuntimeError("No user IDs found in the processed panels.")
     print(f"   Collected {len(user_ids):,} unique user IDs.")
@@ -361,13 +403,13 @@ def main() -> None:
     location_df = None
     if not args.no_location:
         print("→ Processing user location file…")
-        location_df = process_location(LOCATION_PATH, user_ids)
+        location_df = process_location(args.location_path, user_ids)
         print(f"   Location attributes retained for {len(location_df):,} users.")
 
     education_df = None
     if not args.no_education:
         print("→ Processing Scoop education file…")
-        education_df = process_education(EDUCATION_PATH, user_ids)
+        education_df = process_education(args.education_path, user_ids)
         print(f"   Education attributes retained for {len(education_df):,} users.")
 
     if location_df is None:
@@ -379,9 +421,12 @@ def main() -> None:
 
     merged = merged.sort_values("user_id").reset_index(drop=True)
 
-    print(f"→ Writing attributes to {OUTPUT_CSV} and {OUTPUT_DTA} …")
-    merged.to_csv(OUTPUT_CSV, index=False)
-    merged.to_stata(OUTPUT_DTA, write_index=False, version=117)
+    ensure_dir(args.output_csv.parent)
+    ensure_dir(args.output_dta.parent)
+
+    print(f"→ Writing attributes to {args.output_csv} and {args.output_dta} …")
+    merged.to_csv(args.output_csv, index=False)
+    merged.to_stata(args.output_dta, write_index=False, version=117)
     print("✓ Done.")
 
 

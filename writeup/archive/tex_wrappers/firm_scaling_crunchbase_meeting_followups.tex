@@ -1,0 +1,113 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\usepackage{float}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase: Meeting Follow-ups}
+
+This document consolidates the Crunchbase-related follow-up questions from the meeting:
+sample composition (startups vs.\ non-startups), sample-size accounting, and robustness checks for the fundraising regressions.
+
+\subsection*{Sample composition and accounting}
+Table~\ref{tab:sample} documents how the analysis sample is formed and reports the share of \textbf{non-startups}
+(age $>10$, using the project definition used to build \texttt{startup}).
+It also shows the share of half-year observations with \textbf{USD raised = 0}, which is central for interpreting
+the rank outcome.
+
+\begin{table}[H]
+\caption{Sample composition and accounting}
+\label{tab:sample}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_meeting_followups_sample.tex}
+\end{table}
+
+\paragraph{What this resolves from the meeting.}
+\textbf{Sample size drop (``$\sim$35k'' to ``$\sim$26k'').} The ``CB matched'' row corresponds to the earlier $\sim$35k
+figure (all matched firms, public and private). The fundraising regressions use the \textbf{matched, private} sample,
+which drops public firms; this explains why the regression sample is $\sim$26k observations (Table~\ref{tab:sample}).
+\par
+\textbf{Share of non-startups (age $>10$).} In the baseline fundraising sample (matched, private), about two-thirds of
+firms are age $>10$ and thus classified as non-startups under the current definition (Table~\ref{tab:sample}).
+
+\subsection*{Clarifying what the outcomes mean (round counts vs.\ Series A+)}
+Two interpretational issues came up in the meeting:
+\par
+\textbf{Round counts.} The ``\# rounds'' outcome counts the number of announced rounds in the half-year (so two angel
+rounds count as two rounds).
+\par
+\textbf{Series A+.} The ``Series A+ round'' outcome is an indicator for whether the firm has \emph{any} Series A-or-later
+style round in that half-year, and ``Ever Series A+'' is the cumulative ``ever reached Series A+'' indicator by that
+half-year (see variable labels in \texttt{spec/stata/firm\_scaling\_crunchbase\_fundraising.do}).
+
+\subsection*{Why is the rank outcome mean low?}
+The q100 variable is a within-half-year \textbf{100-quantile bin assignment} of USD raised (values 1--100; see
+\texttt{egen ... xtile(...), nquantiles(100)} in \texttt{spec/stata/firm\_scaling\_crunchbase\_fundraising.do}).
+\par
+In the baseline fundraising sample, there is a large mass at zero: most half-years have \emph{no} dollars raised.
+Because of this, the within-half-year 90th percentile is still \$0, so the average q100 bin is far below 50.
+Table~\ref{tab:usd_dist} summarizes the distribution of USD raised in the baseline sample and makes this mechanical.
+
+\begin{table}[H]
+\caption{Distribution of USD raised (baseline fundraising sample)}
+\label{tab:usd_dist}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_meeting_followups_distribution.tex}
+\end{table}
+
+\clearpage
+\subsection*{Fundraising results (baseline; no startup terms)}
+Tables~\ref{tab:fundraising_baseline_main}--\ref{tab:fundraising_baseline_additional} report the baseline Crunchbase fundraising
+results on the matched, private sample under the specification that drops startup terms (i.e., no Startup$\times$Post control).
+
+\begin{table}[H]
+\caption{Fundraising outcomes (baseline)}
+\label{tab:fundraising_baseline_main}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_pure.tex}
+\end{table}
+
+\begin{table}[H]
+\caption{Additional fundraising outcomes (baseline)}
+\label{tab:fundraising_baseline_additional}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_pure_additional.tex}
+\end{table}
+
+\subsection*{Cohort(5y)$\times$Year fixed effects robustness (no startup terms)}
+Tables~\ref{tab:fundraising_cohort_main}--\ref{tab:fundraising_cohort_additional} re-estimate the same outcomes under a cohort-control
+specification that absorbs firm FE and (founding-year cohort in 5-year bins)$\times$(calendar year) fixed effects.
+This implements the meeting request to remove startup terms while controlling flexibly for founding-year cohort patterns.
+\par
+We also tested a more saturated variant that absorbs founding cohort$\times$half-year fixed effects (cohort$\times$yh, implemented as
+absorbing \texttt{cohort\#yh\_num} in \texttt{spec/stata/firm\_scaling\_crunchbase\_fundraising\_cohort\_fe.do}). We do not present that
+version here because it is more flexible than requested and reduces the estimation sample due to missing founding-year information; the
+cohort(5y)$\times$year FE specification is closer to the meeting ask while keeping the analysis sample essentially unchanged.
+
+\begin{table}[H]
+\caption{Fundraising outcomes (cohort(5y)$\times$year FE)}
+\label{tab:fundraising_cohort_main}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_cohort5Xyear.tex}
+\end{table}
+
+\begin{table}[H]
+\caption{Additional fundraising outcomes (cohort(5y)$\times$year FE)}
+\label{tab:fundraising_cohort_additional}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_cohort5Xyear_additional.tex}
+\end{table}
+
+\subsection*{Sensitivity: adding back Startup$\times$Post}
+Table~\ref{tab:var4_sensitivity} reports results under the specification that adds Startup$\times$Post back into the baseline
+fundraising regression.
+\begin{table}[H]
+\caption{Sensitivity: adding back Startup$\times$Post}
+\label{tab:var4_sensitivity}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_var4_sensitivity.tex}
+\end{table}
+
+\end{document}

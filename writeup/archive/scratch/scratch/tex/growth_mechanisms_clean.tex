@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{adjustbox}
+\usepackage{threeparttable}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\title{Growth Mechanisms and Remote Work Productivity\\
+\large Comparing Fixed Effects Specifications}
+\author{Analysis Report}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This analysis examines how firm growth interacts with remote work effects on productivity. We test whether the startup advantage in remote work productivity is explained by firm growth, distinguishing between:
+\begin{itemize}
+\item \textbf{Endogenous growth}: Raw firm growth that may be correlated with remote work success
+\item \textbf{Exogenous growth}: Growth predicted by external factors (industry trends, location, market structure)
+\end{itemize}
+
+We present results using two fixed effects specifications to assess robustness.
+
+\section{Methodology}
+
+We estimate instrumental variables regressions of the form:
+\begin{equation}
+Y_{it} = \beta_1 \text{Remote}_i \times \text{Post}_t + \beta_2 \text{Remote}_i \times \text{Post}_t \times \text{Startup}_i + \gamma X_{it} + \alpha + \epsilon_{it}
+\end{equation}
+
+where:
+\begin{itemize}
+\item $Y_{it}$ is worker productivity (contributions per 100 days)
+\item $X_{it}$ includes growth interactions
+\item $\alpha$ represents fixed effects (specified below)
+\end{itemize}
+
+\textbf{Growth measures:}
+\begin{enumerate}
+\item Endogenous: Median split of raw post-COVID firm growth
+\item Exogenous: Median split of growth predicted by industry/MSA trends, rent, and HHI
+\end{enumerate}
+
+\section{Results}
+
+\subsection{Worker-Firm Fixed Effects}
+
+This specification includes worker-firm pair fixed effects, controlling for time-invariant match quality between workers and firms.
+
+% First table
+\input{../results/cleaned/growth_mechanisms_worker_firm_fe.tex}
+
+\subsection{Separate Fixed Effects}
+
+This specification includes separate worker and firm fixed effects, allowing worker quality and firm characteristics to be controlled independently.
+
+% Second table
+\input{../results/cleaned/growth_mechanisms_separate_fe.tex}
+
+\section{Key Findings}
+
+\begin{enumerate}
+\item \textbf{Baseline startup advantage}: 
+   \begin{itemize}
+   \item Worker-firm FE: 12.3 pp (p$<$0.05)
+   \item Separate FE: 9.9 pp (p$<$0.10)
+   \end{itemize}
+   The stronger effect with worker-firm FE suggests match quality is important.
+
+\item \textbf{Raw growth explains much of the advantage}: When controlling for endogenous (raw) growth, the startup effect becomes insignificant under both specifications (6.8 pp and 4.7 pp respectively).
+
+\item \textbf{Advantage persists after controlling for external factors}: When controlling for exogenous growth, the startup advantage remains substantial, especially with worker-firm FE (11.9 pp, p$<$0.10).
+
+\item \textbf{Interpretation}: The startup advantage in remote work productivity:
+   \begin{itemize}
+   \item Is correlated with overall firm growth performance
+   \item Cannot be explained by external growth drivers alone
+   \item Appears stronger when accounting for worker-firm matching
+   \end{itemize}
+\end{enumerate}
+
+\section{Conclusion}
+
+The results suggest that startups' remote work advantage reflects both their growth trajectory and their ability to implement remote work effectively. The persistence of the effect when controlling for externally-driven growth indicates that the advantage is not merely a mechanical result of being in favorable industries or locations. The importance of worker-firm fixed effects further suggests that successful remote work implementation involves matching with appropriate workers.
+
+\end{document}

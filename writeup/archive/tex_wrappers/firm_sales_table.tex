@@ -1,0 +1,44 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Remote Work and Firm Sales (Data Axle)}
+
+\paragraph{Setup.}
+This note reports the baseline firm sales specification that matches annual Data Axle sales volumes to the Scoop firm universe via a deterministic normalized name$\times$state merge. The unit of observation is firm$\times$year (2017--2022).
+
+\paragraph{Outcomes.}
+The table reports two annual sales outcomes drawn from Data Axle: \textit{location sales} and \textit{parent sales}. Because Data Axle is organized around business listings (often at the establishment/location level), linking it to a firm-level panel requires both (i) a deterministic match and (ii) a conservative aggregation step.
+
+\paragraph{How the sales variables are constructed.}
+\begin{enumerate}
+  \item \textbf{Start from two Data Axle sales concepts.} Location sales is a location-level sales volume associated with a particular establishment record. Parent sales is a parent/corporate sales volume associated with the parent organization when available.
+  \item \textbf{Name-based linking.} Firms are linked into Data Axle using a deterministic, standardized name$\times$state match (with names normalized to reduce purely mechanical differences such as punctuation, capitalization, and common corporate suffixes).
+  \item \textbf{Multiple candidate records per firm-year.} A firm-year can match multiple Data Axle records (e.g., multiple locations for the same firm, duplicate records, or same-name entities). To avoid mechanically inflating sales by summing across potentially ambiguous matches, we collapse the matched records to a single firm-year measure by taking the \textbf{maximum} sales value among matched records.
+  \begin{itemize}
+    \item \textit{Location Sales} is the maximum of matched location-level sales values within a firm-year.
+    \item \textit{Parent Sales} is the maximum of matched parent-sales values within a firm-year (when present).
+  \end{itemize}
+  \item \textbf{Cleaning and transformations.} Parent sales contains a small number of obvious top-coded/placeholder values, which are treated as missing. Each outcome is transformed as $\ln(1+\text{sales})$ and winsorized at the 1st/99th percentiles to limit the influence of extreme observations.
+\end{enumerate}
+
+\paragraph{Regression.}
+Panel A reports OLS with firm and year fixed effects. Panel B reports 2SLS instrumenting the remote interactions with teleworkability interactions (mirroring the firm scaling identification strategy). Standard errors are clustered by firm.
+
+\begin{table}[h!]
+\caption{\textbf{Firm Sales Spec with Data Axle Sales Outcomes}}
+\input{\cleanedresultsdir/firm_sales.tex}
+\end{table}
+
+\end{document}

@@ -1,0 +1,34 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{caption}
+
+\newcommand{\figdir}{../results/cleaned/figures}
+
+\captionsetup[figure]{justification=centering}
+
+\begin{document}
+\thispagestyle{empty}
+
+\begin{figure}[H]\centering
+  \caption{Crunchbase Fundraising Dynamics (OLS): Any USD Raised}
+  \includegraphics[width=0.85\linewidth]{\figdir/crunchbase_fundraising_event_study_any_raised_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Crunchbase Fundraising Dynamics (OLS): Series A+ Round}
+  \includegraphics[width=0.85\linewidth]{\figdir/crunchbase_fundraising_event_study_seriesAplus_round_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Crunchbase Fundraising Dynamics (OLS): USD Raised (Millions)}
+  \includegraphics[width=0.85\linewidth]{\figdir/crunchbase_fundraising_event_study_raised_usd_mil_ols.png}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \caption{Crunchbase Fundraising Dynamics (OLS): USD Raised Rank}
+  \includegraphics[width=0.85\linewidth]{\figdir/crunchbase_fundraising_event_study_raised_usd_rank_ols.png}
+\end{figure}
+
+\end{document}

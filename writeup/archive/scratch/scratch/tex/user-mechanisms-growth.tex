@@ -1,0 +1,23 @@
+% Standalone PDF wrapper for the user mechanisms + growth tables
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[normalem]{ulem}
+\usepackage{pdflscape}
+
+\newcommand{\cleanedresultsdir}{../../results/cleaned}
+
+\begin{document}
+
+\begin{landscape}
+
+\section*{User Productivity Mechanisms (Pre-COVID)}
+\input{\cleanedresultsdir/user_mechanisms_with_growth_precovid.tex}
+
+\end{landscape}
+
+\end{document}

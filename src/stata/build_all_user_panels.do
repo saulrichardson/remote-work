@@ -32,6 +32,16 @@
 |   *Optionally* edit `local sample_types` to generate a subset.
 *-------------------------------------------------------------------*/
 
+local __bootstrap "_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "../../spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") {
+    di as error "Unable to locate _bootstrap.do. Run from project root or src/stata."
+    exit 601
+}
+do "`__bootstrap'"
+
 capture log close
 cap mkdir "$LOG_DIR"
 log using "$LOG_DIR/build_all_user_panels.log", replace text
@@ -39,7 +49,35 @@ log using "$LOG_DIR/build_all_user_panels.log", replace text
 ****************************************************************************
 * 0.  Globals
 ****************************************************************************
-do "../../spec/stata/_bootstrap.do"
+
+local contrib_file "$processed_data/Contributions_Scoop.dta"
+capture confirm file "`contrib_file'"
+if _rc {
+    di as error "Missing required source dataset: `contrib_file'"
+    exit 601
+}
+
+local expanded_file "$processed_data/expanded_half_years_2.dta"
+capture confirm file "`expanded_file'"
+if _rc {
+    di as error "Missing required source dataset: `expanded_file'"
+    exit 601
+}
+
+local tele_file "$processed_data/scoop_firm_tele_2.dta"
+capture confirm file "`tele_file'"
+if _rc {
+    di as error "Missing teleworkability input: `tele_file'"
+    di as error "Build it with src/stata/build_firm_teleworkable_scores.do before rerunning."
+    exit 601
+}
+
+local firm_role_file "$processed_data/Firm_role_level.dta"
+capture confirm file "`firm_role_file'"
+if _rc {
+    di as error "Missing required source dataset: `firm_role_file'"
+    exit 601
+}
 
 ****************************************************************************
 * 1.  Build the *full* (unfiltered) master panel
@@ -71,7 +109,7 @@ do "../../spec/stata/_bootstrap.do"
 *----------------------------------------------------------
 * 1.1  User-level contributions (historic)
 *----------------------------------------------------------
-use "$processed_data/Contributions_Scoop.dta", clear
+use "`contrib_file'", clear
 
 * drop inactive accounts --------------------------------------------------
 gsort user_id year month
@@ -118,7 +156,7 @@ tempfile user_yh_new
 save     "`user_yh_new'", replace
 
 * attach company names -----------------------------------------------------
-use "$processed_data/expanded_half_years_2.dta", clear
+use "`expanded_file'", clear
 keep if yh == yh(2022,1)
 keep user_id companyname yh
 
@@ -138,7 +176,7 @@ save   "`user_yh'", replace
 use "`user_yh'", clear
 
 * teleworkability ---------------------------------------------------------*
-merge m:1 companyname using "$processed_data/scoop_firm_tele_2.dta", keep(3) nogen
+merge m:1 companyname using "`tele_file'", keep(3) nogen
 rename teleworkable company_teleworkable
 
 * flexibility score -------------------------------------------------------*
@@ -148,7 +186,7 @@ merge m:1 companyname using "$raw_data/Scoop_clean_public.dta", keep(3) nogen
 merge m:1 companyname using "$raw_data/Scoop_founding.dta",     keep(3) nogen
 
 * linkedin ground-truth ---------------------------------------------------*
-merge 1:1 user_id companyname yh using "$processed_data/expanded_half_years_2.dta", keep(3) nogen
+merge 1:1 user_id companyname yh using "`expanded_file'", keep(3) nogen
 
 tempfile snapshot_clean
 save     "`snapshot_clean'", replace
@@ -156,7 +194,7 @@ save     "`snapshot_clean'", replace
 *----------------------------------------------------------
 * 1.4  Hierarchy / HHI merge  (keep _merge==2|3)
 *----------------------------------------------------------
-use "$processed_data/Firm_role_level.dta", clear
+use "`firm_role_file'", clear
 keep companyname hhi_1000 seniority_levels
 
 merge 1:m companyname using "`snapshot_clean'"
@@ -165,76 +203,27 @@ drop _merge
 
 save "`snapshot_clean'", replace
 
-import delimited "$processed_data/company_dispersion_2019.csv", clear
-tempfile disp_metrics
-save     "`disp_metrics'", replace
+local top_msa_file "$processed_data/company_top_msa_by_half.csv"
+if !fileexists("`top_msa_file'") {
+    di as error "Missing top-MSA input: `top_msa_file'"
+    di as error "Build it with src/py/build_company_top_msa_by_half.py before rerunning."
+    exit 601
+}
 
-import delimited "$processed_data/company_top_msa_by_half.csv", clear
+import delimited using "`top_msa_file'", clear
 gen yh = yh(year, half)
 format yh %th
 rename msa company_msa
 rename cbsacode company_cbsacode
+keep companyname yh company_msa company_cbsacode spell_count
 tempfile pop_msa
-save   "`pop_msa'", replace
+save `pop_msa', replace
 
-local have_core_msas 0
-tempfile core_msas
-preserve
-  local __core_path ""
-  cap confirm file "$clean_data/company_core_msas_by_half.csv"
-  if _rc == 0 {
-      local __core_path "$clean_data/company_core_msas_by_half.csv"
-  }
-  else {
-      cap confirm file "$raw_data/company_core_msas_by_half.csv"
-      if _rc == 0 {
-          local __core_path "$raw_data/company_core_msas_by_half.csv"
-      }
-  }
-
-  if "`__core_path'" != "" {
-      import delimited using "`__core_path'", clear varnames(1)
-      drop if missing(companyname, year, half, cbsa)
-      gen yh = yh(year, half)
-      format yh %th
-      destring cbsa, replace
-      rename cbsa core_cbsa
-      rename msa  core_msa
-      rename spell_count core_spell_count
-      rename spell_share core_spell_share
-      gen double cbsacode = core_cbsa
-      keep companyname yh core_cbsa core_msa core_spell_count core_spell_share cbsacode
-      duplicates drop companyname yh cbsacode, force
-      save `core_msas'
-      local have_core_msas 1
-  }
-restore
-
-
-import delimited "$raw_data/linkedin_msa_with_cbsa.csv", clear
-
-merge 1:m msa using "`snapshot_clean'"
-drop if _merge == 1
-drop _merge
-
-merge m:1 companyname using "`disp_metrics'"
-drop if _merge == 2
-drop _merge
-
-merge m:1 companyname yh using "`pop_msa'"
-drop if _merge == 2
-drop _merge
-
-capture destring cbsacode, replace
-if `have_core_msas' {
-    capture drop in_core_multi
-    merge m:1 companyname yh cbsacode using `core_msas', keep(master match) nogen
-    gen byte in_core_multi = !missing(core_cbsa)
-    replace in_core_multi = 0 if missing(in_core_multi)
-}
-else {
-    capture drop in_core_multi
-    gen byte in_core_multi = 0
+use "`snapshot_clean'", clear
+merge m:1 companyname yh using `pop_msa', keep(master match) nogen
+capture confirm numeric variable company_cbsacode
+if _rc {
+    destring company_cbsacode, replace force
 }
 
 save "`snapshot_clean'", replace
@@ -268,44 +257,6 @@ rename effectiverent2212usdperyear rent
 drop _merge
 
  
-merge m:1 user_id using "$processed_data/user_location_lookup_precovid.dta"
-drop if _merge == 2
-drop _merge
-
-
-// tostring cbsacode, replace format(%05.0f)
-// destring cbsa, replace 
-// replace cbsacode = string(cbsa, "%05.0f") if cbsacode == "" & cbsa < .
-// replace cbsacode = string(cbsa, "%05.0f") if missing(cbsacode) & !missing(cbsa)
-	  
-// replace msa = cbsa_title if missing(msa) & !missing(cbsa_title)
-// gen byte msa_from_lookup = missing(company_msa) & !missing(cbsa_title)
-
-
-// rename (cbsa cbsa_title state_assigned latitude longitude) (user_cbsa user_cbsa_title user_state_assigned user_latitude user_longitude)
-
-
-preserve
-  import delimited using "$processed_data/enriched_msa.csv", clear varnames(1)
-  destring cbsacode, replace
-  drop if missing(cbsacode)
-  duplicates drop cbsacode, force
-
-  rename cbsacode company_cbsacode
-  rename lat      company_lat
-  rename lon      company_lon
-
-  tempfile msa_centroids
-  save `msa_centroids'
-
-restore 
-
-
-destring company_cbsacode, replace
-merge m:1 company_cbsacode using `msa_centroids'
-drop if _merge == 2
-  
-  
 ****************************************************************************
 * 1.7  Variable construction (unchanged)
 ****************************************************************************
@@ -313,7 +264,6 @@ drop if _merge == 2
 gen age     = 2020 - founded
 label var age "Firm age as of 2020"
 encode companyname, gen(firm_id)
-encode msa,        gen(msa_id)
 
 gen startup = age <= 10
 gen covid   = yh >= 120    // 120 = 2020H1

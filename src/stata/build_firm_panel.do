@@ -1,12 +1,56 @@
-
-do "../../spec/stata/_bootstrap.do"
+local __bootstrap "_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "../spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") local __bootstrap "../../spec/stata/_bootstrap.do"
+if !fileexists("`__bootstrap'") {
+    di as error "Unable to locate _bootstrap.do. Run from project root or src/stata."
+    exit 601
+}
+do "`__bootstrap'"
 
 capture log close
 cap mkdir "$LOG_DIR"
 log using "$LOG_DIR/build_firm_panel.log", replace text
 
+local scoop_alt_file "$raw_data/Scoop_alt.csv"
+capture confirm file "`scoop_alt_file'"
+if _rc {
+    di as error "Missing required raw source: `scoop_alt_file'"
+    exit 601
+}
 
-import delimited "$raw_data/Scoop_alt.csv", clear
+local positions_file "$processed_data/Scoop_Positions_Firm_Collapse2.csv"
+capture confirm file "`positions_file'"
+if _rc {
+    di as error "Missing required source dataset: `positions_file'"
+    exit 601
+}
+
+local tele_file "$processed_data/scoop_firm_tele_2.dta"
+capture confirm file "`tele_file'"
+if _rc {
+    di as error "Missing teleworkability input: `tele_file'"
+    di as error "Build it with src/stata/build_firm_teleworkable_scores.do before rerunning."
+    exit 601
+}
+
+local firm_role_file "$processed_data/Firm_role_level.dta"
+capture confirm file "`firm_role_file'"
+if _rc {
+    di as error "Missing required source dataset: `firm_role_file'"
+    exit 601
+}
+
+local modal_role_file "$processed_data/modal_role_per_firm.dta"
+capture confirm file "`modal_role_file'"
+if _rc {
+    di as error "Missing modal-role input: `modal_role_file'"
+    di as error "Build it with src/stata/build_firm_modal_role.do before rerunning."
+    exit 601
+}
+
+
+import delimited "`scoop_alt_file'", clear
 
 gen date_numeric = date(date, "YMD")
 drop date
@@ -25,7 +69,7 @@ tempfile join_leave
 save `join_leave'
 
 
-import delimited "$processed_data/Scoop_Positions_Firm_Collapse2.csv", clear
+import delimited "`positions_file'", clear
 drop v1
 
 gen date_numeric = date(date, "YMD")
@@ -78,7 +122,7 @@ drop growth_rate join_rate leave_rate company_numeric
  *************************************************************************/
 
 // Merge teleworkable data:
-merge m:1 companyname using "$processed_data/scoop_firm_tele_2.dta"
+merge m:1 companyname using "`tele_file'"
 drop if _merge == 2
 drop _merge
 
@@ -97,7 +141,7 @@ save `snapshot_clean', replace
 
 
 * Merge Hierarchy Data (Centrality/HHI Analysis)
-use "$processed_data/Firm_role_level.dta", clear
+use "`firm_role_file'", clear
 
 keep companyname hhi_1000 seniority_levels
 
@@ -141,14 +185,8 @@ rename effectiverent2212usdperyear rent
 
 
 * Merge firm modal role 
-merge m:1 companyname using "$processed_data/modal_role_per_firm.dta"
+merge m:1 companyname using "`modal_role_file'"
 drop if _merge == 2   
-drop _merge
-
-
-* Merge Wage dispersion 
-merge m:1 companyname using "$processed_data/wages_firm.dta"
-drop if _merge == 2    // drop observations that only exist in using data
 drop _merge
 
 

@@ -1,0 +1,54 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\usepackage{float}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase Fundraising: Actionable Follow-ups}
+
+\paragraph{Scope.}
+This note collects the meeting follow-ups that are actionable with the current repository artifacts:
+sample maturity, VC fundraising recency, and re-estimated fundraising regressions under sample restrictions
+(age cutoffs, intensive margin, ever-funded restriction) and geography splits (NY/SF vs.\ outside).
+\par
+\textbf{Not included: IPO truncation.} The transcript discussed excluding observations after IPO dates. We do not implement that here.
+
+\paragraph{Sample.}
+Unless stated otherwise, all results below use the matched, private Crunchbase analysis sample (firm$\times$half-year).
+
+\begin{table}[H]
+\caption{\textbf{Sample maturity: firm age cutoffs}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_meeting_followups_maturity.tex}
+\end{table}
+
+\begin{table}[H]
+\caption{\textbf{VC fundraising recency bins (as-of 2020-01-01)}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_vc_recency.tex}
+\end{table}
+
+\paragraph{Fundraising follow-ups (log(1+USD raised)).}
+We re-run the matched, private fundraising regressions under the requested restrictions. Models include firm fixed effects
+and half-year fixed effects, with standard errors clustered at the firm level. We report both OLS and IV estimates of the
+Remote$\times$Post coefficient (see \texttt{src/py/run\_crunchbase\_fundraising\_followups\_python.py}).
+
+\begin{table}[H]
+\caption{\textbf{Fundraising follow-ups: sample restrictions}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_followups_python_restrictions.tex}
+\end{table}
+
+\begin{table}[H]
+\caption{\textbf{Fundraising follow-ups: geography splits and interaction}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_followups_python_geography.tex}
+\end{table}
+
+\end{document}

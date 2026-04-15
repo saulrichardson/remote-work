@@ -1,0 +1,129 @@
+\documentclass[11pt]{article}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{adjustbox}
+\usepackage{threeparttable}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{float}
+
+\title{Workforce Composition and Remote Work Productivity}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Productivity regressions with composition share levels as controls. Tests whether remote productivity effects persist after controlling for workforce composition levels.
+
+\section{Role Composition Effects}
+
+\begin{table}[H]
+\centering
+\caption{Role Composition Effects on Remote Work Productivity}
+\label{tab:role_composition}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{l*{8}{c}}
+\toprule
+ & \multicolumn{8}{c}{Dep Var: Total Productivity (Contributions Q100)} \\
+\cmidrule{2-9}
+ & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\midrule
+\multicolumn{9}{l}{\textbf{Panel A: OLS}} \\
+\addlinespace
+Remote $\times$ Post & -1.23** & -1.23** & -1.26** & -1.18** & -0.99** & -1.01** & -1.23** & -1.18** \\
+ & (0.50) & (0.50) & (0.50) & (0.50) & (0.50) & (0.50) & (0.50) & (0.50) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 6.21*** & 6.25*** & 6.48*** & 6.35*** & 5.78*** & 6.05*** & 6.21*** & 6.20*** \\
+ & (1.27) & (1.27) & (1.29) & (1.29) & (1.28) & (1.30) & (1.27) & (1.28) \\
+
+\midrule
+\multicolumn{9}{l}{\textbf{Panel B: IV}} \\
+\addlinespace
+Remote $\times$ Post & -9.26** & -9.13** & -7.32** & -9.71** & -9.28** & -7.99 & -8.41** & -10.31** \\
+ & (4.01) & (4.02) & (3.24) & (3.86) & (4.08) & (7.80) & (3.53) & (4.85) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 12.45** & 12.96** & 13.21** & 13.42** & 11.65** & 10.52 & 11.64** & 13.85** \\
+ & (5.39) & (5.39) & (5.45) & (5.51) & (5.63) & (9.46) & (5.00) & (6.09) \\
+
+\midrule
+N & 231,305 & 231,305 & 231,305 & 231,305 & 231,305 & 231,305 & 231,305 & 231,305 \\
+KP rk Wald F & 123.4 & 123.1 & 198.8 & 132.9 & 122.2 & 27.9 & 171.0 & 87.8 \\
+
+\midrule
+Admin control & - & $\checkmark$ & - & - & - & - & - & - \\
+Engineer control & - & - & $\checkmark$ & - & - & - & - & - \\
+Finance control & - & - & - & $\checkmark$ & - & - & - & - \\
+Marketing control & - & - & - & - & $\checkmark$ & - & - & - \\
+Operations control & - & - & - & - & - & $\checkmark$ & - & - \\
+Sales control & - & - & - & - & - & - & $\checkmark$ & - \\
+Scientist control & - & - & - & - & - & - & - & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} The dependent variable is user productivity measured as total contributions (GitHub commits, pull requests, issues, and code reviews), winsorized at the 100th percentile. 
+All specifications include worker-firm and time fixed effects. 
+Composition controls are role-specific share interactions (COVID $\times$ role share $\times$ startup).
+Standard errors clustered by user in parentheses. 
+* p$<$0.10, ** p$<$0.05, *** p$<$0.01.
+\end{tablenotes}
+\end{table}
+
+\section{Seniority Composition Effects}
+
+\begin{table}[H]
+\centering
+\caption{Seniority Composition Effects on Remote Work Productivity}
+\label{tab:seniority_composition}
+\begin{tabular}{l*{5}{c}}
+\toprule
+ & \multicolumn{5}{c}{Dep Var: Total Productivity (Contributions Q100)} \\
+\cmidrule{2-6}
+ & (1) & (2) & (3) & (4) & (5) \\
+\midrule
+\multicolumn{6}{l}{\textbf{Panel A: OLS}} \\
+\addlinespace
+Remote $\times$ Post & -1.23** & -0.72 & -0.76 & -0.69 & -0.64 \\
+ & (0.50) & (0.49) & (0.48) & (0.49) & (0.48) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 6.21*** & 6.30*** & 6.46*** & 6.46*** & 6.08*** \\
+ & (1.27) & (1.30) & (1.27) & (1.27) & (1.30) \\
+
+\midrule
+\multicolumn{6}{l}{\textbf{Panel B: IV}} \\
+\addlinespace
+Remote $\times$ Post & -9.26** & -10.59** & -7.01* & -8.83 & -9.52*** \\
+ & (4.01) & (4.88) & (4.00) & (5.75) & (3.17) \\
+\addlinespace[0.5em]
+Remote $\times$ Post $\times$ Startup & 12.45** & 18.47*** & 14.67*** & 14.59** & 13.78*** \\
+ & (5.39) & (6.87) & (5.64) & (6.64) & (5.08) \\
+
+\midrule
+N & 231,305 & 231,305 & 231,305 & 231,305 & 231,305 \\
+KP rk Wald F & 123.4 & 86.5 & 118.3 & 60.3 & 210.5 \\
+
+\midrule
+Level 1 control & - & $\checkmark$ & - & - & - \\
+Level 2 control & - & - & $\checkmark$ & - & - \\
+Level 3 control & - & - & - & $\checkmark$ & - \\
+Level 4 control & - & - & - & - & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} The dependent variable is user productivity measured as total contributions (GitHub commits, pull requests, issues, and code reviews), winsorized at the 100th percentile. 
+All specifications include worker-firm and time fixed effects. 
+Composition controls are seniority-specific share interactions (COVID $\times$ seniority share $\times$ startup).
+Standard errors clustered by user in parentheses. 
+* p$<$0.10, ** p$<$0.05, *** p$<$0.01.
+\end{tablenotes}
+\end{table}
+
+\end{document}

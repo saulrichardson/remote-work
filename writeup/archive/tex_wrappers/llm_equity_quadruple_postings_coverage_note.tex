@@ -1,0 +1,70 @@
+\documentclass{article}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{setspace}
+\setstretch{1.05}
+
+\newcommand{\cleanedresultsdir}{../../results/cleaned/tex}
+\newcommand{\TableInput}[1]{\input{#1}}
+\DeclareCaptionStyle{noteflush}{%
+  format=plain,
+  justification=raggedright,
+  singlelinecheck=false,
+  font=footnotesize,
+  width=\linewidth,
+  skip=0pt
+}
+\newcommand{\FloatNote}[1]{%
+  \begingroup
+    \captionsetup{style=noteflush}%
+    \caption*{\textit{Notes:}~#1}%
+  \endgroup
+}
+
+\begin{document}
+
+\section*{User Productivity Equity Quadruple}
+
+\noindent The quadruple specifications use the postings-based equity coverage rule. In the equity-augmented column, firms are included only if they have job-posting coverage. Among covered firms, periods with postings but no equity-related keyword hit are backfilled to zero, while keyword-hit firms without parse-successful LLM output are excluded.
+
+\section*{1. Equity quadruple: Separate worker and firm fixed effects}
+
+\subsection*{Empirical setup}
+\noindent The equity quadruple appends the equity signal directly to the core empirical setup:
+\[
+  \begin{aligned}
+    y_{ifh} =\; & \beta_1 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \right)
+    + \beta_2 \left( \mathds{1}(\text{Post})_h \times \text{Startup}_f \right)
+    + \beta_3 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times \text{Startup}_f \right) \\
+    & + \delta_1 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times \text{Offers equity}_f \right) \\
+    & + \delta_2 \left( \mathds{1}(\text{Post})_h \times \text{Startup}_f \times \text{Offers equity}_f \right) \\
+    & + \delta_3 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times \text{Startup}_f \times \text{Offers equity}_f \right)
+    + \text{FE} + \varepsilon_{ifh} .
+  \end{aligned}
+\]
+\noindent In IV, the remote-post term, the remote-post-startup term, the remote-post-equity term, and the remote-post-startup-equity term are instrumented with the matching teleworkability interactions. Column (1) keeps the original baseline sample. Column (2) applies the postings-based equity coverage rule described above.
+
+\begin{table}[H]
+  \centering
+  \caption{User productivity equity quadruple}
+  \TableInput{\cleanedresultsdir/llm_equity_quadruple_postings_coverage_baseline_fe.tex}
+  \FloatNote{The outcome is the worker contribution-rank measure used throughout the user-productivity analysis. Panel A reports OLS estimates and Panel B reports IV estimates. Column (1) is the baseline user-productivity specification with separate worker, firm, and half-year fixed effects. Column (2) appends the equity signal through $\text{Remote}\times\mathds{1}(\text{Post})\times\text{Offers equity}$, $\mathds{1}(\text{Post})\times\text{Startup}\times\text{Offers equity}$, and $\text{Remote}\times\mathds{1}(\text{Post})\times\text{Startup}\times\text{Offers equity}$. The remote interactions are instrumented by the matching teleworkability interactions. The equity-augmented column is estimated on firms with postings coverage; among covered firms, posting periods with no keyword hit are backfilled to zero and keyword-hit firms without parse-successful LLM output are excluded. Standard errors are clustered by worker.}
+\end{table}
+
+\section*{2. Equity quadruple: Firm-by-worker fixed effects}
+
+\noindent The pair fixed-effects version keeps the same quadruple interaction structure, but replaces separate worker and firm effects with firm-by-worker match fixed effects plus half-year fixed effects. Column (1) again keeps the original baseline sample, and Column (2) applies the postings-based equity coverage rule.
+\begin{table}[H]
+  \centering
+  \caption{User productivity equity quadruple}
+  \TableInput{\cleanedresultsdir/llm_equity_quadruple_postings_coverage_pair_fe.tex}
+  \FloatNote{The outcome is the worker contribution-rank measure used throughout the user-productivity analysis. Panel A reports OLS estimates and Panel B reports IV estimates. Column (1) is the pair fixed-effects baseline specification with firm-by-worker match and half-year fixed effects. Column (2) appends the same equity quadruple terms as in Section 2. The remote interactions are instrumented by the matching teleworkability interactions. The equity-augmented column is estimated on firms with postings coverage; among covered firms, posting periods with no keyword hit are backfilled to zero and keyword-hit firms without parse-successful LLM output are excluded. Standard errors are clustered by worker.}
+\end{table}
+
+\end{document}

@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{float}
+\geometry{margin=1in}
+\graphicspath{{../../results/diagnostics/}}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\section*{Productivity vs Growth (All Workers / Composition)}
+
+We compare pre (\(yh<2020\text{H}1\)) to post (\(yh\ge2020\text{H}1\)) for fully remote firms, flagging startups as age \(\le 10\). The resulting cross-section has \(N=980\) firms. Here the outcome lets composition matter: we average worker ranks within each firm in the pre period and again in the post period, then take the difference. This captures incumbent shifts plus any upgrading or selection in who works at the firm.
+
+We estimate
+\[ \Delta\text{Prod}^{\text{level}}_f = \alpha + \beta\,\Delta\text{Growth}_f + \gamma\,\text{Startup}_f + \varepsilon_f, \]
+with robust standard errors and weights equal to total workers observed. No fixed effects are needed because the dependent variable is already a firm-level difference.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{binscatter_prod_growth_level.png}
+  \caption{All-worker mean rank change vs $\Delta$ growth (20 bins, total-user weights).}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_prod_change_level.png}
+  \caption{All-worker $\Delta$ rank distribution, startups vs incumbents.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_growth_change.png}
+  \caption{$\Delta$ growth distribution, startups vs incumbents.}
+\end{figure}
+
+\end{document}

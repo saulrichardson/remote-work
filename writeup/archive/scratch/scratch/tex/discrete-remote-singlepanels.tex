@@ -1,0 +1,42 @@
+% Separate PDF: Discrete Remote results – single-panel tables by treatment
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{makecell}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage[export]{adjustbox}
+
+% Base dir for cleaned LaTeX tables
+\newcommand{\cleanedresultsdir}{../../results/cleaned}
+
+\begin{document}
+
+\section*{Firm Scaling — Full‑Remote}
+\subsection*{IV}
+\input{\cleanedresultsdir/firm_scaling_fullremote_iv.tex}
+\subsection*{OLS}
+\input{\cleanedresultsdir/firm_scaling_fullremote_ols.tex}
+
+\section*{Firm Scaling — Hybrid}
+\subsection*{IV}
+\input{\cleanedresultsdir/firm_scaling_hybrid_iv.tex}
+\subsection*{OLS}
+\input{\cleanedresultsdir/firm_scaling_hybrid_ols.tex}
+
+\section*{User Productivity (Pre‑COVID) — Full‑Remote}
+\subsection*{IV}
+\input{\cleanedresultsdir/user_productivity_precovid_fullremote_iv.tex}
+\subsection*{OLS}
+\input{\cleanedresultsdir/user_productivity_precovid_fullremote_ols.tex}
+
+\section*{User Productivity (Pre‑COVID) — Hybrid}
+\subsection*{IV}
+\input{\cleanedresultsdir/user_productivity_precovid_hybrid_iv.tex}
+\subsection*{OLS}
+\input{\cleanedresultsdir/user_productivity_precovid_hybrid_ols.tex}
+
+\end{document}
+

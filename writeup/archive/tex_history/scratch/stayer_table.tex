@@ -1,0 +1,22 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+
+\begin{document}
+\section*{Stayer-only specification}
+Sample: workers whose last pre-COVID and first post-COVID observations are at the same firm; keep only that continuous spell and drop all other spells for those workers. Outcome: baseline contribution-rank measure. Models include individual, firm, and half-year fixed effects; standard errors are clustered by worker; the KP statistic is reported for instrument strength.
+
+\section*{Job-spell profile (full precovid user panel)}
+\begin{itemize}
+  \item Users: 37{,}186 unique workers; total job spells: 49{,}572 (average 1.33 spells per worker).
+  \item Switching: 28\% of workers switch firms at least once (23\% have exactly two spells; 4.7\% have three or more); median switches per worker = 0.
+  \item Spell length: mean 4.7 half-years (\(~2.3 years\)); 25th/50th/75th/90th percentiles = 2 / 4 / 7 / 9 half-years (max observed is 11 given the panel window). Median stays short because most workers have a single spell and their observed tenure is truncated by the panel window (median total rows per worker is 6 half-years).
+\end{itemize}
+
+\input{../../../results/cleaned/tex/user_productivity_precovid_stayer.tex}
+\end{document}

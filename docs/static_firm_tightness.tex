@@ -1,0 +1,131 @@
+\documentclass[11pt]{article}
+
+%----------------------------------------------------
+%  Static Firm–Level Labour-Market Tightness
+%  Conceptual derivation and notation
+%----------------------------------------------------
+
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{microtype}
+
+\title{A Static Measure of Firm--Level Labour--Market Tightness}
+\author{ }
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Notation}
+
+\begin{tabular}{ll}
+  $f$ & firm (company) \\
+  $o$ & four--digit occupation (SOC--4) \\
+  $m$ & metropolitan area (CBSA) \\
+  $P$ & reference period (\textbf{base period}), here $P=\text{2019--H2}$ \\
+\end{tabular}
+
+\vspace{.5em}
+
+\noindent Core variables
+\begin{itemize}
+  \item $h_{fom}$\,: head-count of employees of firm $f$ in occupation $o$ and metro $m$ at period $P$.
+  \item $T_{om}$\,: external labour-market tightness for occupation $o$ in metro $m$ (e.g. OEWS).  This is a \emph{given} scalar.
+\end{itemize}
+
+Define occupation and firm totals
+\begin{align}
+  H_{fo} &\;= \sum_m h_{fom} && \text{(employees of firm $f$ in occupation $o$)} ,\\[2pt]
+  H_f    &\;= \sum_o H_{fo}     && \text{(total employment of firm $f$)} .
+\end{align}
+
+% --------------------------------------------------
+%  Step 0  (OEWS → metro-level tightness)
+% --------------------------------------------------
+
+\section{Step 0.\; From OEWS Employment to a Tightness Index}
+
+The Occupational Employment and Wage Statistics (OEWS) data report the
+employment count $\text{EMP}_{om}$ for every occupation $o$ in every
+metropolitan area $m$ in the base year $P$.  Let
+
+\begin{align*}
+  \text{EMP}_{m}          &\;= \sum_k \text{EMP}_{km}       & \text{(total employment in metro $m$)},\\[2pt]
+  \text{EMP}^{US}_{o}     &\;= \sum_k \text{EMP}_{ok}^{US}  & \text{(national employment in occupation $o$)},\\[2pt]
+  \text{EMP}^{US}_{\text{tot}} &\;= \sum_k \text{EMP}_{k}^{US}. &
+\end{align*}
+
+\subsection*{Location quotient}
+
+The \emph{location quotient} compares an occupation's share in a metro
+with its share nation–wide:
+
+\begin{equation}
+  \text{LQ}_{om}\;=\;\frac{\displaystyle\frac{\text{EMP}_{om}}{\text{EMP}_{m}}}
+                          {\displaystyle\frac{\text{EMP}^{US}_{o}}{\text{EMP}^{US}_{\text{tot}}}}.
+\end{equation}
+
+Values smaller than one indicate that occupation $o$ is relatively
+\emph{scarce} in metro $m$.
+
+\subsection*{Tightness metric}
+
+We define labour-market tightness as the inverse of the location quotient
+
+\begin{equation}
+  T_{om} \;=\; \frac{1}{\text{LQ}_{om}} \;=\;
+  \frac{\displaystyle \frac{\text{EMP}^{US}_{o}}{\text{EMP}^{US}_{\text{tot}}}}
+       {\displaystyle \frac{\text{EMP}_{om}}{\text{EMP}_{m}}}.
+  \label{eq:tight_oews}
+\end{equation}
+
+The tighter (larger) $T_{om}$, the lower the local supply of workers in
+that occupation relative to national availability.  Conversely, when
+$T_{om}<1$ the occupation is 
+\emph{over\hyp{}represented} locally and the corresponding labour market is
+relatively loose.
+
+\section{Step 1.\; Firm--Occupation Tightness}
+
+For each \emph{firm--occupation} pair take a head-count weighted average of the metro-level tightness values:
+\begin{equation}
+  \widehat{T}_{fo} \;=\; \frac{\displaystyle\sum_{m} h_{fom}\, T_{om}}{\displaystyle\sum_{m} h_{fom}}
+  \label{eq:focc}
+\end{equation}
+The weights
+\(
+  \alpha_{fom}=h_{fom}/\!\sum_k h_{fok}
+\)
+sum to one by construction.
+
+\section{Step 2.\; Static Firm--Level Tightness}
+
+Freeze the occupational composition at the same base period $P$ and form weights
+\begin{equation}
+  \beta_{fo}=\frac{H_{fo}}{H_f}, \qquad \sum_o \beta_{fo}=1.
+\end{equation}
+
+The \emph{static} tightness of firm $f$ is the weighted average of the occupation-specific values from~\eqref{eq:focc}:
+\begin{equation}
+  \text{Tight}_f \;=\; \sum_o \beta_{fo}\, \widehat{T}_{fo}
+  \;=\; \frac{\displaystyle\sum_o H_{fo}\, \widehat{T}_{fo}}{\displaystyle\sum_o H_{fo}}.
+  \label{eq:firmtight}
+\end{equation}
+
+\section{Interpretation}
+
+Equation~\eqref{eq:firmtight} represents the average tightness of the labour markets that matter to firm $f$ 
+\emph{given its workforce in 2019--H2}.  Because both layers of weights---metro mix within occupations and occupation mix within the firm---are fixed at the base period, $\text{Tight}_f$ is \emph{time-invariant}.  It captures the structural hiring difficulty the firm would face if it sought to staff its 2019 workforce again.
+
+\section{Implementation Outline (data-agnostic)}
+
+\begin{enumerate}
+  \item \textbf{OEWS layer:} calculate $T_{om}$ via equation~\eqref{eq:tight_oews} (inverse of the location quotient).
+  \item \textbf{LinkedIn layer:} collect firm micro-data $h_{fom}$ for the same period $P$.
+  \item Compute \eqref{eq:focc} to obtain tightness at the \emph{firm--occupation} level.
+  \item Aggregate to firm level with \eqref{eq:firmtight} using the 2019--H2 occupation mix as weights.
+  \item Store the resulting scalar $\text{Tight}_f$ for downstream analysis (regressions, matching, etc.).
+\end{enumerate}
+
+\end{document}

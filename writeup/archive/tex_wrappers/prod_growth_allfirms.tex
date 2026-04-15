@@ -1,0 +1,40 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{amsmath}
+\geometry{margin=1in}
+\graphicspath{{../../results/diagnostics_allfirms/}}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\section*{Productivity vs Growth (Composition)}
+
+\begin{itemize}
+  \item Sample: all firms with pre/post data; startups = age \(\le 10\); \(N=1{,}774\).
+  \item Outcome: change in average worker rank (composition-inclusive); captures incumbent shifts plus selection/upgrading.
+  \item Spec: \(\Delta\text{Prod}^{\text{level}} = \alpha + \beta\,\Delta\text{Growth} + \gamma\,\text{Startup}\).
+  \item Coefficient: \(\beta=5.44\), p = 0.019.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{binscatter_prod_growth_level.png}
+  \caption{All-worker mean rank change vs $\Delta$ growth (all firms); remote firms in teal, non-remote in orange.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_prod_change_level.png}
+  \caption{All-worker $\Delta$ rank distribution, startups vs incumbents (all firms).}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_growth_change.png}
+  \caption{$\Delta$ growth distribution, startups vs incumbents (all firms).}
+\end{figure}
+
+\end{document}

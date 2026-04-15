@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{setspace}
+\setstretch{1.05}
+
+\newcommand{\cleanedresultsdir}{../../results/cleaned/tex}
+\newcommand{\TableInput}[2][\linewidth]{\input{#2}}
+\DeclareCaptionStyle{noteflush}{%
+  format=plain,
+  justification=raggedright,
+  singlelinecheck=false,
+  font=footnotesize,
+  width=\linewidth,
+  skip=0pt
+}
+\newcommand{\FloatNote}[1]{%
+  \begingroup
+    \captionsetup{style=noteflush}%
+    \caption*{\textit{Notes:}~#1}%
+  \endgroup
+}
+
+\begin{document}
+
+\section*{User Productivity: Refreshed Equity Note}
+
+\noindent This note reports four user-productivity empirical approaches: a data overview, a specification that replaces startup with equity under two fixed-effects designs, a baseline-FE horse race, and a pair-FE horse race.
+
+\subsection*{Table 1: Data overview}
+\begin{table}[H]
+  \centering
+  \caption{User-productivity analysis universe and equity signal support}
+  \TableInput{\cleanedresultsdir/llm_equity_user_refresh_data_overview.tex}
+  \FloatNote{Panel A summarizes the user-productivity analysis universe. ``Firm$\times$half-year cells'' and ``Firms'' are the corresponding collapsed counts. Panel B summarizes the supporting equity signal on the same firm universe. ``Firms offering equity'' means a firm has at least one half-year with a positive equity-offer signal anywhere in the panel. Posting counts are sums over the same firm universe, using the backfill convention that firm$\times$half-year cells with no keyword-hit postings carry zero equity signal.}
+\end{table}
+
+\subsection*{Table 2: Replace startup with equity}
+\[
+  \begin{aligned}
+    y_{ifh} =\; & \beta_3 \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \right)
+    + \beta_{3e} \left( \text{Remote}_f \times \mathds{1}(\text{Post})_h \times \text{OffersEquity}_f \right) \\
+    & + \beta_{eP} \left( \text{OffersEquity}_f \times \mathds{1}(\text{Post})_h \right)
+    + \text{FE} + \varepsilon_{ifh}.
+  \end{aligned}
+\]
+\begin{table}[H]
+  \centering
+  \caption{User productivity: replace startup with equity}
+  \TableInput{\cleanedresultsdir/llm_equity_user_refresh_replace_startup_equity.tex}
+  \FloatNote{Columns (1)-(2) use individual, firm, and half-year fixed effects. Columns (3)-(4) use firm$\times$individual and half-year fixed effects. The row $\text{Remote}\times\mathds{1}(\text{Post})$ is the post remote effect for firms without an equity signal. The interaction row $\text{Remote}\times\mathds{1}(\text{Post})\times\text{Offers equity}$ is the incremental post remote effect for firms that do offer equity. The row $\text{Offers equity}\times\mathds{1}(\text{Post})$ is an additional post-period level shift for equity firms. Standard errors are clustered by worker and reported in parentheses; *, **, *** denote $p<0.10, 0.05, 0.01$.}
+\end{table}
+
+\subsection*{Table 3: Baseline-FE horse race}
+\begin{table}[H]
+  \centering
+  \caption{User productivity horse race: labor scaling vs equity offers, baseline FE}
+  \TableInput{\cleanedresultsdir/llm_equity_user_refresh_horse_race.tex}
+  \FloatNote{Columns differ only in the added controls shown in the bottom panel. ``Labor scaling'' is the post-period median-split firm growth indicator used in the refreshed horse race. ``Equity offer control'' is the strict any-equity firm signal interacted with the post period and startup. The first two rows in each panel report the baseline remote coefficients on $\text{Remote}\times\mathds{1}(\text{Post})$ and $\text{Remote}\times\mathds{1}(\text{Post})\times\text{Startup}$; the ``Added controls'' rows report the coefficients on the extra labor-scaling and equity-control terms themselves. The baseline and labor-scaling columns stay on their original supports, while the equity columns use the postings-covered equity sample: firms with postings but no keyword hits are coded zero, firms with keyword hits but no parse-successful LLM output are excluded, and firms with no postings coverage are excluded. Standard errors are clustered by worker; IV instruments the remote interactions with the corresponding teleworkability interactions.}
+\end{table}
+
+\subsection*{Table 4: Pair-FE horse race}
+\begin{table}[H]
+  \centering
+  \caption{User productivity horse race: firm growth vs equity offers, pair FE}
+  \TableInput{\cleanedresultsdir/llm_equity_user_refresh_horse_race_pairfe.tex}
+  \FloatNote{This table uses firm$\times$individual and half-year fixed effects. ``Firm growth'' is the endogenous post-period median-split firm growth control from the pair-FE mechanism spec. ``Equity offer control'' is the strict any-equity firm signal interacted with the post period and startup. The first two rows in each panel report the baseline remote coefficients on $\text{Remote}\times\mathds{1}(\text{Post})$ and $\text{Remote}\times\mathds{1}(\text{Post})\times\text{Startup}$; the ``Added controls'' rows report the coefficients on the extra growth and equity terms themselves. The baseline and growth-only columns stay on their original supports, while the equity columns use the postings-covered equity sample described above. Standard errors are clustered by worker; IV instruments the remote interactions with the corresponding teleworkability interactions.}
+\end{table}
+
+\end{document}

@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase Fundraising: Robustness Checks}
+
+\paragraph{Purpose.}
+This note documents robustness checks for the canonical Crunchbase fundraising specification under firm fixed effects and half-year fixed effects.
+We report both OLS and IV estimates of the Remote$\times$Post coefficient.
+
+\paragraph{Robustness dimensions.}
+\begin{itemize}
+  \item \textbf{Top-tail sensitivity}: winsorization / trimming of the USD-raised distribution within half-year (conditional on positive USD).
+  \item \textbf{Placebo}: re-define ``Post'' in the pre-Covid period (fake cutoffs) and re-run the same IV design.
+  \item \textbf{Extensive margin dollars}: use $1\{\text{USD raised} > 0\}$ as the outcome (amounts are often undisclosed).
+  \item \textbf{Controls}: cohort-style controls and a firm-performance ``horse race'' using employment growth.
+\end{itemize}
+
+\begin{table}[h!]
+\caption{\textbf{Crunchbase Fundraising Robustness Checks}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_robustness_checks.tex}
+\end{table}
+
+\end{document}

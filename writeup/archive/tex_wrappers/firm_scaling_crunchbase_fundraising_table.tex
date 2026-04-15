@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase}
+
+\paragraph{Sample.}
+The unit of observation is firm$\times$half-year. We restrict to firms matched to Crunchbase and drop public firms
+(fundraising outcomes are not comparable for public companies). We do not restrict to startup-only firms in the baseline sample.
+
+\paragraph{Outcomes.}
+We construct half-year outcomes from Crunchbase funding rounds:
+\begin{itemize}
+  \item \textbf{Any round}: indicator for at least one round in the half-year.
+  \item \textbf{Repeat fundraising}: indicators for more than one and more than two rounds in the half-year.
+  \item \textbf{Dollars}: $\log(1+\text{USD raised})$ in the half-year.
+  \item \textbf{Rank dollars}: within-half-year percentile bin (q100) of USD raised (skew-robust).
+\end{itemize}
+
+\begin{table}[h!]
+\caption{\textbf{Crunchbase Fundraising Outcomes (Baseline Sample: Private Firms)}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising.tex}
+\end{table}
+
+\begin{table}[h!]
+\caption{\textbf{Additional Outcomes: Rounds, Later-Stage Indicators, and Cumulative Robustness}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_additional.tex}
+\end{table}
+
+\end{document}

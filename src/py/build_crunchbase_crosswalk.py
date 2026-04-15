@@ -25,7 +25,7 @@ from typing import Dict, List
 import duckdb
 import pandas as pd
 
-from project_paths import DATA_CLEAN, DATA_RAW, RESULTS_RAW, ensure_dir
+from src.py.project_paths import DATA_CLEAN, DATA_RAW, RESULTS_RAW, ensure_dir, require_file
 
 # Locations ---------------------------------------------------------------
 FIRM_PANEL = DATA_CLEAN / "firm_panel.dta"
@@ -53,19 +53,14 @@ def normalize_name(name: str | None) -> str | None:
 
 
 def load_firm_panel() -> pd.DataFrame:
-    if not FIRM_PANEL.exists():
-        raise FileNotFoundError(f"Missing firm panel: {FIRM_PANEL}")
+    require_file(FIRM_PANEL, nonempty=True, purpose="Processed firm panel (firm_panel.dta)")
     df = pd.read_stata(FIRM_PANEL, columns=["firm_id", "companyname", "hqstate", "hqcity", "yh"])
     df["name_norm"] = df["companyname"].apply(normalize_name)
     return df
 
 
 def load_scoop_linkedin() -> pd.DataFrame:
-    if not SCOOP_LINKEDIN.exists():
-        raise FileNotFoundError(
-            f"Missing Scoop LinkedIn export: {SCOOP_LINKEDIN}. "
-            "Place it under data/raw/Scoop_Linkedin.csv (untracked)."
-        )
+    require_file(SCOOP_LINKEDIN, nonempty=True, purpose="Scoop LinkedIn export (Scoop_Linkedin.csv)")
     df = pd.read_csv(SCOOP_LINKEDIN)
     df["name_norm"] = df["Company Name (CLEAN)"].apply(normalize_name)
     # Parse org UUID from crunchbase_url
@@ -81,11 +76,7 @@ def load_scoop_linkedin() -> pd.DataFrame:
 
 
 def load_crunchbase_orgs() -> pd.DataFrame:
-    if not CRUNCHBASE_ORGS.exists():
-        raise FileNotFoundError(
-            f"Missing Crunchbase organizations export: {CRUNCHBASE_ORGS}. "
-            "Place it under data/raw/crunchbase/organizations.csv (untracked)."
-        )
+    require_file(CRUNCHBASE_ORGS, nonempty=True, purpose="Crunchbase organizations export (organizations.csv)")
     # Use DuckDB to efficiently read selected columns
     con = duckdb.connect()
     con.execute(

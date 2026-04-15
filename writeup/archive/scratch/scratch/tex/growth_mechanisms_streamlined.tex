@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{adjustbox}
+\usepackage{threeparttable}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\title{Growth Mechanisms Analysis}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{First-Stage: Growth Residualization}
+
+% Manual version of first-stage table with cleaner formatting
+\begin{table}[htbp]
+\centering
+\caption{First-Stage Regression: Firm Growth Residualization}
+\begin{tabular}{lc}
+\toprule
+ & Dep Var: \\
+ & Firm Growth Rate \\
+\midrule
+Industry growth (leave-one-out) & 0.787*** \\
+                               & (0.023) \\
+MSA growth (leave-one-out)     & 0.000 \\
+                               & (omitted) \\
+High rent (above median)       & 0.044*** \\
+                               & (0.002) \\
+High HHI (above median)        & 0.038*** \\
+                               & (0.002) \\
+Constant                       & -0.109*** \\
+                               & (0.004) \\
+\midrule
+Observations                   & 16,163 \\
+R-squared                      & 0.140 \\
+Adjusted R-squared             & 0.140 \\
+\bottomrule
+\multicolumn{2}{l}{\footnotesize \textit{Notes:} Standard errors in parentheses.} \\
+\multicolumn{2}{l}{\footnotesize Growth rate is average post-COVID employment growth.} \\
+\multicolumn{2}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.10} \\
+\end{tabular}
+\end{table}
+
+\textbf{Key:} Endogenous growth = raw firm growth. Exogenous growth = fitted values from above regression.
+
+\section{Main Results: Worker-Firm Fixed Effects}
+
+% First main table
+\input{../results/cleaned/growth_mechanisms_worker_firm_fe.tex}
+
+\section{Alternative: Separate Fixed Effects}
+
+% Second main table
+\input{../results/cleaned/growth_mechanisms_separate_fe.tex}
+
+\section{Summary}
+
+\begin{itemize}
+\item \textbf{Baseline}: Startup advantage 12.3 pp (worker-firm FE) vs 9.9 pp (separate FE)
+\item \textbf{Endogenous growth}: Effect drops to 6.8 pp and 4.7 pp (both insignificant)
+\item \textbf{Exogenous growth}: Effect remains at 11.9 pp and 8.5 pp
+\item \textbf{Interpretation}: Raw growth explains much of startup advantage; externally-driven growth does not
+\end{itemize}
+
+\end{document}

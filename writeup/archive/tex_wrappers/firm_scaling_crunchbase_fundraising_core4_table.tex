@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\usepackage{float}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase Fundraising: Core Outcomes}
+
+\paragraph{Sample.}
+The unit of observation is firm$\times$half-year. We restrict to firms matched to Crunchbase and drop public firms
+(fundraising outcomes are not comparable for public companies).
+
+\paragraph{Outcomes.}
+\begin{itemize}
+  \item \textbf{Any USD raised}: indicator for positive USD raised in the half-year (includes seed).
+  \item \textbf{Series A+ round}: indicator for any Series A-or-higher round in the half-year.
+  \item \textbf{USD raised rank}: within-half-year percentile bin (1--100) of USD raised (skew-robust).
+  \item \textbf{USD raised}: USD raised in levels in the half-year (millions; includes zeros).
+\end{itemize}
+
+\begin{table}[H]
+\caption{\textbf{Crunchbase Fundraising Outcomes (Core 4)}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_core4.tex}
+\end{table}
+
+\end{document}

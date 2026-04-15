@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\captionsetup{labelformat=empty}
+\begin{document}
+\thispagestyle{empty}
+
+\noindent\textbf{Construction pipeline (precovid panel).}
+\begin{enumerate}
+  \item Base panel: 231{,}305 user--half-year observations, 37{,}186 users, 2{,}224 firms (file: user\_panel\_precovid.dta).
+  \item Hire detection: mark the first half-year when a user’s firm identifier changes relative to the prior half-year. This produces 12{,}386 hire events.
+  \item Window requirement: keep hires with exactly two non-missing productivity observations in the origin window \([t-2,t-1]\) and two in the destination window \([t,t+1]\), measured on the correct firm for each side. Resulting sample: 4{,}450 hires (4{,}113 users).
+\end{enumerate}
+
+\noindent\textbf{Outcomes (rows in the table).}
+\begin{itemize}
+  \item Prior productivity: mean total\_contributions\_q100 over \([t-2,t-1]\) at the origin firm.
+  \item $\Delta$ productivity: mean over \([t,t+1]\) at the destination firm minus the prior mean.
+\end{itemize}
+
+\noindent\textbf{Regression specification (estimated on the 4{,}450 hires).}
+\[
+y_i = \beta_1(\text{Remote}_i \times \mathds{1}\{\text{Post}\}_i) + \beta_2(\text{Remote}_i \times \mathds{1}\{\text{Post}\}_i \times \text{Startup}_i) + \beta_3(\mathds{1}\{\text{Post}\}_i \times \text{Startup}_i) + \gamma_{\text{hire time}(i)} + \varepsilon_i,
+\]
+where $\gamma_{\text{hire time}(i)}$ are half-year fixed effects for the hire date. Standard errors are clustered by destination firm. No firm or user fixed effects are included.
+
+\begin{table}[h!]
+\caption{\textbf{Hire Selection: Prior vs. Post Productivity}}\vspace{0.5em}
+\input{../../results/cleaned/tex/user_hire_selection_precovid.tex}
+\end{table}
+\end{document}

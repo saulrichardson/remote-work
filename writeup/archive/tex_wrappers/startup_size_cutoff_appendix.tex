@@ -1,0 +1,35 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage[normalem]{ulem} % for \uline in table templates
+\usepackage{dsfont} % for \mathds in parameter labels
+\captionsetup{font=small,labelfont=bf}
+
+\title{Startup Definition Robustness: Size-Based Cutoffs}
+\date{\today}
+
+\begin{document}
+\maketitle
+\onehalfspacing
+
+\section*{Overview}
+This note documents the size-based startup definition (firm headcount at 2019H2) and reports the corresponding regression tables and cutoff-sweep figures for user productivity and firm scaling outcomes. Startup is defined as $\text{size}_{2019H2} \leq c$, with the main cutoff at 150 employees and robustness across \{50, 100, 150, 200, 500\}.
+
+\section*{Main Tables (size cutoff = 150 employees)}
+
+\subsection*{User Productivity}
+\input{../../results/cleaned/tex/startup_size_cutoff_total_contributions_q100.tex}
+\input{../../results/cleaned/tex/startup_size_cutoff_restricted_contributions_q100.tex}
+
+\subsection*{Firm Scaling}
+\input{../../results/cleaned/tex/startup_size_cutoff_growth_rate_we.tex}
+\input{../../results/cleaned/tex/startup_size_cutoff_join_rate_we.tex}
+\input{../../results/cleaned/tex/startup_size_cutoff_leave_rate_we.tex}
+
+\end{document}

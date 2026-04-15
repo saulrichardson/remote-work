@@ -10,20 +10,35 @@ if _rc | "$PROJECT_ROOT" == "" {
         global PROJECT_ROOT "`__env_root'"
     }
     else {
-        local __self "`c(filename)'"
-        if "`__self'" == "" {
-            local __self "`c(pwd)'/00_paths.do"
-        }
-
         local __bslash = char(92)
-        local __normalized = subinstr("`__self'", "`__bslash'", "/", .)
-        local __slash = strrpos("`__normalized'", "/")
-        if `__slash' <= 0 {
-            di as error "00_paths.do: unable to determine project root."
-            exit 198
+        local __cwd = subinstr("`c(pwd)'", "`__bslash'", "/", .)
+        if fileexists("`__cwd'/spec/00_paths.do") {
+            global PROJECT_ROOT "`__cwd'"
         }
-        local __root = substr("`__normalized'", 1, `__slash' - 1)
-        global PROJECT_ROOT "`__root'"
+        else {
+            local __self "`c(filename)'"
+            if "`__self'" == "" {
+                local __self "`c(pwd)'/spec/00_paths.do"
+            }
+
+            local __normalized = subinstr("`__self'", "`__bslash'", "/", .)
+            local __spec_suffix "/spec/00_paths.do"
+            local __spec_len = length("`__spec_suffix'")
+            local __tail = substr("`__normalized'", max(1, length("`__normalized'") - `__spec_len' + 1), .)
+
+            if "`__tail'" == "`__spec_suffix'" {
+                local __root = substr("`__normalized'", 1, length("`__normalized'") - `__spec_len')
+            }
+            else {
+                local __slash = strrpos("`__normalized'", "/")
+                if `__slash' <= 0 {
+                    di as error "00_paths.do: unable to determine project root."
+                    exit 198
+                }
+                local __root = substr("`__normalized'", 1, `__slash' - 1)
+            }
+            global PROJECT_ROOT "`__root'"
+        }
     }
 }
 
@@ -32,32 +47,11 @@ if "$PROJECT_ROOT" == "" {
     exit 198
 }
 
-global RAW_DATA        "$PROJECT_ROOT/data/raw"
-global CLEAN_DATA      "$PROJECT_ROOT/data/clean"
-global PROCESSED_DATA  "$CLEAN_DATA"
-global RAW_RESULTS     "$PROJECT_ROOT/results/raw"
-global FINAL_TEX       "$PROJECT_ROOT/results/cleaned/tex"
-global FINAL_FIGURES   "$PROJECT_ROOT/results/cleaned/figures"
+global raw_data        "$PROJECT_ROOT/data/raw"
+global clean_data      "$PROJECT_ROOT/data/clean"
+global processed_data  "$clean_data"
+global results         "$PROJECT_ROOT/results/raw"
 global LOG_DIR         "$PROJECT_ROOT/log"
 
-* Lowercase aliases (many build scripts reference these)
-global raw_data        "$RAW_DATA"
-
-global DIR_DATA        "$RAW_DATA"
-global DIR_PROCESSED   "$PROCESSED_DATA"
-global DIR_CLEAN       "$CLEAN_DATA"
-global DIR_RESULTS     "$RAW_RESULTS"
-global DIR_FINAL_TEX   "$FINAL_TEX"
-global DIR_FINAL_FIGS  "$FINAL_FIGURES"
-global DIR_LOG         "$LOG_DIR"
-global DIR_DO          "$PROJECT_ROOT/spec/stata"
-global DIR_SRC         "$PROJECT_ROOT/src/stata"
-
-global results        "$RAW_RESULTS"
-global processed_data "$PROCESSED_DATA"
-global clean_data     "$CLEAN_DATA"
-global data_processed "$PROCESSED_DATA"
-global clean_results  "$PROJECT_ROOT/results/cleaned"
-
 capture quietly mkdir "$LOG_DIR"
-capture quietly mkdir "$CLEAN_DATA"
+capture quietly mkdir "$clean_data"

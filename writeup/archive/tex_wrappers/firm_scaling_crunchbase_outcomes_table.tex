@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase Funding Outcomes Under the Firm Scaling Specification}
+
+\paragraph{Setup.}
+This note reports the baseline firm-scaling regression specification, replacing the original employment outcomes with Crunchbase-based funding outcomes.
+The unit of observation is firm$\times$half-year, and the sample is restricted to firms that can be matched to Crunchbase.
+
+\paragraph{Outcomes.}
+We construct half-year outcomes from Crunchbase funding rounds:
+\begin{itemize}
+  \item \textbf{Any funding round}: indicator equal to 1 if the firm has at least one funding round announced in the half-year.
+  \item \textbf{Log dollars raised}: $\log(1 + \text{USD raised})$, where USD raised is the total amount raised across rounds announced in the half-year.
+\end{itemize}
+
+\paragraph{Regression.}
+We estimate the same OLS and IV specifications used in the firm-scaling analysis, using the same right-hand-side interactions and the same identification strategy (instrumenting remote adoption with pre-pandemic teleworkability).
+
+\begin{table}[h!]
+\caption{\textbf{Firm Scaling Spec with Crunchbase Funding Outcomes}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_outcomes.tex}
+\end{table}
+
+\end{document}

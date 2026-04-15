@@ -1,0 +1,148 @@
+\documentclass{article}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{setspace}
+\setstretch{1.08}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+\newcommand{\TableInput}[2][\linewidth]{\input{#2}}
+
+\begin{document}
+
+\section*{Result Story and Table Guide}
+This note answers one practical question: does the main startup effect after the shift to remote work stay in place once equity-offer measures are added in different ways.
+
+\noindent The row to track in every regression table is
+$ \text{Remote} \times \mathds{1}(\text{Post}) \times \text{Startup} $.
+That is the main startup effect.
+
+\begin{enumerate}
+\item Tables 1--2 set context (sample and equity prevalence).
+\item Tables 3--4 anchor the baseline startup effect before the focused equity-definition checks.
+\item Tables 5--10 show the full coefficient set for each focused equity definition in firm and user outcomes.
+\item Table 11 shows the mechanism comparison and asks whether equity controls reduce the main productivity effect in the same way growth controls do.
+\end{enumerate}
+
+\section*{Context and Baseline}
+\noindent\textbf{Purpose of Table 1.} Confirm the size of the analysis sample.
+
+\begin{table}[H]
+  \centering
+  \caption{Sample accounting}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_anchor_sample.tex}
+\end{table}
+
+\noindent\textbf{Purpose of Table 2.} Show how common equity mentions are in startup and non-startup firms.
+
+\begin{table}[H]
+  \centering
+  \caption{Startup vs non-startup equity prevalence}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_anchor_descriptives.tex}
+\end{table}
+
+\noindent\textbf{Purpose of Table 3.} Set the firm baseline for the main startup effect before the focused definition checks.
+In this baseline anchor, the startup effect is 0.070 in OLS and 0.206 in IV.
+
+\begin{table}[H]
+  \centering
+  \caption{Firm outcome baseline}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_anchor_firm_core.tex}
+\end{table}
+
+\noindent\textbf{Purpose of Table 4.} Set the user baseline for the same startup effect.
+In this baseline anchor, the startup effect is 4.91 in OLS and 11.16 in IV.
+
+\begin{table}[H]
+  \centering
+  \caption{User outcome baseline}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_anchor_user_core.tex}
+\end{table}
+
+\section*{Firm Outcome: Focused Equity Definitions}
+Across the three focused equity definitions, the main-spec startup effect stays in a tight band:
+OLS 0.069 to 0.070 and IV 0.206 to 0.207.
+Across all three displayed spec columns, the range is still tight:
+OLS 0.068 to 0.070 and IV 0.202 to 0.208.
+
+\noindent\textbf{Purpose of Table 5.} Firm outcome with software-role equity definition; all coefficients shown.
+
+\begin{table}[H]
+  \centering
+  \caption{Firm outcome: any equity mention (software roles only), full specification set}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_firm_measure_software.tex}
+\end{table}
+
+\noindent\textbf{Purpose of Table 6.} Firm outcome with equity-mention count definition; all coefficients shown.
+
+\begin{table}[H]
+  \centering
+  \caption{Firm outcome: average number of equity mentions, full specification set}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_firm_measure_count.tex}
+\end{table}
+
+\noindent\textbf{Purpose of Table 7.} Firm outcome with high-equity-share indicator; all coefficients shown.
+
+\begin{table}[H]
+  \centering
+  \caption{Firm outcome: high equity-share indicator (top quartile), full specification set}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_firm_measure_topq.tex}
+\end{table}
+
+\section*{User Outcome: Focused Equity Definitions}
+In the main-spec columns, the startup effect remains positive:
+OLS 5.22 to 6.10 and IV 9.10 to 12.53.
+Across all three displayed spec columns, OLS stays in a narrow band (5.22 to 6.32), while IV has a wider range (-11.33 to 13.86).
+
+\noindent A key nuance is IV strength: 3 of the user IV columns have a low strength statistic (below 5), which makes those specific IV columns noisy.
+
+\noindent\textbf{Purpose of Table 8.} User outcome with software-role equity definition; all coefficients shown.
+
+\begin{table}[H]
+  \centering
+  \caption{User outcome: any equity mention (software roles only), full specification set}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_user_measure_software.tex}
+\end{table}
+
+\noindent\textbf{Purpose of Table 9.} User outcome with equity-mention count definition; all coefficients shown.
+
+\begin{table}[H]
+  \centering
+  \caption{User outcome: average number of equity mentions, full specification set}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_user_measure_count.tex}
+\end{table}
+
+\noindent\textbf{Purpose of Table 10.} User outcome with high-equity-share indicator; all coefficients shown.
+
+\begin{table}[H]
+  \centering
+  \caption{User outcome: high equity-share indicator (top quartile), full specification set}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_user_measure_topq.tex}
+\end{table}
+
+\section*{Mechanism Comparison}
+\noindent\textbf{Purpose of Table 11.} Compare one-at-a-time mechanism controls in the same style as the mini write-up.
+For the user IV startup effect, the sequence is:
+baseline 12.45,
+growth controls 6.88,
+equity controls 13.84,
+growth + equity 8.55.
+This means the larger drop comes from growth controls, not from equity controls alone.
+
+\begin{table}[H]
+  \centering
+  \caption{Individual Productivity Mechanisms}
+  \TableInput{\cleanedresultsdir/llm_equity_pi_followups_horse_race.tex}
+\end{table}
+
+\section*{Bottom Line}
+The full set of focused equity definitions keeps the main startup result in place, especially in OLS and in the firm outcome.
+Equity controls add useful detail, but they do not consistently remove the startup effect.
+The largest reduction in the user IV startup coefficient appears when growth controls are introduced.
+
+\end{document}

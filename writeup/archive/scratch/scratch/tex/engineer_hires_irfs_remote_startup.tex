@@ -1,0 +1,45 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\title{Engineer Hires IRFs by Remote\,\texttimes\,Startup}
+\date{\vspace{-1.5em}}
+
+\begin{document}
+\maketitle
+
+\section*{Empirical Setup}
+We estimate local projections of engineer hiring responses to firm growth. The outcome is a flow scaled by a fixed pre-shock firm size; the regressor is firm headcount growth. We run one regression per horizon $h\in\{0,1,2,3,4\}$ and split results across four groups: Non-Remote/Non-Startup, Remote/Non-Startup, Non-Remote/Startup, and Remote/Startup. Fixed effects are firm and half-year; standard errors cluster by firm.
+
+Projection at horizon $h$:
+\begin{equation*}
+  y_{f,t+h} \,=\, \beta_h\, g_{f,t} \, + \, \alpha_f \, + \, \tau_t \, + \, \varepsilon_{f,t,h},
+\end{equation*}
+with definitions
+\begin{align*}
+  y_{f,t} &\equiv 100\times\frac{\text{Engineer}_{f,t} - \text{Engineer}_{f,t-1}}{\text{Emp}^{\text{pre}}_{f}}, \\
+  g_{f,t} &\equiv \texttt{growth\_rate\_we}_{f,t}, \quad \alpha_f:\ \text{firm FE},\ \tau_t:\ \text{half-year FE}.
+\end{align*}
+Here $\text{Emp}^{\text{pre}}_{f}$ is the firm-specific pre-shock baseline (average 2019 headcount; fallback to first pre-2020 observation). We estimate $\{\beta_h\}^4_{h=0}$ separately within each Remote\,\texttimes\,Startup group.
+
+\paragraph{Plotting.} We present two combined figures per group split: (i) absolute IRFs (levels) and (ii) rebased IRFs (each series shifted so $h{=}0$ is zero) using a shared y-axis for visual comparability across groups.
+
+\section*{IRFs}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../results/firm_irfs_engineer_hires/combined_irf_absolute.png}
+  \caption{Engineer Hire IRFs (absolute, shared y-axis) by Remote\,\texttimes\,Startup}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../results/firm_irfs_engineer_hires/combined_irf_rebased.png}
+  \caption{Engineer Hire IRFs (rebased to $h{=}0$, shared y-axis) by Remote\,\texttimes\,Startup}
+\end{figure}
+
+% (No contemporaneous table per request; figures only.)
+
+\end{document}

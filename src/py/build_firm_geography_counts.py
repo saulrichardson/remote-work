@@ -9,10 +9,10 @@ from pathlib import Path
 
 import duckdb
 
-from project_paths import DATA_CLEAN, DATA_RAW
+from src.py.project_paths import DATA_CLEAN, DATA_RAW, require_file
 
 DEFAULT_SPELLS = DATA_RAW / "Scoop_workers_positions.csv"
-DEFAULT_OUTPUT = DATA_CLEAN / "firm_geography_counts.csv"
+DEFAULT_OUTPUT = DATA_CLEAN / "firm_geography_counts_imputed.csv"
 DEFAULT_USER_LOOKUP = DATA_CLEAN / "user_location_lookup.csv"
 
 
@@ -34,12 +34,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     ns = parse_args()
     spells_path = Path(ns.spells)
-    if not spells_path.exists():
-        raise FileNotFoundError(spells_path)
-
     lookup_path = Path(ns.user_lookup)
-    if not lookup_path.exists():
-        raise FileNotFoundError(lookup_path)
+    require_file(spells_path, nonempty=True, purpose="worker spells input")
+    require_file(lookup_path, nonempty=True, purpose="user location lookup")
 
     out_path = Path(ns.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -231,7 +228,9 @@ def main() -> None:
     else:
         con.execute(f"COPY firm_geo_counts TO '{out_path.as_posix()}' (HEADER, DELIMITER ',');")
 
+    row_count = con.execute("SELECT COUNT(*) FROM firm_geo_counts").fetchone()[0]
     con.close()
+    print(f"Wrote {out_path} (rows={row_count:,})")
 
 
 if __name__ == "__main__":

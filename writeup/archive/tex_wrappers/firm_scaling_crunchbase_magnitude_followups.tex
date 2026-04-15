@@ -1,0 +1,39 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{url}
+\usepackage{caption}
+\usepackage{float}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase Fundraising: Magnitude Follow-ups (PI Requests)}
+
+\paragraph{Fundraising totals: pre vs post.}
+This table collapses the half-year panel into a firm$\times\{\text{pre},\text{post}\}$ dataset.
+For each firm and period, we (i) sum dollars raised across half-years and (ii) compute an average-per-half-year version by dividing by the number of observed half-years in that period.
+
+\begin{table}[H]
+\caption{\textbf{Fundraising totals: pre vs post}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_prepost.tex}
+\end{table}
+
+\begin{table}[H]
+\caption{\textbf{Fundraising outcomes}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_magnitude_followups.tex}
+\end{table}
+
+\begin{table}[H]
+\caption{\textbf{Additional outcomes}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_prior_significant.tex}
+\end{table}
+
+\end{document}

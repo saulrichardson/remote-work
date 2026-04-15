@@ -1,0 +1,25 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{caption}
+\title{User Productivity — Heterogeneity (IV and OLS)}
+\date{}
+\begin{document}
+\maketitle
+\section*{Modal vs. Non-Modal MSA}
+Buckets: Outside (0), Inside (1), Remote (2).
+\input{../results/cleaned/var5_modal_base.tex}
+\input{../results/cleaned/var5_modal_base_ols.tex}
+\section*{Distance Heterogeneity}
+Firms are split into distance quantiles (3 or 2 bins).
+\paragraph{Three bins (terciles).} Short / Medium / Long.
+\input{../results/cleaned/var5_distance_base.tex}
+\input{../results/cleaned/var5_distance_base_ols.tex}
+\paragraph{Two bins (halves).} Short / Long.
+\input{../results/cleaned/var5_distance_base_2.tex}
+\input{../results/cleaned/var5_distance_base_ols_2.tex}
+\end{document}

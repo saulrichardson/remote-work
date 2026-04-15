@@ -12,8 +12,13 @@ def _root_from_repo_layout() -> Path:
     """Return the repo root assuming this file lives under PROJECT_ROOT/src/py/."""
     here = Path(__file__).resolve()
     root = here.parents[2]
-    sentinel = root / "README.md"
-    if not sentinel.exists():
+    sentinels = [
+        root / "README.md",  # older layout
+        root / "AGENTS.md",  # this repo layout
+        root / "spec" / "00_paths.do",
+        root / "spec" / "stata" / "_bootstrap.do",
+    ]
+    if not any(s.exists() for s in sentinels):
         raise RuntimeError(
             "project_paths.py expected to reside in PROJECT_ROOT/src/py/. "
             "Set PROJECT_ROOT to override automatic detection."
@@ -40,6 +45,30 @@ def ensure_dir(path: Path) -> Path:
     return path
 
 
+def require_file(path: Path, *, nonempty: bool = False, purpose: str | None = None) -> Path:
+    """Fail fast if *path* is missing (or empty if *nonempty* is True).
+
+    This is intentionally strict because many inputs live in Dropbox-synced
+    folders; cloud-only placeholders often appear as zero-byte files until the
+    content is downloaded locally.
+    """
+    if not path.exists():
+        hint = f" ({purpose})" if purpose else ""
+        raise FileNotFoundError(f"Missing required file{hint}: {path}")
+
+    if nonempty:
+        size = path.stat().st_size
+        if size == 0:
+            hint = f" ({purpose})" if purpose else ""
+            raise RuntimeError(
+                f"File exists but is empty{hint}: {path}\n"
+                "If this lives in a Dropbox/Drive-synced folder, make it available offline "
+                "and re-run."
+            )
+
+    return path
+
+
 PROJECT_ROOT: Path = resolve_project_root()
 DATA_DIR: Path = PROJECT_ROOT / "data"
 DATA_RAW: Path = DATA_DIR / "raw"
@@ -54,7 +83,7 @@ RESULTS_CLEANED_TEX: Path = RESULTS_CLEANED / "tex"
 RESULTS_CLEANED_FIGURES: Path = RESULTS_CLEANED / "figures"
 
 LOG_DIR: Path = PROJECT_ROOT / "log"
-TMP_DIR: Path = PROJECT_ROOT / ".tmp"
+TMP_DIR: Path = LOG_DIR / "tmp"
 
 PY_DIR: Path = PROJECT_ROOT / "src" / "py"
 SPEC_DIR: Path = PROJECT_ROOT / "spec" / "stata"
@@ -87,6 +116,7 @@ __all__: Iterable[str] = [
     "SPEC_DIR",
     "WRITEUP_DIR",
     "ensure_dir",
+    "require_file",
     "resolve_project_root",
     "relative_to_project",
 ]

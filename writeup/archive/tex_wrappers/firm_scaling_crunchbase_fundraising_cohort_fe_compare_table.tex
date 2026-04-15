@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath,amssymb}
+\usepackage{dsfont}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\captionsetup{labelformat=empty}
+
+\newcommand{\cleanedresultsdir}{../results/cleaned/tex}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Crunchbase: Cohort Fixed Effects Robustness}
+
+\paragraph{Sample.}
+The unit of observation is firm$\times$half-year. We restrict to firms matched to Crunchbase and drop public firms
+(fundraising outcomes are not comparable for public companies).
+
+\paragraph{Specification.}
+We estimate the effect of $ \text{Remote} \times \mathds{1}(\text{Post}) $ (instrumented by $ \text{Teleworkable} \times \mathds{1}(\text{Post}) $)
+under two alternative fixed-effect structures, both \emph{excluding} startup terms:
+\begin{itemize}
+  \item \textbf{Baseline}: firm FE $\times$ half-year FE.
+  \item \textbf{Cohort}: firm FE $\times$ (founding cohort in 5-year bins)$\times$(calendar year) FE.
+\end{itemize}
+
+\begin{table}[h!]
+\caption{\textbf{Crunchbase Fundraising Outcomes: Baseline vs Cohort(5y)$\times$Year FE}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_cohort_fe_compare.tex}
+\end{table}
+
+\begin{table}[h!]
+\caption{\textbf{Additional Outcomes: Rounds, Series A+, and Intensive Margin Robustness}}
+\input{\cleanedresultsdir/firm_scaling_crunchbase_fundraising_cohort_fe_compare_additional.tex}
+\end{table}
+
+\end{document}
+

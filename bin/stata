@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# bin/stata
+#
+# Goal: provide a stable "stata" entrypoint for this repo, even when Stata is
+# installed in /Applications and not on PATH.
+#
+# Resolution order:
+#   1) $STATA_BIN if set and executable
+#   2) Common macOS app bundle locations (StataNow, Stata)
+#   3) Anything on PATH (stata-se, stata-mp, stata)
+#
+# Usage:
+#   ./bin/stata -b do spec/stata/some_spec.do [args...]
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+export PROJECT_ROOT="${PROJECT_ROOT:-$REPO_ROOT}"
+export STATAROOT="${STATAROOT:-$PROJECT_ROOT}"
+
+ARGS=("$@")
+
+resolve_stata() {
+  if [[ "${STATA_BIN:-}" != "" ]]; then
+    if [[ -x "${STATA_BIN}" ]]; then
+      printf '%s\n' "${STATA_BIN}"
+      return 0
+    fi
+    echo "✖ STATA_BIN is set but not executable: ${STATA_BIN}" >&2
+    return 127
+  fi
+
+  local candidates=(
+    "/Applications/StataNow/StataSE.app/Contents/MacOS/stata-se"
+    "/Applications/Stata/StataSE.app/Contents/MacOS/stata-se"
+    "/Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp"
+    "/Applications/Stata/StataMP.app/Contents/MacOS/stata-mp"
+    "/Applications/StataNow/Stata.app/Contents/MacOS/stata"
+    "/Applications/Stata/Stata.app/Contents/MacOS/stata"
+  )
+
+  local p
+  for p in "${candidates[@]}"; do
+    if [[ -x "$p" ]]; then
+      printf '%s\n' "$p"
+      return 0
+    fi
+  done
+
+  local cmd
+  for cmd in stata-se stata-mp stata; do
+    if command -v "$cmd" >/dev/null 2>&1; then
+      command -v "$cmd"
+      return 0
+    fi
+  done
+
+  echo "✖ Unable to locate a Stata executable." >&2
+  echo "  Tried common app bundle locations and PATH." >&2
+  echo "  Fix: export STATA_BIN=/path/to/stata-se (or stata-mp) and retry." >&2
+  return 127
+}
+
+STATA_CMD="$(resolve_stata)"
+
+if [[ "${#ARGS[@]}" -ge 3 && "${ARGS[0]}" == "-b" && "${ARGS[1]}" == "do" ]]; then
+  DO_FILE="${ARGS[2]}"
+  if [[ "$DO_FILE" != /* ]]; then
+    DO_FILE="$PWD/$DO_FILE"
+  fi
+  if [[ ! -f "$DO_FILE" ]]; then
+    echo "✖ Unable to locate do-file for batch run: ${ARGS[2]}" >&2
+    exit 601
+  fi
+
+  DO_DIR="$(cd "$(dirname "$DO_FILE")" && pwd)"
+  DO_BASE="$(basename "$DO_FILE")"
+  DO_FILE="$DO_DIR/$DO_BASE"
+
+  if [[ "$DO_FILE" == "$PROJECT_ROOT/"* ]]; then
+    ARGS[2]="${DO_FILE#$PROJECT_ROOT/}"
+  else
+    if [[ "$DO_FILE" == *" "* ]]; then
+      echo "✖ Batch do-file paths with spaces are only supported inside PROJECT_ROOT." >&2
+      echo "  Offending path: $DO_FILE" >&2
+      exit 601
+    fi
+    ARGS[2]="$DO_FILE"
+  fi
+
+  LOG_NAME="${DO_BASE%.do}.log"
+  BATCH_DIR="$PROJECT_ROOT/log/batch"
+  mkdir -p "$BATCH_DIR"
+  rm -f "$PROJECT_ROOT/$LOG_NAME" "$BATCH_DIR/$LOG_NAME"
+
+  set +e
+  (
+    cd "$PROJECT_ROOT"
+    "$STATA_CMD" "${ARGS[@]}"
+  )
+  STATUS=$?
+  set -e
+
+  if [[ -f "$PROJECT_ROOT/$LOG_NAME" ]]; then
+    mv "$PROJECT_ROOT/$LOG_NAME" "$BATCH_DIR/$LOG_NAME"
+  fi
+
+  exit "$STATUS"
+fi
+
+exec "$STATA_CMD" "${ARGS[@]}"
